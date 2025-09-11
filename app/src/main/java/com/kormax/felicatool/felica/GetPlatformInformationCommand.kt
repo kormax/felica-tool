@@ -1,18 +1,18 @@
 package com.kormax.felicatool.felica
 
 /**
- * Get Secure Element Information command for FeliCa cards This command retrieves information about
- * the secure element
+ * Get Platform Information command for FeliCa cards This command retrieves information about the
+ * secure element
  */
-class GetSecureElementInformationCommand(
+class GetPlatformInformationCommand(
     /** Card IDM (8 bytes) */
     idm: ByteArray
-) : FelicaCommandWithIdm<GetSecureElementInformationResponse>(idm) {
+) : FelicaCommandWithIdm<GetPlatformInformationResponse>(idm) {
 
     override val commandClass: CommandClass = Companion.COMMAND_CLASS
 
     override fun responseFromByteArray(data: ByteArray) =
-        GetSecureElementInformationResponse.fromByteArray(data)
+        GetPlatformInformationResponse.fromByteArray(data)
 
     override fun toByteArray(): ByteArray {
         val data = ByteArray(COMMAND_LENGTH)
@@ -36,8 +36,8 @@ class GetSecureElementInformationCommand(
 
         const val COMMAND_LENGTH: Int = BASE_LENGTH // Length(1) + CommandCode(1) + IDM(8)
 
-        /** Parse a GetSecureElementInformation command from raw bytes */
-        fun fromByteArray(data: ByteArray): GetSecureElementInformationCommand {
+        /** Parse a GetPlatformInformation command from raw bytes */
+        fun fromByteArray(data: ByteArray): GetPlatformInformationCommand {
             require(data.size >= COMMAND_LENGTH) {
                 "Command data too short: ${data.size} bytes, minimum $COMMAND_LENGTH required"
             }
@@ -59,7 +59,7 @@ class GetSecureElementInformationCommand(
             // IDM (8 bytes)
             val idm = data.sliceArray(offset until offset + 8)
 
-            return GetSecureElementInformationCommand(idm)
+            return GetPlatformInformationCommand(idm)
         }
     }
 }

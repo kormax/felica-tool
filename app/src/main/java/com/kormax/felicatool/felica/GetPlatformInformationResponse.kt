@@ -1,10 +1,10 @@
 package com.kormax.felicatool.felica
 
 /**
- * Get Secure Element Information response from FeliCa cards Contains IDM, status flags, and secure
+ * Get Platform Information response from FeliCa cards Contains IDM, status flags, and secure
  * element information data
  */
-class GetSecureElementInformationResponse(
+class GetPlatformInformationResponse(
     /** Card IDM (8 bytes) */
     idm: ByteArray,
 
@@ -14,20 +14,20 @@ class GetSecureElementInformationResponse(
     /** Status Flag2 (see section 4.5 "Status Flag") */
     override val statusFlag2: Byte,
 
-    /** Secure element information data (only present if status is success) */
-    val secureElementData: ByteArray = ByteArray(0),
+    /** Platform information data (only present if status is success) */
+    val platformInformationData: ByteArray = ByteArray(0),
 ) : FelicaResponseWithIdm(idm), WithStatusFlags {
 
     init {
-        // If status is success, secure element data should be present and properly sized
+        // If status is success, platform data should be present and properly sized
         if (statusFlag1 == 0x00.toByte()) {
-            require(secureElementData.isNotEmpty()) {
-                "Secure element data must be present for successful response"
+            require(platformInformationData.isNotEmpty()) {
+                "Platform info must be present for successful response"
             }
         } else {
             // For error responses, data should be empty
-            require(secureElementData.isEmpty()) {
-                "Secure element data should be empty for error response"
+            require(platformInformationData.isEmpty()) {
+                "Platform info should be empty for error response"
             }
         }
     }
@@ -37,7 +37,7 @@ class GetSecureElementInformationResponse(
         get() = statusFlag1 == 0x00.toByte()
 
     override fun toByteArray(): ByteArray {
-        val dataLength = if (statusFlag1 == 0x00.toByte()) 1 + secureElementData.size else 0
+        val dataLength = if (statusFlag1 == 0x00.toByte()) 1 + platformInformationData.size else 0
         val length = BASE_LENGTH + 2 + dataLength
         val data = ByteArray(length)
         var offset = 0
@@ -61,10 +61,9 @@ class GetSecureElementInformationResponse(
         // For success responses, include length byte and data
         if (statusFlag1 == 0x00.toByte()) {
             // Data length (1 byte)
-            data[offset++] = secureElementData.size.toByte()
+            data[offset++] = platformInformationData.size.toByte()
 
-            // Secure element data
-            secureElementData.copyInto(data, offset)
+            platformInformationData.copyInto(data, offset)
         }
 
         return data
@@ -77,8 +76,8 @@ class GetSecureElementInformationResponse(
         const val MIN_SUCCESS_LENGTH: Int =
             MIN_LENGTH + 1 // + DataLength(1) + at least 0 data bytes
 
-        /** Parse a GetSecureElementInformation response from raw bytes */
-        fun fromByteArray(data: ByteArray): GetSecureElementInformationResponse {
+        /** Parse a GetPlatformInformation response from raw bytes */
+        fun fromByteArray(data: ByteArray): GetPlatformInformationResponse {
             require(data.size >= MIN_LENGTH) {
                 "Response data too short: ${data.size} bytes, minimum $MIN_LENGTH required"
             }
@@ -109,12 +108,7 @@ class GetSecureElementInformationResponse(
 
             // If status indicates error, return early
             if (statusFlag1 != 0x00.toByte()) {
-                return GetSecureElementInformationResponse(
-                    idm,
-                    statusFlag1,
-                    statusFlag2,
-                    ByteArray(0),
-                )
+                return GetPlatformInformationResponse(idm, statusFlag1, statusFlag2, ByteArray(0))
             }
 
             // For success responses, parse length byte and data
@@ -130,14 +124,13 @@ class GetSecureElementInformationResponse(
                 "Data length mismatch: expected $dataLength bytes, but ${data.size - offset} bytes remaining"
             }
 
-            // Secure element data
-            val secureElementData = data.sliceArray(offset until offset + dataLength)
+            val platformInformationData = data.sliceArray(offset until offset + dataLength)
 
-            return GetSecureElementInformationResponse(
+            return GetPlatformInformationResponse(
                 idm,
                 statusFlag1,
                 statusFlag2,
-                secureElementData,
+                platformInformationData,
             )
         }
     }

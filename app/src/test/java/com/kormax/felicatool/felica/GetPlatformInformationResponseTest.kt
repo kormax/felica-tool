@@ -3,68 +3,67 @@ package com.kormax.felicatool.felica
 import org.junit.Assert.*
 import org.junit.Test
 
-/** Unit tests for GetSecureElementInformationResponse */
-class GetSecureElementInformationResponseTest {
+/** Unit tests for GetPlatformInformationResponse */
+class GetPlatformInformationResponseTest {
 
     companion object {
         private val TEST_IDM = "01020304050607ff".hexToByteArray()
         private val ANOTHER_IDM = "1122334455667788".hexToByteArray()
 
-        // Sample secure element data from user example: 00000f1801020308475001d7007720250110
+        // Sample platform info from user example: 00000f1801020308475001d7007720250110
         // Status: 00 00, Length: 0f, Data: 1801020308475001d7007720250110
-        private val SAMPLE_SECURE_ELEMENT_DATA = "1801020308475001d7007720250110".hexToByteArray()
+        private val SAMPLE_PLATFORM_DATA = "1801020308475001d7007720250110".hexToByteArray()
     }
 
     @Test
-    fun testGetSecureElementInformationResponse_successCreation() {
+    fun testGetPlatformInformationResponse_successCreation() {
         val response =
-            GetSecureElementInformationResponse(
+            GetPlatformInformationResponse(
                 idm = TEST_IDM,
                 statusFlag1 = 0x00,
                 statusFlag2 = 0x00,
-                secureElementData = SAMPLE_SECURE_ELEMENT_DATA,
+                platformInformationData = SAMPLE_PLATFORM_DATA,
             )
 
         assertArrayEquals(TEST_IDM, response.idm)
         assertEquals(0x00.toByte(), response.statusFlag1)
         assertEquals(0x00.toByte(), response.statusFlag2)
-        assertArrayEquals(SAMPLE_SECURE_ELEMENT_DATA, response.secureElementData)
+        assertArrayEquals(SAMPLE_PLATFORM_DATA, response.platformInformationData)
         assertTrue(response.success)
         assertEquals("01020304050607FF", response.idm.toHexString().uppercase())
     }
 
     @Test
-    fun testGetSecureElementInformationResponse_errorCreation() {
+    fun testGetPlatformInformationResponse_errorCreation() {
         val response =
-            GetSecureElementInformationResponse(
+            GetPlatformInformationResponse(
                 idm = TEST_IDM,
                 statusFlag1 = 0x01, // Error status
                 statusFlag2 = 0x02,
-                secureElementData = ByteArray(0), // Empty for error
+                platformInformationData = ByteArray(0), // Empty for error
             )
 
         assertArrayEquals(TEST_IDM, response.idm)
         assertEquals(0x01.toByte(), response.statusFlag1)
         assertEquals(0x02.toByte(), response.statusFlag2)
-        assertArrayEquals(ByteArray(0), response.secureElementData)
+        assertArrayEquals(ByteArray(0), response.platformInformationData)
         assertFalse(response.success)
     }
 
     @Test
-    fun testGetSecureElementInformationResponse_toByteArray_success() {
-        val response =
-            GetSecureElementInformationResponse(TEST_IDM, 0x00, 0x00, SAMPLE_SECURE_ELEMENT_DATA)
+    fun testGetPlatformInformationResponse_toByteArray_success() {
+        val response = GetPlatformInformationResponse(TEST_IDM, 0x00, 0x00, SAMPLE_PLATFORM_DATA)
         val bytes = response.toByteArray()
 
         // Check length: 1 (length) + 1 (response code) + 8 (IDM) + 2 (status) + 1 (data length) +
         // 15
         // (data) = 28
-        val expectedLength = 1 + 1 + 8 + 2 + 1 + SAMPLE_SECURE_ELEMENT_DATA.size
+        val expectedLength = 1 + 1 + 8 + 2 + 1 + SAMPLE_PLATFORM_DATA.size
         assertEquals(expectedLength, bytes.size)
         assertEquals(expectedLength.toByte(), bytes[0])
 
         // Check response code
-        assertEquals(GetSecureElementInformationResponse.RESPONSE_CODE, bytes[1])
+        assertEquals(GetPlatformInformationResponse.RESPONSE_CODE, bytes[1])
 
         // Check IDM
         for (i in TEST_IDM.indices) {
@@ -76,18 +75,17 @@ class GetSecureElementInformationResponseTest {
         assertEquals(0x00.toByte(), bytes[11]) // Status 2
 
         // Check data length
-        assertEquals(SAMPLE_SECURE_ELEMENT_DATA.size.toByte(), bytes[12])
+        assertEquals(SAMPLE_PLATFORM_DATA.size.toByte(), bytes[12])
 
-        // Check secure element data
-        for (i in SAMPLE_SECURE_ELEMENT_DATA.indices) {
-            assertEquals("Data byte $i", SAMPLE_SECURE_ELEMENT_DATA[i], bytes[13 + i])
+        for (i in SAMPLE_PLATFORM_DATA.indices) {
+            assertEquals("Data byte $i", SAMPLE_PLATFORM_DATA[i], bytes[13 + i])
         }
     }
 
     @Test
-    fun testGetSecureElementInformationResponse_toByteArray_error() {
+    fun testGetPlatformInformationResponse_toByteArray_error() {
         val response =
-            GetSecureElementInformationResponse(
+            GetPlatformInformationResponse(
                 TEST_IDM,
                 0x01, // Error
                 0x02,
@@ -102,7 +100,7 @@ class GetSecureElementInformationResponseTest {
         assertEquals(expectedLength.toByte(), bytes[0])
 
         // Check response code
-        assertEquals(GetSecureElementInformationResponse.RESPONSE_CODE, bytes[1])
+        assertEquals(GetPlatformInformationResponse.RESPONSE_CODE, bytes[1])
 
         // Check IDM
         for (i in TEST_IDM.indices) {
@@ -115,51 +113,50 @@ class GetSecureElementInformationResponseTest {
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun testGetSecureElementInformationResponse_invalidIdmSize() {
+    fun testGetPlatformInformationResponse_invalidIdmSize() {
         val invalidIdm = byteArrayOf(0x01.toByte()) // Too short
-        GetSecureElementInformationResponse(invalidIdm, 0x00, 0x00, SAMPLE_SECURE_ELEMENT_DATA)
+        GetPlatformInformationResponse(invalidIdm, 0x00, 0x00, SAMPLE_PLATFORM_DATA)
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun testGetSecureElementInformationResponse_successWithEmptyData() {
+    fun testGetPlatformInformationResponse_successWithEmptyData() {
         // Success response should have data
-        GetSecureElementInformationResponse(TEST_IDM, 0x00, 0x00, ByteArray(0))
+        GetPlatformInformationResponse(TEST_IDM, 0x00, 0x00, ByteArray(0))
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun testGetSecureElementInformationResponse_errorWithData() {
+    fun testGetPlatformInformationResponse_errorWithData() {
         // Error response should not have data
-        GetSecureElementInformationResponse(TEST_IDM, 0x01, 0x00, SAMPLE_SECURE_ELEMENT_DATA)
+        GetPlatformInformationResponse(TEST_IDM, 0x01, 0x00, SAMPLE_PLATFORM_DATA)
     }
 
     @Test
     fun testFromByteArray_successResponse() {
         // Create a success response with the user's example data
-        val response =
-            GetSecureElementInformationResponse(TEST_IDM, 0x00, 0x00, SAMPLE_SECURE_ELEMENT_DATA)
+        val response = GetPlatformInformationResponse(TEST_IDM, 0x00, 0x00, SAMPLE_PLATFORM_DATA)
         val data = response.toByteArray()
 
-        val parsedResponse = GetSecureElementInformationResponse.fromByteArray(data)
+        val parsedResponse = GetPlatformInformationResponse.fromByteArray(data)
 
         assertArrayEquals(TEST_IDM, parsedResponse.idm)
         assertEquals(0x00.toByte(), parsedResponse.statusFlag1)
         assertEquals(0x00.toByte(), parsedResponse.statusFlag2)
-        assertArrayEquals(SAMPLE_SECURE_ELEMENT_DATA, parsedResponse.secureElementData)
+        assertArrayEquals(SAMPLE_PLATFORM_DATA, parsedResponse.platformInformationData)
         assertTrue(parsedResponse.success)
     }
 
     @Test
     fun testFromByteArray_errorResponse() {
         // Create an error response
-        val response = GetSecureElementInformationResponse(TEST_IDM, 0x01, 0x02, ByteArray(0))
+        val response = GetPlatformInformationResponse(TEST_IDM, 0x01, 0x02, ByteArray(0))
         val data = response.toByteArray()
 
-        val parsedResponse = GetSecureElementInformationResponse.fromByteArray(data)
+        val parsedResponse = GetPlatformInformationResponse.fromByteArray(data)
 
         assertArrayEquals(TEST_IDM, parsedResponse.idm)
         assertEquals(0x01.toByte(), parsedResponse.statusFlag1)
         assertEquals(0x02.toByte(), parsedResponse.statusFlag2)
-        assertArrayEquals(ByteArray(0), parsedResponse.secureElementData)
+        assertArrayEquals(ByteArray(0), parsedResponse.platformInformationData)
         assertFalse(parsedResponse.success)
     }
 
@@ -172,39 +169,38 @@ class GetSecureElementInformationResponseTest {
         val fullResponseData =
             "1c3b01020304050607ff00000f1801020308475001d7007720250110".hexToByteArray()
 
-        val parsedResponse = GetSecureElementInformationResponse.fromByteArray(fullResponseData)
+        val parsedResponse = GetPlatformInformationResponse.fromByteArray(fullResponseData)
 
         assertArrayEquals(TEST_IDM, parsedResponse.idm)
         assertEquals(0x00.toByte(), parsedResponse.statusFlag1)
         assertEquals(0x00.toByte(), parsedResponse.statusFlag2)
-        assertArrayEquals(SAMPLE_SECURE_ELEMENT_DATA, parsedResponse.secureElementData)
+        assertArrayEquals(SAMPLE_PLATFORM_DATA, parsedResponse.platformInformationData)
         assertTrue(parsedResponse.success)
     }
 
     @Test
     fun testFromByteArray_anotherIdm() {
-        val response =
-            GetSecureElementInformationResponse(ANOTHER_IDM, 0x00, 0x00, SAMPLE_SECURE_ELEMENT_DATA)
+        val response = GetPlatformInformationResponse(ANOTHER_IDM, 0x00, 0x00, SAMPLE_PLATFORM_DATA)
         val data = response.toByteArray()
 
-        val parsedResponse = GetSecureElementInformationResponse.fromByteArray(data)
+        val parsedResponse = GetPlatformInformationResponse.fromByteArray(data)
 
         assertArrayEquals(ANOTHER_IDM, parsedResponse.idm)
         assertEquals(0x00.toByte(), parsedResponse.statusFlag1)
         assertEquals(0x00.toByte(), parsedResponse.statusFlag2)
-        assertArrayEquals(SAMPLE_SECURE_ELEMENT_DATA, parsedResponse.secureElementData)
+        assertArrayEquals(SAMPLE_PLATFORM_DATA, parsedResponse.platformInformationData)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testFromByteArray_tooShort() {
         val data = "0c3b".hexToByteArray() // Too short for minimum response
-        GetSecureElementInformationResponse.fromByteArray(data)
+        GetPlatformInformationResponse.fromByteArray(data)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testFromByteArray_lengthMismatch() {
         val data = "0d3b01020304050607ff0000".hexToByteArray() // Length says 13, but actual is 12
-        GetSecureElementInformationResponse.fromByteArray(data)
+        GetPlatformInformationResponse.fromByteArray(data)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -212,7 +208,7 @@ class GetSecureElementInformationResponseTest {
         val data =
             "0c3a01020304050607ff0000"
                 .hexToByteArray() // Wrong response code (0x3a instead of 0x3b)
-        GetSecureElementInformationResponse.fromByteArray(data)
+        GetPlatformInformationResponse.fromByteArray(data)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -220,49 +216,55 @@ class GetSecureElementInformationResponseTest {
         // Create data where the length byte doesn't match actual data length
         val wrongData = "1c3b01020304050607ff0000101801020308475001d7007720250110".hexToByteArray()
         // Length byte says 16 (0x10) but we only have 15 bytes of data
-        GetSecureElementInformationResponse.fromByteArray(wrongData)
+        GetPlatformInformationResponse.fromByteArray(wrongData)
     }
 
     @Test
     fun testConstants() {
-        assertEquals(0x3b.toByte(), GetSecureElementInformationResponse.RESPONSE_CODE)
+        assertEquals(0x3b.toByte(), GetPlatformInformationResponse.RESPONSE_CODE)
         assertEquals(
             12,
-            GetSecureElementInformationResponse.MIN_LENGTH,
+            GetPlatformInformationResponse.MIN_LENGTH,
         ) // 1 (length) + 1 (response code) + 8 (IDM) + 2 (status)
         assertEquals(
             13,
-            GetSecureElementInformationResponse.MIN_SUCCESS_LENGTH,
+            GetPlatformInformationResponse.MIN_SUCCESS_LENGTH,
         ) // MIN_LENGTH + 1 (data length)
     }
 
     @Test
     fun testRoundTrip_success() {
         val originalResponse =
-            GetSecureElementInformationResponse(ANOTHER_IDM, 0x00, 0x00, SAMPLE_SECURE_ELEMENT_DATA)
+            GetPlatformInformationResponse(ANOTHER_IDM, 0x00, 0x00, SAMPLE_PLATFORM_DATA)
 
         val bytes = originalResponse.toByteArray()
-        val parsedResponse = GetSecureElementInformationResponse.fromByteArray(bytes)
+        val parsedResponse = GetPlatformInformationResponse.fromByteArray(bytes)
 
         assertArrayEquals(originalResponse.idm, parsedResponse.idm)
         assertEquals(originalResponse.statusFlag1, parsedResponse.statusFlag1)
         assertEquals(originalResponse.statusFlag2, parsedResponse.statusFlag2)
-        assertArrayEquals(originalResponse.secureElementData, parsedResponse.secureElementData)
+        assertArrayEquals(
+            originalResponse.platformInformationData,
+            parsedResponse.platformInformationData,
+        )
         assertArrayEquals(bytes, parsedResponse.toByteArray())
     }
 
     @Test
     fun testRoundTrip_error() {
         val originalResponse =
-            GetSecureElementInformationResponse(ANOTHER_IDM, 0xFF.toByte(), 0x01, ByteArray(0))
+            GetPlatformInformationResponse(ANOTHER_IDM, 0xFF.toByte(), 0x01, ByteArray(0))
 
         val bytes = originalResponse.toByteArray()
-        val parsedResponse = GetSecureElementInformationResponse.fromByteArray(bytes)
+        val parsedResponse = GetPlatformInformationResponse.fromByteArray(bytes)
 
         assertArrayEquals(originalResponse.idm, parsedResponse.idm)
         assertEquals(originalResponse.statusFlag1, parsedResponse.statusFlag1)
         assertEquals(originalResponse.statusFlag2, parsedResponse.statusFlag2)
-        assertArrayEquals(originalResponse.secureElementData, parsedResponse.secureElementData)
+        assertArrayEquals(
+            originalResponse.platformInformationData,
+            parsedResponse.platformInformationData,
+        )
         assertArrayEquals(bytes, parsedResponse.toByteArray())
     }
 
@@ -277,10 +279,9 @@ class GetSecureElementInformationResponseTest {
             )
 
         for (idm in testIdms) {
-            val response =
-                GetSecureElementInformationResponse(idm, 0x00, 0x00, SAMPLE_SECURE_ELEMENT_DATA)
+            val response = GetPlatformInformationResponse(idm, 0x00, 0x00, SAMPLE_PLATFORM_DATA)
             val bytes = response.toByteArray()
-            val parsed = GetSecureElementInformationResponse.fromByteArray(bytes)
+            val parsed = GetPlatformInformationResponse.fromByteArray(bytes)
 
             assertArrayEquals("Failed for IDM: ${idm.toHexString()}", idm, parsed.idm)
             assertEquals(
@@ -295,8 +296,8 @@ class GetSecureElementInformationResponseTest {
             )
             assertArrayEquals(
                 "Failed for data with IDM: ${idm.toHexString()}",
-                SAMPLE_SECURE_ELEMENT_DATA,
-                parsed.secureElementData,
+                SAMPLE_PLATFORM_DATA,
+                parsed.platformInformationData,
             )
         }
     }
@@ -309,20 +310,20 @@ class GetSecureElementInformationResponseTest {
                 byteArrayOf(0x01),
                 byteArrayOf(0x01, 0x02),
                 byteArrayOf(0x01, 0x02, 0x03, 0x04, 0x05),
-                SAMPLE_SECURE_ELEMENT_DATA,
+                SAMPLE_PLATFORM_DATA,
             )
 
         for (testData in testDataSizes) {
             if (testData.isEmpty()) continue // Skip empty data for success response
 
-            val response = GetSecureElementInformationResponse(TEST_IDM, 0x00, 0x00, testData)
+            val response = GetPlatformInformationResponse(TEST_IDM, 0x00, 0x00, testData)
             val bytes = response.toByteArray()
-            val parsed = GetSecureElementInformationResponse.fromByteArray(bytes)
+            val parsed = GetPlatformInformationResponse.fromByteArray(bytes)
 
             assertArrayEquals(
                 "Failed for data size ${testData.size}",
                 testData,
-                parsed.secureElementData,
+                parsed.platformInformationData,
             )
         }
     }
@@ -339,11 +340,11 @@ class GetSecureElementInformationResponseTest {
 
         for ((status1, status2) in testStatuses) {
             val hasData = (status1 == 0x00.toByte())
-            val testData = if (hasData) SAMPLE_SECURE_ELEMENT_DATA else ByteArray(0)
+            val testData = if (hasData) SAMPLE_PLATFORM_DATA else ByteArray(0)
 
-            val response = GetSecureElementInformationResponse(TEST_IDM, status1, status2, testData)
+            val response = GetPlatformInformationResponse(TEST_IDM, status1, status2, testData)
             val bytes = response.toByteArray()
-            val parsed = GetSecureElementInformationResponse.fromByteArray(bytes)
+            val parsed = GetPlatformInformationResponse.fromByteArray(bytes)
 
             assertEquals(
                 "Failed for status1 ${status1.toUByte().toString(16)}",

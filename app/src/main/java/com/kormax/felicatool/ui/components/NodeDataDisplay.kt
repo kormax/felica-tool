@@ -174,11 +174,24 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                     CompactInfoRow(label = "Primary System Code", value = systemCode.toHexString())
                 }
 
+                // Platform Info
+                context.platformInformation?.let { secureElementInfo ->
+                    if (
+                        secureElementInfo.success &&
+                            secureElementInfo.platformInformationData.isNotEmpty()
+                    ) {
+                        CompactInfoRow(
+                            label = "Platform Information",
+                            value = secureElementInfo.platformInformationData.toHexString(),
+                        )
+                    }
+                }
+
                 // Container Information Section (only if container commands responded)
                 val hasContainerInfo =
                     context.containerIssueInformation != null ||
                         context.containerIdm != null ||
-                        context.secureElementInformation != null
+                        context.platformInformation != null
 
                 if (hasContainerInfo) {
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
@@ -219,19 +232,6 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                     // Container IDM
                     context.containerIdm?.let { containerIdm ->
                         CompactInfoRow(label = "Container IDM", value = containerIdm.toHexString())
-                    }
-
-                    // Secure Element Information
-                    context.secureElementInformation?.let { secureElementInfo ->
-                        if (
-                            secureElementInfo.success &&
-                                secureElementInfo.secureElementData.isNotEmpty()
-                        ) {
-                            CompactInfoRow(
-                                label = "Secure Element Data",
-                                value = secureElementInfo.secureElementData.toHexString(),
-                            )
-                        }
                     }
                 }
 
@@ -392,6 +392,10 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                             "Request Specification",
                             context.requestSpecificationVersionSupport,
                         )
+                        CommandSupportChip(
+                            "Get Platform Info",
+                            context.getPlatformInformationSupport,
+                        )
                         CommandSupportChip("Reset Mode", context.resetModeSupport)
                     }
 
@@ -489,10 +493,6 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                         CommandSupportChip(
                             "Get Container Issue Info",
                             context.getContainerIssueInformationSupport,
-                        )
-                        CommandSupportChip(
-                            "Get Secure Element Info",
-                            context.getSecureElementInformationSupport,
                         )
                         CommandSupportChip("Get Container ID", context.getContainerIdSupport)
                     }

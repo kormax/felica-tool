@@ -5,7 +5,6 @@ import com.kormax.felicatool.felica.*
 import com.kormax.felicatool.ui.CardScanStep
 import com.kormax.felicatool.ui.StepStatus
 import com.kormax.felicatool.util.IcTypeMapping
-import kotlin.time.Duration
 import kotlin.time.TimeSource
 import kotlinx.coroutines.delay
 
@@ -19,7 +18,7 @@ data class CardScanContext(
     val communicationPerformance: CommunicationPerformance? = null,
     val specificationVersion: RequestSpecificationVersionResponse? = null,
     val containerIssueInformation: ContainerInformation? = null,
-    val secureElementInformation: GetSecureElementInformationResponse? = null,
+    val platformInformation: GetPlatformInformationResponse? = null,
     val containerIdm: ByteArray? = null,
     val errorLocationIndication: ErrorLocationIndication = ErrorLocationIndication.INDEX,
     val maxBlocksPerRequest: Int? = null,
@@ -38,7 +37,7 @@ data class CardScanContext(
     val requestServiceV2Support: CommandSupport = CommandSupport.UNKNOWN,
     val setParameterSupport: CommandSupport = CommandSupport.UNKNOWN,
     val getContainerIssueInformationSupport: CommandSupport = CommandSupport.UNKNOWN,
-    val getSecureElementInformationSupport: CommandSupport = CommandSupport.UNKNOWN,
+    val getPlatformInformationSupport: CommandSupport = CommandSupport.UNKNOWN,
     val getContainerIdSupport: CommandSupport = CommandSupport.UNKNOWN,
     val echoSupport: CommandSupport = CommandSupport.UNKNOWN,
     val resetModeSupport: CommandSupport = CommandSupport.UNKNOWN,
@@ -94,8 +93,8 @@ class CardScanService {
                 "set_parameter" -> scanContext.copy(setParameterSupport = support)
                 "get_container_issue_information" ->
                     scanContext.copy(getContainerIssueInformationSupport = support)
-                "get_secure_element_information" ->
-                    scanContext.copy(getSecureElementInformationSupport = support)
+                "get_platform_information" ->
+                    scanContext.copy(getPlatformInformationSupport = support)
                 "get_container_id" -> scanContext.copy(getContainerIdSupport = support)
                 "echo" -> scanContext.copy(echoSupport = support)
                 "reset_mode" -> scanContext.copy(resetModeSupport = support)
@@ -136,7 +135,7 @@ class CardScanService {
             "request_service_v2" -> scanContext.requestServiceV2Support
             "set_parameter" -> scanContext.setParameterSupport
             "get_container_issue_information" -> scanContext.getContainerIssueInformationSupport
-            "get_secure_element_information" -> scanContext.getSecureElementInformationSupport
+            "get_platform_information" -> scanContext.getPlatformInformationSupport
             "get_container_id" -> scanContext.getContainerIdSupport
             "echo" -> scanContext.echoSupport
             "reset_mode" -> scanContext.resetModeSupport
@@ -357,8 +356,7 @@ class CardScanService {
                                 "set_parameter" -> executeSetParameter(target)
                                 "get_container_issue_information" ->
                                     executeGetContainerIssueInformation(target)
-                                "get_secure_element_information" ->
-                                    executeGetSecureElementInformation(target)
+                                "get_platform_information" -> executeGetPlatformInformation(target)
                                 "get_container_id" -> executeGetContainerId(target)
                                 "echo" -> executeEcho(target)
                                 "reset_mode" -> executeResetMode(target)
@@ -1359,23 +1357,21 @@ class CardScanService {
             .trim()
     }
 
-    private suspend fun executeGetSecureElementInformation(target: FeliCaTarget): String {
-        val getSecureElementInformationCommand = GetSecureElementInformationCommand(target.idm)
-        val getSecureElementInformationResponse =
-            target.transceive(getSecureElementInformationCommand)
+    private suspend fun executeGetPlatformInformation(target: FeliCaTarget): String {
+        val getPlatformInformationCommand = GetPlatformInformationCommand(target.idm)
+        val getPlatformInformationResponse = target.transceive(getPlatformInformationCommand)
 
         // Store secure element information in context
-        scanContext =
-            scanContext.copy(secureElementInformation = getSecureElementInformationResponse)
+        scanContext = scanContext.copy(platformInformation = getPlatformInformationResponse)
 
         return buildString {
                 appendLine(
-                    "Status Flags: 0x${getSecureElementInformationResponse.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')} 0x${getSecureElementInformationResponse.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}"
+                    "Status Flags: 0x${getPlatformInformationResponse.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')} 0x${getPlatformInformationResponse.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}"
                 )
 
-                if (getSecureElementInformationResponse.isStatusSuccessful) {
+                if (getPlatformInformationResponse.isStatusSuccessful) {
                     appendLine(
-                        "Secure Element Data: ${getSecureElementInformationResponse.secureElementData.toHexString()}"
+                        "Platform information: ${getPlatformInformationResponse.platformInformationData.toHexString()}"
                     )
                 } else {
                     appendLine("Failed to retrieve secure element information")

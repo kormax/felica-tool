@@ -169,7 +169,7 @@ object ExportUtils {
                 "set_parameter" to scanContext.setParameterSupport,
                 "get_container_issue_information" to
                     scanContext.getContainerIssueInformationSupport,
-                "get_secure_element_information" to scanContext.getSecureElementInformationSupport,
+                "get_platform_information" to scanContext.getPlatformInformationSupport,
                 "get_container_id" to scanContext.getContainerIdSupport,
                 "echo" to scanContext.echoSupport,
             )

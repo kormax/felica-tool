@@ -72,6 +72,12 @@ data class CardScanStep(
                     icon = Icons.Default.Info,
                 ),
                 CardScanStep(
+                    id = "get_platform_information",
+                    title = "Get Platform Information",
+                    description = "Get platform information from the card",
+                    icon = Icons.Default.Info,
+                ),
+                CardScanStep(
                     id = "get_system_status",
                     title = "Get System Status",
                     description = "Getting current system status information from the card",
@@ -161,19 +167,13 @@ data class CardScanStep(
                     id = "get_container_issue_information",
                     title = "Get Container Issue Information",
                     description =
-                        "Retrieving container-specific information including format version and mobile phone model",
-                    icon = Icons.Default.Info,
-                ),
-                CardScanStep(
-                    id = "get_secure_element_information",
-                    title = "Get Secure Element Information",
-                    description = "Retrieving secure element information from the card",
+                        "Get container-specific information including format version and mobile phone model",
                     icon = Icons.Default.Info,
                 ),
                 CardScanStep(
                     id = "get_container_id",
                     title = "Get Container ID",
-                    description = "Retrieving container IDM from mobile FeliCa cards",
+                    description = "Get container IDM from mobile FeliCa cards",
                     icon = Icons.Default.Info,
                 ),
                 CardScanStep(

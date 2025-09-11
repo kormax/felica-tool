@@ -76,15 +76,15 @@ At the current moment, "analysis" mode of the application attempts to detect sup
 | Search Service Code | 0A | ✗ | ✓ | ✓ | Search all available nodes on the card iteratively |
 | Request System Code | 0C | ✗ | ✓ | ✓ | Request all system codes registered to the card |
 | Request Block Information | 0E | ✗ | ✗ | ✓ | Request the amount of blocks for nodes |
-| Request Block Information Ex | 0E | ✗ | ✗ | ✓ | Request the amount of allocated and free blocks for nodes |
-| Request Code List | 0E | ✗ | ✗ | ✓ | Request a list of nodes for a given root node iteratively |
+| Request Block Information Ex | 1E | ✗ | ✗ | ✓ | Request the amount of allocated and free blocks for nodes |
+| Request Code List | 1A | ✗ | ✗ | ✓ | Request a list of nodes for a given root node iteratively |
 | Set Parameter | 20 | ✗ | ✗ | ✓ | Set card communication parameters (encryption type and node code size) |
 | Get Container Issue Information | 22 | ✗ | ✓ | ✓ | Get container-specific information including format version and mobile phone model |
 | Get Node Property (Value Limited Service) | 28 | ✗ | ✗ | ✗ | Get value-limited purse service properties for discovered nodes |
 | Get Node Property (MAC Communication) | 28 | ✗ | ✗ | ✗ | Get MAC communication properties for discovered nodes |
 | Request Service V2 | 32 | ✗ | ✓ | ✓ | Request AES and DES key versions for nodes alongside the key type identifier |
 | Get System Status | 38 | ✗ | ✓ | ✓ | Get current system status information from the card |
-| Get Secure Element Information | 3A | ✗ | ✓ | ✓ | Get secure element information from the card |
+| Get Platform Information | 3A | ✗ | ✓ | ✓ | Get platform information from the card |
 | Request Specification Version | 3C | ✗ | ✓ | ✓ | Get card feature version and supported option versions |
 | Reset Mode | 3E | ✗ | ✓ | ✓ | Reset card mode to Mode0 |
 | Get Container ID | 70 | ✗ | ✗ | ✓ | Get container IDM from mobile FeliCa targets |
