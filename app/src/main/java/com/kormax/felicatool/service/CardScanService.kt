@@ -2,6 +2,8 @@ package com.kormax.felicatool.service
 
 import android.util.Log
 import com.kormax.felicatool.felica.*
+import com.kormax.felicatool.service.logging.CommunicationLogEntry
+import com.kormax.felicatool.service.logging.CommunicationLoggedFeliCaTarget
 import com.kormax.felicatool.ui.CardScanStep
 import com.kormax.felicatool.ui.StepStatus
 import com.kormax.felicatool.util.IcTypeMapping
@@ -70,8 +72,18 @@ class CardScanService {
     // Context to store discovered nodes across steps
     private var scanContext = CardScanContext()
 
+    // Communication log: stores scan events with monotonic timestamps
+    private val communicationLog = mutableListOf<CommunicationLogEntry>()
+
     // Public getter for context
     fun getScanContext(): CardScanContext = scanContext
+
+    // Public getter for communication log
+    fun getCommunicationLog(): List<CommunicationLogEntry> = communicationLog
+
+    /** Returns a wrapped FeliCaTarget that logs all communications */
+    fun wrapTargetForCommunicationLogging(target: FeliCaTarget): FeliCaTarget =
+        CommunicationLoggedFeliCaTarget(target, communicationLog)
 
     /** Updates the scan context with command support status */
     private fun updateCommandSupport(commandId: String, support: CommandSupport) {
@@ -242,9 +254,6 @@ class CardScanService {
         val inProgressStep = step.copy(status = StepStatus.IN_PROGRESS)
         onStepUpdate(inProgressStep)
 
-        // Add a small delay for better UX
-        delay(25)
-
         // Mark start time for execution measurement
         val startTime = TimeSource.Monotonic.markNow()
 
@@ -283,9 +292,9 @@ class CardScanService {
                             scanContext =
                                 scanContext.copy(systemScanContexts = updatedSystemContexts)
 
-                            updateCommandSupport(step.id, CommandSupport.SUPPORTED)
+                            updateCommandSupport(step.id, CommandSupport.UNSUPPORTED)
                             step.copy(
-                                status = StepStatus.COMPLETED,
+                                status = StepStatus.ERROR,
                                 result =
                                     "Search service code failed, added System (FFFF) node as fallback",
                                 collapsedResult = "Added System (FFFF) node as fallback",

@@ -160,7 +160,7 @@ data class CardScanStep(
                 CardScanStep(
                     id = "set_parameter",
                     title = "Set Parameter",
-                    description = "Setting card parameters (encryption type and packet type)",
+                    description = "Set card parameters (encryption type and packet type)",
                     icon = Icons.Default.Build,
                 ),
                 CardScanStep(
@@ -179,13 +179,13 @@ data class CardScanStep(
                 CardScanStep(
                     id = "reset_mode",
                     title = "Reset Mode",
-                    description = "Resetting card mode to Mode0",
+                    description = "Reset card mode to Mode0",
                     icon = Icons.Default.Refresh,
                 ),
                 CardScanStep(
                     id = "echo",
                     title = "Echo",
-                    description = "Testing communication with the card",
+                    description = "Test echo command",
                     icon = Icons.Default.Refresh,
                 ),
                 CardScanStep(

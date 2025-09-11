@@ -65,6 +65,16 @@ fun ScanResultsOverview(
                                 )
                             },
                         )
+                        DropdownMenuItem(
+                            text = { Text("Export communication log as JSON") },
+                            onClick = {
+                                showExportMenu = false
+                                ExportUtils.exportCommunicationLog(
+                                    context,
+                                    cardScanService.getCommunicationLog(),
+                                )
+                            },
+                        )
                     }
                 },
                 colors =

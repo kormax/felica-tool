@@ -10,12 +10,58 @@ import com.kormax.felicatool.felica.*
 import com.kormax.felicatool.service.CardScanContext
 import com.kormax.felicatool.service.CommandSupport
 import com.kormax.felicatool.service.SystemScanContext
+import com.kormax.felicatool.service.logging.CommunicationLogEntry
 import java.text.SimpleDateFormat
 import java.util.*
 import org.json.JSONArray
 import org.json.JSONObject
 
 object ExportUtils {
+    /** Exports the communication log as a JSON file and shares it */
+    fun exportCommunicationLog(context: Context, log: List<CommunicationLogEntry>) {
+        try {
+            val jsonArray = generateCommunicationLogJson(log)
+            val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+            val fileName = "felicatools_communication_$timestamp.json"
+            val jsonContent = jsonArray.toString(2)
+
+            val values =
+                ContentValues().apply {
+                    put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                    put(MediaStore.MediaColumns.MIME_TYPE, "application/json")
+                    put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+                }
+
+            val uri =
+                context.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
+            uri?.let { fileUri ->
+                context.contentResolver.openOutputStream(fileUri)?.use { output ->
+                    output.write(jsonContent.toByteArray())
+                }
+                shareJsonFile(context, fileUri, fileName)
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("ExportUtils", "Failed to export communication log", e)
+        }
+    }
+
+    /** Generates JSON representation of the communication log */
+    fun generateCommunicationLogJson(log: List<CommunicationLogEntry>): JSONArray {
+        val jsonArray = JSONArray()
+
+        // Get the timestamp of the first entry to use as baseline
+        val baseTimestamp = log.firstOrNull()?.timestamp ?: 0L
+
+        log.forEach { entry ->
+            val obj = JSONObject()
+            obj.put("type", entry.type.name)
+            entry.name?.let { obj.put("name", it) }
+            obj.put("timestamp_ns", entry.timestamp - baseTimestamp)
+            obj.put("data", entry.data?.joinToString(separator = "") { "%02X".format(it) })
+            jsonArray.put(obj)
+        }
+        return jsonArray
+    }
 
     /** Exports the scan data as a flat list to a JSON file */
     fun exportFlatList(context: Context, scanContext: CardScanContext) {
@@ -58,7 +104,7 @@ object ExportUtils {
                 action = Intent.ACTION_SEND
                 type = "application/json"
                 putExtra(Intent.EXTRA_STREAM, fileUri)
-                putExtra(Intent.EXTRA_SUBJECT, "FeliCa Scan Export")
+                putExtra(Intent.EXTRA_SUBJECT, "FeliCa Tools File")
                 putExtra(Intent.EXTRA_TITLE, fileName) // Add explicit title
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -154,6 +200,7 @@ object ExportUtils {
                 "reset_mode" to scanContext.resetModeSupport,
                 "request_system_code" to scanContext.requestSystemCodeSupport,
                 "request_specification_version" to scanContext.requestSpecificationVersionSupport,
+                "get_platform_information" to scanContext.getPlatformInformationSupport,
                 "get_system_status" to scanContext.getSystemStatusSupport,
                 "request_code_list" to scanContext.requestCodeListSupport,
                 "search_service_code" to scanContext.searchServiceCodeSupport,
@@ -169,7 +216,6 @@ object ExportUtils {
                 "set_parameter" to scanContext.setParameterSupport,
                 "get_container_issue_information" to
                     scanContext.getContainerIssueInformationSupport,
-                "get_platform_information" to scanContext.getPlatformInformationSupport,
                 "get_container_id" to scanContext.getContainerIdSupport,
                 "echo" to scanContext.echoSupport,
             )
@@ -213,12 +259,9 @@ object ExportUtils {
 
             // System DES and AES key versions
             val systemNode = System
-            systemContext.nodeDesKeyVersions[systemNode]?.let { keyVersion ->
+            (systemContext.nodeDesKeyVersions[systemNode] ?: systemContext.nodeKeyVersions[systemNode])?.let { keyVersion ->
                 systemJson.put("des_key_version", "%04X".format(keyVersion.toInt()))
             }
-                ?: systemContext.nodeKeyVersions[systemNode]?.let { keyVersion ->
-                    systemJson.put("des_key_version", "%04X".format(keyVersion.toInt()))
-                }
             systemContext.nodeAesKeyVersions[systemNode]?.let { keyVersion ->
                 systemJson.put("aes_key_version", "%04X".format(keyVersion.toInt()))
             }
@@ -331,8 +374,7 @@ object ExportUtils {
         // Common fields for all node types
 
         // DES and AES key versions
-        systemContext.nodeDesKeyVersions[node]
-            ?: systemContext.nodeKeyVersions[node]?.let { keyVersion ->
+        (systemContext.nodeDesKeyVersions[node] ?: systemContext.nodeKeyVersions[node])?.let { keyVersion ->
                 nodeJson.put("des_key_version", "%04X".format(keyVersion.toInt()))
             }
         systemContext.nodeAesKeyVersions[node]?.let { keyVersion ->

@@ -149,7 +149,10 @@ class MainActivity : ComponentActivity() {
                         val idm = tag.id
 
                         // Create FeliCa target with PMM obtained via polling
-                        val target = AndroidFeliCaTarget.create(nfcF, idm)
+                        val target =
+                            cardScanService.wrapTargetForCommunicationLogging(
+                                AndroidFeliCaTarget.create(nfcF, idm)
+                            )
 
                         // Execute each step sequentially
                         for (i in steps.indices) {
