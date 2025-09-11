@@ -253,15 +253,42 @@ class CardScanService {
             val resultStep =
                 when (step.id) {
                     "search_service_code" -> {
-                        val (collapsedResult, expandedResult) = executeSearchServiceCode(target)
-                        updateCommandSupport(step.id, CommandSupport.SUPPORTED)
-                        step.copy(
-                            status = StepStatus.COMPLETED,
-                            result = expandedResult,
-                            collapsedResult = collapsedResult,
-                            isCollapsed = true,
-                            // treeData = null // Commented out tree display for now
-                        )
+                        try {
+                            val (collapsedResult, expandedResult) = executeSearchServiceCode(target)
+                            updateCommandSupport(step.id, CommandSupport.SUPPORTED)
+                            step.copy(
+                                status = StepStatus.COMPLETED,
+                                result = expandedResult,
+                                collapsedResult = collapsedResult,
+                                isCollapsed = true,
+                                // treeData = null // Commented out tree display for now
+                            )
+                        } catch (e: Exception) {
+                            // Search service code failed, add System (FFFF) node as fallback
+                            Log.d(
+                                "CardScanService",
+                                "Search service code failed: ${e.message}. Adding System (FFFF) node as fallback.",
+                            )
+                            
+                            // Add System node to all system contexts as fallback
+                            val updatedSystemContexts = scanContext.systemScanContexts.map { systemContext ->
+                                val updatedNodes = systemContext.nodes.toMutableList()
+                                if (!updatedNodes.any { it is System }) {
+                                    updatedNodes.add(System)
+                                }
+                                systemContext.copy(nodes = updatedNodes)
+                            }
+                            
+                            // Update scan context with fallback nodes
+                            scanContext = scanContext.copy(systemScanContexts = updatedSystemContexts)
+                            
+                            updateCommandSupport(step.id, CommandSupport.SUPPORTED)
+                            step.copy(
+                                status = StepStatus.COMPLETED,
+                                result = "Search service code failed, added System (FFFF) node as fallback",
+                                collapsedResult = "Added System (FFFF) node as fallback"
+                            )
+                        }
                     }
                     "request_service" -> {
                         val (collapsedResult, expandedResult) = executeRequestService(target)
@@ -1034,7 +1061,7 @@ class CardScanService {
         // Check if no areas are known - consider this a failure
         if (allDiscoveredNodes.isEmpty()) {
             throw RuntimeException(
-                "No areas found. Request service key versions require at least one area to be discovered."
+                "No nodes found. Request service key versions require at least one area to be discovered."
             )
         }
 
@@ -2106,21 +2133,11 @@ class CardScanService {
     }
 
     private suspend fun executeRequestBlockInformation(target: FeliCaTarget): String {
-        val allDiscoveredNodes = scanContext.systemScanContexts.flatMap { it.nodes }
+        val allNodes = scanContext.systemScanContexts.flatMap { it.nodes }
 
-        if (allDiscoveredNodes.isEmpty()) {
+        if (allNodes.isEmpty()) {
             throw RuntimeException(
                 "No nodes discovered. Request Block Information requires discovered nodes from Search Service Codes step."
-            )
-        }
-
-        // Filter to get only services (areas and systems don't have block information in the same
-        // way)
-        val allServices = allDiscoveredNodes.filterIsInstance<Service>()
-
-        if (allServices.isEmpty()) {
-            throw RuntimeException(
-                "No services discovered. Request Block Information requires at least one service to be discovered."
             )
         }
 
@@ -2189,7 +2206,7 @@ class CardScanService {
         return buildString {
                 appendLine("Request Block Information Results:")
                 appendLine("Processed ${scanContext.systemScanContexts.size} system(s)")
-                appendLine("Total services processed: ${allServices.size}")
+                appendLine("Total services processed: ${allNodes.size}")
                 appendLine()
 
                 results.forEach { result ->
@@ -2201,21 +2218,11 @@ class CardScanService {
     }
 
     private suspend fun executeRequestBlockInformationEx(target: FeliCaTarget): String {
-        val allDiscoveredNodes = scanContext.systemScanContexts.flatMap { it.nodes }
+        val allNodes = scanContext.systemScanContexts.flatMap { it.nodes }
 
-        if (allDiscoveredNodes.isEmpty()) {
+        if (allNodes.isEmpty()) {
             throw RuntimeException(
                 "No nodes discovered. Request Block Information Ex requires discovered nodes from Search Service Codes step."
-            )
-        }
-
-        // Filter to get only services (areas and systems don't have block information in the same
-        // way)
-        val allServices = allDiscoveredNodes.filterIsInstance<Service>()
-
-        if (allServices.isEmpty()) {
-            throw RuntimeException(
-                "No services discovered. Request Block Information Ex requires at least one service to be discovered."
             )
         }
 
@@ -2304,7 +2311,7 @@ class CardScanService {
         return buildString {
                 appendLine("Request Block Information Ex Results:")
                 appendLine("Processed ${scanContext.systemScanContexts.size} system(s)")
-                appendLine("Total services processed: ${allServices.size}")
+                appendLine("Total nodes processed: ${allNodes.size}")
                 appendLine()
 
                 results.forEach { result ->
