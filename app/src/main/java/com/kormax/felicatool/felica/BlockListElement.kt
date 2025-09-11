@@ -65,6 +65,8 @@ data class BlockListElement(
     }
 
     companion object {
+        const val BLOCK_SIZE: Int = 16
+
         /** Creates a BlockListElement from byte array, parsing according to FeliCa specification */
         fun fromByteArray(data: ByteArray): BlockListElement {
             require(data.size == 2 || data.size == 3) { "Block list element must be 2 or 3 bytes" }

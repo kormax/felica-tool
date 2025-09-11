@@ -21,15 +21,16 @@ object NodeNaming {
     /** Map of system code -> area code -> area name. */
     private val areaNames =
         mapOf(
-            "FE00" to mapOf(
-                "00103F17" to "Edy Root",
-                "01103F17" to "Edy",
-                "8055BF56" to "Nanaco Root",
-                "8155BF56" to "Nanaco",
-                "C067FF68" to "WAON Root",
-                "C167FF68" to "WAON",
+            "FE00" to
+                mapOf(
+                    "00103F17" to "Edy Root",
+                    "01103F17" to "Edy",
+                    "8055BF56" to "Nanaco Root",
+                    "8155BF56" to "Nanaco",
+                    "C067FF68" to "WAON Root",
+                    "C167FF68" to "WAON",
+                )
         )
-    )
 
     /**
      * Get the display name for a system code, if known.

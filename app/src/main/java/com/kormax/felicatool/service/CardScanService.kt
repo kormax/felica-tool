@@ -269,24 +269,27 @@ class CardScanService {
                                 "CardScanService",
                                 "Search service code failed: ${e.message}. Adding System (FFFF) node as fallback.",
                             )
-                            
+
                             // Add System node to all system contexts as fallback
-                            val updatedSystemContexts = scanContext.systemScanContexts.map { systemContext ->
-                                val updatedNodes = systemContext.nodes.toMutableList()
-                                if (!updatedNodes.any { it is System }) {
-                                    updatedNodes.add(System)
+                            val updatedSystemContexts =
+                                scanContext.systemScanContexts.map { systemContext ->
+                                    val updatedNodes = systemContext.nodes.toMutableList()
+                                    if (!updatedNodes.any { it is System }) {
+                                        updatedNodes.add(System)
+                                    }
+                                    systemContext.copy(nodes = updatedNodes)
                                 }
-                                systemContext.copy(nodes = updatedNodes)
-                            }
-                            
+
                             // Update scan context with fallback nodes
-                            scanContext = scanContext.copy(systemScanContexts = updatedSystemContexts)
-                            
+                            scanContext =
+                                scanContext.copy(systemScanContexts = updatedSystemContexts)
+
                             updateCommandSupport(step.id, CommandSupport.SUPPORTED)
                             step.copy(
                                 status = StepStatus.COMPLETED,
-                                result = "Search service code failed, added System (FFFF) node as fallback",
-                                collapsedResult = "Added System (FFFF) node as fallback"
+                                result =
+                                    "Search service code failed, added System (FFFF) node as fallback",
+                                collapsedResult = "Added System (FFFF) node as fallback",
                             )
                         }
                     }
@@ -425,7 +428,6 @@ class CardScanService {
         } else if (hasSystemCode88B4 && !hasSystemCode12FC) {
             allSystemCodes.add(byteArrayOf(0x12.toByte(), 0xFC.toByte()))
         }
-
 
         // Create or update system contexts for all system codes
         val updatedSystemContexts = mutableListOf<SystemScanContext>()
@@ -635,7 +637,9 @@ class CardScanService {
 
     private suspend fun executeGetSystemStatus(target: FeliCaTarget): String {
         if (scanContext.systemScanContexts.isEmpty()) {
-            throw RuntimeException("No systems have been discovered. Please run system discovery first.")
+            throw RuntimeException(
+                "No systems have been discovered. Please run system discovery first."
+            )
         }
 
         var errors = 0
@@ -683,11 +687,12 @@ class CardScanService {
                 }
 
                 results.add(systemResult)
-
             } catch (e: Exception) {
                 errors++
                 updatedSystemContexts.add(systemContext) // Keep original context
-                results.add("System ${contextIndex + 1} ($systemCodeHex): Failed to get system status - ${e.message}")
+                results.add(
+                    "System ${contextIndex + 1} ($systemCodeHex): Failed to get system status - ${e.message}"
+                )
             }
         }
 
@@ -695,18 +700,14 @@ class CardScanService {
         scanContext = scanContext.copy(systemScanContexts = updatedSystemContexts)
 
         if (errors > 0) {
-            throw RuntimeException(
-                "Get System Status encountered $errors error(s)"
-            )
+            throw RuntimeException("Get System Status encountered $errors error(s)")
         }
 
         return buildString {
                 appendLine("System Status Information:")
                 appendLine("Processed ${scanContext.systemScanContexts.size} system(s)")
                 appendLine()
-                results.forEach { result ->
-                    appendLine(result)
-                }
+                results.forEach { result -> appendLine(result) }
             }
             .trim()
     }
@@ -730,10 +731,7 @@ class CardScanService {
 
             // Handle special system codes and ensure system contexts exist
             val updatedSystemContexts =
-                handleDiscoveredSystemCodes(
-                    listOf(parsedSystemCodeResponse.systemCode),
-                    target,
-                )
+                handleDiscoveredSystemCodes(listOf(parsedSystemCodeResponse.systemCode), target)
 
             // Update scan context with the new system contexts
             scanContext = scanContext.copy(systemScanContexts = updatedSystemContexts)
@@ -782,9 +780,7 @@ class CardScanService {
             buildString {
                     appendLine("212 kbps: ${if (commPerf.supports212kbps) "✓" else "✗"}")
                     appendLine("424 kbps: ${if (commPerf.supports424kbps) "✓" else "✗"}")
-                    appendLine(
-                        "848 kbps: ${if (commPerf.supports848kbps) "✓" else "✗"} (reserved)"
-                    )
+                    appendLine("848 kbps: ${if (commPerf.supports848kbps) "✓" else "✗"} (reserved)")
                     appendLine(
                         "1696 kbps: ${if (commPerf.supports1696kbps) "✓" else "✗"} (reserved)"
                     )
@@ -2157,9 +2153,7 @@ class CardScanService {
             val systemCodeHex = systemContext.systemCode?.toHexString() ?: "unknown"
 
             if (nodes.isEmpty()) {
-                results.add(
-                    "System Context ${contextIndex + 1} ($systemCodeHex): No nodes found"
-                )
+                results.add("System Context ${contextIndex + 1} ($systemCodeHex): No nodes found")
                 updatedSystemContexts.add(systemContext)
                 continue
             }
@@ -2258,8 +2252,9 @@ class CardScanService {
                     RequestBlockInformationExCommand(target.idm, nodeCodes)
                 val requestBlockInfoExResponse = target.transceive(requestBlockInfoExCommand)
 
-
-                println("${nodeBatch.size} -> ${requestBlockInfoExResponse.assignedBlockCount.size}")
+                println(
+                    "${nodeBatch.size} -> ${requestBlockInfoExResponse.assignedBlockCount.size}"
+                )
                 // Process the extended block information for each service in this batch
                 nodeBatch
                     .zip(

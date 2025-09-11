@@ -8,16 +8,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.kormax.felicatool.service.CardScanService
 import com.kormax.felicatool.ui.components.CardInformationSection
 import com.kormax.felicatool.ui.components.TreeNodeCard
 import com.kormax.felicatool.ui.components.buildNodeTree
+import com.kormax.felicatool.util.ExportUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,6 +27,9 @@ fun ScanResultsOverview(
     onBackPressed: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
+    var showExportMenu by remember { mutableStateOf(false) }
+
     // Handle system back button
     BackHandler { onBackPressed() }
 
@@ -36,7 +40,31 @@ fun ScanResultsOverview(
                 title = { Text("Scan overview") },
                 navigationIcon = {
                     IconButton(onClick = onBackPressed) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { showExportMenu = true }) {
+                        Icon(imageVector = Icons.Default.Share, contentDescription = "Export")
+                    }
+
+                    DropdownMenu(
+                        expanded = showExportMenu,
+                        onDismissRequest = { showExportMenu = false },
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Export scan results as JSON") },
+                            onClick = {
+                                showExportMenu = false
+                                ExportUtils.exportFlatList(
+                                    context,
+                                    cardScanService.getScanContext(),
+                                )
+                            },
+                        )
                     }
                 },
                 colors =
@@ -44,6 +72,7 @@ fun ScanResultsOverview(
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
                         titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                         navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                     ),
             )
         },

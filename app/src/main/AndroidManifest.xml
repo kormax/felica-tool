@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.NFC" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-feature android:name="android.hardware.nfc" android:required="true" />
 
     <application
@@ -34,5 +35,4 @@
                 android:resource="@xml/nfc_tech_filter" />
         </activity>
     </application>
-
 </manifest>

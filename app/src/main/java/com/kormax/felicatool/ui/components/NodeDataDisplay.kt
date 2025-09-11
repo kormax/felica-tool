@@ -223,10 +223,6 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
 
                     // Secure Element Information
                     context.secureElementInformation?.let { secureElementInfo ->
-                        val statusFlags =
-                            "0x${secureElementInfo.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')} 0x${secureElementInfo.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}"
-                        CompactInfoRow(label = "Secure Element Status", value = statusFlags)
-
                         if (
                             secureElementInfo.success &&
                                 secureElementInfo.secureElementData.isNotEmpty()

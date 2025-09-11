@@ -65,7 +65,8 @@ class RequestBlockInformationExResponse(
 
     companion object {
         const val RESPONSE_CODE: Byte = 0x1F
-        const val MIN_LENGTH = FelicaResponseWithIdm.BASE_LENGTH + 2 + 1 // + status_flags(2) + number_of_blocks(1)
+        const val MIN_LENGTH =
+            FelicaResponseWithIdm.BASE_LENGTH + 2 + 1 // + status_flags(2) + number_of_blocks(1)
 
         /** Parse a Request Block Information Ex response from raw bytes */
         fun fromByteArray(data: ByteArray): RequestBlockInformationExResponse {

@@ -237,9 +237,8 @@ fun FeliCaReaderScreen(
     modifier: Modifier = Modifier,
 ) {
     // Check if scan is completed by looking for the scan_overview step
-    val isScanCompleted = steps.any { step ->
-        step.id == "scan_overview" && step.status == StepStatus.COMPLETED
-    }
+    val isScanCompleted =
+        steps.any { step -> step.id == "scan_overview" && step.status == StepStatus.COMPLETED }
 
     Box(modifier = modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -281,28 +280,24 @@ fun FeliCaReaderScreen(
         if (isScanCompleted) {
             Button(
                 onClick = { onToggleCollapse("scan_overview") },
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                elevation = ButtonDefaults.buttonElevation(
-                    defaultElevation = 8.dp,
-                    pressedElevation = 12.dp,
-                ),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                ),
+                modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(16.dp),
+                elevation =
+                    ButtonDefaults.buttonElevation(
+                        defaultElevation = 8.dp,
+                        pressedElevation = 12.dp,
+                    ),
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                    ),
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.List,
                     contentDescription = null,
                     modifier = Modifier.padding(end = 8.dp),
                 )
-                Text(
-                    text = "Scan Overview",
-                    style = MaterialTheme.typography.labelLarge,
-                )
+                Text(text = "Scan Overview", style = MaterialTheme.typography.labelLarge)
             }
         }
     }

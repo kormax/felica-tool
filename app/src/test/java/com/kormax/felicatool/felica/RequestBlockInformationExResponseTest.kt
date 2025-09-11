@@ -7,7 +7,8 @@ class RequestBlockInformationExResponseTest {
 
     @Test
     fun `test fromByteArray with valid data`() {
-        // Sample data: length(1), response_code(1), idm(8), status_flag1(1), status_flag2(1), number_of_blocks(1), assigned(2),
+        // Sample data: length(1), response_code(1), idm(8), status_flag1(1), status_flag2(1),
+        // number_of_blocks(1), assigned(2),
         // free(2), assigned(2), free(2)
         val data =
             byteArrayOf(
@@ -77,7 +78,8 @@ class RequestBlockInformationExResponseTest {
             arrayOf(CountInformation.fromInt(0x0010), CountInformation.fromInt(0x0030))
         val freeBlockCount =
             arrayOf(CountInformation.fromInt(0x0020), CountInformation.fromInt(0x0040))
-        val original = RequestBlockInformationExResponse(idm, 0x00, 0x00, assignedBlockCount, freeBlockCount)
+        val original =
+            RequestBlockInformationExResponse(idm, 0x00, 0x00, assignedBlockCount, freeBlockCount)
 
         val data = original.toByteArray()
         val parsed = RequestBlockInformationExResponse.fromByteArray(data)
