@@ -479,6 +479,22 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                         )
                     }
 
+                    // Authentication Commands
+                    Text(
+                        text = "Authentication Commands",
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.padding(bottom = 4.dp),
+                    )
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.padding(bottom = 8.dp),
+                    ) {
+                        CommandSupportChip("Authenticate1 DES", context.authentication1DesSupport)
+                        CommandSupportChip("Authenticate1 AES", context.authentication1AesSupport)
+                    }
+
                     // Container Commands
                     Text(
                         text = "Container Commands",
@@ -489,6 +505,7 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                     FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.padding(bottom = 8.dp),
                     ) {
                         CommandSupportChip(
                             "Get Container Issue Info",
@@ -507,6 +524,7 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                     FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.padding(bottom = 8.dp),
                     ) {
                         CommandSupportChip("Get System Status", context.getSystemStatusSupport)
                         CommandSupportChip("Set Parameter", context.setParameterSupport)

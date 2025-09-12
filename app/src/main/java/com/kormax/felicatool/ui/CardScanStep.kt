@@ -5,6 +5,7 @@ import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
@@ -187,6 +188,18 @@ data class CardScanStep(
                     title = "Echo",
                     description = "Test echo command",
                     icon = Icons.Default.Refresh,
+                ),
+                CardScanStep(
+                    id = "authentication1_des",
+                    title = "Authenticate1 DES",
+                    description = "Attempt DES authentication with discovered nodes",
+                    icon = Icons.Default.Lock,
+                ),
+                CardScanStep(
+                    id = "authentication1_aes",
+                    title = "Authenticate1 AES",
+                    description = "Attempt AES authentication with discovered nodes",
+                    icon = Icons.Default.Lock,
                 ),
                 CardScanStep(
                     id = "scan_overview",

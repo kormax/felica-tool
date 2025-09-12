@@ -213,6 +213,8 @@ object ExportUtils {
                 "get_node_property_mac_communication" to
                     scanContext.getNodePropertyMacCommunicationSupport,
                 "read_without_encryption" to scanContext.readBlocksWithoutEncryptionSupport,
+                "authentication1_des" to scanContext.authentication1DesSupport,
+                "authentication1_aes" to scanContext.authentication1AesSupport,
                 "set_parameter" to scanContext.setParameterSupport,
                 "get_container_issue_information" to
                     scanContext.getContainerIssueInformationSupport,
@@ -266,7 +268,10 @@ object ExportUtils {
                 systemJson.put("aes_key_version", "%04X".format(keyVersion.toInt()))
             }
             // Fallback to generic (DES) key version if no specific DES/AES versions are available
-            if (systemContext.nodeDesKeyVersions[systemNode] == null && systemContext.nodeAesKeyVersions[systemNode] == null) {
+            if (
+                systemContext.nodeDesKeyVersions[systemNode] == null &&
+                    systemContext.nodeAesKeyVersions[systemNode] == null
+            ) {
                 systemContext.nodeKeyVersions[systemNode]?.let { keyVersion ->
                     systemJson.put("des_key_version", "%04X".format(keyVersion.toInt()))
                 }
@@ -387,7 +392,10 @@ object ExportUtils {
             nodeJson.put("aes_key_version", "%04X".format(keyVersion.toInt()))
         }
         // Fallback to generic (DES) key version if no specific DES/AES versions are available
-        if (systemContext.nodeDesKeyVersions[node] == null && systemContext.nodeAesKeyVersions[node] == null) {
+        if (
+            systemContext.nodeDesKeyVersions[node] == null &&
+                systemContext.nodeAesKeyVersions[node] == null
+        ) {
             systemContext.nodeKeyVersions[node]?.let { keyVersion ->
                 nodeJson.put("des_key_version", "%04X".format(keyVersion.toInt()))
             }

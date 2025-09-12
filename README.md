@@ -127,7 +127,7 @@ Build and install the debug version:
 * Add testing for some more commands with unknown meanings:
   * UNKNOWN_GET_AREA_INFO (24);
   * UNKNOWN_PREISSUANCE_GET_STATUS (2E).
-* Implement support for DES authentication commands (waiting for an ability to properly test it);
+* Implement support for DES authentication commands (WIP, waiting for an ability to properly test Authentication2);
 * Support external readers (PN532, PCSC);
 * Add desktop (macOS, Linux, Windows) support by moving over to Compose Multiplatform;
 * Add support for FALP commands (need hardware to test on);

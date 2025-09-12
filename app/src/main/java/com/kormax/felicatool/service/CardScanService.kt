@@ -48,6 +48,8 @@ data class CardScanContext(
     val requestBlockInformationSupport: CommandSupport = CommandSupport.UNKNOWN,
     val requestBlockInformationExSupport: CommandSupport = CommandSupport.UNKNOWN,
     val readBlocksWithoutEncryptionSupport: CommandSupport = CommandSupport.UNKNOWN,
+    val authentication1DesSupport: CommandSupport = CommandSupport.UNKNOWN,
+    val authentication1AesSupport: CommandSupport = CommandSupport.UNKNOWN,
 ) {}
 
 data class SystemScanContext(
@@ -126,6 +128,8 @@ class CardScanService {
                     scanContext.copy(readBlocksWithoutEncryptionSupport = support)
                 "read_blocks_without_encryption" ->
                     scanContext.copy(readBlocksWithoutEncryptionSupport = support)
+                "authentication1_des" -> scanContext.copy(authentication1DesSupport = support)
+                "authentication1_aes" -> scanContext.copy(authentication1AesSupport = support)
                 else -> scanContext
             }
     }
@@ -164,6 +168,8 @@ class CardScanService {
             "read_without_encryption_determine_max_blocks" ->
                 scanContext.readBlocksWithoutEncryptionSupport
             "read_blocks_without_encryption" -> scanContext.readBlocksWithoutEncryptionSupport
+            "authentication1_des" -> scanContext.authentication1DesSupport
+            "authentication1_aes" -> scanContext.authentication1AesSupport
             else -> CommandSupport.UNKNOWN
         }
     }
@@ -205,7 +211,7 @@ class CardScanService {
             var pollSuccessful = false
 
             // Try up to 3 attempts
-            for (attempt in 1..3) {
+            for (attempt in 1..5) {
                 try {
                     pollSystemCode(target)
                     pollSuccessful = true
@@ -379,6 +385,8 @@ class CardScanService {
                                     executeRequestBlockInformationEx(target)
                                 "read_without_encryption_determine_error_indication" ->
                                     executeReadWithoutEncryptionDetermineErrorIndication(target)
+                                "authentication1_des" -> executeAuthentication1Des(target)
+                                "authentication1_aes" -> executeAuthentication1Aes(target)
                                 else -> "Unknown step"
                             }
 
@@ -2256,10 +2264,6 @@ class CardScanService {
                 val requestBlockInfoExCommand =
                     RequestBlockInformationExCommand(target.idm, nodeCodes)
                 val requestBlockInfoExResponse = target.transceive(requestBlockInfoExCommand)
-
-                println(
-                    "${nodeBatch.size} -> ${requestBlockInfoExResponse.assignedBlockCount.size}"
-                )
                 // Process the extended block information for each service in this batch
                 nodeBatch
                     .zip(
@@ -2317,6 +2321,310 @@ class CardScanService {
                 results.forEach { result ->
                     appendLine(result)
                     appendLine()
+                }
+            }
+            .trim()
+    }
+
+    private suspend fun executeAuthentication1Des(target: FeliCaTarget): String {
+        // Find the best system context that contains DES-compatible nodes requiring authentication
+        var bestSystemContext: SystemScanContext? = null
+        var bestDesCompatibleAreas = emptyList<Area>()
+        var bestDesCompatibleServices = emptyList<Service>()
+        var bestScore = 0
+
+        for (systemContext in scanContext.systemScanContexts) {
+            val areas = systemContext.nodes.filterIsInstance<Area>()
+            val services = systemContext.nodes.filterIsInstance<Service>()
+            val authServices = services.filter { it.attribute.authenticationRequired }
+
+            // Collect key version information for this system context
+            val systemDesKeyVersions = systemContext.nodeDesKeyVersions
+            val systemAesKeyVersions = systemContext.nodeAesKeyVersions
+            val systemKeyVersions = systemContext.nodeKeyVersions
+
+            // Filter areas and services for DES authentication:
+            // a) Has nodeDesKeyVersion, OR
+            // b) Does not have nodeAesKeyVersion but has nodeKeyVersion (legacy DES)
+            val desCompatibleAreas =
+                areas.filter { area ->
+                    systemDesKeyVersions.containsKey(area) ||
+                        (!systemAesKeyVersions.containsKey(area) &&
+                            systemKeyVersions.containsKey(area))
+                }
+
+            val desCompatibleServices =
+                authServices.filter { service ->
+                    systemDesKeyVersions.containsKey(service) ||
+                        (!systemAesKeyVersions.containsKey(service) &&
+                            systemKeyVersions.containsKey(service))
+                }
+
+            // Score this system context: prefer systems with both areas and services, then by total
+            // count
+            val score =
+                (if (desCompatibleAreas.isNotEmpty()) 100 else 0) +
+                    (if (desCompatibleServices.isNotEmpty()) 100 else 0) +
+                    desCompatibleAreas.size +
+                    desCompatibleServices.size
+
+            if (
+                score > bestScore &&
+                    (desCompatibleAreas.isNotEmpty() || desCompatibleServices.isNotEmpty())
+            ) {
+                bestScore = score
+                bestSystemContext = systemContext
+                bestDesCompatibleAreas = desCompatibleAreas
+                bestDesCompatibleServices = desCompatibleServices
+            }
+        }
+
+        if (bestSystemContext == null) {
+            throw RuntimeException(
+                "No system found with DES-compatible nodes. DES authentication requires nodes with DES key versions or legacy key versions without AES."
+            )
+        }
+
+        val systemCodeHex = bestSystemContext.systemCode?.toHexString() ?: "unknown"
+        Log.d(
+            "CardScanService",
+            "Selected system $systemCodeHex for DES authentication with ${bestDesCompatibleAreas.size} areas and ${bestDesCompatibleServices.size} services",
+        )
+
+        // Poll the selected system before authentication
+        pollSystemCode(target, bestSystemContext.systemCode)
+
+        // Generate a random challenge1A (8 bytes)
+        val challenge1A = ByteArray(8) { 0x00.toByte() }
+
+        // Take a subset of DES-compatible areas and services from the selected system
+        // Seems to require at least 1 area (but works at 12, tested with 16 services)
+        val areasToAuth = bestDesCompatibleAreas.take(1)
+        // Seems to require at least 1 service (but works at 16, tested with 12 services)
+        val servicesToAuth = bestDesCompatibleServices.take(1)
+
+        val authenticateCommand =
+            Authentication1DesCommand(
+                idm = target.idm,
+                areaNodes = areasToAuth,
+                serviceNodes = servicesToAuth,
+                challenge1A = challenge1A,
+            )
+
+        val authenticateResponse = target.transceive(authenticateCommand)
+
+        // Check if Reset Mode should be executed after successful authentication
+        var resetModeResult = ""
+        if (scanContext.resetModeSupport == CommandSupport.SUPPORTED) {
+            try {
+                val resetModeCommand = ResetModeCommand(target.idm)
+                val resetModeResponse = target.transceive(resetModeCommand)
+
+                resetModeResult =
+                    if (resetModeResponse.isStatusSuccessful) {
+                        "Reset Mode executed - card reset to Mode0"
+                    } else {
+                        "Reset Mode failed (Status: 0x${resetModeResponse.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')} 0x${resetModeResponse.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')})"
+                    }
+            } catch (e: Exception) {
+                resetModeResult = "Reset Mode error: ${e.message}"
+            }
+        } else {
+            resetModeResult = "Reset Mode not executed (not confirmed as supported)"
+        }
+
+        return buildString {
+                appendLine("DES Authentication Results:")
+                appendLine("Selected system: $systemCodeHex")
+                appendLine(
+                    "DES-compatible areas (${areasToAuth.size}) and services (${servicesToAuth.size}) used"
+                )
+                appendLine("Challenge1A (sent): ${challenge1A.toHexString()}")
+                appendLine(
+                    "Challenge1B (received): ${authenticateResponse.challenge1B.toHexString()}"
+                )
+                appendLine(
+                    "Challenge2A (received): ${authenticateResponse.challenge2A.toHexString()}"
+                )
+                appendLine()
+
+                if (areasToAuth.isNotEmpty()) {
+                    appendLine("Areas authenticated:")
+                    areasToAuth.forEachIndexed { index, area ->
+                        val keyType =
+                            when {
+                                bestSystemContext.nodeDesKeyVersions.containsKey(area) -> "DES key"
+                                bestSystemContext.nodeKeyVersions.containsKey(area) ->
+                                    "Legacy (DES) key"
+                                else -> "Unknown"
+                            }
+                        appendLine(
+                            "  ${index + 1}. Area ${area.number}-${area.endNumber} (${area.code.toHexString()}) - $keyType"
+                        )
+                    }
+                    appendLine()
+                }
+
+                if (servicesToAuth.isNotEmpty()) {
+                    appendLine("Services authenticated:")
+                    servicesToAuth.forEachIndexed { index, service ->
+                        val keyType =
+                            when {
+                                bestSystemContext.nodeDesKeyVersions.containsKey(service) ->
+                                    "DES key"
+                                bestSystemContext.nodeKeyVersions.containsKey(service) ->
+                                    "Legacy (DES) key"
+                                else -> "Unknown"
+                            }
+                        appendLine(
+                            "  ${index + 1}. Service ${service.number} (${service.code.toHexString()}) - $keyType"
+                        )
+                    }
+                    appendLine()
+                }
+
+                appendLine()
+                appendLine("Reset Mode:")
+                appendLine("  $resetModeResult")
+                if (
+                    scanContext.resetModeSupport == CommandSupport.SUPPORTED &&
+                        resetModeResult.contains("executed")
+                ) {
+                    appendLine("  Card is now in Mode0 and can be polled again")
+                }
+            }
+            .trim()
+    }
+
+    private suspend fun executeAuthentication1Aes(target: FeliCaTarget): String {
+        // Find the best system context that contains AES-compatible nodes requiring authentication
+        var bestSystemContext: SystemScanContext? = null
+        var bestAesCompatibleAreas = emptyList<Area>()
+        var bestAesCompatibleServices = emptyList<Service>()
+        var bestScore = 0
+
+        for (systemContext in scanContext.systemScanContexts) {
+            val areas = systemContext.nodes.filterIsInstance<Area>()
+            val services = systemContext.nodes.filterIsInstance<Service>()
+            val authServices = services.filter { it.attribute.authenticationRequired }
+
+            // Collect key version information for this system context
+            val systemAesKeyVersions = systemContext.nodeAesKeyVersions
+
+            // Filter areas and services for AES authentication:
+            // Has nodeAesKeyVersion
+            val aesCompatibleAreas = areas.filter { area -> systemAesKeyVersions.containsKey(area) }
+            val aesCompatibleServices =
+                authServices.filter { service -> systemAesKeyVersions.containsKey(service) }
+
+            // Score this system context: prefer systems with both areas and services, then by total
+            // count
+            val score =
+                (if (aesCompatibleAreas.isNotEmpty()) 100 else 0) +
+                    (if (aesCompatibleServices.isNotEmpty()) 100 else 0) +
+                    aesCompatibleAreas.size +
+                    aesCompatibleServices.size
+
+            if (
+                score > bestScore &&
+                    (aesCompatibleAreas.isNotEmpty() || aesCompatibleServices.isNotEmpty())
+            ) {
+                bestScore = score
+                bestSystemContext = systemContext
+                bestAesCompatibleAreas = aesCompatibleAreas
+                bestAesCompatibleServices = aesCompatibleServices
+            }
+        }
+
+        if (bestSystemContext == null) {
+            throw RuntimeException(
+                "No system found with AES-compatible nodes. AES authentication requires nodes with AES key versions."
+            )
+        }
+
+        val systemCodeHex = bestSystemContext.systemCode?.toHexString() ?: "unknown"
+        Log.d(
+            "CardScanService",
+            "Selected system $systemCodeHex for AES authentication with ${bestAesCompatibleAreas.size} areas and ${bestAesCompatibleServices.size} services",
+        )
+
+        // Poll the selected system before authentication
+        pollSystemCode(target, bestSystemContext.systemCode)
+
+        // Generate a random challenge1A (16 bytes for AES)
+        val challenge1A = ByteArray(16) { 0x0.toByte() }
+
+        // Take a subset of AES-compatible nodes from the selected system (areas and services
+        // combined in single field)
+        // According to user feedback: areas and services are sent in a single field,
+        // with the first byte being a flag (default 0x00)
+        // Up to 16 nodes in total
+        val aesCompatibleNodes =
+            (bestAesCompatibleAreas.take(1) + bestAesCompatibleServices.take(1))
+
+        val authenticateCommand =
+            Authentication1AesCommand(
+                idm = target.idm,
+                nodeCodes = aesCompatibleNodes.map { it.code }.toTypedArray(),
+                challenge1A = challenge1A,
+            )
+
+        val authenticateResponse = target.transceive(authenticateCommand)
+
+        // Check if Reset Mode should be executed after successful authentication
+        var resetModeResult = ""
+        if (scanContext.resetModeSupport == CommandSupport.SUPPORTED) {
+            try {
+                val resetModeCommand = ResetModeCommand(target.idm)
+                val resetModeResponse = target.transceive(resetModeCommand)
+
+                resetModeResult =
+                    if (resetModeResponse.isStatusSuccessful) {
+                        "Reset Mode executed - card reset to Mode0"
+                    } else {
+                        "Reset Mode failed (Status: 0x${resetModeResponse.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')} 0x${resetModeResponse.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')})"
+                    }
+            } catch (e: Exception) {
+                resetModeResult = "Reset Mode error: ${e.message}"
+            }
+        } else {
+            resetModeResult = "Reset Mode not executed (not confirmed as supported)"
+        }
+
+        return buildString {
+                appendLine("AES Authentication Results:")
+                appendLine("Selected system: $systemCodeHex")
+                appendLine(
+                    "AES-compatible nodes (${aesCompatibleNodes.size}) used in combined field"
+                )
+                appendLine("Challenge1A (sent): ${challenge1A.toHexString()}")
+                appendLine("Response data (received): ${authenticateResponse.data.toHexString()}")
+                appendLine()
+
+                if (aesCompatibleNodes.isNotEmpty()) {
+                    appendLine("Nodes authenticated (areas and services combined):")
+                    aesCompatibleNodes.forEachIndexed { index, node ->
+                        val nodeType =
+                            when (node) {
+                                is Area -> "Area ${node.number}-${node.endNumber}"
+                                is Service -> "Service ${node.number}"
+                                else -> "Node"
+                            }
+                        appendLine(
+                            "  ${index + 1}. $nodeType (${node.code.toHexString()}) - AES key"
+                        )
+                    }
+                    appendLine()
+                }
+
+                appendLine()
+                appendLine("Reset Mode:")
+                appendLine("  $resetModeResult")
+                if (
+                    scanContext.resetModeSupport == CommandSupport.SUPPORTED &&
+                        resetModeResult.contains("executed")
+                ) {
+                    appendLine("  Card is now in Mode0 and can be polled again")
                 }
             }
             .trim()
