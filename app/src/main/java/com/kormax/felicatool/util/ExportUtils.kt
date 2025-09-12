@@ -332,6 +332,10 @@ object ExportUtils {
                 nodeJson.put("code", node.code.toHexString())
                 nodeJson.put("number", node.number)
 
+                // Service name
+                val serviceName = NodeNaming.getServiceName(node, systemContext)
+                serviceName?.let { nodeJson.put("name", it) }
+
                 // Service attribute
                 val attributeJson = JSONObject()
                 attributeJson.put("type", node.attribute.type.name)

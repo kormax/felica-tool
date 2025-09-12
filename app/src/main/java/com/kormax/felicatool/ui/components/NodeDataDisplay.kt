@@ -28,7 +28,11 @@ import com.kormax.felicatool.util.IcTypeMapping
 import com.kormax.felicatool.util.NodeNaming
 
 /** Data class representing a node in the hierarchical tree structure */
-data class NodeInformation(val node: Node, val children: List<NodeInformation> = emptyList()) {
+data class NodeInformation(
+    val node: Node,
+    val children: List<NodeInformation> = emptyList(),
+    val parentArea: Area? = null,
+) {
     val hasChildren: Boolean = children.isNotEmpty()
 
     val areaCount: Int by lazy { (if (node is Area) 1 else 0) + children.sumOf { it.areaCount } }
@@ -42,12 +46,11 @@ data class NodeInformation(val node: Node, val children: List<NodeInformation> =
     val immediateServiceCount: Int by lazy { children.count { it.node is Service } }
 }
 
-/** Recursively builds a tree of NodeInformation from the context using range-based logic */
+/** Recursively builds a tree of NodeInformation from the context using area-based logic */
 fun buildNodeTree(context: SystemScanContext): List<NodeInformation> {
     val (_, rootChildren) =
         createTree(
-            0,
-            0xFFFF,
+            parentArea = null,
             context.nodes
                 .sortedWith(compareBy<Node> { it !is System }.thenBy { it.number })
                 .toMutableList(),
@@ -55,10 +58,9 @@ fun buildNodeTree(context: SystemScanContext): List<NodeInformation> {
     return rootChildren
 }
 
-/** Helper function to create tree based on begin/end ranges */
+/** Helper function to create tree based on area containment */
 private fun createTree(
-    begin: Int,
-    end: Int,
+    parentArea: Area?,
     nodes: MutableList<Node>,
 ): Pair<MutableList<Node>, MutableList<NodeInformation>> {
     val result = mutableListOf<NodeInformation>()
@@ -70,23 +72,26 @@ private fun createTree(
 
         when (node) {
             is Service -> {
-                if (begin <= node.number && node.number <= end) {
-                    result.add(NodeInformation(node))
+                // Check if service belongs to current parent area (or no parent for system-level)
+                if (parentArea == null || node.belongsTo(parentArea)) {
+                    result.add(NodeInformation(node, parentArea = parentArea))
                     added = true
                 }
             }
             is Area -> {
-                if (node.number >= begin && end >= node.endNumber) {
-                    val (leftoverSub, children) = createTree(node.number, node.endNumber, nodes)
+                // Check if area belongs to current parent area (or no parent for system-level)
+                if (parentArea == null || node.belongsTo(parentArea)) {
+                    val (leftoverSub, children) = createTree(node, nodes)
                     nodes.clear()
                     nodes.addAll(leftoverSub)
-                    result.add(NodeInformation(node, children))
+                    result.add(NodeInformation(node, children, parentArea = parentArea))
                     added = true
                 }
             }
             is System -> {
-                if (begin == 0 && end == 0xFFFF) {
-                    val (leftoverSub, children) = createTree(0, 0xFFFF, nodes)
+                // System is always at root level
+                if (parentArea == null) {
+                    val (leftoverSub, children) = createTree(null, nodes)
                     nodes.clear()
                     nodes.addAll(leftoverSub)
                     result.add(NodeInformation(node, children))
@@ -628,7 +633,7 @@ fun TreeNodeCard(
                     verticalArrangement = Arrangement.spacedBy(2.dp),
                 ) {
                     Text(
-                        text = getNodeDisplayText(node, context),
+                        text = getNodeDisplayText(node, context, nodeInfo.parentArea),
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Medium,
                         color =
@@ -1084,7 +1089,24 @@ private fun AttributeChip(
     }
 }
 
-private fun getNodeDisplayText(node: Node, context: SystemScanContext): String {
+/** Helper function for efficient service name lookup using stored parent area */
+private fun getServiceNameFromNodeInfo(
+    service: Service,
+    context: SystemScanContext,
+    parentArea: Area?,
+): String? {
+    val systemCode = context.systemCode?.toHexString()?.uppercase() ?: return null
+    val serviceCode = service.code.toHexString().uppercase()
+    val areaCode = parentArea?.fullCode?.toHexString()?.uppercase() ?: ""
+
+    return NodeNaming.getServiceName(systemCode, areaCode, serviceCode)
+}
+
+private fun getNodeDisplayText(
+    node: Node,
+    context: SystemScanContext,
+    parentArea: Area? = null,
+): String {
     return when (node) {
         is Area -> {
             val area = node
@@ -1098,7 +1120,14 @@ private fun getNodeDisplayText(node: Node, context: SystemScanContext): String {
         }
         is Service -> {
             val service = node
-            "Service ${service.fullCode.toHexString()} (#${service.number})"
+            val baseText = "Service ${service.fullCode.toHexString()} (#${service.number})"
+            // Use stored parentArea for efficient service name lookup
+            val serviceName = getServiceNameFromNodeInfo(service, context, parentArea)
+            if (serviceName != null) {
+                "$baseText - $serviceName"
+            } else {
+                baseText
+            }
         }
         is System -> {
             // Display system code from context instead of node code
