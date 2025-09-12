@@ -259,11 +259,17 @@ object ExportUtils {
 
             // System DES and AES key versions
             val systemNode = System
-            (systemContext.nodeDesKeyVersions[systemNode] ?: systemContext.nodeKeyVersions[systemNode])?.let { keyVersion ->
+            systemContext.nodeDesKeyVersions[systemNode]?.let { keyVersion ->
                 systemJson.put("des_key_version", "%04X".format(keyVersion.toInt()))
             }
             systemContext.nodeAesKeyVersions[systemNode]?.let { keyVersion ->
                 systemJson.put("aes_key_version", "%04X".format(keyVersion.toInt()))
+            }
+            // Fallback to generic (DES) key version if no specific DES/AES versions are available
+            if (systemContext.nodeDesKeyVersions[systemNode] == null && systemContext.nodeAesKeyVersions[systemNode] == null) {
+                systemContext.nodeKeyVersions[systemNode]?.let { keyVersion ->
+                    systemJson.put("des_key_version", "%04X".format(keyVersion.toInt()))
+                }
             }
 
             // Collect and sort all nodes within this system by node number, excluding system node
@@ -374,11 +380,17 @@ object ExportUtils {
         // Common fields for all node types
 
         // DES and AES key versions
-        (systemContext.nodeDesKeyVersions[node] ?: systemContext.nodeKeyVersions[node])?.let { keyVersion ->
-                nodeJson.put("des_key_version", "%04X".format(keyVersion.toInt()))
-            }
+        systemContext.nodeDesKeyVersions[node]?.let { keyVersion ->
+            nodeJson.put("des_key_version", "%04X".format(keyVersion.toInt()))
+        }
         systemContext.nodeAesKeyVersions[node]?.let { keyVersion ->
             nodeJson.put("aes_key_version", "%04X".format(keyVersion.toInt()))
+        }
+        // Fallback to generic (DES) key version if no specific DES/AES versions are available
+        if (systemContext.nodeDesKeyVersions[node] == null && systemContext.nodeAesKeyVersions[node] == null) {
+            systemContext.nodeKeyVersions[node]?.let { keyVersion ->
+                nodeJson.put("des_key_version", "%04X".format(keyVersion.toInt()))
+            }
         }
 
         // Block counts
