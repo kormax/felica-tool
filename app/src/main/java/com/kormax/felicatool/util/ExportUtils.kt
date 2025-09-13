@@ -213,9 +213,10 @@ object ExportUtils {
                 "get_node_property_mac_communication" to
                     scanContext.getNodePropertyMacCommunicationSupport,
                 "read_without_encryption" to scanContext.readBlocksWithoutEncryptionSupport,
+                "get_area_information" to scanContext.getAreaInformationSupport,
+                "set_parameter" to scanContext.setParameterSupport,
                 "authentication1_des" to scanContext.authentication1DesSupport,
                 "authentication1_aes" to scanContext.authentication1AesSupport,
-                "set_parameter" to scanContext.setParameterSupport,
                 "get_container_issue_information" to
                     scanContext.getContainerIssueInformationSupport,
                 "get_container_id" to scanContext.getContainerIdSupport,

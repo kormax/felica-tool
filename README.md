@@ -65,30 +65,31 @@ This application enables users to:
 
 At the current moment, "analysis" mode of the application attempts to detect support for the following commands:
 
-| Command Name | Command Code (Hex) | FeliCa Lite (0xF1) | Apple Wallet (0x16) | Osaifu-Keitai V4.1 (0x18) | Notes |
-|--------------|-------------------|-------------------|---------------------|-------------------------|-------|
-| Polling | 00 | ✓ | ✓ | ✓ | Reading card IDM and PMM data |
-| Polling (System Code) | 00 | ✓ | ✓ | ✓ | Request primary system code of the card using polling command |
-| Polling (Communication Performance) | 00 | ✓ | ✓ | ✓ | Request information about supported communication speeds using polling command |
-| Request Service | 02 | ✗ | ✓ | ✓ | Request key versions for discovered nodes |
-| Request Response | 04 | ✗ | ✓ | ✓ | Request response from the card |
-| Read Without Encryption | 06 | ✓ | ✓ | ✓ | Read block data from services that don't require authentication |
-| Search Service Code | 0A | ✗ | ✓ | ✓ | Search all available nodes on the card iteratively |
-| Request System Code | 0C | ✗ | ✓ | ✓ | Request all system codes registered to the card |
-| Request Block Information | 0E | ✗ | ✗ | ✓ | Request the amount of blocks for nodes |
-| Request Block Information Ex | 1E | ✗ | ✗ | ✓ | Request the amount of allocated and free blocks for nodes |
-| Request Code List | 1A | ✗ | ✗ | ✓ | Request a list of nodes for a given root node iteratively |
-| Set Parameter | 20 | ✗ | ✗ | ✓ | Set card communication parameters (encryption type and node code size) |
-| Get Container Issue Information | 22 | ✗ | ✓ | ✓ | Get container-specific information including format version and mobile phone model |
-| Get Node Property (Value Limited Service) | 28 | ✗ | ✗ | ✗ | Get value-limited purse service properties for discovered nodes |
-| Get Node Property (MAC Communication) | 28 | ✗ | ✗ | ✗ | Get MAC communication properties for discovered nodes |
-| Request Service V2 | 32 | ✗ | ✓ | ✓ | Request AES and DES key versions for nodes alongside the key type identifier |
-| Get System Status | 38 | ✗ | ✓ | ✓ | Get current system status information from the card |
-| Get Platform Information | 3A | ✗ | ✓ | ✓ | Get platform information from the card |
-| Request Specification Version | 3C | ✗ | ✓ | ✓ | Get card feature version and supported option versions |
-| Reset Mode | 3E | ✗ | ✓ | ✓ | Reset card mode to Mode0 |
-| Get Container ID | 70 | ✗ | ✗ | ✓ | Get container IDM from mobile FeliCa targets |
-| Echo | F000 | ✓ (72 bytes) | ✓ (252 bytes) | ✓ (252 bytes) | Testing communication with the card |
+| Command Name | Command Code (Hex) | IDM on Command | FeliCa Lite (0xF1) | Apple Wallet (0x16) | Osaifu-Keitai V4.1 (0x18) | Notes |
+|--------------|-------------------|----------------|-------------------|---------------------|-------------------------|-------|
+| Polling | 00 | ✗ | ✓ | ✓ | ✓ | Reading card IDM and PMM data |
+| Polling (System Code) | 00 | ✗ | ✓ | ✓ | ✓ | Request primary system code of the card using polling command |
+| Polling (Communication Performance) | 00 | ✗ | ✓ | ✓ | ✓ | Request information about supported communication speeds using polling command |
+| Request Service | 02 | ✓ | ✗ | ✓ | ✓ | Request key versions for discovered nodes |
+| Request Response | 04 | ✓ | ✗ | ✓ | ✓ | Request response from the card |
+| Read Without Encryption | 06 | ✓ | ✓ | ✓ | ✓ | Read block data from services that don't require authentication |
+| Search Service Code | 0A | ✓ | ✗ | ✓ | ✓ | Search all available nodes on the card iteratively |
+| Request System Code | 0C | ✓ | ✗ | ✓ | ✓ | Request all system codes registered to the card |
+| Request Block Information | 0E | ✓ | ✗ | ✗ | ✓ | Request the amount of blocks for nodes |
+| Request Block Information Ex | 1E | ✓ | ✗ | ✗ | ✓ | Request the amount of allocated and free blocks for nodes |
+| Request Code List | 1A | ✓ | ✗ | ✗ | ✓ | Request a list of nodes for a given root node iteratively |
+| Set Parameter | 20 | ✓ | ✗ | ✗ | ✓ | Set card communication parameters (encryption type and node code size) |
+| Get Container Issue Information | 22 | ✓ | ✗ | ✓ | ✓ | Get container-specific information including format version and mobile phone model |
+| Get Area Information | 24 | ✓ | ✗ | ✗ | ✓ | Get information about a specific area **(Official name and exact purpose are not known)** |
+| Get Node Property (Value Limited Service) | 28 | ✓ | ✗ | ✗ | ✗ | Get value-limited purse service properties for discovered nodes |
+| Get Node Property (MAC Communication) | 28 | ✓ | ✗ | ✗ | ✗ | Get MAC communication properties for discovered nodes |
+| Request Service V2 | 32 | ✓ | ✗ | ✓ | ✓ | Request AES and DES key versions for nodes alongside the key type identifier |
+| Get System Status | 38 | ✓ | ✗ | ✓ | ✓ | Get current system status information from the card |
+| Get Platform Information | 3A | ✓ | ✗ | ✓ | ✓ | Get platform information from the card. **(Official name is not known)** |
+| Request Specification Version | 3C | ✓ | ✗ | ✓ | ✓ | Get card feature version and supported option versions |
+| Reset Mode | 3E | ✓ | ✗ | ✓ | ✓ | Reset card mode to Mode0 |
+| Get Container ID | 70 | ✗ | ✗ | ✗ | ✓ | Get container IDM from mobile FeliCa targets |
+| Echo | F000 | ✗ | ✓ (72 bytes) | ✓ (252 bytes) | ✓ (252 bytes) | Testing communication with the card |
 
 **Note:** If you have tested this application with other FeliCa card types or targets and would like to contribute your results, we would gladly add them to this compatibility table. Please share your findings by opening an issue or submitting a pull request with the command support details for your specific card type.
 
@@ -114,18 +115,8 @@ Build and install the debug version:
 # Improvements
 
 * Improve annotation of known system, area codes, and IC types;
-* Add an ability to export acquired information in JSON format:
-  * Communication logs & timings;
-  * Final results:
-    * Format:
-      * Hierarchical;
-      * Flat;
-    * Data:
-      * Interpreted;
-      * Raw.
 * Improve/refactor the UI part of the project.
 * Add testing for some more commands with unknown meanings:
-  * UNKNOWN_GET_AREA_INFO (24);
   * UNKNOWN_PREISSUANCE_GET_STATUS (2E).
 * Implement support for DES authentication commands (WIP, waiting for an ability to properly test Authentication2);
 * Support external readers (PN532, PCSC);

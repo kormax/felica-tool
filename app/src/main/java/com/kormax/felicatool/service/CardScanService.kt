@@ -48,6 +48,7 @@ data class CardScanContext(
     val requestBlockInformationSupport: CommandSupport = CommandSupport.UNKNOWN,
     val requestBlockInformationExSupport: CommandSupport = CommandSupport.UNKNOWN,
     val readBlocksWithoutEncryptionSupport: CommandSupport = CommandSupport.UNKNOWN,
+    val getAreaInformationSupport: CommandSupport = CommandSupport.UNKNOWN,
     val authentication1DesSupport: CommandSupport = CommandSupport.UNKNOWN,
     val authentication1AesSupport: CommandSupport = CommandSupport.UNKNOWN,
 ) {}
@@ -128,6 +129,7 @@ class CardScanService {
                     scanContext.copy(readBlocksWithoutEncryptionSupport = support)
                 "read_blocks_without_encryption" ->
                     scanContext.copy(readBlocksWithoutEncryptionSupport = support)
+                "get_area_information" -> scanContext.copy(getAreaInformationSupport = support)
                 "authentication1_des" -> scanContext.copy(authentication1DesSupport = support)
                 "authentication1_aes" -> scanContext.copy(authentication1AesSupport = support)
                 else -> scanContext
@@ -168,6 +170,7 @@ class CardScanService {
             "read_without_encryption_determine_max_blocks" ->
                 scanContext.readBlocksWithoutEncryptionSupport
             "read_blocks_without_encryption" -> scanContext.readBlocksWithoutEncryptionSupport
+            "get_area_information" -> scanContext.getAreaInformationSupport
             "authentication1_des" -> scanContext.authentication1DesSupport
             "authentication1_aes" -> scanContext.authentication1AesSupport
             else -> CommandSupport.UNKNOWN
@@ -368,6 +371,7 @@ class CardScanService {
                                 "polling_communication_performance" ->
                                     executePollingCommunicationPerformance(target)
                                 "request_code_list" -> executeRequestCodeList(target)
+                                "get_area_information" -> executeGetAreaInformation(target)
                                 "set_parameter" -> executeSetParameter(target)
                                 "get_container_issue_information" ->
                                     executeGetContainerIssueInformation(target)
@@ -1266,6 +1270,125 @@ class CardScanService {
             }
 
         return collapsedSummary to expandedResult
+    }
+
+    private suspend fun executeGetAreaInformation(target: FeliCaTarget): String {
+        val allAreas = scanContext.systemScanContexts.flatMap { it.nodes.filterIsInstance<Area>() }
+
+        if (allAreas.isEmpty()) {
+            throw RuntimeException(
+                "No areas discovered. Get Area Information requires discovered areas from Search Service Codes or Request Code List steps."
+            )
+        }
+
+        val results = mutableListOf<String>()
+        val maxAreasPerRequest = 10 // Process areas in smaller batches to avoid overwhelming output
+        var totalSuccessful = 0
+        var totalTested = 0
+
+        // Process areas in batches across all system contexts
+        for ((contextIndex, systemContext) in scanContext.systemScanContexts.withIndex()) {
+            // Perform system-specific polling before executing commands
+            pollSystemCode(target, systemContext.systemCode)
+
+            val systemAreas = systemContext.nodes.filterIsInstance<Area>()
+            if (systemAreas.isEmpty()) {
+                continue
+            }
+
+            val systemCodeHex = systemContext.systemCode?.toHexString() ?: "unknown"
+            val systemResults = mutableListOf<String>()
+            var systemSuccessful = 0
+
+            systemAreas.chunked(maxAreasPerRequest).forEachIndexed { batchIndex, areaBatch ->
+                val batchResults = mutableListOf<String>()
+
+                areaBatch.forEach { area ->
+                    totalTested++
+                    val getAreaInformationCommand = GetAreaInformationCommand(target.idm, area)
+                    val getAreaInformationResponse = target.transceive(getAreaInformationCommand)
+
+                    if (getAreaInformationResponse.isStatusSuccessful) {
+                        totalSuccessful++
+                        systemSuccessful++
+                        batchResults.add(
+                            buildString {
+                                appendLine("  Area ${area.number} (${area.code.toHexString()}):")
+                                appendLine("    Status: SUCCESS")
+                                appendLine(
+                                    "    Node Code: ${getAreaInformationResponse.nodeCode.toHexString()}"
+                                )
+                                appendLine(
+                                    "    Data: ${getAreaInformationResponse.data.toHexString()}"
+                                )
+                            }
+                        )
+                    } else {
+                        val status1Hex =
+                            getAreaInformationResponse.statusFlag1
+                                .toUByte()
+                                .toString(16)
+                                .uppercase()
+                                .padStart(2, '0')
+                        val status2Hex =
+                            getAreaInformationResponse.statusFlag2
+                                .toUByte()
+                                .toString(16)
+                                .uppercase()
+                                .padStart(2, '0')
+                        val statusDescription =
+                            when {
+                                getAreaInformationResponse.statusFlag1 == 0xFF.toByte() &&
+                                    getAreaInformationResponse.statusFlag2 == 0xE0.toByte() ->
+                                    "Area 0 error"
+                                getAreaInformationResponse.statusFlag1 == 0xFF.toByte() &&
+                                    getAreaInformationResponse.statusFlag2 == 0xE7.toByte() ->
+                                    "High bits set in code"
+                                getAreaInformationResponse.statusFlag1 == 0xFF.toByte() &&
+                                    getAreaInformationResponse.statusFlag2 == 0xE2.toByte() ->
+                                    "Code doesn't represent area"
+                                else -> "Unknown error"
+                            }
+
+                        batchResults.add(
+                            buildString {
+                                appendLine("  Area ${area.number} (${area.code.toHexString()}):")
+                                appendLine(
+                                    "    Status: ERROR (0x$status1Hex 0x$status2Hex - $statusDescription)"
+                                )
+                            }
+                        )
+                    }
+                }
+
+                if (batchResults.isNotEmpty()) {
+                    systemResults.addAll(batchResults)
+                }
+            }
+
+            if (systemResults.isNotEmpty()) {
+                results.add(
+                    buildString {
+                        appendLine(
+                            "System Context ${contextIndex + 1} ($systemCodeHex): $systemSuccessful/${systemAreas.size} areas successful"
+                        )
+                        systemResults.forEach { appendLine(it.trimEnd()) }
+                    }
+                )
+            }
+        }
+
+        return buildString {
+                appendLine(
+                    "Get Area Information Results: $totalSuccessful/$totalTested areas returned data"
+                )
+                appendLine()
+                results.forEach { result ->
+                    appendLine(result.trimEnd())
+                    appendLine()
+                }
+            }
+            .trim()
     }
 
     private suspend fun executeSetParameter(target: FeliCaTarget): String {

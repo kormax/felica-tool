@@ -159,6 +159,12 @@ data class CardScanStep(
                     icon = Icons.Default.Search,
                 ),
                 CardScanStep(
+                    id = "get_area_information",
+                    title = "Get Area Information",
+                    description = "Get information about discovered areas",
+                    icon = Icons.Default.Info,
+                ),
+                CardScanStep(
                     id = "set_parameter",
                     title = "Set Parameter",
                     description = "Set card parameters (encryption type and packet type)",
