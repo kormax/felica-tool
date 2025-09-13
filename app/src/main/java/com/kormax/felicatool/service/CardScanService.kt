@@ -49,6 +49,7 @@ data class CardScanContext(
     val requestBlockInformationExSupport: CommandSupport = CommandSupport.UNKNOWN,
     val readBlocksWithoutEncryptionSupport: CommandSupport = CommandSupport.UNKNOWN,
     val getAreaInformationSupport: CommandSupport = CommandSupport.UNKNOWN,
+    val getContainerPropertySupport: CommandSupport = CommandSupport.UNKNOWN,
     val authentication1DesSupport: CommandSupport = CommandSupport.UNKNOWN,
     val authentication1AesSupport: CommandSupport = CommandSupport.UNKNOWN,
 ) {}
@@ -100,6 +101,8 @@ class CardScanService {
                 "request_system_code" -> scanContext.copy(requestSystemCodeSupport = support)
                 "request_specification_version" ->
                     scanContext.copy(requestSpecificationVersionSupport = support)
+                "get_platform_information" ->
+                    scanContext.copy(getPlatformInformationSupport = support)
                 "get_system_status" -> scanContext.copy(getSystemStatusSupport = support)
                 "request_code_list" -> scanContext.copy(requestCodeListSupport = support)
                 "search_service_code" -> scanContext.copy(searchServiceCodeSupport = support)
@@ -108,9 +111,8 @@ class CardScanService {
                 "set_parameter" -> scanContext.copy(setParameterSupport = support)
                 "get_container_issue_information" ->
                     scanContext.copy(getContainerIssueInformationSupport = support)
-                "get_platform_information" ->
-                    scanContext.copy(getPlatformInformationSupport = support)
                 "get_container_id" -> scanContext.copy(getContainerIdSupport = support)
+                "get_container_property" -> scanContext.copy(getContainerPropertySupport = support)
                 "echo" -> scanContext.copy(echoSupport = support)
                 "reset_mode" -> scanContext.copy(resetModeSupport = support)
                 "get_node_property_value_limited_service" ->
@@ -171,6 +173,7 @@ class CardScanService {
                 scanContext.readBlocksWithoutEncryptionSupport
             "read_blocks_without_encryption" -> scanContext.readBlocksWithoutEncryptionSupport
             "get_area_information" -> scanContext.getAreaInformationSupport
+            "get_container_property" -> scanContext.getContainerPropertySupport
             "authentication1_des" -> scanContext.authentication1DesSupport
             "authentication1_aes" -> scanContext.authentication1AesSupport
             else -> CommandSupport.UNKNOWN
@@ -377,6 +380,7 @@ class CardScanService {
                                     executeGetContainerIssueInformation(target)
                                 "get_platform_information" -> executeGetPlatformInformation(target)
                                 "get_container_id" -> executeGetContainerId(target)
+                                "get_container_property" -> executeGetContainerProperty(target)
                                 "echo" -> executeEcho(target)
                                 "reset_mode" -> executeResetMode(target)
                                 "get_node_property_value_limited_service" ->
@@ -1387,6 +1391,47 @@ class CardScanService {
                     appendLine(result.trimEnd())
                     appendLine()
                 }
+            }
+            .trim()
+    }
+
+    private suspend fun executeGetContainerProperty(target: FeliCaTarget): String {
+        val results = mutableListOf<String>()
+
+        // Test both known property types
+        val propertiesToTest =
+            listOf(
+                GetContainerPropertyCommand.Property.PROPERTY_1,
+                GetContainerPropertyCommand.Property.PROPERTY_2,
+            )
+
+        var successfulCommands = 0
+
+        propertiesToTest.forEach { property ->
+            val getContainerPropertyCommand = GetContainerPropertyCommand(property)
+            val getContainerPropertyResponse = target.transceive(getContainerPropertyCommand)
+
+            successfulCommands++
+            results.add(
+                buildString {
+                    appendLine(
+                        "Property ${property.name} (index 0x${property.index.toString(16).uppercase().padStart(2, '0')}):"
+                    )
+                    appendLine("  Command: SUCCESS")
+                    appendLine(
+                        "  Response Data: ${getContainerPropertyResponse.data.toHexString()}"
+                    )
+                    appendLine("  Data Size: ${getContainerPropertyResponse.data.size} bytes")
+                }
+            )
+        }
+
+        return buildString {
+                appendLine(
+                    "Get Container Property Results: $successfulCommands/${propertiesToTest.size} properties retrieved"
+                )
+                appendLine()
+                results.forEach { result -> appendLine(result.trimEnd()) }
             }
             .trim()
     }

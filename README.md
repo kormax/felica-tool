@@ -81,6 +81,7 @@ At the current moment, "analysis" mode of the application attempts to detect sup
 | Set Parameter | 20 | ✓ | ✗ | ✗ | ✓ | Set card communication parameters (encryption type and node code size) |
 | Get Container Issue Information | 22 | ✓ | ✗ | ✓ | ✓ | Get container-specific information including format version and mobile phone model |
 | Get Area Information | 24 | ✓ | ✗ | ✗ | ✓ | Get information about a specific area **(Official name and exact purpose are not known)** |
+| Get Container Property | 2E | ✗ | ✗ | ✗ | ✓ | Get container property data by index **(Official name and exact purpose are not known)** |
 | Get Node Property (Value Limited Service) | 28 | ✓ | ✗ | ✗ | ✗ | Get value-limited purse service properties for discovered nodes |
 | Get Node Property (MAC Communication) | 28 | ✓ | ✗ | ✗ | ✗ | Get MAC communication properties for discovered nodes |
 | Request Service V2 | 32 | ✓ | ✗ | ✓ | ✓ | Request AES and DES key versions for nodes alongside the key type identifier |

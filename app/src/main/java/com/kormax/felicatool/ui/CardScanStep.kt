@@ -165,6 +165,12 @@ data class CardScanStep(
                     icon = Icons.Default.Info,
                 ),
                 CardScanStep(
+                    id = "get_container_property",
+                    title = "Get Container Property",
+                    description = "Get container property data by index",
+                    icon = Icons.Default.Info,
+                ),
+                CardScanStep(
                     id = "set_parameter",
                     title = "Set Parameter",
                     description = "Set card parameters (encryption type and packet type)",

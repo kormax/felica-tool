@@ -536,6 +536,10 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                             "Get Area Information",
                             context.getAreaInformationSupport,
                         )
+                        CommandSupportChip(
+                            "Get Container Property",
+                            context.getContainerPropertySupport,
+                        )
                         CommandSupportChip("Set Parameter", context.setParameterSupport)
                         CommandSupportChip("Echo", context.echoSupport)
                     }
