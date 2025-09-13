@@ -27,11 +27,8 @@ class RequestSpecificationVersionResponseTest {
         val valueLimitedPurseVersion = OptionVersion(3, 0, 0) // 3.0.0 in BCD
         val communicationWithMacVersion = OptionVersion(4, 0, 0) // 4.0.0 in BCD
 
-        val response =
-            RequestSpecificationVersionResponse(
-                idm = testIdm,
-                statusFlag1 = 0x00,
-                statusFlag2 = 0x00,
+        val specificationVersion =
+            SpecificationVersion(
                 formatVersion = 0x00,
                 basicVersion = basicVersion,
                 desOptionVersion = desVersion,
@@ -41,14 +38,31 @@ class RequestSpecificationVersionResponseTest {
                 communicationWithMacOptionVersion = communicationWithMacVersion,
             )
 
+        val response =
+            RequestSpecificationVersionResponse(
+                idm = testIdm,
+                statusFlag1 = 0x00,
+                statusFlag2 = 0x00,
+                specificationVersion = specificationVersion,
+            )
+
         assertEquals(0x00.toByte(), response.statusFlag1)
         assertEquals(0x00.toByte(), response.statusFlag2)
-        assertEquals(0x00.toByte(), response.formatVersion)
-        assertEquals(basicVersion, response.basicVersion)
-        assertEquals(desVersion, response.desOptionVersion)
-        assertEquals(extendedOverlapVersion, response.extendedOverlapOptionVersion)
-        assertEquals(valueLimitedPurseVersion, response.valueLimitedPurseServiceOptionVersion)
-        assertEquals(communicationWithMacVersion, response.communicationWithMacOptionVersion)
+        assertEquals(0x00.toByte(), response.specificationVersion?.formatVersion)
+        assertEquals(basicVersion, response.specificationVersion?.basicVersion)
+        assertEquals(desVersion, response.specificationVersion?.desOptionVersion)
+        assertEquals(
+            extendedOverlapVersion,
+            response.specificationVersion?.extendedOverlapOptionVersion,
+        )
+        assertEquals(
+            valueLimitedPurseVersion,
+            response.specificationVersion?.valueLimitedPurseServiceOptionVersion,
+        )
+        assertEquals(
+            communicationWithMacVersion,
+            response.specificationVersion?.communicationWithMacOptionVersion,
+        )
         assertTrue(response.isStatusSuccessful)
     }
 
@@ -59,12 +73,13 @@ class RequestSpecificationVersionResponseTest {
                 idm = testIdm,
                 statusFlag1 = 0x01, // Error
                 statusFlag2 = 0x00,
+                specificationVersion = null,
             )
 
         assertEquals(0x01.toByte(), response.statusFlag1)
         assertFalse(response.isStatusSuccessful)
-        assertNull(response.formatVersion)
-        assertNull(response.basicVersion)
+        assertNull(response.specificationVersion?.formatVersion)
+        assertNull(response.specificationVersion?.basicVersion)
     }
 
     @Test
@@ -76,11 +91,8 @@ class RequestSpecificationVersionResponseTest {
         val valueLimitedPurseVersion = OptionVersion(3, 0, 0) // 3.0.0
         val communicationWithMacVersion = OptionVersion(4, 0, 0) // 4.0.0
 
-        val response =
-            RequestSpecificationVersionResponse(
-                idm = testIdm,
-                statusFlag1 = 0x00,
-                statusFlag2 = 0x00,
+        val specificationVersion =
+            SpecificationVersion(
                 formatVersion = 0x00,
                 basicVersion = basicVersion,
                 desOptionVersion = desVersion,
@@ -88,6 +100,14 @@ class RequestSpecificationVersionResponseTest {
                 extendedOverlapOptionVersion = extendedOverlapVersion,
                 valueLimitedPurseServiceOptionVersion = valueLimitedPurseVersion,
                 communicationWithMacOptionVersion = communicationWithMacVersion,
+            )
+
+        val response =
+            RequestSpecificationVersionResponse(
+                idm = testIdm,
+                statusFlag1 = 0x00,
+                statusFlag2 = 0x00,
+                specificationVersion = specificationVersion,
             )
 
         val bytes = response.toByteArray()
@@ -170,16 +190,25 @@ class RequestSpecificationVersionResponseTest {
 
         assertEquals(0x00.toByte(), response.statusFlag1)
         assertEquals(0x00.toByte(), response.statusFlag2)
-        assertEquals(0x00.toByte(), response.formatVersion)
-        assertEquals(basicVersion, response.basicVersion)
-        assertEquals(desVersion, response.desOptionVersion)
+        assertEquals(0x00.toByte(), response.specificationVersion?.formatVersion)
+        assertEquals(basicVersion, response.specificationVersion?.basicVersion)
+        assertEquals(desVersion, response.specificationVersion?.desOptionVersion)
         assertEquals(
             OptionVersion(0, 0, 0),
-            response.specialOptionVersion,
+            response.specificationVersion?.specialOptionVersion,
         ) // Special option is 0x0000
-        assertEquals(extendedOverlapVersion, response.extendedOverlapOptionVersion)
-        assertEquals(valueLimitedPurseVersion, response.valueLimitedPurseServiceOptionVersion)
-        assertEquals(communicationWithMacVersion, response.communicationWithMacOptionVersion)
+        assertEquals(
+            extendedOverlapVersion,
+            response.specificationVersion?.extendedOverlapOptionVersion,
+        )
+        assertEquals(
+            valueLimitedPurseVersion,
+            response.specificationVersion?.valueLimitedPurseServiceOptionVersion,
+        )
+        assertEquals(
+            communicationWithMacVersion,
+            response.specificationVersion?.communicationWithMacOptionVersion,
+        )
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -209,11 +238,8 @@ class RequestSpecificationVersionResponseTest {
         val valueLimitedPurseVersion = OptionVersion(3, 0, 0)
         val communicationWithMacVersion = OptionVersion(4, 0, 0)
 
-        val original =
-            RequestSpecificationVersionResponse(
-                idm = testIdm,
-                statusFlag1 = 0x00,
-                statusFlag2 = 0x00,
+        val specificationVersion =
+            SpecificationVersion(
                 formatVersion = 0x00,
                 basicVersion = basicVersion,
                 desOptionVersion = desVersion,
@@ -223,22 +249,42 @@ class RequestSpecificationVersionResponseTest {
                 communicationWithMacOptionVersion = communicationWithMacVersion,
             )
 
+        val original =
+            RequestSpecificationVersionResponse(
+                idm = testIdm,
+                statusFlag1 = 0x00,
+                statusFlag2 = 0x00,
+                specificationVersion = specificationVersion,
+            )
+
         val bytes = original.toByteArray()
         val parsed = RequestSpecificationVersionResponse.fromByteArray(bytes)
 
         assertEquals(original.statusFlag1, parsed.statusFlag1)
         assertEquals(original.statusFlag2, parsed.statusFlag2)
-        assertEquals(original.formatVersion, parsed.formatVersion)
-        assertEquals(original.basicVersion, parsed.basicVersion)
-        assertEquals(original.desOptionVersion, parsed.desOptionVersion)
-        assertEquals(original.extendedOverlapOptionVersion, parsed.extendedOverlapOptionVersion)
         assertEquals(
-            original.valueLimitedPurseServiceOptionVersion,
-            parsed.valueLimitedPurseServiceOptionVersion,
+            original.specificationVersion?.formatVersion,
+            parsed.specificationVersion?.formatVersion,
         )
         assertEquals(
-            original.communicationWithMacOptionVersion,
-            parsed.communicationWithMacOptionVersion,
+            original.specificationVersion?.basicVersion,
+            parsed.specificationVersion?.basicVersion,
+        )
+        assertEquals(
+            original.specificationVersion?.desOptionVersion,
+            parsed.specificationVersion?.desOptionVersion,
+        )
+        assertEquals(
+            original.specificationVersion?.extendedOverlapOptionVersion,
+            parsed.specificationVersion?.extendedOverlapOptionVersion,
+        )
+        assertEquals(
+            original.specificationVersion?.valueLimitedPurseServiceOptionVersion,
+            parsed.specificationVersion?.valueLimitedPurseServiceOptionVersion,
+        )
+        assertEquals(
+            original.specificationVersion?.communicationWithMacOptionVersion,
+            parsed.specificationVersion?.communicationWithMacOptionVersion,
         )
     }
 }

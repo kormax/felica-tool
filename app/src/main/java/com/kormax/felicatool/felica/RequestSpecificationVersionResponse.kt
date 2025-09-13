@@ -15,57 +15,9 @@ class RequestSpecificationVersionResponse(
     /** Status Flag2 - indicates detailed error information */
     override val statusFlag2: Byte,
 
-    /** Format Version (1 byte, fixed value 00h) Only present if statusFlag1 == 0x00 */
-    val formatVersion: Byte? = null,
-
-    /** Basic Version (2 bytes, Little Endian, BCD notation) */
-    val basicVersion: OptionVersion? = null,
-
-    /** DES option version (2 bytes, Little Endian, BCD notation) */
-    val desOptionVersion: OptionVersion? = null,
-
-    /** Reserved (2 bytes, Little Endian, BCD notation) */
-    val specialOptionVersion: OptionVersion? = null,
-
-    /** Extended Overlap option version (2 bytes, Little Endian, BCD notation) */
-    val extendedOverlapOptionVersion: OptionVersion? = null,
-
-    /** Value-Limited Purse Service option version (2 bytes, Little Endian, BCD notation) */
-    val valueLimitedPurseServiceOptionVersion: OptionVersion? = null,
-
-    /** Communication with MAC option version (2 bytes, Little Endian, BCD notation) */
-    val communicationWithMacOptionVersion: OptionVersion? = null,
+    /** Specification version information (only present if statusFlag1 == 0x00) */
+    val specificationVersion: SpecificationVersion? = null,
 ) : FelicaResponseWithIdm(idm), WithStatusFlags {
-
-    init {
-        // Validate option version dependencies
-        require(specialOptionVersion == null || desOptionVersion != null) {
-            "If specialOptionVersion is specified, desOptionVersion cannot be null"
-        }
-        require(
-            extendedOverlapOptionVersion == null ||
-                (desOptionVersion != null && specialOptionVersion != null)
-        ) {
-            "If extendedOverlapOptionVersion is specified, both desOptionVersion and specialOptionVersion cannot be null"
-        }
-        require(
-            valueLimitedPurseServiceOptionVersion == null ||
-                (desOptionVersion != null &&
-                    specialOptionVersion != null &&
-                    extendedOverlapOptionVersion != null)
-        ) {
-            "If valueLimitedPurseServiceOptionVersion is specified, desOptionVersion, specialOptionVersion, and extendedOverlapOptionVersion cannot be null"
-        }
-        require(
-            communicationWithMacOptionVersion == null ||
-                (desOptionVersion != null &&
-                    specialOptionVersion != null &&
-                    extendedOverlapOptionVersion != null &&
-                    valueLimitedPurseServiceOptionVersion != null)
-        ) {
-            "If communicationWithMacOptionVersion is specified, all previous option versions cannot be null"
-        }
-    }
 
     /** Converts the response to a byte array */
     override fun toByteArray(): ByteArray {
@@ -87,33 +39,8 @@ class RequestSpecificationVersionResponse(
         data.add(statusFlag2)
 
         // Specification Version fields (if successful)
-        if (statusFlag1 == 0x00.toByte() && basicVersion != null && formatVersion != null) {
-            // Format Version (1 byte)
-            data.add(formatVersion)
-
-            // Basic Version (2 bytes, Little Endian)
-            data.addAll(basicVersion.toByteArray().toList())
-
-            // Always 5 option slots in FeliCa specification
-            val optionCount = 5
-            data.add(optionCount.toByte())
-
-            // Option Version List (2 bytes each, Little Endian) - all 5 slots
-            // DES option
-            desOptionVersion?.let { data.addAll(it.toByteArray().toList()) }
-                ?: data.addAll(byteArrayOf(0x00, 0x00).toList())
-            // Special/Reserved option
-            specialOptionVersion?.let { data.addAll(it.toByteArray().toList()) }
-                ?: data.addAll(byteArrayOf(0x00, 0x00).toList())
-            // Extended Overlap option
-            extendedOverlapOptionVersion?.let { data.addAll(it.toByteArray().toList()) }
-                ?: data.addAll(byteArrayOf(0x00, 0x00).toList())
-            // Value-Limited Purse Service option
-            valueLimitedPurseServiceOptionVersion?.let { data.addAll(it.toByteArray().toList()) }
-                ?: data.addAll(byteArrayOf(0x00, 0x00).toList())
-            // Communication with MAC option
-            communicationWithMacOptionVersion?.let { data.addAll(it.toByteArray().toList()) }
-                ?: data.addAll(byteArrayOf(0x00, 0x00).toList())
+        if (statusFlag1 == 0x00.toByte() && specificationVersion != null) {
+            data.addAll(specificationVersion.toByteArray().toList())
         }
 
         // Update length
@@ -158,66 +85,17 @@ class RequestSpecificationVersionResponse(
             val statusFlag2 = data[offset++]
 
             // Parse specification version fields if successful and data remains
-            var formatVersion: Byte? = null
-            var basicVersion: OptionVersion? = null
-            var desOptionVersion: OptionVersion? = null
-            var specialOptionVersion: OptionVersion? = null
-            var extendedOverlapOptionVersion: OptionVersion? = null
-            var valueLimitedPurseServiceOptionVersion: OptionVersion? = null
-            var communicationWithMacOptionVersion: OptionVersion? = null
+            var specificationVersion: SpecificationVersion? = null
 
             if (statusFlag1 == 0x00.toByte() && offset < data.size) {
-                // Format Version (1 byte)
-                formatVersion = data[offset++]
-
-                // Basic Version (2 bytes, Little Endian)
-                if (offset + 2 <= data.size) {
-                    val basicVersionBytes = data.sliceArray(offset until offset + 2)
-                    basicVersion = OptionVersion.fromByteArray(basicVersionBytes)
-                    offset += 2
-                }
-
-                // Number of options (1 byte)
-                if (offset < data.size) {
-                    val numberOfOptions = data[offset++].toInt() and 0xFF
-
-                    // Parse options based on their positions in the standard format
-                    for (i in 0 until numberOfOptions) {
-                        if (offset + 2 <= data.size) {
-                            val optionBytes = data.sliceArray(offset until offset + 2)
-                            val optionVersion = OptionVersion.fromByteArray(optionBytes)
-
-                            // Only assign non-missing options
-                            when (i) {
-                                0 -> desOptionVersion = optionVersion // DES option
-                                1 -> specialOptionVersion = optionVersion // Special option
-                                2 ->
-                                    extendedOverlapOptionVersion =
-                                        optionVersion // Extended Overlap option
-                                3 ->
-                                    valueLimitedPurseServiceOptionVersion =
-                                        optionVersion // Value-Limited Purse Service option
-                                4 ->
-                                    communicationWithMacOptionVersion =
-                                        optionVersion // Communication with MAC option
-                            }
-                            offset += 2
-                        }
-                    }
-                }
+                specificationVersion = SpecificationVersion.fromByteArray(data, offset)
             }
 
             return RequestSpecificationVersionResponse(
                 idm,
                 statusFlag1,
                 statusFlag2,
-                formatVersion,
-                basicVersion,
-                desOptionVersion,
-                specialOptionVersion,
-                extendedOverlapOptionVersion,
-                valueLimitedPurseServiceOptionVersion,
-                communicationWithMacOptionVersion,
+                specificationVersion,
             )
         }
     }

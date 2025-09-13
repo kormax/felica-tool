@@ -18,7 +18,7 @@ data class CardScanContext(
     val primarySystemCode: ByteArray? = null,
     val discoveredSystemCodes: List<ByteArray> = emptyList(),
     val communicationPerformance: CommunicationPerformance? = null,
-    val specificationVersion: RequestSpecificationVersionResponse? = null,
+    val specificationVersion: SpecificationVersion? = null,
     val containerIssueInformation: ContainerInformation? = null,
     val platformInformation: GetPlatformInformationResponse? = null,
     val containerIdm: ByteArray? = null,
@@ -605,7 +605,8 @@ class CardScanService {
         val requestSpecVersionResponse = target.transceive(requestSpecVersionCommand)
 
         // Store specification version in context
-        scanContext = scanContext.copy(specificationVersion = requestSpecVersionResponse)
+        scanContext =
+            scanContext.copy(specificationVersion = requestSpecVersionResponse.specificationVersion)
 
         return buildString {
                 appendLine("Specification Version Information:")
@@ -615,44 +616,50 @@ class CardScanService {
 
                 if (requestSpecVersionResponse.isStatusSuccessful) {
                     appendLine(
-                        "Format Version: 0x${requestSpecVersionResponse.formatVersion?.toUByte()?.toString(16)?.uppercase()?.padStart(2, '0') ?: "N/A"}"
+                        "Format Version: 0x${requestSpecVersionResponse.specificationVersion?.formatVersion?.toUByte()?.toString(16)?.uppercase()?.padStart(2, '0') ?: "N/A"}"
                     )
                     appendLine()
 
-                    requestSpecVersionResponse.basicVersion?.let { basicVersion ->
+                    requestSpecVersionResponse.specificationVersion?.basicVersion?.let {
+                        basicVersion ->
                         appendLine("Basic Version: ${basicVersion.major}.${basicVersion.minor}")
                     }
 
-                    requestSpecVersionResponse.desOptionVersion?.let { desVersion ->
+                    requestSpecVersionResponse.specificationVersion?.desOptionVersion?.let {
+                        desVersion ->
                         appendLine("DES Option Version: ${desVersion.major}.${desVersion.minor}")
                     }
 
-                    requestSpecVersionResponse.specialOptionVersion?.let { specialVersion ->
+                    requestSpecVersionResponse.specificationVersion?.specialOptionVersion?.let {
+                        specialVersion ->
                         appendLine(
                             "Special Option Version: ${specialVersion.major}.${specialVersion.minor}"
                         )
                     }
 
-                    requestSpecVersionResponse.extendedOverlapOptionVersion?.let {
-                        extendedOverlapVersion ->
-                        appendLine(
-                            "Extended Overlap Option Version: ${extendedOverlapVersion.major}.${extendedOverlapVersion.minor}"
-                        )
-                    }
+                    requestSpecVersionResponse.specificationVersion
+                        ?.extendedOverlapOptionVersion
+                        ?.let { extendedOverlapVersion ->
+                            appendLine(
+                                "Extended Overlap Option Version: ${extendedOverlapVersion.major}.${extendedOverlapVersion.minor}"
+                            )
+                        }
 
-                    requestSpecVersionResponse.valueLimitedPurseServiceOptionVersion?.let {
-                        valueLimitedPurseVersion ->
-                        appendLine(
-                            "Value-Limited Purse Service Option Version: ${valueLimitedPurseVersion.major}.${valueLimitedPurseVersion.minor}"
-                        )
-                    }
+                    requestSpecVersionResponse.specificationVersion
+                        ?.valueLimitedPurseServiceOptionVersion
+                        ?.let { valueLimitedPurseVersion ->
+                            appendLine(
+                                "Value-Limited Purse Service Option Version: ${valueLimitedPurseVersion.major}.${valueLimitedPurseVersion.minor}"
+                            )
+                        }
 
-                    requestSpecVersionResponse.communicationWithMacOptionVersion?.let {
-                        communicationWithMacVersion ->
-                        appendLine(
-                            "Communication with MAC Option Version: ${communicationWithMacVersion.major}.${communicationWithMacVersion.minor}"
-                        )
-                    }
+                    requestSpecVersionResponse.specificationVersion
+                        ?.communicationWithMacOptionVersion
+                        ?.let { communicationWithMacVersion ->
+                            appendLine(
+                                "Communication with MAC Option Version: ${communicationWithMacVersion.major}.${communicationWithMacVersion.minor}"
+                            )
+                        }
                 } else {
                     appendLine("Failed to retrieve specification version information")
                 }

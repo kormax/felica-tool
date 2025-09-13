@@ -137,10 +137,8 @@ object ExportUtils {
         // Specification version
         scanContext.specificationVersion?.let { spec ->
             val specJson = JSONObject()
-            spec.formatVersion?.let {
-                specJson.put("format_version", "%02X".format(it.toUByte().toInt()))
-            }
-            spec.basicVersion?.let { basic -> specJson.put("basic_version", basic.toString()) }
+            specJson.put("format_version", "%02X".format(spec.formatVersion.toUByte().toInt()))
+            specJson.put("basic_version", spec.basicVersion.toString())
             spec.desOptionVersion?.let { des -> specJson.put("des_option_version", des.toString()) }
             spec.specialOptionVersion?.let { special ->
                 specJson.put("special_option_version", special.toString())

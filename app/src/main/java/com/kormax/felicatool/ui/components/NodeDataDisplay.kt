@@ -280,59 +280,54 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
 
                 // Feature Support (Option Versions) Section
                 context.specificationVersion?.let { specVersion ->
-                    if (specVersion.isStatusSuccessful) {
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-                        Text(
-                            text = "Feature Support",
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Medium,
-                            modifier = Modifier.padding(bottom = 6.dp),
+                    Text(
+                        text = "Feature Support",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.padding(bottom = 6.dp),
+                    )
+
+                    CompactInfoRow(
+                        label = "Format Version",
+                        value =
+                            "0x${specVersion.formatVersion.toUByte().toString(16).uppercase().padStart(2, '0')}",
+                    )
+                    CompactInfoRow(
+                        label = "Basic Version",
+                        value =
+                            "${specVersion.basicVersion.major}.${specVersion.basicVersion.minor}",
+                    )
+                    specVersion.desOptionVersion?.let { version ->
+                        CompactInfoRow(
+                            label = "DES Option Version",
+                            value = "${version.major}.${version.minor}",
                         )
-
-                        specVersion.formatVersion?.let { version ->
-                            CompactInfoRow(
-                                label = "Format Version",
-                                value =
-                                    "0x${version.toUByte().toString(16).uppercase().padStart(2, '0')}",
-                            )
-                        }
-                        specVersion.basicVersion?.let { version ->
-                            CompactInfoRow(
-                                label = "Basic Version",
-                                value = "${version.major}.${version.minor}",
-                            )
-                        }
-                        specVersion.desOptionVersion?.let { version ->
-                            CompactInfoRow(
-                                label = "DES Option Version",
-                                value = "${version.major}.${version.minor}",
-                            )
-                        }
-                        specVersion.specialOptionVersion?.let { version ->
-                            CompactInfoRow(
-                                label = "Special Option Version",
-                                value = "${version.major}.${version.minor}",
-                            )
-                        }
-                        specVersion.extendedOverlapOptionVersion?.let { version ->
-                            CompactInfoRow(
-                                label = "Extended Overlap Option Version",
-                                value = "${version.major}.${version.minor}",
-                            )
-                        }
-                        specVersion.valueLimitedPurseServiceOptionVersion?.let { version ->
-                            CompactInfoRow(
-                                label = "Value-Limited Purse Service Option Version",
-                                value = "${version.major}.${version.minor}",
-                            )
-                        }
-                        specVersion.communicationWithMacOptionVersion?.let { version ->
-                            CompactInfoRow(
-                                label = "Communication with MAC Option Version",
-                                value = "${version.major}.${version.minor}",
-                            )
-                        }
+                    }
+                    specVersion.specialOptionVersion?.let { version ->
+                        CompactInfoRow(
+                            label = "Special Option Version",
+                            value = "${version.major}.${version.minor}",
+                        )
+                    }
+                    specVersion.extendedOverlapOptionVersion?.let { version ->
+                        CompactInfoRow(
+                            label = "Extended Overlap Option Version",
+                            value = "${version.major}.${version.minor}",
+                        )
+                    }
+                    specVersion.valueLimitedPurseServiceOptionVersion?.let { version ->
+                        CompactInfoRow(
+                            label = "Value-Limited Purse Service Option Version",
+                            value = "${version.major}.${version.minor}",
+                        )
+                    }
+                    specVersion.communicationWithMacOptionVersion?.let { version ->
+                        CompactInfoRow(
+                            label = "Communication with MAC Option Version",
+                            value = "${version.major}.${version.minor}",
+                        )
                     }
                 }
 
@@ -517,6 +512,10 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                             context.getContainerIssueInformationSupport,
                         )
                         CommandSupportChip("Get Container ID", context.getContainerIdSupport)
+                        CommandSupportChip(
+                            "Get Container Property",
+                            context.getContainerPropertySupport,
+                        )
                     }
 
                     // Advanced Commands
@@ -535,10 +534,6 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                         CommandSupportChip(
                             "Get Area Information",
                             context.getAreaInformationSupport,
-                        )
-                        CommandSupportChip(
-                            "Get Container Property",
-                            context.getContainerPropertySupport,
                         )
                         CommandSupportChip("Set Parameter", context.setParameterSupport)
                         CommandSupportChip("Echo", context.echoSupport)

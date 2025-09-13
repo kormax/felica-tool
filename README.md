@@ -117,12 +117,11 @@ Build and install the debug version:
 
 * Improve annotation of known system, area codes, and IC types;
 * Improve/refactor the UI part of the project.
-* Add testing for some more commands with unknown meanings:
-  * UNKNOWN_PREISSUANCE_GET_STATUS (2E).
+* Add testing for some more commands with unknown meaning;
+* Add support for FALP commands (need hardware to test on);
 * Implement support for DES authentication commands (WIP, waiting for an ability to properly test Authentication2);
 * Support external readers (PN532, PCSC);
 * Add desktop (macOS, Linux, Windows) support by moving over to Compose Multiplatform;
-* Add support for FALP commands (need hardware to test on);
 * Add root-related functionality:
   * An ability to emulate a FeliCa standard card;
   * Support for commands with two-byte codes, some of which may only be available on wired interface, while talking to the embedded Osaifu-Keitai applet or chip.
