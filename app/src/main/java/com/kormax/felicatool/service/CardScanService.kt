@@ -52,6 +52,8 @@ data class CardScanContext(
     val getContainerPropertySupport: CommandSupport = CommandSupport.UNKNOWN,
     val authentication1DesSupport: CommandSupport = CommandSupport.UNKNOWN,
     val authentication1AesSupport: CommandSupport = CommandSupport.UNKNOWN,
+    // Container property values - map of property object to response data
+    val containerPropertyValues: Map<GetContainerPropertyCommand.Property, ByteArray> = emptyMap(),
 ) {}
 
 data class SystemScanContext(
@@ -1397,6 +1399,8 @@ class CardScanService {
 
     private suspend fun executeGetContainerProperty(target: FeliCaTarget): String {
         val results = mutableListOf<String>()
+        val containerPropertyValues =
+            mutableMapOf<GetContainerPropertyCommand.Property, ByteArray>()
 
         // Test both known property types
         val propertiesToTest =
@@ -1410,6 +1414,9 @@ class CardScanService {
         propertiesToTest.forEach { property ->
             val getContainerPropertyCommand = GetContainerPropertyCommand(property)
             val getContainerPropertyResponse = target.transceive(getContainerPropertyCommand)
+
+            // Store the property value in the map using Property object as key
+            containerPropertyValues[property] = getContainerPropertyResponse.data
 
             successfulCommands++
             results.add(
@@ -1425,6 +1432,9 @@ class CardScanService {
                 }
             )
         }
+
+        // Store container property values in scan context
+        scanContext = scanContext.copy(containerPropertyValues = containerPropertyValues.toMap())
 
         return buildString {
                 appendLine(

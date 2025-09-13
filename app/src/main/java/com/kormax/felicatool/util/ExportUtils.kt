@@ -157,6 +157,13 @@ object ExportUtils {
             json.put("specification_version", specJson)
         }
 
+        scanContext.platformInformation?.let { platformInformationResponse ->
+            json.put(
+                "platform_information",
+                platformInformationResponse.platformInformationData.toHexString(),
+            )
+        }
+
         // Container issue information
         scanContext.containerIssueInformation?.let { container ->
             val containerJson = JSONObject()
@@ -179,6 +186,15 @@ object ExportUtils {
                 }
             containerJson.put("mobile_phone_model_info", modelString)
             json.put("container_issue_information", containerJson)
+        }
+
+        // Container property values
+        if (scanContext.containerPropertyValues.isNotEmpty()) {
+            val containerPropertyJson = JSONObject()
+            scanContext.containerPropertyValues.forEach { (property, data) ->
+                containerPropertyJson.put(property.toByteArray().toHexString(), data.toHexString())
+            }
+            json.put("container_properties", containerPropertyJson)
         }
 
         // Error indication mode
