@@ -6,16 +6,18 @@ import com.kormax.felicatool.felica.FelicaResponse
 import kotlin.time.Duration
 import kotlin.time.TimeSource
 
-class CommunicationLoggedFeliCaTarget(
-    private val target: FeliCaTarget,
-    private val log: MutableList<CommunicationLogEntry>,
-) : FeliCaTarget by target {
+class CommunicationLoggedFeliCaTarget(private val target: FeliCaTarget) : FeliCaTarget by target {
+    private val _log: MutableList<CommunicationLogEntry> = mutableListOf()
+
+    val log: List<CommunicationLogEntry>
+        get() = _log
+
     override suspend fun <T : FelicaResponse> transceive(
         command: FelicaCommand<T>,
         timeout: Duration?,
     ): T {
         val now = mark.elapsedNow().inWholeNanoseconds
-        log.add(
+        _log.add(
             CommunicationLogEntry(
                 CommunicationLogEntry.Type.COMMAND,
                 now,
@@ -25,7 +27,7 @@ class CommunicationLoggedFeliCaTarget(
         )
         val response = target.transceive(command, timeout)
         val nowResp = mark.elapsedNow().inWholeNanoseconds
-        log.add(
+        _log.add(
             CommunicationLogEntry(
                 CommunicationLogEntry.Type.RESPONSE,
                 nowResp,

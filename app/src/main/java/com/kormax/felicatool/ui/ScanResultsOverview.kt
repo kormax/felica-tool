@@ -71,7 +71,7 @@ fun ScanResultsOverview(
                                 showExportMenu = false
                                 ExportUtils.exportCommunicationLog(
                                     context,
-                                    cardScanService.getCommunicationLog(),
+                                    cardScanService.getScanContext().communicationLog,
                                 )
                             },
                         )

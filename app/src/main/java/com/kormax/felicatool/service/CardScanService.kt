@@ -54,6 +54,7 @@ data class CardScanContext(
     val authentication1AesSupport: CommandSupport = CommandSupport.UNKNOWN,
     // Container property values - map of property object to response data
     val containerPropertyValues: Map<GetContainerPropertyCommand.Property, ByteArray> = emptyMap(),
+    val communicationLog: List<CommunicationLogEntry> = emptyList(),
 ) {}
 
 data class SystemScanContext(
@@ -78,18 +79,13 @@ class CardScanService {
     // Context to store discovered nodes across steps
     private var scanContext = CardScanContext()
 
-    // Communication log: stores scan events with monotonic timestamps
-    private val communicationLog = mutableListOf<CommunicationLogEntry>()
-
     // Public getter for context
     fun getScanContext(): CardScanContext = scanContext
 
-    // Public getter for communication log
-    fun getCommunicationLog(): List<CommunicationLogEntry> = communicationLog
-
-    /** Returns a wrapped FeliCaTarget that logs all communications */
-    fun wrapTargetForCommunicationLogging(target: FeliCaTarget): FeliCaTarget =
-        CommunicationLoggedFeliCaTarget(target, communicationLog)
+    /** Returns a wrapped FeliCaTarget that logs all communications. Clears previous logs. */
+    fun wrapTargetForCommunicationLogging(target: FeliCaTarget): FeliCaTarget {
+        return CommunicationLoggedFeliCaTarget(target)
+    }
 
     /** Updates the scan context with command support status */
     private fun updateCommandSupport(commandId: String, support: CommandSupport) {
@@ -326,6 +322,11 @@ class CardScanService {
                         )
                     }
                     "scan_overview" -> {
+                        // Copy logs from target into scan context at overview step
+                        (target as? CommunicationLoggedFeliCaTarget)?.let { loggedTarget ->
+                            scanContext = scanContext.copy(communicationLog = loggedTarget.log)
+                        }
+
                         step.copy(
                             status = StepStatus.COMPLETED,
                             result =

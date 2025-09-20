@@ -194,9 +194,7 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
 
                 // Container Information Section (only if container commands responded)
                 val hasContainerInfo =
-                    context.containerIssueInformation != null ||
-                        context.containerIdm != null ||
-                        context.platformInformation != null
+                    context.containerIssueInformation != null || context.containerIdm != null
 
                 if (hasContainerInfo) {
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
