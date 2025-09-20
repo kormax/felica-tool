@@ -44,6 +44,14 @@ class BlockReader(
         }
 
         var maxBlocks = maxBlocksPerRequest
+        if (errorLocationIndication == ErrorLocationIndication.BITMASK) {
+            maxBlocks = 8
+            Log.w(
+                TAG,
+                "BITMASK mode: Adjusting max block per read to $maxBlocks to avoid ambiguity",
+            )
+        }
+
         var maxServices = maxServicesPerRequest
         var consecutiveFailures = 0
 
@@ -236,7 +244,6 @@ class BlockReader(
                             )
                         }
                         ErrorLocationIndication.BITMASK -> {
-                            // Handle bitmask-based error indication (FeliCa Lite S)
                             val errorBitmask = statusFlag1.toInt() and 0xFF
                             Log.d(
                                 TAG,
