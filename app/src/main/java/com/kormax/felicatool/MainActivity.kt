@@ -123,7 +123,9 @@ class MainActivity : ComponentActivity() {
                 val flags =
                     NfcAdapter.FLAG_READER_NFC_F or NfcAdapter.FLAG_READER_NO_PLATFORM_SOUNDS
 
-                adapter.enableReaderMode(this, { tag -> handleTag(tag) }, flags, null)
+                val options =
+                    Bundle().apply { putInt(NfcAdapter.EXTRA_READER_PRESENCE_CHECK_DELAY, 3000) }
+                adapter.enableReaderMode(this, { tag -> handleTag(tag) }, flags, options)
             }
         }
     }
