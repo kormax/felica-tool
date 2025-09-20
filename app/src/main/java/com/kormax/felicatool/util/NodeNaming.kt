@@ -27,6 +27,8 @@ object NodeNaming {
                 mapOf(
                     "00103F17" to "Edy root",
                     "01103F17" to "Edy",
+                    "4039FF39" to "FeliCa Pocket root",
+                    "4139FF39" to "FeliCa Pocket",
                     "8055BF56" to "Nanaco root",
                     "8155BF56" to "Nanaco",
                     "C067FF68" to "WAON root",
@@ -42,6 +44,12 @@ object NodeNaming {
                     // Edy area services
                     "01103F17" to
                         mapOf("0B11" to "Edy ID", "1713" to "Edy balance", "0F17" to "Edy log"),
+                    "4139FF39" to
+                        mapOf(
+                            "4B39" to "Pocket Capabilities",
+                            "8B39" to "Pocket Directory",
+                            "C939" to "Pocket Data",
+                        ),
 
                     // nanaco area services
                     "8155BF56" to
