@@ -275,45 +275,14 @@ class CardScanService {
             val resultStep =
                 when (step.id) {
                     "search_service_code" -> {
-                        try {
-                            val (collapsedResult, expandedResult) = executeSearchServiceCode(target)
-                            updateCommandSupport(step.id, CommandSupport.SUPPORTED)
-                            step.copy(
-                                status = StepStatus.COMPLETED,
-                                result = expandedResult,
-                                collapsedResult = collapsedResult,
-                                isCollapsed = true,
-                                // treeData = null // Commented out tree display for now
-                            )
-                        } catch (e: Exception) {
-                            // Search service code failed, add System (FFFF) node as fallback
-                            Log.d(
-                                "CardScanService",
-                                "Search service code failed: ${e.message}. Adding System (FFFF) node as fallback.",
-                            )
-
-                            // Add System node to all system contexts as fallback
-                            val updatedSystemContexts =
-                                scanContext.systemScanContexts.map { systemContext ->
-                                    val updatedNodes = systemContext.nodes.toMutableList()
-                                    if (!updatedNodes.any { it is System }) {
-                                        updatedNodes.add(System)
-                                    }
-                                    systemContext.copy(nodes = updatedNodes)
-                                }
-
-                            // Update scan context with fallback nodes
-                            scanContext =
-                                scanContext.copy(systemScanContexts = updatedSystemContexts)
-
-                            updateCommandSupport(step.id, CommandSupport.UNSUPPORTED)
-                            step.copy(
-                                status = StepStatus.ERROR,
-                                result =
-                                    "Search service code failed, added System (FFFF) node as fallback",
-                                collapsedResult = "Added System (FFFF) node as fallback",
-                            )
-                        }
+                        val (collapsedResult, expandedResult) = executeSearchServiceCode(target)
+                        updateCommandSupport(step.id, CommandSupport.SUPPORTED)
+                        step.copy(
+                            status = StepStatus.COMPLETED,
+                            result = expandedResult,
+                            collapsedResult = collapsedResult,
+                            isCollapsed = true,
+                        )
                     }
                     "request_service" -> {
                         val (collapsedResult, expandedResult) = executeRequestService(target)
@@ -429,7 +398,7 @@ class CardScanService {
         }
     }
 
-    private fun handleDiscoveredSystemCodes(
+    private suspend fun handleDiscoveredSystemCodes(
         discoveredSystemCodes: List<ByteArray>,
         target: FeliCaTarget,
     ): List<SystemScanContext> {
@@ -468,25 +437,28 @@ class CardScanService {
                 // Keep existing context
                 updatedSystemContexts.add(existingContext)
             } else {
-                // Create new context
-                val newNodes = mutableListOf<Node>()
+                // Verify the system can be polled before creating a context
+                val canPoll =
+                    try {
+                        pollSystemCode(target, systemCode)
+                        true
+                    } catch (e: Exception) {
+                        Log.d(
+                            "CardScanService",
+                            "Skipping system ${systemCode.toHexString().uppercase()} - polling failed: ${e.message}",
+                        )
+                        false
+                    }
 
-                // Add special service nodes for 12FC and 88B4 system codes
-                if (
-                    systemCode.contentEquals(byteArrayOf(0x12.toByte(), 0xFC.toByte())) ||
-                        systemCode.contentEquals(byteArrayOf(0x88.toByte(), 0xB4.toByte()))
-                ) {
-
-                    // Add System node, Root Area and Service nodes 0x0009 and 0x000B
-                    newNodes.add(System)
-                    newNodes.add(Area.ROOT)
-                    newNodes.add(Service.fromHexString("0900"))
-                    newNodes.add(Service.fromHexString("0B00"))
+                if (canPoll) {
+                    val newContext =
+                        SystemScanContext(
+                            systemCode = systemCode,
+                            nodes = emptyList(),
+                            idm = target.idm,
+                        )
+                    updatedSystemContexts.add(newContext)
                 }
-
-                val newContext =
-                    SystemScanContext(systemCode = systemCode, nodes = newNodes, idm = target.idm)
-                updatedSystemContexts.add(newContext)
             }
         }
 
@@ -925,62 +897,79 @@ class CardScanService {
     private suspend fun executeSearchServiceCode(target: FeliCaTarget): Pair<String, String> {
         val allDiscoveredNodes = mutableListOf<Node>()
         val systemContextsToUpdate = mutableListOf<SystemScanContext>()
+        var supportedSystems = 0
+        var unsupportedSystems = 0
+        var populatedKnownFallbacks = 0
 
-        // Process each system context separately
+        // Process each known system context separately, probing support first
         for (systemContext in scanContext.systemScanContexts) {
-            // Perform system-specific polling before executing commands
+            // Perform system-specific polling before probing/scanning
             pollSystemCode(target, systemContext.systemCode)
 
-            val nodeArray = mutableListOf<Node>()
+            val systemCodeHex = systemContext.systemCode?.toHexString()
 
-            // Iterate through service codes from 0x0000 to 0xFFFF
-            for (index in 0x0000..SearchServiceCodeCommand.MAX_ITERATOR_INDEX) {
-                val searchServiceCodeCommand = SearchServiceCodeCommand(target.idm, index)
-                val parsedSearchResponse = target.transceive(searchServiceCodeCommand)
+            // Probe: try a single request at index 0 to detect support
+            val isSupported =
+                try {
+                    val probe = SearchServiceCodeCommand(target.idm, 0)
+                    target.transceive(probe)
+                    true
+                } catch (e: Exception) {
+                    false
+                }
 
-                val node = parsedSearchResponse.node
-                if (node != null) {
-                    nodeArray.add(node)
+            if (isSupported) {
+                supportedSystems++
+                val nodeArray = mutableListOf<Node>()
 
-                    // Stop iteration if we found a system node
-                    if (node is System) {
+                // Iterate through service codes until a System node or termination
+                for (index in 0x0000..SearchServiceCodeCommand.MAX_ITERATOR_INDEX) {
+                    val searchServiceCodeCommand = SearchServiceCodeCommand(target.idm, index)
+                    val parsedSearchResponse = target.transceive(searchServiceCodeCommand)
+
+                    val node = parsedSearchResponse.node
+                    if (node != null) {
+                        nodeArray.add(node)
+
+                        if (node is System) {
+                            Log.d(
+                                "CardScanService",
+                                "Found system node at index $index for system ${systemCodeHex}, stopping iteration",
+                            )
+                            break
+                        }
+                    } else {
                         Log.d(
                             "CardScanService",
-                            "Found system node at index $index for system ${systemContext.systemCode?.toHexString()}, stopping iteration",
+                            "No node found at index $index for system ${systemCodeHex}, stopping iteration",
                         )
                         break
                     }
-                } else {
-                    // No more nodes found, stop iteration
-                    Log.d(
-                        "CardScanService",
-                        "No node found at index $index for system ${systemContext.systemCode?.toHexString()}, stopping iteration",
-                    )
-                    break
                 }
+
+                allDiscoveredNodes.addAll(nodeArray)
+                systemContextsToUpdate.add(systemContext.copy(nodes = nodeArray))
+            } else {
+                unsupportedSystems++
+                // Try to populate known services for specific system codes
+                val knownNodes = knownNodesForSystemCode(systemContext.systemCode)
+                if (knownNodes.isNotEmpty()) {
+                    populatedKnownFallbacks++
+                }
+                allDiscoveredNodes.addAll(knownNodes)
+                systemContextsToUpdate.add(systemContext.copy(nodes = knownNodes))
             }
-
-            allDiscoveredNodes.addAll(nodeArray)
-
-            // Update system context with discovered nodes
-            val updatedSystemContext = systemContext.copy(nodes = nodeArray)
-            systemContextsToUpdate.add(updatedSystemContext)
         }
 
-        // Handle case where no system contexts exist yet (fallback for legacy compatibility)
+        // Handle case where no system contexts exist yet (legacy fallback): probe globally
         if (scanContext.systemScanContexts.isEmpty()) {
             val nodeArray = mutableListOf<Node>()
-
-            // Iterate through service codes from 0x0000 to 0xFFFF
             for (index in 0x0000..SearchServiceCodeCommand.MAX_ITERATOR_INDEX) {
                 val searchServiceCodeCommand = SearchServiceCodeCommand(target.idm, index)
                 val parsedSearchResponse = target.transceive(searchServiceCodeCommand)
-
                 val node = parsedSearchResponse.node
                 if (node != null) {
                     nodeArray.add(node)
-
-                    // Stop iteration if we found a system node
                     if (node is System) {
                         Log.d(
                             "CardScanService",
@@ -989,15 +978,11 @@ class CardScanService {
                         break
                     }
                 } else {
-                    // No more nodes found, stop iteration
                     Log.d("CardScanService", "No node found at index $index, stopping iteration")
                     break
                 }
             }
-
             allDiscoveredNodes.addAll(nodeArray)
-
-            // Create new system context
             val systemContext =
                 SystemScanContext(
                     systemCode = scanContext.primarySystemCode,
@@ -1005,78 +990,97 @@ class CardScanService {
                     idm = target.idm,
                 )
             systemContextsToUpdate.add(systemContext)
+            supportedSystems = if (nodeArray.isNotEmpty()) 1 else 0
         }
 
         // Update scan context with all system contexts
         scanContext = scanContext.copy(systemScanContexts = systemContextsToUpdate)
+
+        // If no systems supported the command, raise
+        if (supportedSystems == 0) {
+            throw RuntimeException(
+                "Search Service Code unsupported on all systems; populated known services for ${populatedKnownFallbacks} system(s) where applicable"
+            )
+        }
 
         // Calculate statistics across all discovered nodes
         val areas = allDiscoveredNodes.filterIsInstance<Area>()
         val services = allDiscoveredNodes.filterIsInstance<Service>()
         val systems = allDiscoveredNodes.filterIsInstance<System>()
 
-        return if (allDiscoveredNodes.isNotEmpty()) {
-            // Collapsed view - just summary
-            val collapsedResult =
-                "Found ${areas.size} areas, ${services.size} services across ${systemContextsToUpdate.size} system(s)"
+        // Collapsed view - summary
+        val collapsedResult =
+            "Found ${areas.size} areas, ${services.size} services across ${systemContextsToUpdate.size} system(s); supported: ${supportedSystems}, unsupported: ${unsupportedSystems}${if (populatedKnownFallbacks > 0) ", fallback populated: ${populatedKnownFallbacks}" else ""}"
 
-            // Expanded view - detailed list
-            val expandedResult =
-                buildString {
+        // Expanded view - detailed list
+        val expandedResult =
+            buildString {
+                    appendLine(
+                        "Discovered/Populated Nodes across ${systemContextsToUpdate.size} system(s):"
+                    )
+                    appendLine(
+                        "Supported systems: ${supportedSystems}, Unsupported systems: ${unsupportedSystems}${if (populatedKnownFallbacks > 0) ", Fallback populated: ${populatedKnownFallbacks}" else ""}"
+                    )
+                    appendLine()
+
+                    systemContextsToUpdate.forEachIndexed { index, context ->
+                        val contextAreas = context.nodes.filterIsInstance<Area>()
+                        val contextServices = context.nodes.filterIsInstance<Service>()
+                        val contextSystems = context.nodes.filterIsInstance<System>()
+
                         appendLine(
-                            "Discovered Nodes across ${systemContextsToUpdate.size} system(s):"
+                            "System Context ${index + 1} (${context.systemCode?.toHexString() ?: "unknown"}):"
                         )
-
-                        // Show breakdown by system context
-                        systemContextsToUpdate.forEachIndexed { index, context ->
-                            val contextAreas = context.nodes.filterIsInstance<Area>()
-                            val contextServices = context.nodes.filterIsInstance<Service>()
-                            val contextSystems = context.nodes.filterIsInstance<System>()
-
+                        appendLine(" Areas (${contextAreas.size}):")
+                        contextAreas.forEach { area ->
                             appendLine(
-                                "System Context ${index + 1} (${context.systemCode?.toHexString() ?: "unknown"}):"
+                                "  - Area ${area.code.toHexString()}: Range ${area.number}-${area.endNumber}"
                             )
-                            appendLine(" Areas (${contextAreas.size}):")
-                            contextAreas.forEach { area ->
-                                appendLine(
-                                    "  - Area ${area.code.toHexString()}: Range ${area.number}-${area.endNumber}"
-                                )
-                            }
-                            if (contextAreas.isEmpty()) {
-                                appendLine("    - None")
-                            }
-
-                            appendLine(" Services (${contextServices.size}):")
-                            contextServices.forEach { service ->
-                                appendLine(
-                                    "  - Service ${service.code.toHexString()}: ${service.attribute.name}"
-                                )
-                            }
-                            if (contextServices.isEmpty()) {
-                                appendLine("    - None")
-                            }
-
-                            appendLine("  Systems (${contextSystems.size}):")
-                            contextSystems.forEach { system ->
-                                appendLine("    - System ${system.code.toHexString()}")
-                            }
-                            if (contextSystems.isEmpty()) {
-                                appendLine("    - None")
-                            }
-                            appendLine()
                         }
+                        if (contextAreas.isEmpty()) appendLine("    - None")
 
-                        appendLine("Total Summary:")
-                        appendLine(
-                            "Areas: ${areas.size}, Services: ${services.size}, Systems: ${systems.size}"
-                        )
+                        appendLine(" Services (${contextServices.size}):")
+                        contextServices.forEach { service ->
+                            appendLine(
+                                "  - Service ${service.code.toHexString()}: ${service.attribute.name}"
+                            )
+                        }
+                        if (contextServices.isEmpty()) appendLine("    - None")
+
+                        appendLine("  Systems (${contextSystems.size}):")
+                        contextSystems.forEach { system ->
+                            appendLine("    - System ${system.code.toHexString()}")
+                        }
+                        if (contextSystems.isEmpty()) appendLine("    - None")
+                        appendLine()
                     }
-                    .trim()
 
-            collapsedResult to expandedResult
-        } else {
-            val noResultsMessage = "Available Services: None found"
-            noResultsMessage to noResultsMessage
+                    appendLine("Total Summary:")
+                    appendLine(
+                        "Areas: ${areas.size}, Services: ${services.size}, Systems: ${systems.size}"
+                    )
+                }
+                .trim()
+
+        return collapsedResult to expandedResult
+    }
+
+    private fun knownNodesForSystemCode(systemCode: ByteArray?): List<Node> {
+        val hex = systemCode?.toHexString()?.uppercase() ?: return emptyList()
+        return when (hex) {
+            "12FC", // NDEF Type 3
+            "88B4" -> { // FeliCa Lite
+                listOf(
+                    System,
+                    Area.ROOT,
+                    Service.fromHexString("0900"),
+                    Service.fromHexString("0B00"),
+                )
+            }
+            "FFFF" -> { // Unfused cards and Osaifu-Keitai
+                listOf(System, Area.ROOT)
+            }
+            else -> emptyList()
         }
     }
 
