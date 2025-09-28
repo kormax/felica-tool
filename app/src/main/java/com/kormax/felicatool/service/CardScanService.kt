@@ -76,6 +76,11 @@ data class SystemScanContext(
 
 class CardScanService {
 
+    companion object {
+        const val PRESENCE_CHECK_FAILURE_MESSAGE =
+            "Card not responding after presence checks (Request Response/polling) - scan terminated"
+    }
+
     // Context to store discovered nodes across steps
     private var scanContext = CardScanContext()
 
@@ -199,6 +204,31 @@ class CardScanService {
         target.idm = pollingResponse.idm
     }
 
+    /**
+     * Ensures the card is present before executing a command. If Request Response is known to be
+     * supported, it is attempted first. Falls back to polling if Request Response fails or is not
+     * supported.
+     */
+    private suspend fun ensureCardPresence(target: FeliCaTarget, stepId: String) {
+        val requestResponseSupport = getCommandSupport("request_response")
+
+        if (requestResponseSupport == CommandSupport.SUPPORTED) {
+            try {
+                val response = target.transceive(RequestResponseCommand(target.idm))
+                target.idm = response.idm
+                return
+            } catch (e: Exception) {
+                Log.w(
+                    "CardScanService",
+                    "Request Response presence check failed for step $stepId, falling back to polling",
+                    e,
+                )
+            }
+        }
+
+        pollSystemCode(target)
+    }
+
     suspend fun executeStep(
         step: CardScanStep,
         target: FeliCaTarget,
@@ -212,13 +242,13 @@ class CardScanService {
         // Check card presence before executing any command (except initial_info)
         if (step.id != "polling") {
             var lastException: Exception? = null
-            var pollSuccessful = false
+            var presenceVerified = false
 
             // Try up to 3 attempts
             for (attempt in 1..5) {
                 try {
-                    pollSystemCode(target)
-                    pollSuccessful = true
+                    ensureCardPresence(target, step.id)
+                    presenceVerified = true
                     break
                 } catch (e: Exception) {
                     lastException = e
@@ -233,7 +263,7 @@ class CardScanService {
                 }
             }
 
-            if (!pollSuccessful) {
+            if (!presenceVerified) {
                 Log.e(
                     "CardScanService",
                     "Card presence check failed after 3 attempts for step ${step.id}",
@@ -241,8 +271,7 @@ class CardScanService {
                 )
                 return step.copy(
                     status = StepStatus.ERROR,
-                    errorMessage =
-                        "Card not responding to polling after 3 attempts - scan terminated",
+                    errorMessage = PRESENCE_CHECK_FAILURE_MESSAGE,
                     duration = kotlin.time.Duration.ZERO,
                 )
             }
