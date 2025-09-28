@@ -537,7 +537,7 @@ class CardScanService {
                     "  Other: ${formatTimeoutFormula(pmm.otherConstant, pmm.otherPerUnit, pmm.otherCommandSupported)}"
                 )
             }
-            .trim()
+            .trimEnd()
     }
 
     private suspend fun executeRequestResponse(target: FeliCaTarget): String {
@@ -2143,50 +2143,44 @@ class CardScanService {
                     nodeBatch.zip(valueLimitedPurseResponse.nodeProperties).forEach {
                         (node, property) ->
                         if (property is ValueLimitedPurseServiceProperty) {
-                            val nodeType =
-                                when (node) {
-                                    is Area -> "Area"
-                                    is Service -> "Service"
-                                    is System -> "System"
-                                    else -> "Unknown"
+                            val nodeCode = node.fullCode.toHexString()
+                            val formatted =
+                                if (property.enabled) {
+                                    buildString {
+                                            appendLine(" ${nodeCode.padStart(8, ' ')}:")
+                                            appendLine("   Upper Limit: ${property.upperLimit}")
+                                            appendLine("   Lower Limit: ${property.lowerLimit}")
+                                            appendLine(
+                                                "   Generation Number: ${property.generationNumber}"
+                                            )
+                                        }
+                                        .trimEnd()
+                                } else {
+                                    " ${nodeCode.padStart(8, ' ')}: Disabled"
                                 }
 
-                            valueLimitedPurseResults.add(
-                                buildString {
-                                    appendLine("    $nodeType ${node.code.toHexString()}:")
-                                    appendLine(
-                                        "      Enabled: ${if (property.enabled) "Yes" else "No"}"
-                                    )
-                                    if (property.enabled) {
-                                        appendLine("      Upper Limit: ${property.upperLimit}")
-                                        appendLine("      Lower Limit: ${property.lowerLimit}")
-                                        appendLine(
-                                            "      Generation Number: ${property.generationNumber}"
-                                        )
-                                    }
-                                }
-                            )
+                            valueLimitedPurseResults.add(formatted)
                             nodeValueLimitedPurseProperties[node] = property
                         }
                     }
                 } else {
                     valueLimitedPurseResults.add(
-                        "    Batch ${batchIndex + 1}: Failed to retrieve Value-Limited Purse Service properties (Status: 0x${valueLimitedPurseResponse.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')})"
+                        "Batch ${batchIndex + 1}: Failed to retrieve Value-Limited Purse Service properties (Status: 0x${valueLimitedPurseResponse.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')})"
                     )
                 }
             }
 
             contextResults.add(
                 buildString {
-                    appendLine("  Value-Limited Purse Service Properties:")
                     if (valueLimitedPurseResults.isNotEmpty()) {
-                        appendLine(
-                            "  Properties retrieved for ${valueLimitedPurseResults.size} nodes:"
-                        )
-                        appendLine()
-                        valueLimitedPurseResults.forEach { result -> appendLine(result) }
+                        valueLimitedPurseResults.forEachIndexed { index, result ->
+                            append(result)
+                            if (index < valueLimitedPurseResults.lastIndex) {
+                                appendLine()
+                            }
+                        }
                     } else {
-                        appendLine("  No properties retrieved")
+                        appendLine("No properties retrieved")
                     }
                 }
             )
@@ -2201,9 +2195,11 @@ class CardScanService {
             results.add(
                 buildString {
                     appendLine("System Context ${contextIndex + 1} ($systemCodeHex):")
-                    contextResults.forEach { result ->
-                        appendLine(result)
-                        appendLine()
+                    contextResults.forEachIndexed { index, result ->
+                        append(result)
+                        if (index < contextResults.lastIndex) {
+                            appendLine()
+                        }
                     }
                 }
             )
@@ -2221,13 +2217,14 @@ class CardScanService {
         return buildString {
                 appendLine("Get Node Property (Value-Limited Service) Results:")
                 appendLine("Processed ${scanContext.systemScanContexts.size} system(s)")
-                appendLine()
-                results.forEach { result ->
-                    appendLine(result)
-                    appendLine()
+                results.forEachIndexed { index, result ->
+                    appendLine(result.trimEnd())
+                    if (index < results.lastIndex) {
+                        appendLine()
+                    }
                 }
             }
-            .trim()
+            .trimEnd()
     }
 
     private suspend fun executeGetNodePropertyMacCommunication(target: FeliCaTarget): String {
@@ -2280,38 +2277,31 @@ class CardScanService {
                     nodeBatch.zip(macCommunicationResponse.nodeProperties).forEach {
                         (node, property) ->
                         if (property is MacCommunicationProperty) {
-                            val nodeType =
-                                when (node) {
-                                    is Area -> "Area"
-                                    is Service -> "Service"
-                                    is System -> "System"
-                                    else -> "Unknown"
-                                }
-
+                            val nodeCode = node.fullCode.toHexString().padStart(8, ' ')
                             macCommunicationResults.add(
-                                "    $nodeType ${node.code.toHexString()}: MAC Communication ${if (property.enabled) "Enabled" else "Disabled"}"
+                                " $nodeCode: ${if (property.enabled) "Enabled" else "Disabled"}"
                             )
                             nodeMacCommunicationProperties[node] = property
                         }
                     }
                 } else {
                     macCommunicationResults.add(
-                        "    Batch ${batchIndex + 1}: Failed to retrieve MAC Communication properties (Status: 0x${macCommunicationResponse.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')})"
+                        "Batch ${batchIndex + 1}: Failed to retrieve MAC Communication properties (Status: 0x${macCommunicationResponse.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')})"
                     )
                 }
             }
 
             contextResults.add(
                 buildString {
-                    appendLine("  MAC Communication Properties:")
                     if (macCommunicationResults.isNotEmpty()) {
-                        appendLine(
-                            "  Properties retrieved for ${macCommunicationResults.size} nodes:"
-                        )
-                        appendLine()
-                        macCommunicationResults.forEach { result -> appendLine(result) }
+                        macCommunicationResults.forEachIndexed { index, result ->
+                            append(result)
+                            if (index < macCommunicationResults.lastIndex) {
+                                appendLine()
+                            }
+                        }
                     } else {
-                        appendLine("  No properties retrieved")
+                        appendLine("No properties retrieved")
                     }
                 }
             )
@@ -2325,9 +2315,11 @@ class CardScanService {
             results.add(
                 buildString {
                     appendLine("System Context ${contextIndex + 1} ($systemCodeHex):")
-                    contextResults.forEach { result ->
-                        appendLine(result)
-                        appendLine()
+                    contextResults.forEachIndexed { index, result ->
+                        append(result)
+                        if (index < contextResults.lastIndex) {
+                            appendLine()
+                        }
                     }
                 }
             )
@@ -2345,17 +2337,12 @@ class CardScanService {
         return buildString {
                 appendLine("Get Node Property (MAC Communication) Results:")
                 appendLine("Processed ${scanContext.systemScanContexts.size} system(s)")
-                appendLine()
-                results.forEach { result ->
-                    appendLine(result)
-                    appendLine()
+                results.forEachIndexed { index, result ->
+                    appendLine(result.trimEnd())
+                    if (index < results.lastIndex) {
+                        appendLine()
+                    }
                 }
-                appendLine(
-                    "Note: MAC Communication properties indicate if MAC authentication is required."
-                )
-                appendLine(
-                    "Nodes are processed in batches of up to $maxNodesPerRequest due to protocol limits."
-                )
             }
             .trim()
     }
