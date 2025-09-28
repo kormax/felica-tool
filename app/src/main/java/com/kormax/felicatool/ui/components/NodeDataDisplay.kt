@@ -18,7 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.kormax.felicatool.felica.*
 import com.kormax.felicatool.service.CardScanContext
@@ -281,7 +283,7 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
                     Text(
-                        text = "Feature Support",
+                        text = "Specification version",
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Medium,
                         modifier = Modifier.padding(bottom = 6.dp),
@@ -291,40 +293,47 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                         label = "Format Version",
                         value =
                             "0x${specVersion.formatVersion.toUByte().toString(16).uppercase().padStart(2, '0')}",
+                        labelMaxWidth = 250.dp,
                     )
                     CompactInfoRow(
                         label = "Basic Version",
                         value =
                             "${specVersion.basicVersion.major}.${specVersion.basicVersion.minor}",
+                        labelMaxWidth = 250.dp,
                     )
                     specVersion.desOptionVersion?.let { version ->
                         CompactInfoRow(
                             label = "DES Option Version",
                             value = "${version.major}.${version.minor}",
+                            labelMaxWidth = 250.dp,
                         )
                     }
                     specVersion.specialOptionVersion?.let { version ->
                         CompactInfoRow(
                             label = "Special Option Version",
                             value = "${version.major}.${version.minor}",
+                            labelMaxWidth = 250.dp,
                         )
                     }
                     specVersion.extendedOverlapOptionVersion?.let { version ->
                         CompactInfoRow(
                             label = "Extended Overlap Option Version",
                             value = "${version.major}.${version.minor}",
+                            labelMaxWidth = 250.dp,
                         )
                     }
                     specVersion.valueLimitedPurseServiceOptionVersion?.let { version ->
                         CompactInfoRow(
                             label = "Value-Limited Purse Service Option Version",
                             value = "${version.major}.${version.minor}",
+                            labelMaxWidth = 250.dp,
                         )
                     }
                     specVersion.communicationWithMacOptionVersion?.let { version ->
                         CompactInfoRow(
                             label = "Communication with MAC Option Version",
                             value = "${version.major}.${version.minor}",
+                            labelMaxWidth = 250.dp,
                         )
                     }
                 }
@@ -985,24 +994,33 @@ private fun NodeDetailsContent(nodeInfo: NodeInformation, context: SystemScanCon
 }
 
 @Composable
-private fun CompactInfoRow(label: String, value: String, modifier: Modifier = Modifier) {
+private fun CompactInfoRow(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier,
+    labelMaxWidth: Dp = 160.dp,
+) {
     Row(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.Top,
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.weight(1f),
+            modifier =
+                Modifier.widthIn(min = 96.dp, max = labelMaxWidth)
+                    .wrapContentWidth(Alignment.Start),
+            textAlign = TextAlign.Start,
         )
         Text(
             text = value,
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodySmall.copy(lineBreak = LineBreak.Simple),
             fontFamily = FontFamily.Monospace,
             fontWeight = FontWeight.Medium,
-            modifier = Modifier.padding(start = 8.dp),
+            modifier = Modifier.weight(1f).padding(top = 2.dp),
+            textAlign = TextAlign.End,
         )
     }
 }
