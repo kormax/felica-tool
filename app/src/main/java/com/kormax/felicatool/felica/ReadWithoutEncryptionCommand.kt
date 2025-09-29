@@ -138,13 +138,9 @@ class ReadWithoutEncryptionCommand(
                 2 +
                 1 +
                 2 // + num_services(1) + min 1 service(2) + num_blocks(1) + min 1 block(2)
-        const val MAX_SERVICE_CODES =
-            15 // FeliCa specification limit for service codes is 16, but it does not make sense
+        const val MAX_SERVICE_CODES = 16 // FeliCa specification limit
         const val MAX_BLOCKS =
-            15 // It is possible to read up to 15 blocks at a time, as it takes 240 bytes, vs 254
-
-        // bytes
-        // max for FeliCa protocol
+            16 // Full protocol limit; large reads should stay below card payload caps
 
         /** Parse a Read Without Encryption command from raw bytes */
         fun fromByteArray(data: ByteArray): ReadWithoutEncryptionCommand {

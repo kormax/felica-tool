@@ -198,6 +198,10 @@ object ExportUtils {
         // Error indication mode
         json.put("error_indication_mode", scanContext.errorLocationIndication.name)
 
+        scanContext.illegalNumberErrorPreference?.let { preference ->
+            json.put("read_without_encryption_illegal_number_error_preference", preference.name)
+        }
+
         // Max systems/blocks per read
         scanContext.maxServicesPerRequest?.let { json.put("max_systems_per_read", it) }
         scanContext.maxBlocksPerRequest?.let { json.put("max_blocks_per_read", it) }

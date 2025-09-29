@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.kormax.felicatool.felica.*
+import com.kormax.felicatool.felica.IllegalNumberErrorPreference
 import com.kormax.felicatool.service.CardScanContext
 import com.kormax.felicatool.service.CommandSupport
 import com.kormax.felicatool.service.SystemScanContext
@@ -484,6 +485,17 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                                     ErrorLocationIndication.BITMASK -> "Bitmask"
                                 },
                         )
+                        context.illegalNumberErrorPreference?.let { preference ->
+                            InfoChip(
+                                label = "Limit Error Preference",
+                                value =
+                                    when (preference) {
+                                        IllegalNumberErrorPreference.SERVICE_ERROR ->
+                                            "Service (0xA1)"
+                                        IllegalNumberErrorPreference.BLOCK_ERROR -> "Block (0xA2)"
+                                    },
+                            )
+                        }
                     }
 
                     // Authentication Commands

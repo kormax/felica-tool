@@ -1,15 +1,12 @@
 package com.kormax.felicatool.service
 
 import android.util.Log
-import com.kormax.felicatool.felica.*
+import com.kormax.felicatool.felica.BlockListElement
+import com.kormax.felicatool.felica.ErrorLocationIndication
+import com.kormax.felicatool.felica.FeliCaTarget
+import com.kormax.felicatool.felica.ReadWithoutEncryptionCommand
+import com.kormax.felicatool.felica.Service
 import kotlin.math.min
-
-/** Result of block reading operation containing both data and discovered limits */
-data class BlockReadResult(
-    val blockDataByService: Map<Service, ByteArray>,
-    val maxBlocksPerRequest: Int,
-    val maxServicesPerRequest: Int,
-)
 
 /** Utility class for reading blocks from FeliCa services that don't require encryption */
 class BlockReader(
@@ -34,7 +31,7 @@ class BlockReader(
      *
      * @return BlockReadResult containing block data and discovered limits
      */
-    suspend fun readBlocksFromServices(services: List<Service>): BlockReadResult {
+    suspend fun readBlocksFromServices(services: List<Service>): Map<Service, ByteArray> {
         val blockDataByService = mutableMapOf<Service, ByteArray>()
         val blockCountByService = mutableMapOf<Service, Int>()
 
@@ -312,10 +309,6 @@ class BlockReader(
             }
         }
 
-        return BlockReadResult(
-            blockDataByService = blockDataByService,
-            maxBlocksPerRequest = maxBlocks,
-            maxServicesPerRequest = maxServices,
-        )
+        return blockDataByService
     }
 }

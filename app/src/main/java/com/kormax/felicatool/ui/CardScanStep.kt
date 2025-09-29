@@ -140,6 +140,13 @@ data class CardScanStep(
                     icon = Icons.Default.Search,
                 ),
                 CardScanStep(
+                    id = "read_without_encryption_detect_illegal_number_error_preference",
+                    title = "Detect Illegal Number Error Preference",
+                    description =
+                        "Check which error type is preferred by the card when Read Without Encryption exceeds both block and service limits",
+                    icon = Icons.Default.Search,
+                ),
+                CardScanStep(
                     id = "read_without_encryption_determine_max_services",
                     title = "Determine Max Services",
                     description = "How many services can be read in a request",

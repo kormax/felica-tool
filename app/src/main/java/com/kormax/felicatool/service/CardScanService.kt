@@ -25,6 +25,7 @@ data class CardScanContext(
     val errorLocationIndication: ErrorLocationIndication = ErrorLocationIndication.INDEX,
     val maxBlocksPerRequest: Int? = null,
     val maxServicesPerRequest: Int? = null,
+    val illegalNumberErrorPreference: IllegalNumberErrorPreference? = null,
     // Command support
     val pollingSupport: CommandSupport = CommandSupport.UNKNOWN,
     val pollingSystemCodeSupport: CommandSupport = CommandSupport.UNKNOWN,
@@ -130,6 +131,8 @@ class CardScanService {
                     scanContext.copy(readBlocksWithoutEncryptionSupport = support)
                 "read_without_encryption_determine_max_services" ->
                     scanContext.copy(readBlocksWithoutEncryptionSupport = support)
+                "read_without_encryption_detect_illegal_number_error_preference" ->
+                    scanContext.copy(readBlocksWithoutEncryptionSupport = support)
                 "read_without_encryption_determine_max_blocks" ->
                     scanContext.copy(readBlocksWithoutEncryptionSupport = support)
                 "read_blocks_without_encryption" ->
@@ -171,6 +174,8 @@ class CardScanService {
             "read_without_encryption_determine_error_indication" ->
                 scanContext.readBlocksWithoutEncryptionSupport
             "read_without_encryption_determine_max_services" ->
+                scanContext.readBlocksWithoutEncryptionSupport
+            "read_without_encryption_detect_illegal_number_error_preference" ->
                 scanContext.readBlocksWithoutEncryptionSupport
             "read_without_encryption_determine_max_blocks" ->
                 scanContext.readBlocksWithoutEncryptionSupport
@@ -331,6 +336,12 @@ class CardScanService {
                     }
                     "read_without_encryption_determine_max_services" -> {
                         val result = executeReadWithoutEncryptionDetermineMaxServices(target)
+                        updateCommandSupport(step.id, CommandSupport.SUPPORTED)
+                        step.copy(status = StepStatus.COMPLETED, result = result)
+                    }
+                    "read_without_encryption_detect_illegal_number_error_preference" -> {
+                        val result =
+                            executeReadWithoutEncryptionDetectIllegalNumberErrorPreference(target)
                         updateCommandSupport(step.id, CommandSupport.SUPPORTED)
                         step.copy(status = StepStatus.COMPLETED, result = result)
                     }
@@ -1813,6 +1824,7 @@ class CardScanService {
         var maxServices =
             ReadWithoutEncryptionCommand
                 .MAX_SERVICE_CODES // FeliCa specification limit for service codes
+        var observedIllegalNumberPreference: IllegalNumberErrorPreference? = null
 
         while (maxServices > 0) {
             // Create array of the same service code repeated maxServices times
@@ -1840,14 +1852,23 @@ class CardScanService {
                 )
                 break
             }
-            if (response.statusFlag2.toByte() != 0xA1.toByte()) {
+            val status2 = response.statusFlag2.toByte()
+            observedIllegalNumberPreference =
+                when (status2) {
+                    0xA1.toByte() -> IllegalNumberErrorPreference.SERVICE_ERROR
+                    0xA2.toByte() -> IllegalNumberErrorPreference.BLOCK_ERROR
+                    else -> null
+                }
+
+            if (observedIllegalNumberPreference == null) {
                 throw RuntimeException(
-                    "ReadWithoutEncryption failed with unexpected error (not 0xA1) at $maxServices services, status1=0x${response.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')}, status2=0x${response.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}"
+                    "ReadWithoutEncryption failed with unexpected error at $maxServices services, status1=0x${response.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')}, status2=0x${response.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}"
                 )
             }
+
             Log.d(
                 "CardScanService",
-                "ReadWithoutEncryption failed with $maxServices services, status1=0x${response.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')}, status2=0x${response.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}",
+                "ReadWithoutEncryption failed with $maxServices services, status1=0x${response.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')}, status2=0x${response.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')} (${observedIllegalNumberPreference.name})",
             )
             maxServices--
         }
@@ -1866,6 +1887,113 @@ class CardScanService {
             )
 
         return buildString { appendLine("Maximum services per request: $maxServices") }.trim()
+    }
+
+    private suspend fun executeReadWithoutEncryptionDetectIllegalNumberErrorPreference(
+        target: FeliCaTarget
+    ): String {
+        val allDiscoveredNodes = scanContext.systemScanContexts.flatMap { it.nodes }
+        val allServices = allDiscoveredNodes.filterIsInstance<Service>()
+        val allServicesWithoutAuth = allServices.filter { !it.attribute.authenticationRequired }
+
+        if (allServicesWithoutAuth.isEmpty()) {
+            throw RuntimeException(
+                "No services available that don't require authentication for limit error detection"
+            )
+        }
+
+        val bestSystemContext =
+            scanContext.systemScanContexts.maxByOrNull { systemContext ->
+                systemContext.nodes.filterIsInstance<Service>().count { service ->
+                    !service.attribute.authenticationRequired
+                }
+            } ?: throw RuntimeException("No system context found with readable services")
+
+        pollSystemCode(target, bestSystemContext.systemCode)
+
+        val services = bestSystemContext.nodes.filterIsInstance<Service>()
+        val servicesWithoutAuth = services.filter { !it.attribute.authenticationRequired }
+
+        if (servicesWithoutAuth.isEmpty()) {
+            throw RuntimeException(
+                "No readable services found in the selected system for detection"
+            )
+        }
+
+        val testService =
+            servicesWithoutAuth.firstOrNull { it.attribute.type == ServiceType.RANDOM }
+                ?: servicesWithoutAuth.first()
+
+        val requestedCount =
+            minOf(
+                ReadWithoutEncryptionCommand.MAX_SERVICE_CODES,
+                ReadWithoutEncryptionCommand.MAX_BLOCKS,
+            )
+
+        val serviceCodes = Array(requestedCount) { testService.code }
+        val blockListElements =
+            Array(requestedCount) { index ->
+                BlockListElement(serviceCodeListOrder = index, blockNumber = 0)
+            }
+
+        val readCommand =
+            ReadWithoutEncryptionCommand(
+                idm = target.idm,
+                serviceCodes = serviceCodes,
+                blockListElements = blockListElements,
+            )
+
+        val response = target.transceive(readCommand)
+        val statusFlag1 = response.statusFlag1
+        val statusFlag2 = response.statusFlag2
+
+        val status1Hex = statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')
+        val status2Hex = statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')
+
+        if (response.isStatusSuccessful) {
+            Log.w(
+                "CardScanService",
+                "Limit error detection request succeeded unexpectedly with $requestedCount services/blocks",
+            )
+            return buildString {
+                    appendLine(
+                        "Card accepted $requestedCount services and $requestedCount blocks (status1=0x$status1Hex, status2=0x$status2Hex)"
+                    )
+                    appendLine("Limit error preference unchanged")
+                }
+                .trim()
+        }
+
+        val observedPreference =
+            when (statusFlag2.toByte()) {
+                0xA1.toByte() -> IllegalNumberErrorPreference.SERVICE_ERROR
+                0xA2.toByte() -> IllegalNumberErrorPreference.BLOCK_ERROR
+                else -> null
+            }
+
+        if (observedPreference == null) {
+            throw RuntimeException(
+                "ReadWithoutEncryption limit detection failed with unexpected error, status1=0x$status1Hex status2=0x$status2Hex"
+            )
+        }
+
+        scanContext = scanContext.copy(illegalNumberErrorPreference = observedPreference)
+
+        Log.d(
+            "CardScanService",
+            "Detected Read Without Encryption limit preference: ${observedPreference.name} (status1=0x$status1Hex, status2=0x$status2Hex)",
+        )
+
+        val preferenceLabel =
+            when (observedPreference) {
+                IllegalNumberErrorPreference.SERVICE_ERROR -> "SERVICE"
+                IllegalNumberErrorPreference.BLOCK_ERROR -> "BLOCK"
+            }
+
+        return buildString {
+                appendLine("Limit error preference: $preferenceLabel 0x$status1Hex 0x$status2Hex")
+            }
+            .trim()
     }
 
     private suspend fun executeReadWithoutEncryptionDetermineMaxBlocks(
@@ -2014,11 +2142,11 @@ class CardScanService {
                     maxBlocksPerRequest = scanContext.maxBlocksPerRequest ?: 15,
                     maxServicesPerRequest = scanContext.maxServicesPerRequest ?: 16,
                 )
-            val blockReadResult = blockReader.readBlocksFromServices(servicesWithoutAuth)
+            val blockDataByService = blockReader.readBlocksFromServices(servicesWithoutAuth)
 
             // Store block data in context for this system context
             val serviceBlockDataMap = mutableMapOf<Node, ByteArray>()
-            blockReadResult.blockDataByService.forEach { (service, blockData) ->
+            blockDataByService.forEach { (service, blockData) ->
                 serviceBlockDataMap[service] = blockData
             }
 
@@ -2027,21 +2155,18 @@ class CardScanService {
             updatedSystemContexts.add(updatedSystemContext)
 
             // Update totals
-            val contextBlocksRead = blockReadResult.blockDataByService.values.sumOf { it.size / 16 }
+            val contextBlocksRead = blockDataByService.values.sumOf { it.size / 16 }
             totalBlocksRead += contextBlocksRead
-            totalServicesProcessed += blockReadResult.blockDataByService.size
-            maxBlocksPerRequest = maxOf(maxBlocksPerRequest, blockReadResult.maxBlocksPerRequest)
-            maxServicesPerRequest =
-                maxOf(maxServicesPerRequest, blockReadResult.maxServicesPerRequest)
+            totalServicesProcessed += blockDataByService.size
 
             // Build context-specific results
             val contextResult = buildString {
                 appendLine("System Context ${contextIndex + 1} ($systemCodeHex):")
                 appendLine("  Blocks read: $contextBlocksRead")
-                appendLine("  Services processed: ${blockReadResult.blockDataByService.size}")
+                appendLine("  Services processed: ${blockDataByService.size}")
                 appendLine()
 
-                blockReadResult.blockDataByService.forEach { (service, blockData) ->
+                blockDataByService.forEach { (service, blockData) ->
                     val blockCount = blockData.size / 16
                     appendLine("  Service ${service.code.toHexString()}: $blockCount blocks")
                     if (blockData.isNotEmpty()) {
@@ -2058,12 +2183,7 @@ class CardScanService {
         }
 
         // Update scan context with all system contexts and global limits
-        scanContext =
-            scanContext.copy(
-                systemScanContexts = updatedSystemContexts,
-                maxBlocksPerRequest = maxBlocksPerRequest,
-                maxServicesPerRequest = maxServicesPerRequest,
-            )
+        scanContext = scanContext.copy(systemScanContexts = updatedSystemContexts)
 
         // Format results
         val collapsedResult =
