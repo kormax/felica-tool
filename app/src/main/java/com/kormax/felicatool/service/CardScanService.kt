@@ -1118,6 +1118,34 @@ class CardScanService {
                     Service.fromHexString("0B00"),
                 )
             }
+            "8008" -> { // Octopus
+                listOf(
+                    System,
+                    Area.ROOT,
+                    Service.fromHexString("1001"),
+                    Service.fromHexString("1201"),
+                    Service.fromHexString("1401"),
+                    Service.fromHexString("1701"),
+                    Service.fromHexString("0802"),
+                    Service.fromHexString("0a02"),
+                    Service.fromHexString("0803"),
+                    Service.fromHexString("0a03"),
+                    Service.fromHexString("0c04"),
+                    Service.fromHexString("0e04"),
+                    Service.fromHexString("0807"),
+                    Service.fromHexString("0a07"),
+                    Area.fromHexString("00083f0f"),
+                    Service.fromHexString("0809"),
+                    Service.fromHexString("0a09"),
+                    Service.fromHexString("080a"),
+                    Service.fromHexString("0a0a"),
+                    Service.fromHexString("080b"),
+                    Service.fromHexString("0a0b"),
+                    // Those 2 are present on newer cards only
+                    Service.fromHexString("0810"),
+                    Service.fromHexString("0b10"),
+                )
+            }
             "FFFF" -> { // Unfused cards and Osaifu-Keitai
                 listOf(System, Area.ROOT)
             }

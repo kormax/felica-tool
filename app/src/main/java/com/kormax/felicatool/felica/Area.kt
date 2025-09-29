@@ -132,5 +132,7 @@ data class Area(
 
             return Area(number, attribute, endNumber, endAttribute)
         }
+
+        fun fromHexString(string: String) = fromByteArray(string.hexToByteArray())
     }
 }
