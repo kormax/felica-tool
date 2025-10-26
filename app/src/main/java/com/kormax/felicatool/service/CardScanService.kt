@@ -1738,10 +1738,13 @@ class CardScanService {
             throw RuntimeException("No readable services found in the selected system")
         }
 
-        // Prefer the service with attribute name 'RANDOM' if available
+        // Prefer services with service number != 0, then prefer RANDOM type
+        val servicesWithNonZeroNumber = servicesWithoutAuth.filter { it.number != 0 }
+        val candidateServices = servicesWithNonZeroNumber.ifEmpty { servicesWithoutAuth }
+        
         val testService =
-            servicesWithoutAuth.firstOrNull { it.attribute.type == ServiceType.RANDOM }
-                ?: servicesWithoutAuth.last()
+            candidateServices.firstOrNull { it.attribute.type == ServiceType.RANDOM }
+                ?: candidateServices.last()
 
         val blocksToRead =
             listOf(
@@ -1843,10 +1846,13 @@ class CardScanService {
             throw RuntimeException("No readable services found in the selected system")
         }
 
-        // Prefer the service with attribute name 'RANDOM' if available
+        // Prefer services with service number != 0, then prefer RANDOM type
+        val servicesWithNonZeroNumber = servicesWithoutAuth.filter { it.number != 0 }
+        val candidateServices = servicesWithNonZeroNumber.ifEmpty { servicesWithoutAuth }
+        
         val testService =
-            servicesWithoutAuth.firstOrNull { it.attribute.type == ServiceType.RANDOM }
-                ?: servicesWithoutAuth.first()
+            candidateServices.firstOrNull { it.attribute.type == ServiceType.RANDOM }
+                ?: candidateServices.first()
 
         // Start with theoretical maximum and work down
         var maxServices =
@@ -1948,9 +1954,13 @@ class CardScanService {
             )
         }
 
+        // Prefer services with service number != 0, then prefer RANDOM type
+        val servicesWithNonZeroNumber = servicesWithoutAuth.filter { it.number != 0 }
+        val candidateServices = servicesWithNonZeroNumber.ifEmpty { servicesWithoutAuth }
+        
         val testService =
-            servicesWithoutAuth.firstOrNull { it.attribute.type == ServiceType.RANDOM }
-                ?: servicesWithoutAuth.first()
+            candidateServices.firstOrNull { it.attribute.type == ServiceType.RANDOM }
+                ?: candidateServices.first()
 
         val requestedCount =
             minOf(
@@ -2059,10 +2069,13 @@ class CardScanService {
             throw RuntimeException("No readable services found in the selected system")
         }
 
-        // Prefer the service with attribute name 'RANDOM' if available
+        // Prefer services with service number != 0, then prefer RANDOM type
+        val servicesWithNonZeroNumber = servicesWithoutAuth.filter { it.number != 0 }
+        val candidateServices = servicesWithNonZeroNumber.ifEmpty { servicesWithoutAuth }
+        
         val testService =
-            servicesWithoutAuth.firstOrNull { it.attribute.type == ServiceType.RANDOM }
-                ?: servicesWithoutAuth.first()
+            candidateServices.firstOrNull { it.attribute.type == ServiceType.RANDOM }
+                ?: candidateServices.first()
 
         // Start with theoretical maximum and work down
         var maxBlocks =
