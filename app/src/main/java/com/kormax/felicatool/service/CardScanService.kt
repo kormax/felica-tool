@@ -803,7 +803,7 @@ class CardScanService {
             val systemCodeHex = parsedSystemCodeResponse.systemCode.toHexString().uppercase()
             "System Code: $systemCodeHex"
         } else {
-            "System Code: Not available"
+            throw RuntimeException("Polling: System Code: Not available")
         }
     }
 
@@ -836,7 +836,7 @@ class CardScanService {
                 }
                 .trim()
         } else {
-            "Communication Performance: Not available"
+            throw RuntimeException("Polling: Communication Performance: Not available")
         }
     }
 
