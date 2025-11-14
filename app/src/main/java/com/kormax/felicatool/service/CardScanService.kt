@@ -25,6 +25,7 @@ data class CardScanContext(
     val errorLocationIndication: ErrorLocationIndication = ErrorLocationIndication.INDEX,
     val maxBlocksPerRequest: Int? = null,
     val maxServicesPerRequest: Int? = null,
+    val echoMaxPayloadSize: Int? = null,
     val illegalNumberErrorPreference: IllegalNumberErrorPreference? = null,
     // Command support
     val pollingSupport: CommandSupport = CommandSupport.UNKNOWN,
@@ -1684,16 +1685,81 @@ class CardScanService {
     }
 
     private suspend fun executeEcho(target: FeliCaTarget): String {
-        val echoCommand = EchoCommand("H".repeat(72).encodeToByteArray())
-        val echoResponse = target.transceive(echoCommand)
+        data class EchoAttemptResult(val length: Int, val success: Boolean, val error: String?)
 
-        return buildString {
-                appendLine("Sent Data: ${echoCommand.data.toHexString()}")
-                appendLine("Received Data: ${echoResponse.data.toHexString()}")
-                appendLine("Data Match: ${echoCommand.data.contentEquals(echoResponse.data)}")
-                appendLine()
+        suspend fun attemptEcho(length: Int): EchoAttemptResult {
+            val payload = ByteArray(length) { index -> (index and 0xFF).toByte() }
+            val command = EchoCommand(payload)
+            return try {
+                val response = target.transceive(command)
+                if (response.data.contentEquals(payload)) {
+                    EchoAttemptResult(length, true, null)
+                } else {
+                    EchoAttemptResult(
+                        length,
+                        false,
+                        "Echo mismatch (${response.data.size} bytes returned)",
+                    )
+                }
+            } catch (e: Exception) {
+                EchoAttemptResult(length, false, e.message ?: "Unknown error")
             }
-            .trim()
+        }
+
+        fun formatResult(maxSupported: Int, attempts: List<EchoAttemptResult>): String {
+            return buildString {
+                    appendLine("Max echo payload: $maxSupported bytes")
+                    appendLine("Attempts (${attempts.size}):")
+                    attempts.forEachIndexed { index, attempt ->
+                        val status =
+                            if (attempt.success) {
+                                "success"
+                            } else {
+                                "failure${attempt.error?.let { ": $it" } ?: ""}"
+                            }
+                        appendLine("  ${index + 1}. ${attempt.length} bytes -> $status")
+                    }
+                }
+                .trim()
+        }
+
+        val minLength = 0
+        val maxLength = 252 // 255 - 1 length byte - 2 command bytes (F000)
+        val attempts = mutableListOf<EchoAttemptResult>()
+
+        val baselineAttempt = attemptEcho(minLength)
+        attempts += baselineAttempt
+        if (!baselineAttempt.success) {
+            val reason = baselineAttempt.error?.let { ": $it" } ?: ""
+            throw RuntimeException("Echo command failed even at $minLength bytes$reason")
+        }
+
+        // Try the common maximum size first to minimize attempts on typical cards
+        val maxAttempt = attemptEcho(maxLength)
+        attempts += maxAttempt
+        if (maxAttempt.success) {
+            scanContext = scanContext.copy(echoMaxPayloadSize = maxLength)
+            return formatResult(maxLength, attempts)
+        }
+
+        var lowerBound = minLength
+        var upperBound = maxLength
+        var bestLength = minLength
+
+        while ((upperBound - lowerBound) > 1) {
+            val candidate = (lowerBound + upperBound) / 2
+            val attempt = attemptEcho(candidate)
+            attempts += attempt
+            if (attempt.success) {
+                lowerBound = candidate
+                bestLength = maxOf(bestLength, candidate)
+            } else {
+                upperBound = candidate
+            }
+        }
+
+        scanContext = scanContext.copy(echoMaxPayloadSize = bestLength)
+        return formatResult(bestLength, attempts)
     }
 
     private suspend fun executeReadWithoutEncryptionDetermineErrorIndication(
@@ -1741,7 +1807,7 @@ class CardScanService {
         // Prefer services with service number != 0, then prefer RANDOM type
         val servicesWithNonZeroNumber = servicesWithoutAuth.filter { it.number != 0 }
         val candidateServices = servicesWithNonZeroNumber.ifEmpty { servicesWithoutAuth }
-        
+
         val testService =
             candidateServices.firstOrNull { it.attribute.type == ServiceType.RANDOM }
                 ?: candidateServices.last()
@@ -1849,7 +1915,7 @@ class CardScanService {
         // Prefer services with service number != 0, then prefer RANDOM type
         val servicesWithNonZeroNumber = servicesWithoutAuth.filter { it.number != 0 }
         val candidateServices = servicesWithNonZeroNumber.ifEmpty { servicesWithoutAuth }
-        
+
         val testService =
             candidateServices.firstOrNull { it.attribute.type == ServiceType.RANDOM }
                 ?: candidateServices.first()
@@ -1957,7 +2023,7 @@ class CardScanService {
         // Prefer services with service number != 0, then prefer RANDOM type
         val servicesWithNonZeroNumber = servicesWithoutAuth.filter { it.number != 0 }
         val candidateServices = servicesWithNonZeroNumber.ifEmpty { servicesWithoutAuth }
-        
+
         val testService =
             candidateServices.firstOrNull { it.attribute.type == ServiceType.RANDOM }
                 ?: candidateServices.first()
@@ -2072,7 +2138,7 @@ class CardScanService {
         // Prefer services with service number != 0, then prefer RANDOM type
         val servicesWithNonZeroNumber = servicesWithoutAuth.filter { it.number != 0 }
         val candidateServices = servicesWithNonZeroNumber.ifEmpty { servicesWithoutAuth }
-        
+
         val testService =
             candidateServices.firstOrNull { it.attribute.type == ServiceType.RANDOM }
                 ?: candidateServices.first()

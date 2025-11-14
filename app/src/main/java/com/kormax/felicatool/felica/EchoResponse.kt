@@ -13,7 +13,6 @@ class EchoResponse(
 
     init {
         require(data.size <= 252) { "Data must be at most 252 bytes, got ${data.size}" }
-        require(data.isNotEmpty()) { "Data must not be empty" }
     }
 
     /** Converts the response to a byte array */
@@ -41,10 +40,7 @@ class EchoResponse(
     companion object {
         // ECHO COMMAND HAS THE SAME RESPONSE CODE
         const val RESPONSE_CODE: Short = 0xF000.toShort()
-        const val MIN_LENGTH =
-            FelicaResponseWithoutIdm.BASE_LENGTH +
-                1 +
-                2 // +1 for second byte of response code + 2 for reserved bytes
+        const val MIN_LENGTH = FelicaResponseWithoutIdm.BASE_LENGTH + 1
 
         /** Parse an Echo response from raw bytes */
         fun fromByteArray(data: ByteArray): EchoResponse {

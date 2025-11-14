@@ -15,12 +15,11 @@ class EchoCommand(
 
     init {
         require(data.size <= 252) { "Data must be at most 252 bytes, got ${data.size}" }
-        require(data.isNotEmpty()) { "Data must not be empty" }
     }
 
     override val commandClass: CommandClass = Companion.COMMAND_CLASS
     override val timeoutUnits: Int =
-        ceil(data.size.toDouble() / 16.0).toInt() // Each 16 bytes is 1 unit
+        ceil(data.size.toDouble() / 16.0).toInt() // Consider each 16 bytes (1 block) is 1 unit
 
     override fun responseFromByteArray(data: ByteArray) = EchoResponse.fromByteArray(data)
 

@@ -556,6 +556,9 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                         )
                         CommandSupportChip("Set Parameter", context.setParameterSupport)
                         CommandSupportChip("Echo", context.echoSupport)
+                        context.echoMaxPayloadSize?.let { maxPayload ->
+                            InfoChip(label = "Echo Max Size", value = "$maxPayload bytes")
+                        }
                     }
                 }
             }

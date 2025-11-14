@@ -205,6 +205,7 @@ object ExportUtils {
         // Max systems/blocks per read
         scanContext.maxServicesPerRequest?.let { json.put("max_systems_per_read", it) }
         scanContext.maxBlocksPerRequest?.let { json.put("max_blocks_per_read", it) }
+        scanContext.echoMaxPayloadSize?.let { json.put("echo_max_payload_size", it) }
 
         // Supported commands - build as a list of only supported commands
         val supportedCommandsArray = JSONArray()
