@@ -3,8 +3,10 @@ package com.kormax.felicatool.ui.components
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
@@ -16,6 +18,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineBreak
@@ -28,7 +33,12 @@ import com.kormax.felicatool.service.CardScanContext
 import com.kormax.felicatool.service.CommandSupport
 import com.kormax.felicatool.service.SystemScanContext
 import com.kormax.felicatool.util.IcTypeMapping
-import com.kormax.felicatool.util.NodeNaming
+import com.kormax.felicatool.util.NodeDefinitionType
+import com.kormax.felicatool.util.NodeRegistry
+import com.kormax.felicatool.util.ServiceIconMapper
+import com.kormax.felicatool.util.ServicePresenceAnalyzer
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /** Data class representing a node in the hierarchical tree structure */
 data class NodeInformation(
@@ -119,6 +129,14 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
     var isExpanded by remember { mutableStateOf(true) }
     val rotationAngle by
         animateFloatAsState(targetValue = if (isExpanded) 0f else 180f, label = "cardInfoRotation")
+    val androidContext = LocalContext.current
+
+    val providerDetectionResult =
+        remember(context.systemScanContexts) {
+            ServicePresenceAnalyzer.detectProviders(context)
+        }
+    val detectedProviders = providerDetectionResult.providers
+    val unknownServiceCount = providerDetectionResult.unknownServiceCount
 
     val systemContext = context.systemScanContexts.firstOrNull()
 
@@ -192,6 +210,33 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                             label = "Platform Information",
                             value = secureElementInfo.platformInformationData.toHexString(),
                         )
+                    }
+                }
+
+                val hasDetectedServices =
+                    detectedProviders.isNotEmpty() || unknownServiceCount > 0
+
+                if (hasDetectedServices) {
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                    Text(
+                        text = "Detected services",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.padding(bottom = 6.dp),
+                    )
+
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.padding(bottom = 4.dp),
+                    ) {
+                        detectedProviders.forEach { provider ->
+                            ProviderInfoChip(provider)
+                        }
+                        if (unknownServiceCount > 0) {
+                            UnknownServiceChip(count = unknownServiceCount)
+                        }
                     }
                 }
 
@@ -620,6 +665,11 @@ fun TreeNodeCard(
     val indentWidth = (depth * 8).dp
     val hasChildren = nodeInfo.hasChildren
 
+    val providerIconResIds =
+        remember(node, context.systemCode, nodeInfo.parentArea) {
+            resolveProviderIconResIds(nodeInfo, context)
+        }
+
     Column(modifier = modifier.fillMaxWidth().animateContentSize()) {
         // Node header
         Row(
@@ -631,25 +681,38 @@ fun TreeNodeCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            // Icon based on node type
-            Icon(
-                imageVector =
-                    when (node) {
-                        is System -> Icons.Default.Settings
-                        is Area -> Icons.Default.AccountBox
-                        is Service -> Icons.Default.Settings
-                        else -> Icons.Default.Settings // fallback
-                    },
-                contentDescription = null,
-                tint =
-                    when (node) {
-                        is System -> MaterialTheme.colorScheme.tertiary
-                        is Area -> MaterialTheme.colorScheme.primary
-                        is Service -> MaterialTheme.colorScheme.secondary
-                        else -> MaterialTheme.colorScheme.onSurface // fallback
-                    },
-                modifier = Modifier.size(16.dp),
-            )
+            // Icon based on node type or provider
+            if (providerIconResIds.isNotEmpty()) {
+                Surface(shape = RoundedCornerShape(4.dp), color = MaterialTheme.colorScheme.surfaceVariant) {
+                    Row(modifier = Modifier.height(20.dp), verticalAlignment = Alignment.Top) {
+                        Icon(
+                            painter = painterResource(id = providerIconResIds.first()),
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                            tint = Color.Unspecified,
+                        )
+                    }
+                }
+            } else {
+                Icon(
+                    imageVector =
+                        when (node) {
+                            is System -> Icons.Default.Settings
+                            is Area -> Icons.Default.AccountBox
+                            is Service -> Icons.Default.Settings
+                            else -> Icons.Default.Settings // fallback
+                        },
+                    contentDescription = null,
+                    tint =
+                        when (node) {
+                            is System -> MaterialTheme.colorScheme.tertiary
+                            is Area -> MaterialTheme.colorScheme.primary
+                            is Service -> MaterialTheme.colorScheme.secondary
+                            else -> MaterialTheme.colorScheme.onSurface // fallback
+                        },
+                    modifier = Modifier.size(16.dp),
+                )
+            }
 
             Column(modifier = Modifier.weight(1f)) {
                 // Primary node information with inline attributes for services
@@ -1073,6 +1136,136 @@ private fun InfoChip(
 }
 
 @Composable
+private fun ProviderInfoChip(provider: ServicePresenceAnalyzer.ProviderPresence) {
+    val iconRes = ServiceIconMapper.iconFor(provider.provider)
+    val systemsSummary = provider.systems.joinToString(separator = " / ") { it.uppercase() }
+    val nodeSummary =
+        if (provider.nodeCount == 1) "1 node" else "${provider.nodeCount} nodes"
+    val details =
+        when {
+            systemsSummary.isNotEmpty() -> "$systemsSummary · $nodeSummary"
+            else -> nodeSummary
+        }
+
+    val backgroundColor = MaterialTheme.colorScheme.secondaryContainer
+    val contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+
+    Surface(shape = RoundedCornerShape(6.dp), color = backgroundColor) {
+        Row(
+            modifier = Modifier.height(36.dp),
+            verticalAlignment = Alignment.Top,
+        ) {
+            iconRes?.let {
+                Icon(
+                    painter = painterResource(id = it),
+                    contentDescription = provider.provider,
+                    modifier = Modifier.size(36.dp),
+                    tint = Color.Unspecified,
+                )
+            }
+            Spacer(modifier = Modifier.width(4.dp))
+            Column(
+                modifier = Modifier.padding(end = 6.dp, top = 3.dp, bottom = 3.dp),
+                verticalArrangement = Arrangement.spacedBy(0.dp),
+            ) {
+                Text(
+                    text = provider.provider,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = contentColor,
+                )
+                Text(
+                    text = details,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = contentColor.copy(alpha = 0.8f),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun UnknownServiceChip(count: Int) {
+    val backgroundColor = MaterialTheme.colorScheme.surfaceVariant
+    val contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+
+    Surface(shape = RoundedCornerShape(6.dp), color = backgroundColor) {
+        Column(
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+            verticalArrangement = Arrangement.spacedBy(0.dp),
+        ) {
+            Text(
+                text = "Unknown services",
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                color = contentColor,
+            )
+            Text(
+                text = if (count == 1) "1 node" else "$count nodes",
+                style = MaterialTheme.typography.bodySmall,
+                color = contentColor.copy(alpha = 0.8f),
+            )
+        }
+    }
+}
+
+@Composable
+private fun ProviderIconToken(@DrawableRes iconRes: Int) {
+    Surface(shape = RoundedCornerShape(4.dp), color = MaterialTheme.colorScheme.surfaceVariant) {
+        Row(modifier = Modifier.height(16.dp), verticalAlignment = Alignment.Top) {
+            Icon(
+                painter = painterResource(id = iconRes),
+                contentDescription = null,
+                modifier = Modifier.size(16.dp),
+                tint = Color.Unspecified,
+            )
+        }
+    }
+}
+
+private fun resolveProviderIconResIds(
+    nodeInfo: NodeInformation,
+    context: SystemScanContext,
+): List<Int> {
+    val node = nodeInfo.node
+    val systemCode = context.systemCode?.toHexString()?.uppercase() ?: return emptyList()
+
+    val (nodeCode, parentCode, type) =
+        when (node) {
+            is System ->
+                Triple(
+                    systemCode,
+                    null,
+                    NodeDefinitionType.SYSTEM,
+                )
+            is Service ->
+                Triple(
+                    node.fullCode.toHexString().uppercase(),
+                    nodeInfo.parentArea?.fullCode?.toHexString()?.uppercase(),
+                    NodeDefinitionType.SERVICE,
+                )
+            is Area ->
+                Triple(
+                    node.fullCode.toHexString().uppercase(),
+                    nodeInfo.parentArea?.fullCode?.toHexString()?.uppercase(),
+                    NodeDefinitionType.AREA,
+                )
+            else -> return emptyList()
+        }
+
+    val providers = if (node is System) {
+        NodeRegistry.getSystemProviders(systemCode)
+    } else {
+        NodeRegistry.getProvidersForNode(systemCode, nodeCode, parentCode, type)
+    }
+    if (providers.isEmpty()) {
+        return emptyList()
+    }
+
+    return providers.mapNotNull { ServiceIconMapper.iconFor(it) }
+}
+
+@Composable
 private fun AttributeChip(
     text: String,
     isHighlight: Boolean = false,
@@ -1131,9 +1324,8 @@ private fun getServiceNameFromNodeInfo(
 ): String? {
     val systemCode = context.systemCode?.toHexString()?.uppercase() ?: return null
     val serviceCode = service.code.toHexString().uppercase()
-    val areaCode = parentArea?.fullCode?.toHexString()?.uppercase() ?: ""
-
-    return NodeNaming.getServiceName(systemCode, areaCode, serviceCode)
+    
+    return NodeRegistry.getNodeName(systemCode, serviceCode, NodeDefinitionType.SERVICE)
 }
 
 private fun getNodeDisplayText(
@@ -1145,7 +1337,9 @@ private fun getNodeDisplayText(
         is Area -> {
             val area = node
             val baseText = "Area ${area.fullCode.toHexString()} (${area.number}-${area.endNumber})"
-            val areaName = NodeNaming.getAreaName(area, context)
+            val areaName = context.systemCode?.toHexString()?.uppercase()?.let { systemCode ->
+                NodeRegistry.getNodeName(systemCode, area.fullCode.toHexString().uppercase(), NodeDefinitionType.AREA)
+            }
             if (areaName != null) {
                 "$baseText - $areaName"
             } else {
@@ -1172,7 +1366,9 @@ private fun getNodeDisplayText(
                 } else {
                     "System (No Code)"
                 }
-            val systemName = NodeNaming.getSystemName(node, context)
+            val systemName = systemCode?.uppercase()?.let { code ->
+                NodeRegistry.getNodeName(code, code, NodeDefinitionType.SYSTEM)
+            }
             if (systemName != null) {
                 "$baseText - $systemName"
             } else {

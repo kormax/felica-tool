@@ -274,7 +274,7 @@ object ExportUtils {
             systemContext.idm?.let { systemJson.put("idm", it.toHexString()) }
 
             // System name
-            val systemName = NodeNaming.getSystemName(systemCodeHex)
+            val systemName = NodeRegistry.getNodeName(systemCodeHex, systemCodeHex, NodeDefinitionType.SYSTEM)
             systemName?.let { systemJson.put("name", it) }
 
             // System status
@@ -335,7 +335,7 @@ object ExportUtils {
                 nodeJson.put("end_number", node.endNumber)
 
                 // Area name
-                val areaName = NodeNaming.getAreaName(systemCodeHex, node.fullCode.toHexString())
+                val areaName = NodeRegistry.getNodeName(systemCodeHex, node.fullCode.toHexString().uppercase(), NodeDefinitionType.AREA)
                 areaName?.let { nodeJson.put("name", it) }
 
                 // Area attribute
@@ -354,7 +354,7 @@ object ExportUtils {
                 nodeJson.put("number", node.number)
 
                 // Service name
-                val serviceName = NodeNaming.getServiceName(node, systemContext)
+                val serviceName = NodeRegistry.getNodeName(systemCodeHex, node.fullCode.toHexString().uppercase(), NodeDefinitionType.SERVICE)
                 serviceName?.let { nodeJson.put("name", it) }
 
                 // Service attribute

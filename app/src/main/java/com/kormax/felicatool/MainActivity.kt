@@ -42,6 +42,7 @@ import com.kormax.felicatool.ui.ScanResultsOverview
 import com.kormax.felicatool.ui.StepStatus
 import com.kormax.felicatool.ui.components.StepsList
 import com.kormax.felicatool.ui.theme.FeliCaToolTheme
+import com.kormax.felicatool.util.NodeRegistry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -74,6 +75,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // Initialize NodeRegistry at startup
+        lifecycleScope.launch(Dispatchers.IO) {
+            NodeRegistry.ensureInitialized(applicationContext)
+        }
 
         setupNFC()
 
