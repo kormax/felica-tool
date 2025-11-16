@@ -77,9 +77,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         // Initialize NodeRegistry at startup
-        lifecycleScope.launch(Dispatchers.IO) {
-            NodeRegistry.ensureInitialized(applicationContext)
-        }
+        lifecycleScope.launch(Dispatchers.IO) { NodeRegistry.ensureInitialized(applicationContext) }
 
         setupNFC()
 

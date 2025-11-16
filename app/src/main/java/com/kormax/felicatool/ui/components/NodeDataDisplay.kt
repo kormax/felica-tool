@@ -1,12 +1,11 @@
 package com.kormax.felicatool.ui.components
 
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
@@ -37,8 +36,6 @@ import com.kormax.felicatool.util.NodeDefinitionType
 import com.kormax.felicatool.util.NodeRegistry
 import com.kormax.felicatool.util.ServiceIconMapper
 import com.kormax.felicatool.util.ServicePresenceAnalyzer
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 /** Data class representing a node in the hierarchical tree structure */
 data class NodeInformation(
@@ -132,9 +129,7 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
     val androidContext = LocalContext.current
 
     val providerDetectionResult =
-        remember(context.systemScanContexts) {
-            ServicePresenceAnalyzer.detectProviders(context)
-        }
+        remember(context.systemScanContexts) { ServicePresenceAnalyzer.detectProviders(context) }
     val detectedProviders = providerDetectionResult.providers
     val unknownServiceCount = providerDetectionResult.unknownServiceCount
 
@@ -253,8 +248,7 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                     }
                 }
 
-                val hasDetectedServices =
-                    detectedProviders.isNotEmpty() || unknownServiceCount > 0
+                val hasDetectedServices = detectedProviders.isNotEmpty() || unknownServiceCount > 0
 
                 if (hasDetectedServices) {
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
@@ -271,9 +265,7 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                         modifier = Modifier.padding(bottom = 4.dp),
                     ) {
-                        detectedProviders.forEach { provider ->
-                            ProviderInfoChip(provider)
-                        }
+                        detectedProviders.forEach { provider -> ProviderInfoChip(provider) }
                         if (unknownServiceCount > 0) {
                             UnknownServiceChip(count = unknownServiceCount)
                         }
@@ -349,22 +341,38 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                         )
                         InfoChip(
                             label = "Basic",
-                            value = "${specVersion.basicVersion.major}.${specVersion.basicVersion.minor}",
+                            value =
+                                "${specVersion.basicVersion.major}.${specVersion.basicVersion.minor}",
                         )
                         specVersion.desOptionVersion?.let { version ->
-                            InfoChip(label = "DES support", value = "${version.major}.${version.minor}")
+                            InfoChip(
+                                label = "DES support",
+                                value = "${version.major}.${version.minor}",
+                            )
                         }
                         specVersion.specialOptionVersion?.let { version ->
-                            InfoChip(label = "Special features", value = "${version.major}.${version.minor}")
+                            InfoChip(
+                                label = "Special features",
+                                value = "${version.major}.${version.minor}",
+                            )
                         }
                         specVersion.extendedOverlapOptionVersion?.let { version ->
-                            InfoChip(label = "Extended overlap", value = "${version.major}.${version.minor}")
+                            InfoChip(
+                                label = "Extended overlap",
+                                value = "${version.major}.${version.minor}",
+                            )
                         }
                         specVersion.valueLimitedPurseServiceOptionVersion?.let { version ->
-                            InfoChip(label = "Value-limited purse", value = "${version.major}.${version.minor}")
+                            InfoChip(
+                                label = "Value-limited purse",
+                                value = "${version.major}.${version.minor}",
+                            )
                         }
                         specVersion.communicationWithMacOptionVersion?.let { version ->
-                            InfoChip(label = "MAC communication", value = "${version.major}.${version.minor}")
+                            InfoChip(
+                                label = "MAC communication",
+                                value = "${version.major}.${version.minor}",
+                            )
                         }
                     }
                 }
@@ -668,7 +676,10 @@ fun TreeNodeCard(
         ) {
             // Icon based on node type or provider
             if (providerIconResIds.isNotEmpty()) {
-                Surface(shape = RoundedCornerShape(4.dp), color = MaterialTheme.colorScheme.surfaceVariant) {
+                Surface(
+                    shape = RoundedCornerShape(4.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                ) {
                     Row(modifier = Modifier.height(20.dp), verticalAlignment = Alignment.Top) {
                         Icon(
                             painter = painterResource(id = providerIconResIds.first()),
@@ -1124,8 +1135,7 @@ private fun InfoChip(
 private fun ProviderInfoChip(provider: ServicePresenceAnalyzer.ProviderPresence) {
     val iconRes = ServiceIconMapper.iconFor(provider.provider)
     val systemsSummary = provider.systems.joinToString(separator = " / ") { it.uppercase() }
-    val nodeSummary =
-        if (provider.nodeCount == 1) "1 node" else "${provider.nodeCount} nodes"
+    val nodeSummary = if (provider.nodeCount == 1) "1 node" else "${provider.nodeCount} nodes"
     val details =
         when {
             systemsSummary.isNotEmpty() -> "$systemsSummary · $nodeSummary"
@@ -1136,10 +1146,7 @@ private fun ProviderInfoChip(provider: ServicePresenceAnalyzer.ProviderPresence)
     val contentColor = MaterialTheme.colorScheme.onSecondaryContainer
 
     Surface(shape = RoundedCornerShape(6.dp), color = backgroundColor) {
-        Row(
-            modifier = Modifier.height(36.dp),
-            verticalAlignment = Alignment.Top,
-        ) {
+        Row(modifier = Modifier.height(36.dp), verticalAlignment = Alignment.Top) {
             iconRes?.let {
                 Icon(
                     painter = painterResource(id = it),
@@ -1217,12 +1224,7 @@ private fun resolveProviderIconResIds(
 
     val (nodeCode, parentCode, type) =
         when (node) {
-            is System ->
-                Triple(
-                    systemCode,
-                    null,
-                    NodeDefinitionType.SYSTEM,
-                )
+            is System -> Triple(systemCode, null, NodeDefinitionType.SYSTEM)
             is Service ->
                 Triple(
                     node.fullCode.toHexString().uppercase(),
@@ -1238,11 +1240,12 @@ private fun resolveProviderIconResIds(
             else -> return emptyList()
         }
 
-    val providers = if (node is System) {
-        NodeRegistry.getSystemProviders(systemCode)
-    } else {
-        NodeRegistry.getProvidersForNode(systemCode, nodeCode, parentCode, type)
-    }
+    val providers =
+        if (node is System) {
+            NodeRegistry.getSystemProviders(systemCode)
+        } else {
+            NodeRegistry.getProvidersForNode(systemCode, nodeCode, parentCode, type)
+        }
     if (providers.isEmpty()) {
         return emptyList()
     }
@@ -1309,7 +1312,7 @@ private fun getServiceNameFromNodeInfo(
 ): String? {
     val systemCode = context.systemCode?.toHexString()?.uppercase() ?: return null
     val serviceCode = service.code.toHexString().uppercase()
-    
+
     return NodeRegistry.getNodeName(systemCode, serviceCode, NodeDefinitionType.SERVICE)
 }
 
@@ -1322,9 +1325,14 @@ private fun getNodeDisplayText(
         is Area -> {
             val area = node
             val baseText = "Area ${area.fullCode.toHexString()} (${area.number}-${area.endNumber})"
-            val areaName = context.systemCode?.toHexString()?.uppercase()?.let { systemCode ->
-                NodeRegistry.getNodeName(systemCode, area.fullCode.toHexString().uppercase(), NodeDefinitionType.AREA)
-            }
+            val areaName =
+                context.systemCode?.toHexString()?.uppercase()?.let { systemCode ->
+                    NodeRegistry.getNodeName(
+                        systemCode,
+                        area.fullCode.toHexString().uppercase(),
+                        NodeDefinitionType.AREA,
+                    )
+                }
             if (areaName != null) {
                 "$baseText - $areaName"
             } else {
@@ -1351,9 +1359,10 @@ private fun getNodeDisplayText(
                 } else {
                     "System (No Code)"
                 }
-            val systemName = systemCode?.uppercase()?.let { code ->
-                NodeRegistry.getNodeName(code, code, NodeDefinitionType.SYSTEM)
-            }
+            val systemName =
+                systemCode?.uppercase()?.let { code ->
+                    NodeRegistry.getNodeName(code, code, NodeDefinitionType.SYSTEM)
+                }
             if (systemName != null) {
                 "$baseText - $systemName"
             } else {

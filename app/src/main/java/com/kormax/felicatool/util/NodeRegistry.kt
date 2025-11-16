@@ -5,9 +5,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import org.json.JSONArray
 import org.json.JSONObject
 
-/**
- * Loads the shared nodes.json dataset once and exposes helper lookups for service providers.
- */
+/** Loads the shared nodes.json dataset once and exposes helper lookups for service providers. */
 object NodeRegistry {
     private val isInitialized = AtomicBoolean(false)
     private val lock = Any()
@@ -33,11 +31,7 @@ object NodeRegistry {
         }
     }
 
-    fun getNodeName(
-        systemCode: String,
-        nodeCode: String,
-        type: NodeDefinitionType,
-    ): String? {
+    fun getNodeName(systemCode: String, nodeCode: String, type: NodeDefinitionType): String? {
         val normalizedSystem = systemCode.uppercase()
         val normalizedCode = nodeCode.uppercase()
 
@@ -47,9 +41,10 @@ object NodeRegistry {
         }
 
         val nodes = definitions[normalizedSystem] ?: return null
-        val matchingNodes = nodes.filter { definition ->
-            definition.type == type && definition.code == normalizedCode
-        }
+        val matchingNodes =
+            nodes.filter { definition ->
+                definition.type == type && definition.code == normalizedCode
+            }
 
         return matchingNodes.firstOrNull()?.name
     }
@@ -70,9 +65,10 @@ object NodeRegistry {
         val normalizedParent = parentCode?.uppercase()
 
         val nodes = definitions[normalizedSystem] ?: return emptySet()
-        val matchingNodes = nodes.filter { definition ->
-            definition.type == type && definition.code == normalizedCode
-        }
+        val matchingNodes =
+            nodes.filter { definition ->
+                definition.type == type && definition.code == normalizedCode
+            }
 
         if (matchingNodes.isEmpty()) {
             return emptySet()
@@ -108,23 +104,20 @@ object NodeRegistry {
         while (keys.hasNext()) {
             val systemCode = keys.next()
             val systemObject = root.optJSONObject(systemCode) ?: continue
-            
+
             // Parse system-level information
             val systemName =
-                systemObject
-                    .optString("name")
-                    .takeIf {
-                        systemObject.has("name") &&
-                            it.isNotBlank() &&
-                            !it.equals("null", ignoreCase = true)
-                    }
+                systemObject.optString("name").takeIf {
+                    systemObject.has("name") &&
+                        it.isNotBlank() &&
+                        !it.equals("null", ignoreCase = true)
+                }
             val systemProvider =
-                systemObject
-                    .optString("service_provider")
-                    .takeIf { systemObject.has("service_provider") && it.isNotBlank() }
-            val systemProviders =
-                systemProvider?.let { mutableSetOf(it) } ?: mutableSetOf<String>()
-            
+                systemObject.optString("service_provider").takeIf {
+                    systemObject.has("service_provider") && it.isNotBlank()
+                }
+            val systemProviders = systemProvider?.let { mutableSetOf(it) } ?: mutableSetOf<String>()
+
             if (systemName != null || systemProviders.isNotEmpty()) {
                 systemResult[systemCode.uppercase()] =
                     SystemDefinition(
@@ -133,7 +126,7 @@ object NodeRegistry {
                         serviceProviders = systemProviders.toSet(),
                     )
             }
-            
+
             val nodesArray = systemObject.optJSONArray("nodes") ?: JSONArray()
             val definitionsForSystem = mutableListOf<NodeDefinition>()
 
@@ -142,17 +135,15 @@ object NodeRegistry {
                 val code = nodeObject.optString("code").takeIf { it.isNotBlank() } ?: continue
                 val parent = nodeObject.optString("parent").takeIf { nodeObject.has("parent") }
                 val name =
-                    nodeObject
-                        .optString("name")
-                        .takeIf {
-                            nodeObject.has("name") &&
-                                it.isNotBlank() &&
-                                !it.equals("null", ignoreCase = true)
-                        }
+                    nodeObject.optString("name").takeIf {
+                        nodeObject.has("name") &&
+                            it.isNotBlank() &&
+                            !it.equals("null", ignoreCase = true)
+                    }
                 val provider =
-                    nodeObject
-                        .optString("service_provider")
-                        .takeIf { nodeObject.has("service_provider") && it.isNotBlank() }
+                    nodeObject.optString("service_provider").takeIf {
+                        nodeObject.has("service_provider") && it.isNotBlank()
+                    }
                 val providers = provider?.let { mutableSetOf(it) } ?: mutableSetOf()
 
                 val type =

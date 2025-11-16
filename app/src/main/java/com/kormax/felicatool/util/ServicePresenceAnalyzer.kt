@@ -7,16 +7,9 @@ import com.kormax.felicatool.service.CardScanContext
 import com.kormax.felicatool.service.SystemScanContext
 
 object ServicePresenceAnalyzer {
-    data class ProviderPresence(
-        val provider: String,
-        val systems: Set<String>,
-        val nodeCount: Int,
-    )
+    data class ProviderPresence(val provider: String, val systems: Set<String>, val nodeCount: Int)
 
-    data class DetectionResult(
-        val providers: List<ProviderPresence>,
-        val unknownServiceCount: Int,
-    )
+    data class DetectionResult(val providers: List<ProviderPresence>, val unknownServiceCount: Int)
 
     fun detectProviders(scanContext: CardScanContext): DetectionResult {
         if (!NodeRegistry.isReady()) {
@@ -39,7 +32,8 @@ object ServicePresenceAnalyzer {
                         NodeDefinitionType.AREA,
                     )
                 names.forEach { providerName ->
-                    providers.getOrPut(providerName) { MutableProviderPresence(providerName) }
+                    providers
+                        .getOrPut(providerName) { MutableProviderPresence(providerName) }
                         .addMatch(systemCode)
                 }
             }
@@ -57,7 +51,8 @@ object ServicePresenceAnalyzer {
                     unknownServiceCount++
                 } else {
                     names.forEach { providerName ->
-                        providers.getOrPut(providerName) { MutableProviderPresence(providerName) }
+                        providers
+                            .getOrPut(providerName) { MutableProviderPresence(providerName) }
                             .addMatch(systemCode)
                     }
                 }
@@ -68,7 +63,7 @@ object ServicePresenceAnalyzer {
             providers.values
                 .sortedWith(
                     compareByDescending<MutableProviderPresence> { it.nodeCount }
-                        .thenBy { it.provider },
+                        .thenBy { it.provider }
                 )
                 .map { it.toImmutable() }
 
@@ -84,9 +79,9 @@ object ServicePresenceAnalyzer {
 
     private fun findParentArea(area: Area, context: SystemScanContext): Area? {
         val parentAreas =
-            context.nodes
-                .filterIsInstance<Area>()
-                .filter { other -> other != area && area.belongsTo(other) }
+            context.nodes.filterIsInstance<Area>().filter { other ->
+                other != area && area.belongsTo(other)
+            }
         return parentAreas.minByOrNull { it.endNumber - it.number }
     }
 

@@ -126,8 +126,8 @@ object ExportUtils {
 
         // IC type from PMM data
         scanContext.pmm?.let { pmm ->
-            val icTypeFormatted = IcTypeMapping.getFormattedIcType(pmm.icType)
-            json.put("ic_type_name", icTypeFormatted)
+            val icTypeName = IcTypeMapping.getIcName(pmm.icType)
+            json.put("ic_type_name", icTypeName)
         }
 
         scanContext.primarySystemCode?.let { json.put("primary_system_code", it.toHexString()) }
@@ -274,7 +274,8 @@ object ExportUtils {
             systemContext.idm?.let { systemJson.put("idm", it.toHexString()) }
 
             // System name
-            val systemName = NodeRegistry.getNodeName(systemCodeHex, systemCodeHex, NodeDefinitionType.SYSTEM)
+            val systemName =
+                NodeRegistry.getNodeName(systemCodeHex, systemCodeHex, NodeDefinitionType.SYSTEM)
             systemName?.let { systemJson.put("name", it) }
 
             // System status
@@ -335,7 +336,12 @@ object ExportUtils {
                 nodeJson.put("end_number", node.endNumber)
 
                 // Area name
-                val areaName = NodeRegistry.getNodeName(systemCodeHex, node.fullCode.toHexString().uppercase(), NodeDefinitionType.AREA)
+                val areaName =
+                    NodeRegistry.getNodeName(
+                        systemCodeHex,
+                        node.fullCode.toHexString().uppercase(),
+                        NodeDefinitionType.AREA,
+                    )
                 areaName?.let { nodeJson.put("name", it) }
 
                 // Area attribute
@@ -354,7 +360,12 @@ object ExportUtils {
                 nodeJson.put("number", node.number)
 
                 // Service name
-                val serviceName = NodeRegistry.getNodeName(systemCodeHex, node.fullCode.toHexString().uppercase(), NodeDefinitionType.SERVICE)
+                val serviceName =
+                    NodeRegistry.getNodeName(
+                        systemCodeHex,
+                        node.fullCode.toHexString().uppercase(),
+                        NodeDefinitionType.SERVICE,
+                    )
                 serviceName?.let { nodeJson.put("name", it) }
 
                 // Service attribute

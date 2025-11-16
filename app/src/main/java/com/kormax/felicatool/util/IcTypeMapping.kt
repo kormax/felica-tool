@@ -19,6 +19,7 @@ object IcTypeMapping {
             0x07.toByte() to "Mobile FeliCa 1.1",
             0x08.toByte() to "RC-S952",
             0x09.toByte() to "RC-S953",
+            0x0B.toByte() to "RC-S953/?",
             0x0C.toByte() to "RC-S954",
             0x0D.toByte() to "RC-S960",
             0x10.toByte() to "Mobile FeliCa 2.0",
@@ -38,6 +39,7 @@ object IcTypeMapping {
             0x1E.toByte() to "Mobile FeliCa 4.1",
             0x1F.toByte() to "Mobile FeliCa 4.1",
             0x20.toByte() to "RC-S962",
+            0x31.toByte() to "RC-S114",
             0x32.toByte() to "RC-SA00/1",
             0x33.toByte() to "RC-SA00/2",
             0x34.toByte() to "RC-SA01/1",
@@ -50,9 +52,13 @@ object IcTypeMapping {
             0x46.toByte() to "RC-SA21/2",
             0x47.toByte() to "RC-SA24/1x1",
             0x48.toByte() to "RC-SA21/2x1",
+            0xA2.toByte() to "RC-SA14",
             0xE0.toByte() to "RC-S926 FeliCa Plug",
+            0xE1.toByte() to "RC-S967 in Plug Mode",
             0xF0.toByte() to "RC-S965 FeliCa Lite",
             0xF1.toByte() to "RC-S966 FeliCa Lite-S",
+            0xF2.toByte() to "RC-S967 in Lite-S Mode",
+            0xFF.toByte() to "RC-S967 in NFC-DEP Mode",
         )
 
     /**
