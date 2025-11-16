@@ -213,6 +213,46 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                     }
                 }
 
+                // Communication Performance chips inline with primary info
+                context.communicationPerformance?.let { commPerf ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.Top,
+                    ) {
+                        Text(
+                            text = "Communication performance",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier =
+                                Modifier.widthIn(min = 96.dp, max = 160.dp)
+                                    .wrapContentWidth(Alignment.Start),
+                        )
+                        FlowRow(
+                            horizontalArrangement =
+                                Arrangement.spacedBy(4.dp, alignment = Alignment.End),
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier.weight(1f).fillMaxWidth(),
+                        ) {
+                            if (commPerf.supports212kbps) {
+                                InfoChip(label = "212", value = "✓", isSuccessful = true)
+                            }
+                            if (commPerf.supports424kbps) {
+                                InfoChip(label = "424", value = "✓", isSuccessful = true)
+                            }
+                            if (commPerf.supports848kbps) {
+                                InfoChip(label = "848", value = "✓", isSuccessful = true)
+                            }
+                            if (commPerf.supports1696kbps) {
+                                InfoChip(label = "1696", value = "✓", isSuccessful = true)
+                            }
+                            if (commPerf.isAutomaticDetectionCompliant) {
+                                InfoChip(label = "auto", value = "✓", isSuccessful = true)
+                            }
+                        }
+                    }
+                }
+
                 val hasDetectedServices =
                     detectedProviders.isNotEmpty() || unknownServiceCount > 0
 
@@ -286,44 +326,6 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                     }
                 }
 
-                // Communication Performance Section
-                context.communicationPerformance?.let { commPerf ->
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-                    Text(
-                        text = "Communication Performance",
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.padding(bottom = 6.dp),
-                    )
-
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        modifier = Modifier.padding(vertical = 4.dp),
-                    ) {
-                        if (commPerf.supports212kbps) {
-                            InfoChip(label = "212 kbps", value = "✓", isSuccessful = true)
-                        }
-                        if (commPerf.supports424kbps) {
-                            InfoChip(label = "424 kbps", value = "✓", isSuccessful = true)
-                        }
-                        if (commPerf.supports848kbps) {
-                            InfoChip(label = "848 kbps", value = "✓", isSuccessful = true)
-                        }
-                        if (commPerf.supports1696kbps) {
-                            InfoChip(label = "1696 kbps", value = "✓", isSuccessful = true)
-                        }
-
-                        if (commPerf.isAutomaticDetectionCompliant) {
-                            InfoChip(
-                                label = "automatic detection",
-                                value = "✓",
-                                isSuccessful = true,
-                            )
-                        }
-                    }
-                }
-
                 // Feature Support (Option Versions) Section
                 context.specificationVersion?.let { specVersion ->
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
@@ -335,52 +337,35 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                         modifier = Modifier.padding(bottom = 6.dp),
                     )
 
-                    CompactInfoRow(
-                        label = "Format Version",
-                        value =
-                            "0x${specVersion.formatVersion.toUByte().toString(16).uppercase().padStart(2, '0')}",
-                        labelMaxWidth = 250.dp,
-                    )
-                    CompactInfoRow(
-                        label = "Basic Version",
-                        value =
-                            "${specVersion.basicVersion.major}.${specVersion.basicVersion.minor}",
-                        labelMaxWidth = 250.dp,
-                    )
-                    specVersion.desOptionVersion?.let { version ->
-                        CompactInfoRow(
-                            label = "DES Option Version",
-                            value = "${version.major}.${version.minor}",
-                            labelMaxWidth = 250.dp,
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.padding(bottom = 4.dp),
+                    ) {
+                        InfoChip(
+                            label = "Format",
+                            value =
+                                "0x${specVersion.formatVersion.toUByte().toString(16).uppercase().padStart(2, '0')}",
                         )
-                    }
-                    specVersion.specialOptionVersion?.let { version ->
-                        CompactInfoRow(
-                            label = "Special Option Version",
-                            value = "${version.major}.${version.minor}",
-                            labelMaxWidth = 250.dp,
+                        InfoChip(
+                            label = "Basic",
+                            value = "${specVersion.basicVersion.major}.${specVersion.basicVersion.minor}",
                         )
-                    }
-                    specVersion.extendedOverlapOptionVersion?.let { version ->
-                        CompactInfoRow(
-                            label = "Extended Overlap Option Version",
-                            value = "${version.major}.${version.minor}",
-                            labelMaxWidth = 250.dp,
-                        )
-                    }
-                    specVersion.valueLimitedPurseServiceOptionVersion?.let { version ->
-                        CompactInfoRow(
-                            label = "Value-Limited Purse Service Option Version",
-                            value = "${version.major}.${version.minor}",
-                            labelMaxWidth = 250.dp,
-                        )
-                    }
-                    specVersion.communicationWithMacOptionVersion?.let { version ->
-                        CompactInfoRow(
-                            label = "Communication with MAC Option Version",
-                            value = "${version.major}.${version.minor}",
-                            labelMaxWidth = 250.dp,
-                        )
+                        specVersion.desOptionVersion?.let { version ->
+                            InfoChip(label = "DES support", value = "${version.major}.${version.minor}")
+                        }
+                        specVersion.specialOptionVersion?.let { version ->
+                            InfoChip(label = "Special features", value = "${version.major}.${version.minor}")
+                        }
+                        specVersion.extendedOverlapOptionVersion?.let { version ->
+                            InfoChip(label = "Extended overlap", value = "${version.major}.${version.minor}")
+                        }
+                        specVersion.valueLimitedPurseServiceOptionVersion?.let { version ->
+                            InfoChip(label = "Value-limited purse", value = "${version.major}.${version.minor}")
+                        }
+                        specVersion.communicationWithMacOptionVersion?.let { version ->
+                            InfoChip(label = "MAC communication", value = "${version.major}.${version.minor}")
+                        }
                     }
                 }
 
