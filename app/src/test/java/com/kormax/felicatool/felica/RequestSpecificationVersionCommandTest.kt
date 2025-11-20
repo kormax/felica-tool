@@ -90,12 +90,6 @@ class RequestSpecificationVersionCommandTest {
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun testFromByteArray_tooLong() {
-        val longData = "0d3c${IDM}000000".hexToByteArray() // 13 bytes instead of 12
-        RequestSpecificationVersionCommand.fromByteArray(longData)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
     fun testFromByteArray_wrongCommandCode() {
         val wrongCommandData =
             "0c3d${IDM}0000".hexToByteArray() // Command code 0x3D instead of 0x3C

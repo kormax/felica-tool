@@ -61,71 +61,23 @@ class PollingResponse(
     val hasRequestData: Boolean
         get() = requestData != null
 
-    /** Converts the response to a byte array */
-    override fun toByteArray(): ByteArray {
-        val length = if (requestData != null) LENGTH_WITH_REQUEST_DATA else MIN_LENGTH
-        val data = ByteArray(length)
-        var offset = 0
-
-        // Length (1 byte)
-        data[offset++] = length.toByte()
-
-        // Response code (1 byte)
-        data[offset++] = RESPONSE_CODE
-
-        // IDM (8 bytes)
-        idm.copyInto(data, offset)
-        offset += 8
-
-        // PMm (8 bytes)
-        pmm.copyInto(data, offset)
-        offset += 8
-
-        // Request data (2 bytes, optional)
-        requestData?.copyInto(data, offset)
-
-        return data
-    }
+    override fun toByteArray(): ByteArray =
+        buildFelicaMessage(RESPONSE_CODE, idm, capacity = LENGTH_WITH_REQUEST_DATA) {
+            addBytes(pmm)
+            requestData?.let { addBytes(it) }
+        }
 
     companion object {
-        const val RESPONSE_CODE: Byte = 0x01
-        const val MIN_LENGTH = FelicaResponseWithIdm.BASE_LENGTH + 8 // + PMm(8)
+        const val RESPONSE_CODE: Short = 0x01
+        const val MIN_LENGTH = BASE_LENGTH + 8 // + PMm(8)
         const val LENGTH_WITH_REQUEST_DATA = MIN_LENGTH + 2 // + Request data(2)
 
         /** Parse a polling response from raw bytes */
-        fun fromByteArray(data: ByteArray): PollingResponse {
-            require(data.size >= MIN_LENGTH) {
-                "Response data too short: ${data.size} bytes, minimum $MIN_LENGTH required"
+        fun fromByteArray(data: ByteArray): PollingResponse =
+            parseFelicaResponseWithIdm(data, RESPONSE_CODE, minLength = MIN_LENGTH) { idm ->
+                val pmm = bytes(8)
+                val requestData = if (remaining() >= 2) bytes(2) else null
+                PollingResponse(idm, pmm, requestData)
             }
-
-            var offset = 0
-
-            // Length (1 byte)
-            val length = data[offset].toInt() and 0xFF
-            offset++
-
-            // Response code (1 byte)
-            val responseCode = data[offset]
-            require(responseCode == RESPONSE_CODE) {
-                "Invalid response code: expected $RESPONSE_CODE, got $responseCode"
-            }
-            offset++
-
-            // IDM (8 bytes)
-            val idm = data.sliceArray(offset until offset + 8)
-            offset += 8
-
-            // PMm (8 bytes)
-            val pmm = data.sliceArray(offset until offset + 8)
-            offset += 8
-
-            // Request data (2 bytes, optional)
-            val requestData =
-                if (offset + 2 <= data.size) {
-                    data.sliceArray(offset until offset + 2)
-                } else null
-
-            return PollingResponse(idm, pmm, requestData)
-        }
     }
 }

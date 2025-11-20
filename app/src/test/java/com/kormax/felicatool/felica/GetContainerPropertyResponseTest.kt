@@ -107,7 +107,7 @@ class GetContainerPropertyResponseTest {
 
     @Test
     fun testConstants() {
-        assertEquals(0x2F.toByte(), GetContainerPropertyResponse.RESPONSE_CODE)
+        assertEquals(0x2F.toByte(), GetContainerPropertyResponse.RESPONSE_CODE.toByte())
         assertEquals(3, GetContainerPropertyResponse.MIN_LENGTH) // 2 base + 1 minimum data
     }
 

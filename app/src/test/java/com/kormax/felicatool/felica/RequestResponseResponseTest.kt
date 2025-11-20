@@ -30,7 +30,7 @@ class RequestResponseResponseTest {
         assertEquals(11.toByte(), bytes[0]) // Length
 
         // Check response code
-        assertEquals(RequestResponseResponse.RESPONSE_CODE, bytes[1])
+        assertEquals(RequestResponseResponse.RESPONSE_CODE.toByte(), bytes[1])
 
         // Check IDM (8 bytes)
         for (i in 0..7) {

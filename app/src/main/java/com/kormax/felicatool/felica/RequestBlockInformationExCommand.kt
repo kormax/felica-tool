@@ -43,81 +43,32 @@ class RequestBlockInformationExCommand(
     override fun responseFromByteArray(data: ByteArray) =
         RequestBlockInformationExResponse.fromByteArray(data)
 
-    override fun toByteArray(): ByteArray {
-        val data = mutableListOf<Byte>()
-
-        // Length (1 byte) - will be calculated
-        data.add(0x00) // Placeholder
-
-        // Command code
-        data.add(COMMAND_CODE.toByte())
-
-        // IDM (8 bytes)
-        data.addAll(idm.toList())
-
-        // Number of service codes (1 byte)
-        data.add(nodeCodes.size.toByte())
-
-        // Service codes (2 bytes each, Little Endian)
-        nodeCodes.forEach { serviceCode -> data.addAll(serviceCode.toList()) }
-
-        // Set the correct length
-        data[0] = data.size.toByte()
-
-        return data.toByteArray()
-    }
+    override fun toByteArray(): ByteArray =
+        buildFelicaMessage(COMMAND_CODE, idm, capacity = BASE_LENGTH + 1 + (nodeCodes.size * 2)) {
+            addByte(nodeCodes.size)
+            nodeCodes.forEach { addBytes(it) }
+        }
 
     companion object : CommandCompanion {
         override val COMMAND_CODE: Short = 0x1E
         override val COMMAND_CLASS: CommandClass = CommandClass.VARIABLE_RESPONSE_TIME
 
-        const val MIN_LENGTH: Int =
-            FelicaCommandWithIdm.BASE_LENGTH + 1 + 2 // + num_services(1) + min 1 service(2)
+        const val MIN_LENGTH: Int = BASE_LENGTH + 1 + 2 // + num_services(1) + min 1 service(2)
         const val MAX_SERVICE_CODES = 32
 
         /** Parse a Request Block Information Ex command from raw bytes */
-        fun fromByteArray(data: ByteArray): RequestBlockInformationExCommand {
-            require(data.size >= MIN_LENGTH) {
-                "Data must be at least $MIN_LENGTH bytes, got ${data.size}"
+        fun fromByteArray(data: ByteArray): RequestBlockInformationExCommand =
+            parseFelicaCommandWithIdm(data, COMMAND_CODE, minLength = MIN_LENGTH) { idm ->
+                val numberOfServices = uByte()
+                require(numberOfServices in 1..MAX_SERVICE_CODES) {
+                    "Number of service codes must be between 1 and $MAX_SERVICE_CODES, got $numberOfServices"
+                }
+                require(remaining() >= numberOfServices * 2) {
+                    "Data size insufficient for $numberOfServices service codes"
+                }
+
+                val nodeCodes = Array(numberOfServices) { bytes(2) }
+                RequestBlockInformationExCommand(idm, nodeCodes)
             }
-
-            var offset = 0
-
-            // Length (1 byte)
-            val length = data[offset].toInt() and 0xFF
-            require(length == data.size) { "Length mismatch: expected $length, got ${data.size}" }
-            offset++
-
-            // Command code (1 byte)
-            val commandCode = data[offset]
-            require(commandCode == COMMAND_CODE.toByte()) {
-                "Invalid command code: expected $COMMAND_CODE, got $commandCode"
-            }
-            offset++
-
-            // IDM (8 bytes)
-            val idm = data.sliceArray(offset until offset + 8)
-            offset += 8
-
-            // Number of service codes (1 byte)
-            val numberOfServices = data[offset].toInt() and 0xFF
-            require(numberOfServices in 1..MAX_SERVICE_CODES) {
-                "Number of service codes must be between 1 and $MAX_SERVICE_CODES, got $numberOfServices"
-            }
-            require(data.size >= FelicaCommandWithIdm.BASE_LENGTH + 1 + numberOfServices * 2) {
-                "Data size insufficient for $numberOfServices service codes"
-            }
-            offset++
-
-            // Service codes (2 bytes each, Little Endian)
-            val nodeCodes = mutableListOf<ByteArray>()
-            repeat(numberOfServices) {
-                val serviceCode = data.sliceArray(offset until offset + 2)
-                nodeCodes.add(serviceCode)
-                offset += 2
-            }
-
-            return RequestBlockInformationExCommand(idm, nodeCodes.toTypedArray())
-        }
     }
 }

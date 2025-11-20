@@ -15,27 +15,13 @@ class EchoResponse(
         require(data.size <= 252) { "Data must be at most 252 bytes, got ${data.size}" }
     }
 
-    /** Converts the response to a byte array */
-    override fun toByteArray(): ByteArray {
-        val length =
-            FelicaResponseWithoutIdm.BASE_LENGTH +
-                1 +
-                data.size // +1 for second byte of response code + 2 for reserved bytes
-        val dataArray = ByteArray(length)
-        var offset = 0
-
-        // Length (1 byte)
-        dataArray[offset++] = length.toByte()
-
-        // Response code (2 bytes)
-        dataArray[offset++] = (RESPONSE_CODE.toInt() shr 8).toByte() // High byte
-        dataArray[offset++] = RESPONSE_CODE.toByte() // Low byte
-
-        // Echoed data
-        data.copyInto(dataArray, offset)
-        offset += data.size
-        return dataArray
-    }
+    override fun toByteArray(): ByteArray =
+        buildFelicaMessage(
+            RESPONSE_CODE,
+            capacity = FelicaResponseWithoutIdm.BASE_LENGTH + 1 + data.size,
+        ) {
+            addBytes(data)
+        }
 
     companion object {
         // ECHO COMMAND HAS THE SAME RESPONSE CODE
@@ -43,34 +29,10 @@ class EchoResponse(
         const val MIN_LENGTH = FelicaResponseWithoutIdm.BASE_LENGTH + 1
 
         /** Parse an Echo response from raw bytes */
-        fun fromByteArray(data: ByteArray): EchoResponse {
-            require(data.size >= MIN_LENGTH) {
-                "Response data too short: ${data.size} bytes, minimum $MIN_LENGTH required"
+        fun fromByteArray(data: ByteArray): EchoResponse =
+            parseFelicaResponseWithoutIdm(data, RESPONSE_CODE, minLength = MIN_LENGTH) {
+                val echoedData = if (remaining() > 0) bytes(remaining()) else byteArrayOf()
+                EchoResponse(echoedData)
             }
-
-            var offset = 0
-
-            // Length (1 byte)
-            val length = data[offset].toInt() and 0xFF
-            require(length == data.size) { "Length mismatch: expected $length, got ${data.size}" }
-            offset++
-
-            // Response code (2 bytes for Echo)
-            val responseCode =
-                ((data[offset].toInt() and 0xFF) shl 8) or (data[offset + 1].toInt() and 0xFF)
-            require(responseCode.toShort() == RESPONSE_CODE.toShort()) {
-                "Invalid response code: expected $RESPONSE_CODE, got ${responseCode.toShort()}"
-            }
-            offset += 2
-
-            val echoedData =
-                if (data.size > offset) {
-                    data.sliceArray(offset until data.size)
-                } else {
-                    byteArrayOf()
-                }
-
-            return EchoResponse(echoedData)
-        }
     }
 }

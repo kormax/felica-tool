@@ -23,23 +23,13 @@ class EchoCommand(
 
     override fun responseFromByteArray(data: ByteArray) = EchoResponse.fromByteArray(data)
 
-    override fun toByteArray(): ByteArray {
-        val totalLength = COMMAND_LENGTH + data.size // +1 for second byte of command code
-        val dataArray = ByteArray(totalLength)
-        var offset = 0
-
-        // Length (1 byte)
-        dataArray[offset++] = totalLength.toByte()
-
-        // Command code (2 bytes)
-        dataArray[offset++] = (COMMAND_CODE.toInt() shr 8).toByte() // High byte
-        dataArray[offset++] = COMMAND_CODE.toByte() // Low byte
-
-        // Data
-        data.copyInto(dataArray, offset)
-
-        return dataArray
-    }
+    override fun toByteArray(): ByteArray =
+        buildFelicaMessage(
+            COMMAND_CODE,
+            capacity = FelicaCommandWithoutIdm.BASE_LENGTH + 1 + data.size,
+        ) {
+            addBytes(data)
+        }
 
     companion object : CommandCompanion {
         override val COMMAND_CODE: Short = 0xF000.toShort()
@@ -50,28 +40,9 @@ class EchoCommand(
                 1 // +1 for second byte of command code, + data length (assuming 2 bytes default)
 
         /** Parse an Echo command from raw bytes */
-        fun fromByteArray(data: ByteArray): EchoCommand {
-            require(data.size >= COMMAND_LENGTH) { "Data must be at least $COMMAND_LENGTH bytes" }
-
-            var offset = 0
-
-            // Length (1 byte)
-            val length = data[offset].toInt() and 0xFF
-            require(length == data.size) { "Length mismatch: expected $length, got ${data.size}" }
-            offset++
-
-            // Command code (2 bytes for Echo)
-            val commandCode =
-                ((data[offset].toInt() and 0xFF) shl 8) or (data[offset + 1].toInt() and 0xFF)
-            require(commandCode == COMMAND_CODE.toInt()) {
-                "Invalid command code: expected $COMMAND_CODE, got ${commandCode.toShort()}"
+        fun fromByteArray(data: ByteArray): EchoCommand =
+            parseFelicaCommandWithoutIdm(data, COMMAND_CODE, minLength = COMMAND_LENGTH) {
+                EchoCommand(bytes(remaining()))
             }
-            offset += 2
-
-            // Data (remaining bytes)
-            val echoData = data.sliceArray(offset until data.size)
-
-            return EchoCommand(echoData)
-        }
     }
 }

@@ -35,7 +35,7 @@ class GetContainerIssueInformationResponseTest {
         assertEquals(GetContainerIssueInformationResponse.RESPONSE_LENGTH.toByte(), bytes[0])
 
         // Check response code
-        assertEquals(GetContainerIssueInformationResponse.RESPONSE_CODE, bytes[1])
+        assertEquals(GetContainerIssueInformationResponse.RESPONSE_CODE.toByte(), bytes[1])
 
         // Check IDM
         for (i in TEST_IDM.indices) {
@@ -132,7 +132,7 @@ class GetContainerIssueInformationResponseTest {
 
     @Test
     fun testConstants() {
-        assertEquals(0x23.toByte(), GetContainerIssueInformationResponse.RESPONSE_CODE)
+        assertEquals(0x23.toByte(), GetContainerIssueInformationResponse.RESPONSE_CODE.toByte())
         assertEquals(
             26,
             GetContainerIssueInformationResponse.RESPONSE_LENGTH,

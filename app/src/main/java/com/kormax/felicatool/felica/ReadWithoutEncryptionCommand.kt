@@ -96,44 +96,29 @@ class ReadWithoutEncryptionCommand(
     override fun responseFromByteArray(data: ByteArray) =
         ReadWithoutEncryptionResponse.fromByteArray(data)
 
-    override fun toByteArray(): ByteArray {
-        val data = mutableListOf<Byte>()
-
-        // Length (1 byte) - will be calculated
-        data.add(0x00) // Placeholder
-
-        // Command code
-        data.add(COMMAND_CODE.toByte())
-
-        // IDM (8 bytes)
-        data.addAll(idm.toList())
-
-        // Number of service codes (1 byte)
-        data.add(serviceCodes.size.toByte())
-
-        // Service codes (2 bytes each, Little Endian)
-        serviceCodes.forEach { serviceCode -> data.addAll(serviceCode.toList()) }
-
-        // Number of blocks (1 byte)
-        data.add(blockListElements.size.toByte())
-
-        // Block list elements (2 bytes each, Little Endian)
-        blockListElements.forEach { blockElement ->
-            data.addAll(blockElement.toByteArray().toList())
+    override fun toByteArray(): ByteArray =
+        buildFelicaMessage(
+            COMMAND_CODE,
+            idm,
+            capacity =
+                BASE_LENGTH +
+                    1 +
+                    (serviceCodes.size * 2) +
+                    1 +
+                    blockListElements.sumOf { it.toByteArray().size },
+        ) {
+            addByte(serviceCodes.size)
+            serviceCodes.forEach { addBytes(it) }
+            addByte(blockListElements.size)
+            blockListElements.forEach { addBytes(it.toByteArray()) }
         }
-
-        // Set the correct length
-        data[0] = data.size.toByte()
-
-        return data.toByteArray()
-    }
 
     companion object : CommandCompanion {
         override val COMMAND_CODE: Short = 0x06
         override val COMMAND_CLASS: CommandClass = CommandClass.VARIABLE_RESPONSE_TIME
 
         const val MIN_LENGTH: Int =
-            FelicaCommandWithIdm.BASE_LENGTH +
+            BASE_LENGTH +
                 1 +
                 2 +
                 1 +
@@ -143,85 +128,33 @@ class ReadWithoutEncryptionCommand(
             16 // Full protocol limit; large reads should stay below card payload caps
 
         /** Parse a Read Without Encryption command from raw bytes */
-        fun fromByteArray(data: ByteArray): ReadWithoutEncryptionCommand {
-            require(data.size >= MIN_LENGTH) {
-                "Data must be at least $MIN_LENGTH bytes, got ${data.size}"
-            }
-
-            var offset = 0
-
-            // Length (1 byte)
-            val length = data[offset].toInt() and 0xFF
-            require(length == data.size) { "Length mismatch: expected $length, got ${data.size}" }
-            offset++
-
-            // Command code (1 byte)
-            val commandCode = data[offset]
-            require(commandCode == COMMAND_CODE.toByte()) {
-                "Invalid command code: expected $COMMAND_CODE, got $commandCode"
-            }
-            offset++
-
-            // IDM (8 bytes)
-            val idm = data.sliceArray(offset until offset + 8)
-            offset += 8
-
-            // Number of service codes (1 byte)
-            val numberOfServices = data[offset].toInt() and 0xFF
-            require(numberOfServices in 1..MAX_SERVICE_CODES) {
-                "Number of service codes must be between 1 and $MAX_SERVICE_CODES, got $numberOfServices"
-            }
-            require(data.size >= FelicaCommandWithIdm.BASE_LENGTH + 1 + numberOfServices * 2 + 1) {
-                "Data size insufficient for $numberOfServices service codes"
-            }
-            offset++
-
-            // Service codes (2 bytes each, Little Endian)
-            val serviceCodes = mutableListOf<ByteArray>()
-            repeat(numberOfServices) {
-                val serviceCode = data.sliceArray(offset until offset + 2)
-                serviceCodes.add(serviceCode)
-                offset += 2
-            }
-
-            // Number of blocks (1 byte)
-            val numberOfBlocks = data[offset].toInt() and 0xFF
-            require(numberOfBlocks in 1..MAX_BLOCKS) {
-                "Number of blocks must be between 1 and $MAX_BLOCKS, got $numberOfBlocks"
-            }
-            offset++
-
-            // Block list elements (2 or 3 bytes each depending on extended format)
-            val blockListElements = mutableListOf<BlockListElement>()
-            var totalBlockBytes = 0
-            repeat(numberOfBlocks) {
-                // Check the Length bit (bit 7 of D0) to determine if extended
-                val lengthBit = (data[offset].toInt() and 0x80) != 0
-                val isExtended = !lengthBit // 1 = 2-byte, 0 = 3-byte
-                val blockSize = if (isExtended) 3 else 2
-
-                require(offset + blockSize <= data.size) {
-                    "Insufficient data for block ${blockListElements.size}"
+        fun fromByteArray(data: ByteArray): ReadWithoutEncryptionCommand =
+            parseFelicaCommandWithIdm(data, COMMAND_CODE, minLength = MIN_LENGTH) { idm ->
+                val numberOfServices = uByte()
+                require(numberOfServices in 1..MAX_SERVICE_CODES) {
+                    "Number of service codes must be between 1 and $MAX_SERVICE_CODES, got $numberOfServices"
+                }
+                require(remaining() >= (numberOfServices * 2) + 1) {
+                    "Data size insufficient for $numberOfServices service codes"
                 }
 
-                val blockData = data.sliceArray(offset until offset + blockSize)
-                blockListElements.add(BlockListElement.fromByteArray(blockData))
-                offset += blockSize
-                totalBlockBytes += blockSize
-            }
+                val serviceCodes = Array(numberOfServices) { bytes(2) }
 
-            // Verify we consumed all expected data
-            val expectedTotalLength =
-                FelicaCommandWithIdm.BASE_LENGTH + 1 + numberOfServices * 2 + 1 + totalBlockBytes
-            require(length == expectedTotalLength) {
-                "Length mismatch after parsing: expected $expectedTotalLength, got $length"
-            }
+                val numberOfBlocks = uByte()
+                require(numberOfBlocks in 1..MAX_BLOCKS) {
+                    "Number of blocks must be between 1 and $MAX_BLOCKS, got $numberOfBlocks"
+                }
 
-            return ReadWithoutEncryptionCommand(
-                idm,
-                serviceCodes.toTypedArray(),
-                blockListElements.toTypedArray(),
-            )
-        }
+                val blockListElements = mutableListOf<BlockListElement>()
+                repeat(numberOfBlocks) {
+                    val first = byte()
+                    val isExtended = (first.toInt() and 0x80) == 0
+                    val blockSize = if (isExtended) 3 else 2
+                    val rest = bytes(blockSize - 1)
+                    blockListElements.add(BlockListElement.fromByteArray(byteArrayOf(first) + rest))
+                }
+
+                ReadWithoutEncryptionCommand(idm, serviceCodes, blockListElements.toTypedArray())
+            }
     }
 }

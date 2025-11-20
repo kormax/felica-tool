@@ -117,7 +117,7 @@ class RequestSpecificationVersionResponseTest {
         assertEquals(26, bytes.size)
 
         // Check response code
-        assertEquals(RequestSpecificationVersionResponse.RESPONSE_CODE, bytes[1])
+        assertEquals(RequestSpecificationVersionResponse.RESPONSE_CODE.toByte(), bytes[1])
 
         // Check IDM
         for (i in 0..7) {
@@ -171,7 +171,7 @@ class RequestSpecificationVersionResponseTest {
         val data =
             byteArrayOf(
                 26, // length
-                RequestSpecificationVersionResponse.RESPONSE_CODE, // response code
+                RequestSpecificationVersionResponse.RESPONSE_CODE.toByte(), // response code
                 *testIdm, // IDM
                 0x00, // status flag 1
                 0x00, // status flag 2
@@ -216,7 +216,7 @@ class RequestSpecificationVersionResponseTest {
         val shortData =
             byteArrayOf(
                 10,
-                RequestSpecificationVersionResponse.RESPONSE_CODE,
+                RequestSpecificationVersionResponse.RESPONSE_CODE.toByte(),
                 0x00,
                 0x00,
                 0x00,

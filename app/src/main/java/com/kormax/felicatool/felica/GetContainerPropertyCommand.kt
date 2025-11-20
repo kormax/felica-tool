@@ -26,22 +26,10 @@ class GetContainerPropertyCommand(
     override fun responseFromByteArray(data: ByteArray) =
         GetContainerPropertyResponse.fromByteArray(data)
 
-    override fun toByteArray(): ByteArray {
-        val data = ByteArray(COMMAND_LENGTH)
-        var offset = 0
-
-        // Length (1 byte)
-        data[offset++] = COMMAND_LENGTH.toByte()
-
-        // Command code (1 byte)
-        data[offset++] = COMMAND_CODE.toByte()
-
-        // Index (2 bytes, little-endian)
-        val indexBytes = property.toByteArray()
-        indexBytes.copyInto(data, offset)
-
-        return data
-    }
+    override fun toByteArray(): ByteArray =
+        buildFelicaMessage(COMMAND_CODE, capacity = COMMAND_LENGTH) {
+            addBytes(property.toByteArray())
+        }
 
     companion object : CommandCompanion {
         override val COMMAND_CODE: Short = 0x2E
@@ -50,30 +38,10 @@ class GetContainerPropertyCommand(
         const val COMMAND_LENGTH: Int = FelicaCommandWithoutIdm.BASE_LENGTH + 2 // + index(2)
 
         /** Parse a Get Container Property command from raw bytes */
-        fun fromByteArray(data: ByteArray): GetContainerPropertyCommand {
-            require(data.size == COMMAND_LENGTH) {
-                "Command data must be exactly $COMMAND_LENGTH bytes, got ${data.size}"
+        fun fromByteArray(data: ByteArray): GetContainerPropertyCommand =
+            parseFelicaCommandWithoutIdm(data, COMMAND_CODE, minLength = COMMAND_LENGTH) {
+                GetContainerPropertyCommand(Property.fromByteArray(bytes(2)))
             }
-
-            var offset = 0
-
-            // Length (1 byte)
-            val length = data[offset].toInt() and 0xFF
-            require(length == data.size) { "Length mismatch: expected $length, got ${data.size}" }
-            offset++
-
-            // Command code (1 byte)
-            val commandCode = data[offset]
-            require(commandCode == COMMAND_CODE.toByte()) {
-                "Invalid command code: expected $COMMAND_CODE, got $commandCode"
-            }
-            offset++
-
-            // Index (2 bytes, little-endian)
-            val property = Property.fromByteArray(data.sliceArray(offset until offset + 2))
-
-            return GetContainerPropertyCommand(property)
-        }
     }
 
     /**

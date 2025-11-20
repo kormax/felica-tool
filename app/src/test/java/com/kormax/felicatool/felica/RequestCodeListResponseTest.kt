@@ -88,7 +88,7 @@ class RequestCodeListResponseTest {
         assertEquals(21.toByte(), bytes[0]) // Length
 
         // Check response code
-        assertEquals(RequestCodeListResponse.RESPONSE_CODE, bytes[1])
+        assertEquals(RequestCodeListResponse.RESPONSE_CODE.toByte(), bytes[1])
 
         // Check IDM (8 bytes)
         for (i in 0..7) {
@@ -128,7 +128,7 @@ class RequestCodeListResponseTest {
         assertEquals(27.toByte(), bytes[0]) // Length
 
         // Check response code
-        assertEquals(RequestCodeListResponse.RESPONSE_CODE, bytes[1])
+        assertEquals(RequestCodeListResponse.RESPONSE_CODE.toByte(), bytes[1])
 
         // Check continue flag
         assertEquals(0x01.toByte(), bytes[12]) // Has more packets

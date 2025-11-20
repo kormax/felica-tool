@@ -42,7 +42,7 @@ class ResetModeResponseTest {
         assertEquals(ResetModeResponse.RESPONSE_LENGTH.toByte(), bytes[0])
 
         // Check response code
-        assertEquals(ResetModeResponse.RESPONSE_CODE, bytes[1])
+        assertEquals(ResetModeResponse.RESPONSE_CODE.toByte(), bytes[1])
 
         // Check IDM
         for (i in TEST_IDM.indices) {
@@ -140,7 +140,7 @@ class ResetModeResponseTest {
 
     @Test
     fun testConstants() {
-        assertEquals(0x3F.toByte(), ResetModeResponse.RESPONSE_CODE)
+        assertEquals(0x3F.toByte(), ResetModeResponse.RESPONSE_CODE.toByte())
         assertEquals(
             12,
             ResetModeResponse.RESPONSE_LENGTH,

@@ -35,7 +35,7 @@ class SetParameterResponseTest {
         assertEquals(SetParameterResponse.RESPONSE_LENGTH.toByte(), bytes[0])
 
         // Check response code
-        assertEquals(SetParameterResponse.RESPONSE_CODE, bytes[1])
+        assertEquals(SetParameterResponse.RESPONSE_CODE.toByte(), bytes[1])
 
         // Check IDM
         for (i in TEST_IDM.indices) {
@@ -115,7 +115,7 @@ class SetParameterResponseTest {
 
     @Test
     fun testConstants() {
-        assertEquals(0x21.toByte(), SetParameterResponse.RESPONSE_CODE)
+        assertEquals(0x21.toByte(), SetParameterResponse.RESPONSE_CODE.toByte())
         assertEquals(
             12,
             SetParameterResponse.RESPONSE_LENGTH,

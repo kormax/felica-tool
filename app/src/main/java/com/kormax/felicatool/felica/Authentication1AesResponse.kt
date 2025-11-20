@@ -18,63 +18,17 @@ class Authentication1AesResponse(
         require(data.size == 36) { "Data must be exactly 36 bytes, got ${data.size}" }
     }
 
-    /** Converts the response to a byte array */
-    override fun toByteArray(): ByteArray {
-        val length = FelicaResponseWithIdm.BASE_LENGTH + 36 // + data(36)
-        val responseData = ByteArray(length)
-        var offset = 0
-
-        // Length (1 byte)
-        responseData[offset++] = length.toByte()
-
-        // Response code (1 byte)
-        responseData[offset++] = RESPONSE_CODE
-
-        // IDM (8 bytes)
-        idm.copyInto(responseData, offset)
-        offset += 8
-
-        // Data (36 bytes)
-        data.copyInto(responseData, offset)
-
-        return responseData
-    }
+    override fun toByteArray(): ByteArray =
+        buildFelicaMessage(RESPONSE_CODE, idm, capacity = EXPECTED_LENGTH) { addBytes(data) }
 
     companion object {
-        const val RESPONSE_CODE: Byte = 0x41
-        const val EXPECTED_LENGTH = FelicaResponseWithIdm.BASE_LENGTH + 36 // + data(36)
+        const val RESPONSE_CODE: Short = 0x41
+        const val EXPECTED_LENGTH = BASE_LENGTH + 36 // + data(36)
 
         /** Parse an Authentication 1 AES response from raw bytes */
-        fun fromByteArray(data: ByteArray): Authentication1AesResponse {
-            require(data.size >= EXPECTED_LENGTH) {
-                "Response data too short: ${data.size} bytes, expected $EXPECTED_LENGTH"
+        fun fromByteArray(data: ByteArray): Authentication1AesResponse =
+            parseFelicaResponseWithIdm(data, RESPONSE_CODE, minLength = EXPECTED_LENGTH) { idm ->
+                Authentication1AesResponse(idm, bytes(36))
             }
-
-            var offset = 0
-
-            // Length (1 byte)
-            val length = data[offset].toInt() and 0xFF
-            require(length == data.size) { "Length mismatch: expected $length, got ${data.size}" }
-            require(length == EXPECTED_LENGTH) {
-                "Invalid response length: expected $EXPECTED_LENGTH, got $length"
-            }
-            offset++
-
-            // Response code (1 byte)
-            val responseCode = data[offset]
-            require(responseCode == RESPONSE_CODE) {
-                "Invalid response code: expected $RESPONSE_CODE, got $responseCode"
-            }
-            offset++
-
-            // IDM (8 bytes)
-            val idm = data.sliceArray(offset until offset + 8)
-            offset += 8
-
-            // Data (36 bytes)
-            val responseData = data.sliceArray(offset until offset + 36)
-
-            return Authentication1AesResponse(idm, responseData)
-        }
     }
 }

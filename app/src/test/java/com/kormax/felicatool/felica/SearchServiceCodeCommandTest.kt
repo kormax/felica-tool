@@ -36,7 +36,7 @@ class SearchServiceCodeCommandTest {
             SearchServiceCodeCommand.fromByteArray(shortData)
             fail("Expected IllegalArgumentException for too short data")
         } catch (e: IllegalArgumentException) {
-            assertTrue(e.message?.contains("must be at least") == true)
+            assertTrue(e.message?.contains("minimum") == true)
         }
     }
 

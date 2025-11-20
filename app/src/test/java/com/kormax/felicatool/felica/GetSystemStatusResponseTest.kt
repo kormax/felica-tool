@@ -62,7 +62,7 @@ class GetSystemStatusResponseTest {
         assertEquals(18.toByte(), bytes[0]) // Length
 
         // Check response code
-        assertEquals(GetSystemStatusResponse.RESPONSE_CODE, bytes[1])
+        assertEquals(GetSystemStatusResponse.RESPONSE_CODE.toByte(), bytes[1])
 
         // Check IDM (8 bytes)
         for (i in 0..7) {
@@ -94,7 +94,7 @@ class GetSystemStatusResponseTest {
         assertEquals(14.toByte(), bytes[0]) // Length
 
         // Check response code
-        assertEquals(GetSystemStatusResponse.RESPONSE_CODE, bytes[1])
+        assertEquals(GetSystemStatusResponse.RESPONSE_CODE.toByte(), bytes[1])
 
         // Check data length
         assertEquals(0x00.toByte(), bytes[13])

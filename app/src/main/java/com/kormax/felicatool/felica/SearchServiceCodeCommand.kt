@@ -26,42 +26,26 @@ class SearchServiceCodeCommand(
     override fun responseFromByteArray(data: ByteArray) =
         SearchServiceCodeResponse.fromByteArray(data)
 
-    override fun toByteArray(): ByteArray {
-        val data = mutableListOf<Byte>()
-
-        // Length (1 byte) - will be calculated
-        data.add(0x00) // Placeholder
-
-        // Command code
-        data.add(COMMAND_CODE.toByte())
-
-        // IDM (8 bytes)
-        data.addAll(idm.toList())
-
-        // Index (2 bytes, little endian)
-        val indexBytes = byteArrayOf((index and 0xFF).toByte(), ((index shr 8) and 0xFF).toByte())
-        data.addAll(indexBytes.toList())
-
-        // Set the correct length
-        data[0] = data.size.toByte()
-
-        return data.toByteArray()
-    }
+    override fun toByteArray(): ByteArray =
+        buildFelicaMessage(COMMAND_CODE, idm, capacity = MIN_LENGTH) {
+            addByte(index and 0xFF)
+            addByte((index shr 8) and 0xFF)
+        }
 
     companion object : CommandCompanion {
         override val COMMAND_CODE: Short = 0x0A
         override val COMMAND_CLASS: CommandClass = CommandClass.VARIABLE_RESPONSE_TIME
 
-        const val MIN_LENGTH: Int = FelicaCommandWithIdm.BASE_LENGTH + 2 // + index (2 bytes)
+        const val MIN_LENGTH: Int = BASE_LENGTH + 2 // + index (2 bytes)
         const val MAX_ITERATOR_INDEX: Int = 0xFFFF
 
-        fun fromByteArray(data: ByteArray): SearchServiceCodeCommand {
-            require(data.size >= MIN_LENGTH) { "Data must be at least $MIN_LENGTH bytes" }
-            require(data[1] == COMMAND_CODE.toByte()) { "Invalid command code" }
-            val idm = data.sliceArray(2..9)
-            val indexBytes = data.sliceArray(10..11)
-            val index = ((indexBytes[1].toInt() and 0xFF) shl 8) or (indexBytes[0].toInt() and 0xFF)
-            return SearchServiceCodeCommand(idm, index)
-        }
+        fun fromByteArray(data: ByteArray): SearchServiceCodeCommand =
+            parseFelicaCommandWithIdm(data, COMMAND_CODE, minLength = MIN_LENGTH) { idm ->
+                val index = uByte() or (uByte() shl 8)
+                require(index in 0..MAX_ITERATOR_INDEX) {
+                    "Index must be between 0 and $MAX_ITERATOR_INDEX, got $index"
+                }
+                SearchServiceCodeCommand(idm, index)
+            }
     }
 }

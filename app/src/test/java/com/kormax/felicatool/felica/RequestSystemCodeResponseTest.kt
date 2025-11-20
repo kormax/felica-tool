@@ -71,7 +71,7 @@ class RequestSystemCodeResponseTest {
         assertEquals(13.toByte(), bytes[0]) // Length
 
         // Check response code
-        assertEquals(RequestSystemCodeResponse.RESPONSE_CODE, bytes[1])
+        assertEquals(RequestSystemCodeResponse.RESPONSE_CODE.toByte(), bytes[1])
 
         // Check IDM (8 bytes)
         for (i in 0..7) {
@@ -97,7 +97,7 @@ class RequestSystemCodeResponseTest {
         assertEquals(15.toByte(), bytes[0]) // Length
 
         // Check response code
-        assertEquals(RequestSystemCodeResponse.RESPONSE_CODE, bytes[1])
+        assertEquals(RequestSystemCodeResponse.RESPONSE_CODE.toByte(), bytes[1])
 
         // Check IDM (8 bytes)
         for (i in 0..7) {

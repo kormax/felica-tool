@@ -57,7 +57,7 @@ class GetAreaInformationResponseTest {
         assertEquals(12.toByte(), bytes[0]) // Length
 
         // Check response code
-        assertEquals(GetAreaInformationResponse.RESPONSE_CODE, bytes[1])
+        assertEquals(GetAreaInformationResponse.RESPONSE_CODE.toByte(), bytes[1])
 
         // Check IDM (8 bytes)
         for (i in idm.indices) {
@@ -85,7 +85,7 @@ class GetAreaInformationResponseTest {
         assertEquals(16.toByte(), bytes[0]) // Length
 
         // Check response code
-        assertEquals(GetAreaInformationResponse.RESPONSE_CODE, bytes[1])
+        assertEquals(GetAreaInformationResponse.RESPONSE_CODE.toByte(), bytes[1])
 
         // Check IDM (8 bytes)
         for (i in idm.indices) {
@@ -211,7 +211,7 @@ class GetAreaInformationResponseTest {
 
     @Test
     fun testGetAreaInformationResponseConstants() {
-        assertEquals(0x25.toByte(), GetAreaInformationResponse.RESPONSE_CODE)
+        assertEquals(0x25.toByte(), GetAreaInformationResponse.RESPONSE_CODE.toByte())
         assertEquals(12, GetAreaInformationResponse.MIN_ERROR_LENGTH)
         assertEquals(16, GetAreaInformationResponse.MIN_SUCCESS_LENGTH)
     }

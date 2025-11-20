@@ -21,21 +21,8 @@ class GetContainerIdCommand(
 
     override fun responseFromByteArray(data: ByteArray) = GetContainerIdResponse.fromByteArray(data)
 
-    override fun toByteArray(): ByteArray {
-        val data = ByteArray(COMMAND_LENGTH)
-        var offset = 0
-
-        // Length (1 byte)
-        data[offset++] = COMMAND_LENGTH.toByte()
-
-        // Command code (1 byte)
-        data[offset++] = COMMAND_CODE.toByte()
-
-        // Reserved bytes (2 bytes)
-        reserved.copyInto(data, offset)
-
-        return data
-    }
+    override fun toByteArray(): ByteArray =
+        buildFelicaMessage(COMMAND_CODE, capacity = COMMAND_LENGTH) { addBytes(reserved) }
 
     companion object : CommandCompanion {
         override val COMMAND_CODE: Short = 0x70
@@ -45,26 +32,9 @@ class GetContainerIdCommand(
             FelicaCommandWithoutIdm.BASE_LENGTH + 2 // length(1) + command_code(1) + reserved(2)
 
         /** Parse a Get Container ID command from raw bytes */
-        fun fromByteArray(data: ByteArray): GetContainerIdCommand {
-            require(data.size >= COMMAND_LENGTH) { "Data must be at least $COMMAND_LENGTH bytes" }
-
-            var offset = 0
-
-            // Length (1 byte)
-            val length = data[offset].toInt() and 0xFF
-            require(length == data.size) { "Length mismatch: expected $length, got ${data.size}" }
-            offset++
-
-            // Command code (1 byte)
-            require(data[offset] == COMMAND_CODE.toByte()) {
-                "Invalid command code: expected $COMMAND_CODE, got ${data[offset]}"
+        fun fromByteArray(data: ByteArray): GetContainerIdCommand =
+            parseFelicaCommandWithoutIdm(data, COMMAND_CODE, minLength = COMMAND_LENGTH) {
+                GetContainerIdCommand(bytes(2))
             }
-            offset++
-
-            // Reserved bytes (2 bytes)
-            val reserved = data.sliceArray(offset until offset + 2)
-
-            return GetContainerIdCommand(reserved)
-        }
     }
 }

@@ -35,37 +35,13 @@ class SetParameterCommand(
 
     override fun responseFromByteArray(data: ByteArray) = SetParameterResponse.fromByteArray(data)
 
-    override fun toByteArray(): ByteArray {
-        val data = ByteArray(COMMAND_LENGTH)
-        var offset = 0
-
-        // Length (1 byte)
-        data[offset++] = COMMAND_LENGTH.toByte()
-
-        // Command code (1 byte)
-        data[offset++] = COMMAND_CODE.toByte()
-
-        // IDM (8 bytes)
-        idm.copyInto(data, offset)
-        offset += 8
-
-        // Reserved bytes (4 bytes)
-        reservedD0D1D2D3.copyInto(data, offset)
-        offset += 4
-
-        // Encryption type (1 byte)
-        // If SRM_TYPE1 -> 0x0, else -> 0x1
-        data[offset++] = if (encryptionType == EncryptionType.SRM_TYPE1) 0x0 else 0x1
-
-        // Packet type (1 byte)
-        // If NODECODESIZE_2 -> 0x0, else -> 0x1
-        data[offset++] = if (packetType == PacketType.NODECODESIZE_2) 0x0 else 0x1
-
-        // Reserved bytes (2 bytes)
-        reservedD6D7D.copyInto(data, offset)
-
-        return data
-    }
+    override fun toByteArray(): ByteArray =
+        buildFelicaMessage(COMMAND_CODE, idm, capacity = COMMAND_LENGTH) {
+            addBytes(reservedD0D1D2D3)
+            addByte(encryptionType.value)
+            addByte(packetType.value)
+            addBytes(reservedD6D7D)
+        }
 
     companion object : CommandCompanion {
         override val COMMAND_CODE: Short = 0x20
@@ -76,62 +52,26 @@ class SetParameterCommand(
             BASE_LENGTH + 8 // + reserved(4) + encryption_type(1) + packet_type(1) + reserved(2)
 
         /** Parse a SetParameter command from raw bytes */
-        fun fromByteArray(data: ByteArray): SetParameterCommand {
-            require(data.size >= COMMAND_LENGTH) {
-                "Command data too short: ${data.size} bytes, minimum $COMMAND_LENGTH required"
+        fun fromByteArray(data: ByteArray): SetParameterCommand =
+            parseFelicaCommandWithIdm(data, COMMAND_CODE, minLength = COMMAND_LENGTH) { idm ->
+                val reservedD0D1D2D3 = bytes(4)
+                require(reservedD0D1D2D3.all { it == RESERVED }) {
+                    "Reserved bytes D0-D3 must be 0x00, got: ${reservedD0D1D2D3.toHexString()}"
+                }
+
+                val encryptionTypeByte = uByte()
+                val encryptionType = EncryptionType.fromValue(encryptionTypeByte)
+
+                val packetTypeByte = uByte()
+                val packetType = PacketType.fromValue(packetTypeByte)
+
+                val reservedD6D7 = bytes(2)
+                require(reservedD6D7.all { it == RESERVED }) {
+                    "Reserved bytes D6-D7 must be 0x00, got: ${reservedD6D7.toHexString()}"
+                }
+
+                SetParameterCommand(idm, encryptionType, packetType, reservedD0D1D2D3, reservedD6D7)
             }
-
-            var offset = 0
-
-            // Length (1 byte)
-            val length = data[offset].toInt() and 0xFF
-            require(length == data.size) { "Length mismatch: expected $length, got ${data.size}" }
-            offset++
-
-            // Command code (1 byte)
-            val commandCode = data[offset]
-            require(commandCode == COMMAND_CODE.toByte()) {
-                "Invalid command code: expected $COMMAND_CODE, got $commandCode"
-            }
-            offset++
-
-            // IDM (8 bytes)
-            val idm = data.sliceArray(offset until offset + 8)
-            offset += 8
-
-            // Reserved bytes (4 bytes) - validate they are all 0x00
-            val reservedD0D1D2D3 = data.sliceArray(offset until offset + 4)
-            require(reservedD0D1D2D3.all { it == 0x00.toByte() }) {
-                "Reserved bytes D0-D3 must be 0x00, got: ${reservedD0D1D2D3.toHexString()}"
-            }
-            offset += 4
-
-            // Encryption type (1 byte)
-            val encryptionTypeByte = data[offset].toInt() and 0xFF
-            val encryptionType =
-                if (encryptionTypeByte == 0) EncryptionType.SRM_TYPE1 else EncryptionType.SRM_TYPE2
-            offset++
-
-            // Packet type (1 byte)
-            val packetTypeByte = data[offset].toInt() and 0xFF
-            val packetType =
-                if (packetTypeByte == 0) PacketType.NODECODESIZE_2 else PacketType.NODECODESIZE_4
-            offset++
-
-            // Reserved bytes (2 bytes) - validate they are all 0x00
-            val reservedD6D7 = data.sliceArray(offset until offset + 2)
-            require(reservedD6D7.all { it == 0x00.toByte() }) {
-                "Reserved bytes D6-D7 must be 0x00, got: ${reservedD6D7.toHexString()}"
-            }
-
-            return SetParameterCommand(
-                idm,
-                encryptionType,
-                packetType,
-                reservedD0D1D2D3,
-                reservedD6D7,
-            )
-        }
     }
 
     enum class EncryptionType(val value: Int) {

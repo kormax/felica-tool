@@ -61,128 +61,46 @@ class Authentication1DesCommand(
     override fun responseFromByteArray(data: ByteArray) =
         Authentication1DesResponse.fromByteArray(data)
 
-    override fun toByteArray(): ByteArray {
-        val data = mutableListOf<Byte>()
-
-        // Length (1 byte) - will be calculated
-        data.add(0x00) // Placeholder
-
-        // Command code
-        data.add(COMMAND_CODE.toByte())
-
-        // IDM (8 bytes)
-        data.addAll(idm.toList())
-
-        // Number of area codes (1 byte)
-        data.add(areaCodes.size.toByte())
-
-        // Area codes (2 bytes each)
-        areaCodes.forEach { areaCode -> data.addAll(areaCode.toList()) }
-
-        // Number of service codes (1 byte)
-        data.add(serviceCodes.size.toByte())
-
-        // Service codes (2 bytes each)
-        serviceCodes.forEach { serviceCode -> data.addAll(serviceCode.toList()) }
-
-        // Challenge1A (8 bytes)
-        data.addAll(challenge1A.toList())
-
-        // Set the correct length
-        data[0] = data.size.toByte()
-
-        return data.toByteArray()
-    }
+    override fun toByteArray(): ByteArray =
+        buildFelicaMessage(
+            COMMAND_CODE,
+            idm,
+            capacity =
+                BASE_LENGTH + 2 + (areaCodes.size * 2) + (serviceCodes.size * 2) + challenge1A.size,
+        ) {
+            addByte(areaCodes.size)
+            areaCodes.forEach { addBytes(it) }
+            addByte(serviceCodes.size)
+            serviceCodes.forEach { addBytes(it) }
+            addBytes(challenge1A)
+        }
 
     companion object : CommandCompanion {
         override val COMMAND_CODE: Short = 0x10
         override val COMMAND_CLASS: CommandClass = CommandClass.MUTUAL_AUTH
 
         const val MIN_LENGTH: Int =
-            FelicaCommandWithIdm.BASE_LENGTH +
-                1 +
-                1 +
-                8 // + area_count(1) + service_count(1) + challenge1A(8)
+            BASE_LENGTH + 1 + 1 + 8 // + area_count(1) + service_count(1) + challenge1A(8)
         const val MAX_NODES = 64
 
         /** Parse an Authentication 1 DES command from raw bytes */
-        fun fromByteArray(data: ByteArray): Authentication1DesCommand {
-            require(data.size >= MIN_LENGTH) {
-                "Data must be at least $MIN_LENGTH bytes, got ${data.size}"
-            }
+        fun fromByteArray(data: ByteArray): Authentication1DesCommand =
+            parseFelicaCommandWithIdm(data, COMMAND_CODE, minLength = MIN_LENGTH) { idm ->
+                val numberOfAreaCodes = uByte()
+                val areaCodes = Array(numberOfAreaCodes) { bytes(2) }
 
-            var offset = 0
-
-            // Length (1 byte)
-            val length = data[offset].toInt() and 0xFF
-            require(length == data.size) { "Length mismatch: expected $length, got ${data.size}" }
-            offset++
-
-            // Command code (1 byte)
-            val commandCode = data[offset]
-            require(commandCode == COMMAND_CODE.toByte()) {
-                "Invalid command code: expected $COMMAND_CODE, got $commandCode"
-            }
-            offset++
-
-            // IDM (8 bytes)
-            val idm = data.sliceArray(offset until offset + 8)
-            offset += 8
-
-            // Number of area codes (1 byte)
-            val numberOfAreaCodes = data[offset].toInt() and 0xFF
-            require(numberOfAreaCodes >= 0) {
-                "Number of area codes must be non-negative, got $numberOfAreaCodes"
-            }
-            offset++
-
-            // Area codes (2 bytes each)
-            val areaCodes = mutableListOf<ByteArray>()
-            repeat(numberOfAreaCodes) {
-                require(offset + 2 <= data.size) {
-                    "Data size insufficient for area code at offset $offset"
+                val numberOfServiceCodes = uByte()
+                require(numberOfAreaCodes + numberOfServiceCodes > 0) {
+                    "At least one area or service code must be specified"
                 }
-                val areaCode = data.sliceArray(offset until offset + 2)
-                areaCodes.add(areaCode)
-                offset += 2
-            }
-
-            // Number of service codes (1 byte)
-            val numberOfServiceCodes = data[offset].toInt() and 0xFF
-            require(numberOfServiceCodes >= 0) {
-                "Number of service codes must be non-negative, got $numberOfServiceCodes"
-            }
-            require(numberOfAreaCodes + numberOfServiceCodes > 0) {
-                "At least one area or service code must be specified"
-            }
-            require(numberOfAreaCodes + numberOfServiceCodes <= MAX_NODES) {
-                "Maximum $MAX_NODES nodes can be authenticated at once"
-            }
-            offset++
-
-            // Service codes (2 bytes each)
-            val serviceCodes = mutableListOf<ByteArray>()
-            repeat(numberOfServiceCodes) {
-                require(offset + 2 <= data.size) {
-                    "Data size insufficient for service code at offset $offset"
+                require(numberOfAreaCodes + numberOfServiceCodes <= MAX_NODES) {
+                    "Maximum $MAX_NODES nodes can be authenticated at once"
                 }
-                val serviceCode = data.sliceArray(offset until offset + 2)
-                serviceCodes.add(serviceCode)
-                offset += 2
-            }
 
-            // Challenge1A (8 bytes)
-            require(offset + 8 <= data.size) {
-                "Data size insufficient for challenge1A at offset $offset"
-            }
-            val challenge1A = data.sliceArray(offset until offset + 8)
+                val serviceCodes = Array(numberOfServiceCodes) { bytes(2) }
+                val challenge1A = bytes(8)
 
-            return Authentication1DesCommand(
-                idm,
-                areaCodes.toTypedArray(),
-                serviceCodes.toTypedArray(),
-                challenge1A,
-            )
-        }
+                Authentication1DesCommand(idm, areaCodes, serviceCodes, challenge1A)
+            }
     }
 }

@@ -29,105 +29,50 @@ class RequestBlockInformationExResponse(
         }
     }
 
-    /** Converts the response to a byte array */
-    override fun toByteArray(): ByteArray {
-        val data = mutableListOf<Byte>()
-
-        // Length (1 byte) - will be calculated
-        data.add(0x00) // Placeholder
-
-        // Response code (1 byte)
-        data.add(RESPONSE_CODE)
-
-        // IDM (8 bytes)
-        data.addAll(idm.toList())
-
-        // Status Flag 1 (1 byte)
-        data.add(statusFlag1)
-
-        // Status Flag 2 (1 byte)
-        data.add(statusFlag2)
-
-        // Number of block informations (1 byte)
-        data.add(assignedBlockCount.size.toByte())
-
-        // Block informations (4 bytes each: assigned(2) + free(2))
-        for (i in assignedBlockCount.indices) {
-            data.addAll(assignedBlockCount[i].toByteArray().toList())
-            data.addAll(freeBlockCount[i].toByteArray().toList())
+    override fun toByteArray(): ByteArray =
+        buildFelicaMessage(
+            RESPONSE_CODE,
+            idm,
+            capacity = BASE_LENGTH + 2 + 1 + (assignedBlockCount.size * 4),
+        ) {
+            addByte(statusFlag1)
+            addByte(statusFlag2)
+            addByte(assignedBlockCount.size)
+            for (i in assignedBlockCount.indices) {
+                addBytes(assignedBlockCount[i].toByteArray())
+                addBytes(freeBlockCount[i].toByteArray())
+            }
         }
-
-        // Set the correct length
-        data[0] = data.size.toByte()
-
-        return data.toByteArray()
-    }
 
     companion object {
-        const val RESPONSE_CODE: Byte = 0x1F
-        const val MIN_LENGTH =
-            FelicaResponseWithIdm.BASE_LENGTH + 2 + 1 // + status_flags(2) + number_of_blocks(1)
+        const val RESPONSE_CODE: Short = 0x1F
+        const val MIN_LENGTH = BASE_LENGTH + 2 + 1 // + status_flags(2) + number_of_blocks(1)
 
         /** Parse a Request Block Information Ex response from raw bytes */
-        fun fromByteArray(data: ByteArray): RequestBlockInformationExResponse {
-            require(data.size >= MIN_LENGTH) {
-                "Response data too short: ${data.size} bytes, minimum $MIN_LENGTH required"
-            }
+        fun fromByteArray(data: ByteArray): RequestBlockInformationExResponse =
+            parseFelicaResponseWithIdm(data, RESPONSE_CODE, minLength = MIN_LENGTH) { idm ->
+                val statusFlag1 = byte()
+                val statusFlag2 = byte()
+                val numberOfBlocks = uByte()
 
-            var offset = 0
-
-            // Length (1 byte)
-            val length = data[offset].toInt() and 0xFF
-            require(length == data.size) { "Length mismatch: expected $length, got ${data.size}" }
-            offset++
-
-            // Response code (1 byte)
-            val responseCode = data[offset]
-            require(responseCode == RESPONSE_CODE) {
-                "Invalid response code: expected $RESPONSE_CODE, got $responseCode"
-            }
-            offset++
-
-            // IDM (8 bytes)
-            val idm = data.sliceArray(offset until offset + 8)
-            offset += 8
-
-            // Status Flag 1 (1 byte)
-            val statusFlag1 = data[offset]
-            offset++
-
-            // Status Flag 2 (1 byte)
-            val statusFlag2 = data[offset]
-            offset++
-
-            // Number of block informations (1 byte)
-            val numberOfBlocks = data[offset].toInt() and 0xFF
-            offset++
-
-            // Block informations (4 bytes each: assigned(2) + free(2))
-            val assignedBlockCount = mutableListOf<CountInformation>()
-            val freeBlockCount = mutableListOf<CountInformation>()
-            repeat(numberOfBlocks) {
-                require(offset + 4 <= data.size) {
-                    "Insufficient data for block information ${assignedBlockCount.size}"
+                require(remaining() >= numberOfBlocks * 4) {
+                    "Insufficient data for block information $numberOfBlocks entries"
                 }
 
-                val assignedBytes = data.sliceArray(offset until offset + 2)
-                offset += 2
-                assignedBlockCount.add(CountInformation(assignedBytes))
+                val assignedBlockCount = mutableListOf<CountInformation>()
+                val freeBlockCount = mutableListOf<CountInformation>()
+                repeat(numberOfBlocks) {
+                    assignedBlockCount.add(CountInformation(bytes(2)))
+                    freeBlockCount.add(CountInformation(bytes(2)))
+                }
 
-                val freeBytes = data.sliceArray(offset until offset + 2)
-                offset += 2
-                freeBlockCount.add(CountInformation(freeBytes))
+                RequestBlockInformationExResponse(
+                    idm,
+                    statusFlag1,
+                    statusFlag2,
+                    assignedBlockCount.toTypedArray(),
+                    freeBlockCount.toTypedArray(),
+                )
             }
-
-            return RequestBlockInformationExResponse(
-                idm,
-                statusFlag1,
-                statusFlag2,
-                assignedBlockCount.toTypedArray(),
-                freeBlockCount.toTypedArray(),
-            )
-        }
     }
 }

@@ -63,7 +63,7 @@ class GetPlatformInformationResponseTest {
         assertEquals(expectedLength.toByte(), bytes[0])
 
         // Check response code
-        assertEquals(GetPlatformInformationResponse.RESPONSE_CODE, bytes[1])
+        assertEquals(GetPlatformInformationResponse.RESPONSE_CODE.toByte(), bytes[1])
 
         // Check IDM
         for (i in TEST_IDM.indices) {
@@ -100,7 +100,7 @@ class GetPlatformInformationResponseTest {
         assertEquals(expectedLength.toByte(), bytes[0])
 
         // Check response code
-        assertEquals(GetPlatformInformationResponse.RESPONSE_CODE, bytes[1])
+        assertEquals(GetPlatformInformationResponse.RESPONSE_CODE.toByte(), bytes[1])
 
         // Check IDM
         for (i in TEST_IDM.indices) {
@@ -221,7 +221,7 @@ class GetPlatformInformationResponseTest {
 
     @Test
     fun testConstants() {
-        assertEquals(0x3b.toByte(), GetPlatformInformationResponse.RESPONSE_CODE)
+        assertEquals(0x3b.toByte(), GetPlatformInformationResponse.RESPONSE_CODE.toByte())
         assertEquals(
             12,
             GetPlatformInformationResponse.MIN_LENGTH,

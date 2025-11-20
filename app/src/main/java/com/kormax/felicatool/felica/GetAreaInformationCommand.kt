@@ -31,60 +31,19 @@ class GetAreaInformationCommand(
     override fun responseFromByteArray(data: ByteArray) =
         GetAreaInformationResponse.fromByteArray(data)
 
-    override fun toByteArray(): ByteArray {
-        val data = ByteArray(COMMAND_LENGTH)
-        var offset = 0
-
-        // Length (1 byte)
-        data[offset++] = COMMAND_LENGTH.toByte()
-
-        // Command code (1 byte)
-        data[offset++] = COMMAND_CODE.toByte()
-
-        // IDM (8 bytes)
-        idm.copyInto(data, offset)
-        offset += 8
-
-        // Node code (2 bytes)
-        nodeCode.copyInto(data, offset)
-
-        return data
-    }
+    override fun toByteArray(): ByteArray =
+        buildFelicaMessage(COMMAND_CODE, idm, capacity = COMMAND_LENGTH) { addBytes(nodeCode) }
 
     companion object : CommandCompanion {
         override val COMMAND_CODE: Short = 0x24
         override val COMMAND_CLASS: CommandClass = CommandClass.FIXED_RESPONSE_TIME
 
-        const val COMMAND_LENGTH: Int = FelicaCommandWithIdm.BASE_LENGTH + 2 // + node_code(2)
+        const val COMMAND_LENGTH: Int = BASE_LENGTH + 2 // + node_code(2)
 
         /** Parse a Get Area Information command from raw bytes */
-        fun fromByteArray(data: ByteArray): GetAreaInformationCommand {
-            require(data.size == COMMAND_LENGTH) {
-                "Command data must be exactly $COMMAND_LENGTH bytes, got ${data.size}"
+        fun fromByteArray(data: ByteArray): GetAreaInformationCommand =
+            parseFelicaCommandWithIdm(data, COMMAND_CODE, minLength = COMMAND_LENGTH) { idm ->
+                GetAreaInformationCommand(idm, bytes(2))
             }
-
-            var offset = 0
-
-            // Length (1 byte)
-            val length = data[offset].toInt() and 0xFF
-            require(length == data.size) { "Length mismatch: expected $length, got ${data.size}" }
-            offset++
-
-            // Command code (1 byte)
-            val commandCode = data[offset]
-            require(commandCode == COMMAND_CODE.toByte()) {
-                "Invalid command code: expected $COMMAND_CODE, got $commandCode"
-            }
-            offset++
-
-            // IDM (8 bytes)
-            val idm = data.sliceArray(offset until offset + 8)
-            offset += 8
-
-            // Node code (2 bytes)
-            val nodeCode = data.sliceArray(offset until offset + 2)
-
-            return GetAreaInformationCommand(idm, nodeCode)
-        }
     }
 }

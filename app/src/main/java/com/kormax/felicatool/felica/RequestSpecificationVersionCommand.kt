@@ -24,58 +24,19 @@ class RequestSpecificationVersionCommand(
     override fun responseFromByteArray(data: ByteArray) =
         RequestSpecificationVersionResponse.fromByteArray(data)
 
-    override fun toByteArray(): ByteArray {
-        val data = ByteArray(LENGTH)
-
-        // Length (1 byte)
-        data[0] = LENGTH.toByte()
-
-        // Command code (1 byte)
-        data[1] = COMMAND_CODE.toByte()
-
-        // IDM (8 bytes)
-        idm.copyInto(data, 2)
-
-        // Reserved (2 bytes)
-        reserved.copyInto(data, 10)
-
-        return data
-    }
+    override fun toByteArray(): ByteArray =
+        buildFelicaMessage(COMMAND_CODE, idm, capacity = LENGTH) { addBytes(reserved) }
 
     companion object : CommandCompanion {
         override val COMMAND_CODE: Short = 0x3C
         override val COMMAND_CLASS: CommandClass = CommandClass.FIXED_RESPONSE_TIME
 
-        const val LENGTH: Int = FelicaCommandWithIdm.BASE_LENGTH + 2 // + reserved(2)
+        const val LENGTH: Int = BASE_LENGTH + 2 // + reserved(2)
 
         /** Parse a Request Specification Version command from raw bytes */
-        fun fromByteArray(data: ByteArray): RequestSpecificationVersionCommand {
-            require(data.size == LENGTH) {
-                "Command data must be exactly $LENGTH bytes, got ${data.size}"
+        fun fromByteArray(data: ByteArray): RequestSpecificationVersionCommand =
+            parseFelicaCommandWithIdm(data, COMMAND_CODE, minLength = LENGTH) { idm ->
+                RequestSpecificationVersionCommand(idm, bytes(2))
             }
-
-            var offset = 0
-
-            // Length (1 byte)
-            val length = data[offset].toInt() and 0xFF
-            require(length == data.size) { "Length mismatch: expected $length, got ${data.size}" }
-            offset++
-
-            // Command code (1 byte)
-            val commandCode = data[offset]
-            require(commandCode == COMMAND_CODE.toByte()) {
-                "Invalid command code: expected $COMMAND_CODE, got $commandCode"
-            }
-            offset++
-
-            // IDM (8 bytes)
-            val idm = data.sliceArray(offset until offset + 8)
-            offset += 8
-
-            // Reserved (2 bytes)
-            val reserved = data.sliceArray(offset until offset + 2)
-
-            return RequestSpecificationVersionCommand(idm, reserved)
-        }
     }
 }

@@ -35,152 +35,73 @@ class GetNodePropertyResponse(
         }
     }
 
-    /** Converts the response to a byte array */
-    override fun toByteArray(): ByteArray {
-        val baseLength = FelicaResponseWithIdm.BASE_LENGTH + 2 // + status flags
-
-        // For error responses, only include base data and status flags
-        if (statusFlag1 != 0x00.toByte()) {
-            val data = ByteArray(baseLength)
-            var offset = 0
-
-            data[offset++] = baseLength.toByte()
-            data[offset++] = RESPONSE_CODE
-            idm.copyInto(data, offset)
-            offset += 8
-            data[offset++] = statusFlag1
-            data[offset++] = statusFlag2
-
-            return data
+    override fun toByteArray(): ByteArray =
+        buildFelicaMessage(
+            RESPONSE_CODE,
+            idm,
+            capacity =
+                if (statusFlag1 == 0x00.toByte()) {
+                    MIN_SUCCESS_LENGTH + nodeProperties.sumOf { it.sizeBytes }
+                } else {
+                    MIN_ERROR_LENGTH
+                },
+        ) {
+            addByte(statusFlag1)
+            addByte(statusFlag2)
+            if (statusFlag1 == 0x00.toByte()) {
+                addByte(nodeProperties.size)
+                nodeProperties.forEach { addBytes(it.toByteArray()) }
+            }
         }
-
-        // Success response
-        val propertiesDataSize = nodeProperties.sumOf { it.sizeBytes }
-        val totalLength =
-            baseLength + 1 + propertiesDataSize // + number_of_nodes(1) + properties_data
-
-        val data = ByteArray(totalLength)
-        var offset = 0
-
-        // Length (1 byte)
-        data[offset++] = totalLength.toByte()
-
-        // Response code (1 byte)
-        data[offset++] = RESPONSE_CODE
-
-        // IDM (8 bytes)
-        idm.copyInto(data, offset)
-        offset += 8
-
-        // Status flags (2 bytes)
-        data[offset++] = statusFlag1
-        data[offset++] = statusFlag2
-
-        // Number of nodes (1 byte)
-        data[offset++] = nodeProperties.size.toByte()
-
-        // Node properties
-        nodeProperties.forEach { property ->
-            val propertyBytes = property.toByteArray()
-            propertyBytes.copyInto(data, offset)
-            offset += propertyBytes.size
-        }
-
-        return data
-    }
 
     companion object {
-        const val RESPONSE_CODE: Byte = 0x29
-        const val MIN_ERROR_LENGTH = FelicaResponseWithIdm.BASE_LENGTH + 2 // + status_flags(2)
+        const val RESPONSE_CODE: Short = 0x29
+        const val MIN_ERROR_LENGTH = BASE_LENGTH + 2 // + status_flags(2)
         const val MIN_SUCCESS_LENGTH =
-            FelicaResponseWithIdm.BASE_LENGTH +
-                2 +
-                1 +
-                1 // + status_flags(2) + num_nodes(1) + min 1 property(1 byte)
+            BASE_LENGTH + 2 + 1 // + status_flags(2) + num_nodes(1) + min 1 property(1 byte)
 
         /** Parse a Get Node Property response from raw bytes */
-        fun fromByteArray(data: ByteArray): GetNodePropertyResponse {
-            require(data.size >= MIN_ERROR_LENGTH) {
-                "Response data too short: ${data.size} bytes, minimum $MIN_ERROR_LENGTH required"
-            }
+        fun fromByteArray(data: ByteArray): GetNodePropertyResponse =
+            parseFelicaResponseWithIdm(data, RESPONSE_CODE, minLength = MIN_ERROR_LENGTH) { idm ->
+                val statusFlag1 = byte()
+                val statusFlag2 = byte()
 
-            var offset = 0
-
-            // Length (1 byte)
-            val length = data[offset].toInt() and 0xFF
-            require(length == data.size) { "Length mismatch: expected $length, got ${data.size}" }
-            offset++
-
-            // Response code (1 byte)
-            val responseCode = data[offset]
-            require(responseCode == RESPONSE_CODE) {
-                "Invalid response code: expected $RESPONSE_CODE, got $responseCode"
-            }
-            offset++
-
-            // IDM (8 bytes)
-            val idm = data.sliceArray(offset until offset + 8)
-            offset += 8
-
-            // Status flags (2 bytes)
-            val statusFlag1 = data[offset++]
-            val statusFlag2 = data[offset++]
-
-            // If status indicates error, return early
-            if (statusFlag1 != 0x00.toByte()) {
-                return GetNodePropertyResponse(idm, statusFlag1, statusFlag2, emptyArray())
-            }
-
-            // Success case - parse remaining fields
-            require(data.size >= MIN_SUCCESS_LENGTH) {
-                "Success response data too short: ${data.size} bytes, minimum $MIN_SUCCESS_LENGTH required"
-            }
-
-            // Number of nodes (1 byte)
-            val numberOfNodes = data[offset++].toInt() and 0xFF
-            require(numberOfNodes in 1..16) {
-                "Number of nodes must be between 1 and 16, got $numberOfNodes"
-            }
-
-            // Parse node properties - size depends on property type
-            // We need to determine the property type from the command that was sent,
-            // but since we only have the response, we'll try to infer it from the data size
-            val remainingBytes = data.size - offset
-            val nodeProperties = mutableListOf<NodeProperty>()
-
-            // Try to parse as Value-Limited Purse Service first (10 bytes per property)
-            if (remainingBytes == numberOfNodes * ValueLimitedPurseServiceProperty.SIZE_BYTES) {
-                repeat(numberOfNodes) {
-                    val propertyData =
-                        data.sliceArray(
-                            offset until offset + ValueLimitedPurseServiceProperty.SIZE_BYTES
-                        )
-                    val property = ValueLimitedPurseServiceProperty.fromByteArray(propertyData)
-                    nodeProperties.add(property)
-                    offset += ValueLimitedPurseServiceProperty.SIZE_BYTES
+                if (statusFlag1 != 0x00.toByte()) {
+                    return GetNodePropertyResponse(idm, statusFlag1, statusFlag2, emptyArray())
                 }
-            }
-            // Try to parse as MAC Communication (1 byte per property)
-            else if (remainingBytes == numberOfNodes * MacCommunicationProperty.SIZE_BYTES) {
-                repeat(numberOfNodes) {
-                    val propertyData =
-                        data.sliceArray(offset until offset + MacCommunicationProperty.SIZE_BYTES)
-                    val property = MacCommunicationProperty.fromByteArray(propertyData)
-                    nodeProperties.add(property)
-                    offset += MacCommunicationProperty.SIZE_BYTES
+
+                val numberOfNodes = uByte()
+                require(numberOfNodes in 1..16) {
+                    "Number of nodes must be between 1 and 16, got $numberOfNodes"
                 }
-            } else {
-                throw IllegalArgumentException(
-                    "Cannot determine node property type from response data size. Expected ${numberOfNodes * ValueLimitedPurseServiceProperty.SIZE_BYTES} or ${numberOfNodes * MacCommunicationProperty.SIZE_BYTES} bytes, got $remainingBytes"
+
+                val remainingBytes = remaining()
+                val nodeProperties =
+                    when (remainingBytes) {
+                        numberOfNodes * ValueLimitedPurseServiceProperty.SIZE_BYTES ->
+                            List(numberOfNodes) {
+                                ValueLimitedPurseServiceProperty.fromByteArray(
+                                    bytes(ValueLimitedPurseServiceProperty.SIZE_BYTES)
+                                )
+                            }
+                        numberOfNodes * MacCommunicationProperty.SIZE_BYTES ->
+                            List(numberOfNodes) {
+                                MacCommunicationProperty.fromByteArray(
+                                    bytes(MacCommunicationProperty.SIZE_BYTES)
+                                )
+                            }
+                        else ->
+                            throw IllegalArgumentException(
+                                "Cannot determine node property type from response data size. Expected ${numberOfNodes * ValueLimitedPurseServiceProperty.SIZE_BYTES} or ${numberOfNodes * MacCommunicationProperty.SIZE_BYTES} bytes, got $remainingBytes"
+                            )
+                    }
+
+                GetNodePropertyResponse(
+                    idm,
+                    statusFlag1,
+                    statusFlag2,
+                    nodeProperties.toTypedArray(),
                 )
             }
-
-            return GetNodePropertyResponse(
-                idm,
-                statusFlag1,
-                statusFlag2,
-                nodeProperties.toTypedArray(),
-            )
-        }
     }
 }
