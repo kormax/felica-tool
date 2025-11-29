@@ -64,6 +64,33 @@ class AreaTest {
     }
 
     @Test
+    fun testArea_fromByteArray_unknownAttributeSupported() {
+        val unknownAttributeValue = 0b010010
+        val areaNumber = 1
+        val endAttribute = AreaAttribute.END_SUB_AREA
+
+        val areaCode = ((areaNumber shl 6) or unknownAttributeValue).toShort()
+        val endAreaCode = ((areaNumber shl 6) or endAttribute.value).toShort()
+
+        val data =
+            byteArrayOf(
+                areaCode.toByte(),
+                (areaCode.toInt() shr 8).toByte(),
+                endAreaCode.toByte(),
+                (endAreaCode.toInt() shr 8).toByte(),
+            )
+
+        val area = Area.fromByteArray(data)
+
+        assertEquals(areaNumber, area.number)
+        assertEquals(AreaAttribute.Unknown(unknownAttributeValue), area.attribute)
+        assertTrue(area.attribute.isUnknown)
+        assertEquals(endAttribute, area.endAttribute)
+        assertFalse(endAttribute.isUnknown)
+        assertArrayEquals(data, area.toByteArray())
+    }
+
+    @Test
     fun testArea_roundTrip() {
         // Test that fromByteArray and toByteArray are inverses
         val area = Area.fromByteArray(ROOT_AREA_CODE)

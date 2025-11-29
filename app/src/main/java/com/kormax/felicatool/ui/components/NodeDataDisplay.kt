@@ -763,6 +763,9 @@ fun TreeNodeCard(
                     // For areas, show CAN CREATE SUBAREA inline
                     if (node is Area) {
                         val area = node
+                        if (area.attribute.isUnknown || area.endAttribute.isUnknown) {
+                            AttributeChip("?", isWarning = true, isCompact = true)
+                        }
                         if (area.endAttribute == AreaAttribute.END_ROOT_AREA) {
                             AttributeChip("ROOT", isHighlight = true, isCompact = true)
                         }

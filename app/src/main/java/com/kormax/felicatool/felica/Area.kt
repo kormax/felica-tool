@@ -112,11 +112,7 @@ data class Area(
                     (byteArray[0].toInt() and 0b11111111)
             val attributeValue = areaCode and 0b111111 // Upper 6 bits
             val number = (areaCode shr 6) and 0b1111111111 // Lower 10 bits
-            val attribute =
-                AreaAttribute.values().find { it.value == attributeValue }
-                    ?: throw IllegalArgumentException(
-                        "Invalid area attribute value: $attributeValue"
-                    )
+            val attribute = AreaAttribute.fromValue(attributeValue)
 
             // Parse End Area Code (last 2 bytes, little-endian)
             val endAreaCode =
@@ -124,11 +120,7 @@ data class Area(
                     (byteArray[2].toInt() and 0b11111111)
             val endAttributeValue = endAreaCode and 0b111111 // Upper 6 bits
             val endNumber = (endAreaCode shr 6) and 0b1111111111 // Lower 10 bits
-            val endAttribute =
-                AreaAttribute.values().find { it.value == endAttributeValue }
-                    ?: throw IllegalArgumentException(
-                        "Invalid end area attribute value: $endAttributeValue"
-                    )
+            val endAttribute = AreaAttribute.fromValue(endAttributeValue)
 
             return Area(number, attribute, endNumber, endAttribute)
         }
