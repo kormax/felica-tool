@@ -7,6 +7,10 @@ import com.kormax.felicatool.R
 object ServiceIconMapper {
     private val iconMap =
         mapOf(
+            "ICSCA" to R.drawable.service_icsca,
+            "PASPY" to R.drawable.service_paspy,
+            "KINOCA" to R.drawable.service_kinoca,
+            "HARECA" to R.drawable.service_hareca,
             "AOPASS" to R.drawable.service_aopass,
             "AYUCA" to R.drawable.service_ayuca,
             "CJRC" to R.drawable.service_cjrc,
@@ -34,6 +38,7 @@ object ServiceIconMapper {
             "SHENZEN_TONG" to R.drawable.service_shenzen_tong,
             "SUGOCA" to R.drawable.service_sugoca,
             "SUICA" to R.drawable.service_suica,
+            "SUICA_PLUS" to R.drawable.service_suica_plus,
             "TOICA" to R.drawable.service_toica,
             "WAON" to R.drawable.service_waon,
         )

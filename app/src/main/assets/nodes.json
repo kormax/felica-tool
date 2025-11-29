@@ -3,16 +3,23 @@
     "name": "CJRC Standard",
     "service_provider": "CJRC",
     "issuers": [
-      "SUGOCA",
-      "TOICA",
-      "ICOCA",
-      "NIMOCA",
-      "MANACA",
-      "AOPASS",
-      "PASMO",
       "HAYAKAKEN",
-      "KITACA",
-      "SUICA"
+      "ICOCA",
+      "KURURU_NEW",
+      "AOPASS",
+      "MANACA_PLAIN",
+      "ICOCA_SHIKOKU",
+      "TOICA",
+      "SUGOCA",
+      "TOTRA",
+      "NIMOCA",
+      "PASMO",
+      "SUICA",
+      "MANACA_USTAR",
+      "ICSCA",
+      "MANACA_DO",
+      "NIMOCA_ICAS",
+      "KITACA"
     ],
     "nodes": [
       {
@@ -24,13 +31,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -46,13 +60,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -68,13 +89,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -89,9 +117,11 @@
         "issuers": [
           "AOPASS",
           "KITACA",
+          "KURURU_NEW",
           "PASMO",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -156,7 +186,11 @@
         "service_provider": "CJRC",
         "issuers": [
           "ICOCA",
-          "MANACA"
+          "ICOCA_SHIKOKU",
+          "ICSCA",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR"
         ],
         "mediums": [
           "CARD",
@@ -169,7 +203,8 @@
         "name": null,
         "service_provider": "ICOCA",
         "issuers": [
-          "ICOCA"
+          "ICOCA",
+          "ICOCA_SHIKOKU"
         ],
         "mediums": [
           "CARD",
@@ -197,13 +232,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -219,13 +261,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -239,7 +288,9 @@
         "service_provider": "SUICA",
         "issuers": [
           "AOPASS",
-          "SUICA"
+          "KURURU_NEW",
+          "SUICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -316,7 +367,8 @@
         "name": null,
         "service_provider": "NIMOCA",
         "issuers": [
-          "NIMOCA"
+          "NIMOCA",
+          "NIMOCA_ICAS"
         ],
         "mediums": [
           "CARD"
@@ -376,9 +428,11 @@
         "code": "0826",
         "parent": "80257f26",
         "name": null,
-        "service_provider": "AOPASS",
+        "service_provider": "SUICA_PLUS",
         "issuers": [
-          "AOPASS"
+          "AOPASS",
+          "KURURU_NEW",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -388,9 +442,11 @@
         "code": "0828",
         "parent": "80263f29",
         "name": null,
-        "service_provider": "AOPASS",
+        "service_provider": "SUICA_PLUS",
         "issuers": [
-          "AOPASS"
+          "AOPASS",
+          "KURURU_NEW",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -402,7 +458,8 @@
         "name": null,
         "service_provider": "ICOCA",
         "issuers": [
-          "ICOCA"
+          "ICOCA",
+          "ICOCA_SHIKOKU"
         ],
         "mediums": [
           "CARD",
@@ -415,7 +472,21 @@
         "name": null,
         "service_provider": "MANACA",
         "issuers": [
-          "MANACA"
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "08be",
+        "parent": "40bd7fbe",
+        "name": null,
+        "service_provider": "ICSCA",
+        "issuers": [
+          "ICSCA"
         ],
         "mediums": [
           "CARD"
@@ -441,12 +512,18 @@
         "issuers": [
           "AOPASS",
           "HAYAKAKEN",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
-          "SUICA"
+          "SUICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -462,13 +539,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -484,13 +568,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -504,7 +595,9 @@
         "service_provider": "SUICA",
         "issuers": [
           "AOPASS",
-          "SUICA"
+          "KURURU_NEW",
+          "SUICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -581,7 +674,8 @@
         "name": null,
         "service_provider": "NIMOCA",
         "issuers": [
-          "NIMOCA"
+          "NIMOCA",
+          "NIMOCA_ICAS"
         ],
         "mediums": [
           "CARD"
@@ -629,9 +723,11 @@
         "code": "0a26",
         "parent": "80257f26",
         "name": null,
-        "service_provider": "AOPASS",
+        "service_provider": "SUICA_PLUS",
         "issuers": [
-          "AOPASS"
+          "AOPASS",
+          "KURURU_NEW",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -641,9 +737,11 @@
         "code": "0a28",
         "parent": "80263f29",
         "name": null,
-        "service_provider": "AOPASS",
+        "service_provider": "SUICA_PLUS",
         "issuers": [
-          "AOPASS"
+          "AOPASS",
+          "KURURU_NEW",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -653,9 +751,11 @@
         "code": "0a29",
         "parent": "80263f29",
         "name": null,
-        "service_provider": "AOPASS",
+        "service_provider": "SUICA_PLUS",
         "issuers": [
-          "AOPASS"
+          "AOPASS",
+          "KURURU_NEW",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -667,7 +767,8 @@
         "name": null,
         "service_provider": "ICOCA",
         "issuers": [
-          "ICOCA"
+          "ICOCA",
+          "ICOCA_SHIKOKU"
         ],
         "mediums": [
           "CARD",
@@ -680,7 +781,21 @@
         "name": null,
         "service_provider": "MANACA",
         "issuers": [
-          "MANACA"
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0abe",
+        "parent": "40bd7fbe",
+        "name": null,
+        "service_provider": "ICSCA",
+        "issuers": [
+          "ICSCA"
         ],
         "mediums": [
           "CARD"
@@ -715,9 +830,11 @@
         "code": "0b29",
         "parent": "80263f29",
         "name": null,
-        "service_provider": "AOPASS",
+        "service_provider": "SUICA_PLUS",
         "issuers": [
-          "AOPASS"
+          "AOPASS",
+          "KURURU_NEW",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -732,13 +849,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -754,13 +878,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -776,13 +907,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -793,9 +931,11 @@
         "code": "1027",
         "parent": "80263f29",
         "name": null,
-        "service_provider": "AOPASS",
+        "service_provider": "SUICA_PLUS",
         "issuers": [
-          "AOPASS"
+          "AOPASS",
+          "KURURU_NEW",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -810,13 +950,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -827,9 +974,11 @@
         "code": "1227",
         "parent": "80263f29",
         "name": null,
-        "service_provider": "AOPASS",
+        "service_provider": "SUICA_PLUS",
         "issuers": [
-          "AOPASS"
+          "AOPASS",
+          "KURURU_NEW",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -844,13 +993,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -861,9 +1017,11 @@
         "code": "1627",
         "parent": "80263f29",
         "name": null,
-        "service_provider": "AOPASS",
+        "service_provider": "SUICA_PLUS",
         "issuers": [
-          "AOPASS"
+          "AOPASS",
+          "KURURU_NEW",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -878,13 +1036,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -897,7 +1062,8 @@
         "name": null,
         "service_provider": "ICOCA",
         "issuers": [
-          "ICOCA"
+          "ICOCA",
+          "ICOCA_SHIKOKU"
         ],
         "mediums": [
           "CARD",
@@ -912,6 +1078,7 @@
         "issuers": [
           "HAYAKAKEN",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "SUGOCA"
         ],
         "mediums": [
@@ -931,6 +1098,18 @@
         ]
       },
       {
+        "code": "40bd7fbe",
+        "parent": "0080feff",
+        "name": null,
+        "service_provider": "ICSCA",
+        "issuers": [
+          "ICSCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
         "code": "4800",
         "parent": "4000ff07",
         "name": null,
@@ -939,13 +1118,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -961,13 +1147,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -983,13 +1176,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -1004,9 +1204,11 @@
         "issuers": [
           "AOPASS",
           "KITACA",
+          "KURURU_NEW",
           "PASMO",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -1045,7 +1247,8 @@
         "name": null,
         "service_provider": "ICOCA",
         "issuers": [
-          "ICOCA"
+          "ICOCA",
+          "ICOCA_SHIKOKU"
         ],
         "mediums": [
           "CARD",
@@ -1070,7 +1273,8 @@
         "name": null,
         "service_provider": "NIMOCA",
         "issuers": [
-          "NIMOCA"
+          "NIMOCA",
+          "NIMOCA_ICAS"
         ],
         "mediums": [
           "CARD"
@@ -1084,6 +1288,7 @@
         "issuers": [
           "HAYAKAKEN",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "SUGOCA"
         ],
         "mediums": [
@@ -1156,9 +1361,11 @@
         "code": "4826",
         "parent": "80257f26",
         "name": null,
-        "service_provider": "AOPASS",
+        "service_provider": "SUICA_PLUS",
         "issuers": [
-          "AOPASS"
+          "AOPASS",
+          "KURURU_NEW",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -1168,9 +1375,11 @@
         "code": "4827",
         "parent": "80263f29",
         "name": null,
-        "service_provider": "AOPASS",
+        "service_provider": "SUICA_PLUS",
         "issuers": [
-          "AOPASS"
+          "AOPASS",
+          "KURURU_NEW",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -1182,7 +1391,33 @@
         "name": null,
         "service_provider": "MANACA",
         "issuers": [
-          "MANACA"
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "48bd",
+        "parent": "40bd7fbe",
+        "name": null,
+        "service_provider": "ICSCA",
+        "issuers": [
+          "ICSCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "48be",
+        "parent": "40bd7fbe",
+        "name": null,
+        "service_provider": "ICSCA",
+        "issuers": [
+          "ICSCA"
         ],
         "mediums": [
           "CARD"
@@ -1197,13 +1432,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -1219,13 +1461,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -1241,13 +1490,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -1260,7 +1516,8 @@
         "name": null,
         "service_provider": "ICOCA",
         "issuers": [
-          "ICOCA"
+          "ICOCA",
+          "ICOCA_SHIKOKU"
         ],
         "mediums": [
           "CARD",
@@ -1285,7 +1542,8 @@
         "name": null,
         "service_provider": "NIMOCA",
         "issuers": [
-          "NIMOCA"
+          "NIMOCA",
+          "NIMOCA_ICAS"
         ],
         "mediums": [
           "CARD"
@@ -1299,6 +1557,7 @@
         "issuers": [
           "HAYAKAKEN",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "SUGOCA"
         ],
         "mediums": [
@@ -1345,9 +1604,11 @@
         "code": "4a26",
         "parent": "80257f26",
         "name": null,
-        "service_provider": "AOPASS",
+        "service_provider": "SUICA_PLUS",
         "issuers": [
-          "AOPASS"
+          "AOPASS",
+          "KURURU_NEW",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -1357,9 +1618,11 @@
         "code": "4a27",
         "parent": "80263f29",
         "name": null,
-        "service_provider": "AOPASS",
+        "service_provider": "SUICA_PLUS",
         "issuers": [
-          "AOPASS"
+          "AOPASS",
+          "KURURU_NEW",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -1371,7 +1634,21 @@
         "name": null,
         "service_provider": "MANACA",
         "issuers": [
-          "MANACA"
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4abd",
+        "parent": "40bd7fbe",
+        "name": null,
+        "service_provider": "ICSCA",
+        "issuers": [
+          "ICSCA"
         ],
         "mediums": [
           "CARD"
@@ -1385,9 +1662,11 @@
         "issuers": [
           "AOPASS",
           "KITACA",
+          "KURURU_NEW",
           "PASMO",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -1447,12 +1726,26 @@
         ]
       },
       {
+        "code": "4bbe",
+        "parent": "40bd7fbe",
+        "name": null,
+        "service_provider": "ICSCA",
+        "issuers": [
+          "ICSCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
         "code": "4c28",
         "parent": "80263f29",
         "name": null,
-        "service_provider": "AOPASS",
+        "service_provider": "SUICA_PLUS",
         "issuers": [
-          "AOPASS"
+          "AOPASS",
+          "KURURU_NEW",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -1462,9 +1755,11 @@
         "code": "4f28",
         "parent": "80263f29",
         "name": null,
-        "service_provider": "AOPASS",
+        "service_provider": "SUICA_PLUS",
         "issuers": [
-          "AOPASS"
+          "AOPASS",
+          "KURURU_NEW",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -1479,13 +1774,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -1501,13 +1803,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -1523,13 +1832,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -1552,9 +1868,11 @@
         "code": "80257f26",
         "parent": "c017ff7f",
         "name": null,
-        "service_provider": "AOPASS",
+        "service_provider": "SUICA_PLUS",
         "issuers": [
-          "AOPASS"
+          "AOPASS",
+          "KURURU_NEW",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -1564,9 +1882,11 @@
         "code": "80263f29",
         "parent": "c017ff7f",
         "name": null,
-        "service_provider": "AOPASS",
+        "service_provider": "SUICA_PLUS",
         "issuers": [
-          "AOPASS"
+          "AOPASS",
+          "KURURU_NEW",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -1578,7 +1898,9 @@
         "name": null,
         "service_provider": "MANACA",
         "issuers": [
-          "MANACA"
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR"
         ],
         "mediums": [
           "CARD"
@@ -1593,13 +1915,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -1638,7 +1967,8 @@
         "name": null,
         "service_provider": "ICOCA",
         "issuers": [
-          "ICOCA"
+          "ICOCA",
+          "ICOCA_SHIKOKU"
         ],
         "mediums": [
           "CARD",
@@ -1665,6 +1995,7 @@
         "issuers": [
           "HAYAKAKEN",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "SUGOCA"
         ],
         "mediums": [
@@ -1737,9 +2068,11 @@
         "code": "8825",
         "parent": "80257f26",
         "name": null,
-        "service_provider": "AOPASS",
+        "service_provider": "SUICA_PLUS",
         "issuers": [
-          "AOPASS"
+          "AOPASS",
+          "KURURU_NEW",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -1749,9 +2082,11 @@
         "code": "8826",
         "parent": "80263f29",
         "name": null,
-        "service_provider": "AOPASS",
+        "service_provider": "SUICA_PLUS",
         "issuers": [
-          "AOPASS"
+          "AOPASS",
+          "KURURU_NEW",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -1761,9 +2096,11 @@
         "code": "8828",
         "parent": "80263f29",
         "name": null,
-        "service_provider": "AOPASS",
+        "service_provider": "SUICA_PLUS",
         "issuers": [
-          "AOPASS"
+          "AOPASS",
+          "KURURU_NEW",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -1775,7 +2112,9 @@
         "name": null,
         "service_provider": "MANACA",
         "issuers": [
-          "MANACA"
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR"
         ],
         "mediums": [
           "CARD"
@@ -1787,7 +2126,21 @@
         "name": null,
         "service_provider": "MANACA",
         "issuers": [
-          "MANACA"
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "88bd",
+        "parent": "40bd7fbe",
+        "name": null,
+        "service_provider": "ICSCA",
+        "issuers": [
+          "ICSCA"
         ],
         "mediums": [
           "CARD"
@@ -1799,7 +2152,8 @@
         "name": null,
         "service_provider": "ICOCA",
         "issuers": [
-          "ICOCA"
+          "ICOCA",
+          "ICOCA_SHIKOKU"
         ],
         "mediums": [
           "CARD",
@@ -1826,6 +2180,7 @@
         "issuers": [
           "HAYAKAKEN",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "SUGOCA"
         ],
         "mediums": [
@@ -1860,9 +2215,11 @@
         "code": "8a25",
         "parent": "80257f26",
         "name": null,
-        "service_provider": "AOPASS",
+        "service_provider": "SUICA_PLUS",
         "issuers": [
-          "AOPASS"
+          "AOPASS",
+          "KURURU_NEW",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -1872,9 +2229,11 @@
         "code": "8a26",
         "parent": "80263f29",
         "name": null,
-        "service_provider": "AOPASS",
+        "service_provider": "SUICA_PLUS",
         "issuers": [
-          "AOPASS"
+          "AOPASS",
+          "KURURU_NEW",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -1884,9 +2243,23 @@
         "code": "8a28",
         "parent": "80263f29",
         "name": null,
-        "service_provider": "AOPASS",
+        "service_provider": "SUICA_PLUS",
         "issuers": [
-          "AOPASS"
+          "AOPASS",
+          "KURURU_NEW",
+          "TOTRA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8abd",
+        "parent": "40bd7fbe",
+        "name": null,
+        "service_provider": "ICSCA",
+        "issuers": [
+          "ICSCA"
         ],
         "mediums": [
           "CARD"
@@ -1901,13 +2274,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -1996,7 +2376,9 @@
         "name": null,
         "service_provider": "MANACA",
         "issuers": [
-          "MANACA"
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR"
         ],
         "mediums": [
           "CARD"
@@ -2008,7 +2390,9 @@
         "name": null,
         "service_provider": "MANACA",
         "issuers": [
-          "MANACA"
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR"
         ],
         "mediums": [
           "CARD"
@@ -2023,13 +2407,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -2040,9 +2431,11 @@
         "code": "8c27",
         "parent": "80263f29",
         "name": null,
-        "service_provider": "AOPASS",
+        "service_provider": "SUICA_PLUS",
         "issuers": [
-          "AOPASS"
+          "AOPASS",
+          "KURURU_NEW",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -2057,13 +2450,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -2074,9 +2474,11 @@
         "code": "8f27",
         "parent": "80263f29",
         "name": null,
-        "service_provider": "AOPASS",
+        "service_provider": "SUICA_PLUS",
         "issuers": [
-          "AOPASS"
+          "AOPASS",
+          "KURURU_NEW",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -2091,13 +2493,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -2113,13 +2522,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -2135,13 +2551,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -2157,13 +2580,18 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_USTAR",
           "NIMOCA",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -2179,13 +2607,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -2201,12 +2636,16 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
           "KITACA",
+          "KURURU_NEW",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -2247,13 +2686,18 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_USTAR",
           "NIMOCA",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -2269,13 +2713,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -2291,13 +2742,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -2335,7 +2793,8 @@
         "name": null,
         "service_provider": "NIMOCA",
         "issuers": [
-          "NIMOCA"
+          "NIMOCA",
+          "NIMOCA_ICAS"
         ],
         "mediums": [
           "CARD"
@@ -2395,9 +2854,11 @@
         "code": "c825",
         "parent": "80257f26",
         "name": null,
-        "service_provider": "AOPASS",
+        "service_provider": "SUICA_PLUS",
         "issuers": [
-          "AOPASS"
+          "AOPASS",
+          "KURURU_NEW",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -2407,9 +2868,11 @@
         "code": "c826",
         "parent": "80263f29",
         "name": null,
-        "service_provider": "AOPASS",
+        "service_provider": "SUICA_PLUS",
         "issuers": [
-          "AOPASS"
+          "AOPASS",
+          "KURURU_NEW",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -2419,9 +2882,11 @@
         "code": "c827",
         "parent": "80263f29",
         "name": null,
-        "service_provider": "AOPASS",
+        "service_provider": "SUICA_PLUS",
         "issuers": [
-          "AOPASS"
+          "AOPASS",
+          "KURURU_NEW",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -2431,9 +2896,23 @@
         "code": "c828",
         "parent": "80263f29",
         "name": null,
-        "service_provider": "AOPASS",
+        "service_provider": "SUICA_PLUS",
         "issuers": [
-          "AOPASS"
+          "AOPASS",
+          "KURURU_NEW",
+          "TOTRA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c8bd",
+        "parent": "40bd7fbe",
+        "name": null,
+        "service_provider": "ICSCA",
+        "issuers": [
+          "ICSCA"
         ],
         "mediums": [
           "CARD"
@@ -2448,13 +2927,18 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_USTAR",
           "NIMOCA",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -2470,13 +2954,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -2514,7 +3005,8 @@
         "name": null,
         "service_provider": "NIMOCA",
         "issuers": [
-          "NIMOCA"
+          "NIMOCA",
+          "NIMOCA_ICAS"
         ],
         "mediums": [
           "CARD"
@@ -2548,9 +3040,11 @@
         "code": "ca25",
         "parent": "80257f26",
         "name": null,
-        "service_provider": "AOPASS",
+        "service_provider": "SUICA_PLUS",
         "issuers": [
-          "AOPASS"
+          "AOPASS",
+          "KURURU_NEW",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -2560,9 +3054,11 @@
         "code": "ca27",
         "parent": "80263f29",
         "name": null,
-        "service_provider": "AOPASS",
+        "service_provider": "SUICA_PLUS",
         "issuers": [
-          "AOPASS"
+          "AOPASS",
+          "KURURU_NEW",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -2572,9 +3068,23 @@
         "code": "ca28",
         "parent": "80263f29",
         "name": null,
-        "service_provider": "AOPASS",
+        "service_provider": "SUICA_PLUS",
         "issuers": [
-          "AOPASS"
+          "AOPASS",
+          "KURURU_NEW",
+          "TOTRA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "cabd",
+        "parent": "40bd7fbe",
+        "name": null,
+        "service_provider": "ICSCA",
+        "issuers": [
+          "ICSCA"
         ],
         "mediums": [
           "CARD"
@@ -2589,13 +3099,20 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
           "NIMOCA",
+          "NIMOCA_ICAS",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -2632,9 +3149,11 @@
         "code": "cb26",
         "parent": "80263f29",
         "name": null,
-        "service_provider": "AOPASS",
+        "service_provider": "SUICA_PLUS",
         "issuers": [
-          "AOPASS"
+          "AOPASS",
+          "KURURU_NEW",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -2649,13 +3168,18 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_USTAR",
           "NIMOCA",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -2680,7 +3204,9 @@
         "name": null,
         "service_provider": "MANACA",
         "issuers": [
-          "MANACA"
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR"
         ],
         "mediums": [
           "CARD"
@@ -2695,13 +3221,18 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_USTAR",
           "NIMOCA",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -2726,7 +3257,9 @@
         "name": null,
         "service_provider": "MANACA",
         "issuers": [
-          "MANACA"
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR"
         ],
         "mediums": [
           "CARD"
@@ -2741,13 +3274,18 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_USTAR",
           "NIMOCA",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -2763,13 +3301,18 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_USTAR",
           "NIMOCA",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -2785,13 +3328,18 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_USTAR",
           "NIMOCA",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -2807,13 +3355,18 @@
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_SHIKOKU",
+          "ICSCA",
           "KITACA",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_USTAR",
           "NIMOCA",
           "PASMO",
           "SUGOCA",
           "SUICA",
-          "TOICA"
+          "TOICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD",
@@ -4177,6 +4730,1149 @@
       }
     ]
   },
+  "83cc": {
+    "name": "Hareca",
+    "service_provider": "HARECA",
+    "issuers": [
+      "HARECA"
+    ],
+    "nodes": [
+      {
+        "code": "0000feff",
+        "parent": null,
+        "name": null,
+        "service_provider": "HARECA",
+        "issuers": [
+          "HARECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "00808b92",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "HARECA",
+        "issuers": [
+          "HARECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "40808a80",
+        "parent": "00808b92",
+        "name": null,
+        "service_provider": "HARECA",
+        "issuers": [
+          "HARECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "40884b88",
+        "parent": "00808b92",
+        "name": null,
+        "service_provider": "HARECA",
+        "issuers": [
+          "HARECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "40928b92",
+        "parent": "00808b92",
+        "name": null,
+        "service_provider": "HARECA",
+        "issuers": [
+          "HARECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4880",
+        "parent": "40808a80",
+        "name": null,
+        "service_provider": "HARECA",
+        "issuers": [
+          "HARECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4888",
+        "parent": "40884b88",
+        "name": null,
+        "service_provider": "HARECA",
+        "issuers": [
+          "HARECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4892",
+        "parent": "40928b92",
+        "name": null,
+        "service_provider": "HARECA",
+        "issuers": [
+          "HARECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4a80",
+        "parent": "40808a80",
+        "name": null,
+        "service_provider": "HARECA",
+        "issuers": [
+          "HARECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4a88",
+        "parent": "40884b88",
+        "name": null,
+        "service_provider": "HARECA",
+        "issuers": [
+          "HARECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4a92",
+        "parent": "40928b92",
+        "name": null,
+        "service_provider": "HARECA",
+        "issuers": [
+          "HARECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4b92",
+        "parent": "40928b92",
+        "name": null,
+        "service_provider": "HARECA",
+        "issuers": [
+          "HARECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "80898f89",
+        "parent": "00808b92",
+        "name": null,
+        "service_provider": "HARECA",
+        "issuers": [
+          "HARECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8880",
+        "parent": "40808a80",
+        "name": null,
+        "service_provider": "HARECA",
+        "issuers": [
+          "HARECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8a80",
+        "parent": "40808a80",
+        "name": null,
+        "service_provider": "HARECA",
+        "issuers": [
+          "HARECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8c89",
+        "parent": "80898f89",
+        "name": null,
+        "service_provider": "HARECA",
+        "issuers": [
+          "HARECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8e89",
+        "parent": "80898f89",
+        "name": null,
+        "service_provider": "HARECA",
+        "issuers": [
+          "HARECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c08aca8a",
+        "parent": "00808b92",
+        "name": null,
+        "service_provider": "HARECA",
+        "issuers": [
+          "HARECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c08bca8b",
+        "parent": "00808b92",
+        "name": null,
+        "service_provider": "HARECA",
+        "issuers": [
+          "HARECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c88a",
+        "parent": "c08aca8a",
+        "name": null,
+        "service_provider": "HARECA",
+        "issuers": [
+          "HARECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c88b",
+        "parent": "c08bca8b",
+        "name": null,
+        "service_provider": "HARECA",
+        "issuers": [
+          "HARECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "ca8a",
+        "parent": "c08aca8a",
+        "name": null,
+        "service_provider": "HARECA",
+        "issuers": [
+          "HARECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "ca8b",
+        "parent": "c08bca8b",
+        "name": null,
+        "service_provider": "HARECA",
+        "issuers": [
+          "HARECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      }
+    ]
+  },
+  "83ee": {
+    "name": "ayuca",
+    "service_provider": "AYUCA",
+    "issuers": [
+      "AYUCA"
+    ],
+    "nodes": [
+      {
+        "code": "0000feff",
+        "parent": null,
+        "name": null,
+        "service_provider": "AYUCA",
+        "issuers": [
+          "AYUCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "00807f92",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "AYUCA",
+        "issuers": [
+          "AYUCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4080bf80",
+        "parent": "00807f92",
+        "name": null,
+        "service_provider": "AYUCA",
+        "issuers": [
+          "AYUCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "40887f88",
+        "parent": "00807f92",
+        "name": null,
+        "service_provider": "AYUCA",
+        "issuers": [
+          "AYUCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "40927f92",
+        "parent": "00807f92",
+        "name": null,
+        "service_provider": "AYUCA",
+        "issuers": [
+          "AYUCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4880",
+        "parent": "4080bf80",
+        "name": null,
+        "service_provider": "AYUCA",
+        "issuers": [
+          "AYUCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4888",
+        "parent": "40887f88",
+        "name": null,
+        "service_provider": "AYUCA",
+        "issuers": [
+          "AYUCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4892",
+        "parent": "40927f92",
+        "name": null,
+        "service_provider": "AYUCA",
+        "issuers": [
+          "AYUCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4a80",
+        "parent": "4080bf80",
+        "name": null,
+        "service_provider": "AYUCA",
+        "issuers": [
+          "AYUCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4a88",
+        "parent": "40887f88",
+        "name": null,
+        "service_provider": "AYUCA",
+        "issuers": [
+          "AYUCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4a92",
+        "parent": "40927f92",
+        "name": null,
+        "service_provider": "AYUCA",
+        "issuers": [
+          "AYUCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4b80",
+        "parent": "4080bf80",
+        "name": null,
+        "service_provider": "AYUCA",
+        "issuers": [
+          "AYUCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4b88",
+        "parent": "40887f88",
+        "name": null,
+        "service_provider": "AYUCA",
+        "issuers": [
+          "AYUCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4b92",
+        "parent": "40927f92",
+        "name": null,
+        "service_provider": "AYUCA",
+        "issuers": [
+          "AYUCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8089bf89",
+        "parent": "00807f92",
+        "name": null,
+        "service_provider": "AYUCA",
+        "issuers": [
+          "AYUCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8880",
+        "parent": "4080bf80",
+        "name": null,
+        "service_provider": "AYUCA",
+        "issuers": [
+          "AYUCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8a80",
+        "parent": "4080bf80",
+        "name": null,
+        "service_provider": "AYUCA",
+        "issuers": [
+          "AYUCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8c89",
+        "parent": "8089bf89",
+        "name": null,
+        "service_provider": "AYUCA",
+        "issuers": [
+          "AYUCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8e89",
+        "parent": "8089bf89",
+        "name": null,
+        "service_provider": "AYUCA",
+        "issuers": [
+          "AYUCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8f89",
+        "parent": "8089bf89",
+        "name": null,
+        "service_provider": "AYUCA",
+        "issuers": [
+          "AYUCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c08aff8a",
+        "parent": "00807f92",
+        "name": null,
+        "service_provider": "AYUCA",
+        "issuers": [
+          "AYUCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c88a",
+        "parent": "c08aff8a",
+        "name": null,
+        "service_provider": "AYUCA",
+        "issuers": [
+          "AYUCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "ca8a",
+        "parent": "c08aff8a",
+        "name": null,
+        "service_provider": "AYUCA",
+        "issuers": [
+          "AYUCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      }
+    ]
+  },
+  "8592": {
+    "name": "Paspy",
+    "service_provider": "PASPY",
+    "issuers": [
+      "PASPY"
+    ],
+    "nodes": [
+      {
+        "code": "0000feff",
+        "parent": null,
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0008bf0f",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0010bf17",
+        "parent": "c00fff7f",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0080feff",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "00af3fb0",
+        "parent": "0080feff",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0810",
+        "parent": "0010bf17",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0811",
+        "parent": "0010bf17",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "08af",
+        "parent": "00af3fb0",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "08b0",
+        "parent": "00af3fb0",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0a09",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0a10",
+        "parent": "0010bf17",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0a11",
+        "parent": "0010bf17",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0baf",
+        "parent": "00af3fb0",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0bb0",
+        "parent": "00af3fb0",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0c09",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0f09",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "1008",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "1208",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "1608",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4000ff07",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4800",
+        "parent": "4000ff07",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4810",
+        "parent": "0010bf17",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4811",
+        "parent": "0010bf17",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "48af",
+        "parent": "00af3fb0",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4a00",
+        "parent": "4000ff07",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4a10",
+        "parent": "0010bf17",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4a11",
+        "parent": "0010bf17",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4baf",
+        "parent": "00af3fb0",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "5008",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "5208",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "5608",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8800",
+        "parent": "4000ff07",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "88af",
+        "parent": "00af3fb0",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8b00",
+        "parent": "4000ff07",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8baf",
+        "parent": "00af3fb0",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8c10",
+        "parent": "0010bf17",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8f10",
+        "parent": "0010bf17",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "9008",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "9208",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "9608",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c00fff7f",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c808",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c810",
+        "parent": "0010bf17",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c8af",
+        "parent": "00af3fb0",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "ca08",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "cb10",
+        "parent": "0010bf17",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "cbaf",
+        "parent": "00af3fb0",
+        "name": null,
+        "service_provider": "PASPY",
+        "issuers": [
+          "PASPY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      }
+    ]
+  },
   "865e": {
     "name": "SAPICA",
     "service_provider": "SAPICA",
@@ -4886,8 +6582,10 @@
     "name": "Suica",
     "service_provider": "SUICA",
     "issuers": [
-      "AOPASS",
-      "SUICA"
+      "TOTRA",
+      "KURURU_NEW",
+      "SUICA",
+      "AOPASS"
     ],
     "nodes": [
       {
@@ -4897,7 +6595,9 @@
         "service_provider": "SUICA",
         "issuers": [
           "AOPASS",
-          "SUICA"
+          "KURURU_NEW",
+          "SUICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -4910,7 +6610,9 @@
         "service_provider": "SUICA",
         "issuers": [
           "AOPASS",
-          "SUICA"
+          "KURURU_NEW",
+          "SUICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -4923,7 +6625,9 @@
         "service_provider": "SUICA",
         "issuers": [
           "AOPASS",
-          "SUICA"
+          "KURURU_NEW",
+          "SUICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -4936,7 +6640,9 @@
         "service_provider": "SUICA",
         "issuers": [
           "AOPASS",
-          "SUICA"
+          "KURURU_NEW",
+          "SUICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -4949,7 +6655,9 @@
         "service_provider": "SUICA",
         "issuers": [
           "AOPASS",
-          "SUICA"
+          "KURURU_NEW",
+          "SUICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -4962,7 +6670,9 @@
         "service_provider": "SUICA",
         "issuers": [
           "AOPASS",
-          "SUICA"
+          "KURURU_NEW",
+          "SUICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -4975,7 +6685,9 @@
         "service_provider": "SUICA",
         "issuers": [
           "AOPASS",
-          "SUICA"
+          "KURURU_NEW",
+          "SUICA",
+          "TOTRA"
         ],
         "mediums": [
           "CARD"
@@ -6189,22 +7901,337 @@
       }
     ]
   },
+  "9506": {
+    "name": "kinoca",
+    "service_provider": "KINOCA",
+    "issuers": [
+      "KINOCA"
+    ],
+    "nodes": [
+      {
+        "code": "0000feff",
+        "parent": null,
+        "name": null,
+        "service_provider": "KINOCA",
+        "issuers": [
+          "KINOCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "00807f92",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "KINOCA",
+        "issuers": [
+          "KINOCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4080bf80",
+        "parent": "00807f92",
+        "name": null,
+        "service_provider": "KINOCA",
+        "issuers": [
+          "KINOCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "40887f88",
+        "parent": "00807f92",
+        "name": null,
+        "service_provider": "KINOCA",
+        "issuers": [
+          "KINOCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "40927f92",
+        "parent": "00807f92",
+        "name": null,
+        "service_provider": "KINOCA",
+        "issuers": [
+          "KINOCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4880",
+        "parent": "4080bf80",
+        "name": null,
+        "service_provider": "KINOCA",
+        "issuers": [
+          "KINOCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4888",
+        "parent": "40887f88",
+        "name": null,
+        "service_provider": "KINOCA",
+        "issuers": [
+          "KINOCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4892",
+        "parent": "40927f92",
+        "name": null,
+        "service_provider": "KINOCA",
+        "issuers": [
+          "KINOCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4a80",
+        "parent": "4080bf80",
+        "name": null,
+        "service_provider": "KINOCA",
+        "issuers": [
+          "KINOCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4a88",
+        "parent": "40887f88",
+        "name": null,
+        "service_provider": "KINOCA",
+        "issuers": [
+          "KINOCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4a92",
+        "parent": "40927f92",
+        "name": null,
+        "service_provider": "KINOCA",
+        "issuers": [
+          "KINOCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4b80",
+        "parent": "4080bf80",
+        "name": null,
+        "service_provider": "KINOCA",
+        "issuers": [
+          "KINOCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4b88",
+        "parent": "40887f88",
+        "name": null,
+        "service_provider": "KINOCA",
+        "issuers": [
+          "KINOCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8089bf89",
+        "parent": "00807f92",
+        "name": null,
+        "service_provider": "KINOCA",
+        "issuers": [
+          "KINOCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8880",
+        "parent": "4080bf80",
+        "name": null,
+        "service_provider": "KINOCA",
+        "issuers": [
+          "KINOCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8a80",
+        "parent": "4080bf80",
+        "name": null,
+        "service_provider": "KINOCA",
+        "issuers": [
+          "KINOCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8c89",
+        "parent": "8089bf89",
+        "name": null,
+        "service_provider": "KINOCA",
+        "issuers": [
+          "KINOCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8e89",
+        "parent": "8089bf89",
+        "name": null,
+        "service_provider": "KINOCA",
+        "issuers": [
+          "KINOCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8f89",
+        "parent": "8089bf89",
+        "name": null,
+        "service_provider": "KINOCA",
+        "issuers": [
+          "KINOCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c08aff8a",
+        "parent": "00807f92",
+        "name": null,
+        "service_provider": "KINOCA",
+        "issuers": [
+          "KINOCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c08bff8b",
+        "parent": "00807f92",
+        "name": null,
+        "service_provider": "KINOCA",
+        "issuers": [
+          "KINOCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c88a",
+        "parent": "c08aff8a",
+        "name": null,
+        "service_provider": "KINOCA",
+        "issuers": [
+          "KINOCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c88b",
+        "parent": "c08bff8b",
+        "name": null,
+        "service_provider": "KINOCA",
+        "issuers": [
+          "KINOCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "ca8a",
+        "parent": "c08aff8a",
+        "name": null,
+        "service_provider": "KINOCA",
+        "issuers": [
+          "KINOCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "ca8b",
+        "parent": "c08bff8b",
+        "name": null,
+        "service_provider": "KINOCA",
+        "issuers": [
+          "KINOCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      }
+    ]
+  },
   "fe00": {
     "name": "FeliCa Networks Common Area",
     "service_provider": "FELICA_NETWORKS",
     "issuers": [
-      "SUGOCA",
-      "RAKUTEN_EDY",
-      "OKICA",
-      "MANACA",
-      "WAON",
-      "IRUCA",
-      "AOPASS",
-      "PASMO",
       "HAYAKAKEN",
-      "NANACO",
+      "IRUCA",
+      "KURURU_NEW",
+      "AOPASS",
+      "MANACA_PLAIN",
+      "WAON",
+      "OKICA",
+      "RAKUTEN_EDY",
+      "SUGOCA",
+      "TOTRA",
+      "PASMO",
+      "NIMOCA_ICAS",
       "SUICA",
-      "KUMAMON"
+      "MANACA_USTAR",
+      "ICSCA",
+      "MANACA_DO",
+      "KUMAMON",
+      "NANACO"
     ],
     "nodes": [
       {
@@ -6215,14 +8242,20 @@
         "issuers": [
           "AOPASS",
           "HAYAKAKEN",
+          "ICSCA",
           "IRUCA",
           "KUMAMON",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
+          "NIMOCA_ICAS",
           "OKICA",
           "PASMO",
           "RAKUTEN_EDY",
           "SUGOCA",
           "SUICA",
+          "TOTRA",
           "WAON"
         ],
         "mediums": [
@@ -6597,13 +8630,19 @@
         "issuers": [
           "AOPASS",
           "HAYAKAKEN",
+          "ICSCA",
           "IRUCA",
           "KUMAMON",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
+          "NIMOCA_ICAS",
           "OKICA",
           "PASMO",
           "SUGOCA",
           "SUICA",
+          "TOTRA",
           "WAON"
         ],
         "mediums": [
@@ -6618,13 +8657,19 @@
         "issuers": [
           "AOPASS",
           "HAYAKAKEN",
+          "ICSCA",
           "IRUCA",
           "KUMAMON",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
+          "NIMOCA_ICAS",
           "OKICA",
           "PASMO",
           "SUGOCA",
           "SUICA",
+          "TOTRA",
           "WAON"
         ],
         "mediums": [
@@ -6639,13 +8684,19 @@
         "issuers": [
           "AOPASS",
           "HAYAKAKEN",
+          "ICSCA",
           "IRUCA",
           "KUMAMON",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
+          "NIMOCA_ICAS",
           "OKICA",
           "PASMO",
           "SUGOCA",
           "SUICA",
+          "TOTRA",
           "WAON"
         ],
         "mediums": [
@@ -6685,13 +8736,19 @@
         "issuers": [
           "AOPASS",
           "HAYAKAKEN",
+          "ICSCA",
           "IRUCA",
           "KUMAMON",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
+          "NIMOCA_ICAS",
           "OKICA",
           "PASMO",
           "SUGOCA",
           "SUICA",
+          "TOTRA",
           "WAON"
         ],
         "mediums": [
@@ -6895,13 +8952,19 @@
         "issuers": [
           "AOPASS",
           "HAYAKAKEN",
+          "ICSCA",
           "IRUCA",
           "KUMAMON",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
+          "NIMOCA_ICAS",
           "OKICA",
           "PASMO",
           "SUGOCA",
           "SUICA",
+          "TOTRA",
           "WAON"
         ],
         "mediums": [
@@ -6987,13 +9050,19 @@
         "issuers": [
           "AOPASS",
           "HAYAKAKEN",
+          "ICSCA",
           "IRUCA",
           "KUMAMON",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
+          "NIMOCA_ICAS",
           "OKICA",
           "PASMO",
           "SUGOCA",
           "SUICA",
+          "TOTRA",
           "WAON"
         ],
         "mediums": [
@@ -7237,13 +9306,19 @@
         "issuers": [
           "AOPASS",
           "HAYAKAKEN",
+          "ICSCA",
           "IRUCA",
           "KUMAMON",
-          "MANACA",
+          "KURURU_NEW",
+          "MANACA_DO",
+          "MANACA_PLAIN",
+          "MANACA_USTAR",
+          "NIMOCA_ICAS",
           "OKICA",
           "PASMO",
           "SUGOCA",
           "SUICA",
+          "TOTRA",
           "WAON"
         ],
         "mediums": [
