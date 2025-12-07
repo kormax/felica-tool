@@ -62,9 +62,7 @@ data class Service(override val number: Int, val attribute: ServiceAttribute) : 
                 ((byteArray[1].toInt() and 0b11111111) shl 8) or
                     (byteArray[0].toInt() and 0b11111111)
             val attrValue = serviceCode and 0b111111
-            val attribute =
-                ServiceAttribute.values().find { it.value == attrValue }
-                    ?: throw IllegalArgumentException("Unknown service attribute value: $attrValue")
+            val attribute = ServiceAttribute.fromValue(attrValue)
             return Service(
                 number = (serviceCode shr 6) and 0b1111111111, // Upper 10 bits
                 attribute = attribute,

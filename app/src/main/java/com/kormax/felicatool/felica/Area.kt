@@ -23,6 +23,9 @@ data class Area(
         }
     }
 
+    val isRoot: Boolean
+        get() = number == 0 && endNumber == 1023
+
     /**
      * Returns the area code as a byte array (2 bytes, little-endian). This is the start area code.
      */

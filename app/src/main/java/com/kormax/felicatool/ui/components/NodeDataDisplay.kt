@@ -733,6 +733,11 @@ fun TreeNodeCard(
                     if (node is Service) {
                         val service = node
 
+                        // Warn if unknown attribute was found
+                        if (service.attribute.isUnknown) {
+                            AttributeChip("A?", isWarning = true, isCompact = true)
+                        }
+
                         // Authentication requirements - show AUTH/FREE first
                         if (service.attribute.authenticationRequired) {
                             AttributeChip("AUTH", isWarning = true, isCompact = true)
@@ -763,14 +768,19 @@ fun TreeNodeCard(
                     // For areas, show CAN CREATE SUBAREA inline
                     if (node is Area) {
                         val area = node
-                        if (area.attribute.isUnknown || area.endAttribute.isUnknown) {
-                            AttributeChip("?", isWarning = true, isCompact = true)
-                        }
-                        if (area.endAttribute == AreaAttribute.END_ROOT_AREA) {
+
+                        if (area.isRoot) {
                             AttributeChip("ROOT", isHighlight = true, isCompact = true)
                         }
+                        // Warn if unknown end or start attribute is found
+                        if (area.attribute.isUnknown) {
+                            AttributeChip("SA?", isWarning = true, isCompact = true)
+                        }
+                        if (area.endAttribute.isUnknown) {
+                            AttributeChip("EA?", isWarning = true, isCompact = true)
+                        }
                         if (area.attribute.canCreateSubArea) {
-                            AttributeChip("SUBAREA ALLOWED", isHighlight = true, isCompact = true)
+                            AttributeChip("NESTABLE", isHighlight = true, isCompact = true)
                         }
                     }
                 }

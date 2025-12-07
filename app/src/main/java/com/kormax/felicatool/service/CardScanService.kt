@@ -911,7 +911,7 @@ class CardScanService {
                         appendLine("  Services (${contextServices.size}):")
                         contextServices.forEach { service ->
                             appendLine(
-                                "  - Service ${service.code.toHexString()}: ${service.attribute.name}"
+                                "  - Service ${service.code.toHexString()}: ${service.attribute::class.simpleName}"
                             )
                         }
                     } else {
@@ -1084,7 +1084,7 @@ class CardScanService {
                         appendLine(" Services (${contextServices.size}):")
                         contextServices.forEach { service ->
                             appendLine(
-                                "  - Service ${service.code.toHexString()}: ${service.attribute.name}"
+                                "  - Service ${service.code.toHexString()}: ${service.attribute::class.simpleName}"
                             )
                         }
                         if (contextServices.isEmpty()) appendLine("    - None")

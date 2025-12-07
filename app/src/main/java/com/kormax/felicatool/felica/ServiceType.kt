@@ -5,4 +5,5 @@ enum class ServiceType {
     RANDOM,
     CYCLIC,
     PURSE,
+    UNKNOWN,
 }

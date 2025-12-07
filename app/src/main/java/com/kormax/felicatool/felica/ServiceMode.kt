@@ -6,4 +6,5 @@ enum class ServiceMode {
     READ_WRITE,
     DECREMENT,
     CASHBACK,
+    UNKNOWN,
 }
