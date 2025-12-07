@@ -17,7 +17,7 @@ object ServiceIconMapper {
             "EMICA" to R.drawable.service_emica,
             "FELICA_KAZASU_FOLDER" to R.drawable.service_felica_kazasu_folder,
             "FELICA_LITE" to R.drawable.service_felica_lite,
-            "FELICA_MANAGEMENT" to R.drawable.service_felica_management,
+            "OSAIFU_KEITAI" to R.drawable.service_osaifu_keitai,
             "FELICA_NETWORKS" to R.drawable.service_felica_networks,
             "FELICA_POCKET" to R.drawable.service_felica_pocket,
             "HAYAKAKEN" to R.drawable.service_hayakaken,
@@ -41,6 +41,12 @@ object ServiceIconMapper {
             "SUICA_PLUS" to R.drawable.service_suica_plus,
             "TOICA" to R.drawable.service_toica,
             "WAON" to R.drawable.service_waon,
+            "ASACA_DOCARD" to R.drawable.service_asaca_docard,
+            "NORUCA" to R.drawable.service_noruca,
+            "IBAPPI" to R.drawable.service_ibappi,
+            "NICEPASS" to R.drawable.service_nicepass,
+            "RYUTO" to R.drawable.service_ryuto,
+            "IYOTETSU" to R.drawable.service_iyotetsu,
         )
 
     @DrawableRes
