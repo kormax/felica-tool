@@ -83,7 +83,7 @@ class RequestBlockInformationCommandTest {
                 0xCD.toByte(),
                 0xEF.toByte(),
             )
-        val service = Service(0, ServiceAttribute.PURSE_RW_WITH_KEY)
+        val service = Service(0, ServiceAttribute.PurseRwWithKey)
         val nodes: Array<Node> = arrayOf(service)
         val command = RequestBlockInformationCommand(idm, nodes)
 

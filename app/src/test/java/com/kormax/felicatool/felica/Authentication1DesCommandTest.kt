@@ -32,8 +32,8 @@ class Authentication1DesCommandTest {
     fun testAuthentication1DesCommandCreationWithNodes() {
         val idm = IDM
         val areaNodes =
-            listOf(Area(1, AreaAttribute.CAN_CREATE_SUB_AREA, 10, AreaAttribute.END_SUB_AREA))
-        val serviceNodes = listOf(Service(100, ServiceAttribute.RANDOM_RW_WITH_KEY))
+            listOf(Area(1, AreaAttribute.CanCreateSubArea, 10, AreaAttribute.EndSubArea))
+        val serviceNodes = listOf(Service(100, ServiceAttribute.RandomRwWithKey))
         val challenge1A = CHALLENGE_1A
 
         val command = Authentication1DesCommand(idm, areaNodes, serviceNodes, challenge1A)

@@ -94,9 +94,9 @@ data class Area(
         val ROOT =
             Area(
                 number = 0,
-                attribute = AreaAttribute.CAN_CREATE_SUB_AREA,
+                attribute = AreaAttribute.CanCreateSubArea,
                 endNumber = 1023,
-                endAttribute = AreaAttribute.END_ROOT_AREA,
+                endAttribute = AreaAttribute.EndRootArea,
             )
 
         /**

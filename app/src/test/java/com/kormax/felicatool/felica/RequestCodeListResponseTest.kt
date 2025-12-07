@@ -9,11 +9,11 @@ class RequestCodeListResponseTest {
     companion object {
         private const val IDM = "0123456789abcdef"
         private val AREA_1 =
-            Area(0, AreaAttribute.CAN_CREATE_SUB_AREA, 1023, AreaAttribute.END_ROOT_AREA)
+            Area(0, AreaAttribute.CanCreateSubArea, 1023, AreaAttribute.EndRootArea)
         private val AREA_2 =
-            Area(256, AreaAttribute.CAN_CREATE_SUB_AREA, 511, AreaAttribute.END_ROOT_AREA)
-        private val SERVICE_1 = Service(3, ServiceAttribute.RANDOM_RW_WITHOUT_KEY)
-        private val SERVICE_2 = Service(252, ServiceAttribute.CYCLIC_RW_WITHOUT_KEY)
+            Area(256, AreaAttribute.CanCreateSubArea, 511, AreaAttribute.EndRootArea)
+        private val SERVICE_1 = Service(3, ServiceAttribute.RandomRwWithoutKey)
+        private val SERVICE_2 = Service(252, ServiceAttribute.CyclicRwWithoutKey)
     }
 
     @Test

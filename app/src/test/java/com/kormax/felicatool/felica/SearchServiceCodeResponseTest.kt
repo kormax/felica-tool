@@ -13,12 +13,12 @@ class SearchServiceCodeResponseTest {
         val testCases =
             arrayOf(
                 "0e0b${IDM}0000feff" to
-                    Area(0, AreaAttribute.CAN_CREATE_SUB_AREA, 1023, AreaAttribute.END_ROOT_AREA),
-                "0c0b${IDM}8855" to Service(342, ServiceAttribute.RANDOM_RW_WITH_KEY),
+                    Area(0, AreaAttribute.CanCreateSubArea, 1023, AreaAttribute.EndRootArea),
+                "0c0b${IDM}8855" to Service(342, ServiceAttribute.RandomRwWithKey),
                 "0e0b${IDM}8055bf56" to
-                    Area(342, AreaAttribute.CAN_CREATE_SUB_AREA, 346, AreaAttribute.END_SUB_AREA),
+                    Area(342, AreaAttribute.CanCreateSubArea, 346, AreaAttribute.EndSubArea),
                 "0e0b${IDM}8155bf56" to
-                    Area(342, AreaAttribute.CANNOT_CREATE_SUB_AREA, 346, AreaAttribute.END_SUB_AREA),
+                    Area(342, AreaAttribute.CannotCreateSubArea, 346, AreaAttribute.EndSubArea),
             )
 
         val expectedIdm = IDM.hexToByteArray()
@@ -87,7 +87,7 @@ class SearchServiceCodeResponseTest {
     @Test
     fun testSearchServiceCodeResponse_toByteArray() {
         val idm = IDM.hexToByteArray()
-        val node = Service(342, ServiceAttribute.RANDOM_RW_WITH_KEY)
+        val node = Service(342, ServiceAttribute.RandomRwWithKey)
         val response = SearchServiceCodeResponse(idm, node)
         val bytes = response.toByteArray()
         val expected = "0c0b${IDM}8855".hexToByteArray()

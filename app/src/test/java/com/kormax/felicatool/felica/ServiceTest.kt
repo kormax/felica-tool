@@ -145,14 +145,14 @@ class ServiceTest {
         val service = Service.fromByteArray("0800".hexToByteArray())
 
         assertEquals(0, service.number)
-        assertEquals(ServiceAttribute.RANDOM_RW_WITH_KEY, service.attribute)
+        assertEquals(ServiceAttribute.RandomRwWithKey, service.attribute)
         assertEquals(8.toShort(), service.getServiceCode())
     }
 
     @Test
     fun testService_toByteArray_basic() {
         // Test basic Service to bytes conversion
-        val service = Service(0, ServiceAttribute.RANDOM_RW_WITH_KEY)
+        val service = Service(0, ServiceAttribute.RandomRwWithKey)
         val bytes = service.toByteArray()
 
         assertArrayEquals("0800".hexToByteArray(), bytes)
@@ -193,14 +193,14 @@ class ServiceTest {
     @Test
     fun testService_belongsTo_area() {
         // Test that services belong to appropriate areas
-        val area = Area(0, AreaAttribute.CAN_CREATE_SUB_AREA, 1000, AreaAttribute.END_ROOT_AREA)
+        val area = Area(0, AreaAttribute.CanCreateSubArea, 1000, AreaAttribute.EndRootArea)
 
         // Services within the area range should belong to it
         val servicesInRange =
             listOf(
-                Service(100, ServiceAttribute.RANDOM_RW_WITH_KEY),
-                Service(500, ServiceAttribute.RANDOM_RW_WITH_KEY),
-                Service(999, ServiceAttribute.RANDOM_RW_WITH_KEY),
+                Service(100, ServiceAttribute.RandomRwWithKey),
+                Service(500, ServiceAttribute.RandomRwWithKey),
+                Service(999, ServiceAttribute.RandomRwWithKey),
             )
 
         servicesInRange.forEach { service ->
@@ -210,8 +210,8 @@ class ServiceTest {
         // Services outside the area range should not belong to it
         val servicesOutOfRange =
             listOf(
-                Service(1001, ServiceAttribute.RANDOM_RW_WITH_KEY),
-                Service(1022, ServiceAttribute.RANDOM_RW_WITH_KEY),
+                Service(1001, ServiceAttribute.RandomRwWithKey),
+                Service(1022, ServiceAttribute.RandomRwWithKey),
             )
 
         servicesOutOfRange.forEach { service ->
@@ -225,8 +225,8 @@ class ServiceTest {
     @Test
     fun testService_belongsTo_service() {
         // Test that services do not belong to other services
-        val service1 = Service(100, ServiceAttribute.RANDOM_RW_WITH_KEY)
-        val service2 = Service(200, ServiceAttribute.RANDOM_RW_WITH_KEY)
+        val service1 = Service(100, ServiceAttribute.RandomRwWithKey)
+        val service2 = Service(200, ServiceAttribute.RandomRwWithKey)
 
         assertFalse("Service should not belong to another service", service1.belongsTo(service2))
     }
@@ -234,23 +234,23 @@ class ServiceTest {
     @Test
     fun testService_belongsTo_edgeCases() {
         // Test edge cases for service belongsTo
-        val area = Area(100, AreaAttribute.CAN_CREATE_SUB_AREA, 200, AreaAttribute.END_SUB_AREA)
+        val area = Area(100, AreaAttribute.CanCreateSubArea, 200, AreaAttribute.EndSubArea)
 
         // Service at the boundary should belong
-        val boundaryService = Service(100, ServiceAttribute.RANDOM_RW_WITH_KEY)
+        val boundaryService = Service(100, ServiceAttribute.RandomRwWithKey)
         assertTrue(
             "Service at lower boundary should belong to area",
             boundaryService.belongsTo(area),
         )
 
-        val upperBoundaryService = Service(200, ServiceAttribute.RANDOM_RW_WITH_KEY)
+        val upperBoundaryService = Service(200, ServiceAttribute.RandomRwWithKey)
         assertTrue(
             "Service at upper boundary should belong to area",
             upperBoundaryService.belongsTo(area),
         )
 
         // Service just outside boundary should not belong
-        val outsideService = Service(201, ServiceAttribute.RANDOM_RW_WITH_KEY)
+        val outsideService = Service(201, ServiceAttribute.RandomRwWithKey)
         assertFalse(
             "Service just outside boundary should not belong to area",
             outsideService.belongsTo(area),

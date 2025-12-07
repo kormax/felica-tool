@@ -23,7 +23,7 @@ class GetAreaInformationCommandTest {
     @Test
     fun testGetAreaInformationCommandCreationWithNode() {
         val idm = IDM
-        val area = Area(50, AreaAttribute.CAN_CREATE_SUB_AREA, 200, AreaAttribute.END_SUB_AREA)
+        val area = Area(50, AreaAttribute.CanCreateSubArea, 200, AreaAttribute.EndSubArea)
 
         val command = GetAreaInformationCommand(idm, area)
 

@@ -29,8 +29,8 @@ class RequestServiceV2CommandTest {
     @Test
     fun testRequestServiceV2CommandCreationWithNodes() {
         val idm = IDM
-        val service = Service(100, ServiceAttribute.RANDOM_RW_WITH_KEY)
-        val area = Area(50, AreaAttribute.CAN_CREATE_SUB_AREA, 200, AreaAttribute.END_SUB_AREA)
+        val service = Service(100, ServiceAttribute.RandomRwWithKey)
+        val area = Area(50, AreaAttribute.CanCreateSubArea, 200, AreaAttribute.EndSubArea)
         val nodes = listOf<Node>(service, area)
 
         val command = RequestServiceV2Command(idm, nodes)

@@ -8,6 +8,10 @@ sealed class ServiceAttribute(
     open val authenticationRequired: Boolean,
     open val pinRequired: Boolean,
 ) {
+    init {
+        if (this !is Unknown) register(this)
+    }
+
     open val isUnknown: Boolean
         get() = false
 
@@ -115,74 +119,12 @@ sealed class ServiceAttribute(
     }
 
     companion object {
-        val RANDOM_RW_WITH_KEY = RandomRwWithKey
-        val RANDOM_RW_WITHOUT_KEY = RandomRwWithoutKey
-        val RANDOM_RO_WITH_KEY = RandomRoWithKey
-        val RANDOM_RO_WITHOUT_KEY = RandomRoWithoutKey
-        val CYCLIC_RW_WITH_KEY = CyclicRwWithKey
-        val CYCLIC_RW_WITHOUT_KEY = CyclicRwWithoutKey
-        val CYCLIC_RO_WITH_KEY = CyclicRoWithKey
-        val CYCLIC_RO_WITHOUT_KEY = CyclicRoWithoutKey
-        val PURSE_RW_WITH_KEY = PurseRwWithKey
-        val PURSE_RW_WITHOUT_KEY = PurseRwWithoutKey
-        val PURSE_RO_WITH_KEY = PurseRoWithKey
-        val PURSE_RO_WITHOUT_KEY = PurseRoWithoutKey
-        val PURSE_DECREMENT_WITH_KEY = PurseDecrementWithKey
-        val PURSE_DECREMENT_WITHOUT_KEY = PurseDecrementWithoutKey
-        val PURSE_CASHBACK_WITH_KEY = PurseCashbackWithKey
-        val PURSE_CASHBACK_WITHOUT_KEY = PurseCashbackWithoutKey
-        val RANDOM_RW_WITHOUT_KEY_WITH_PIN = RandomRwWithoutKeyWithPin
-        val RANDOM_RW_WITH_KEY_WITH_PIN = RandomRwWithKeyWithPin
-        val RANDOM_RO_WITHOUT_KEY_WITH_PIN = RandomRoWithoutKeyWithPin
-        val RANDOM_RO_WITH_KEY_WITH_PIN = RandomRoWithKeyWithPin
-        val CYCLIC_RW_WITHOUT_KEY_WITH_PIN = CyclicRwWithoutKeyWithPin
-        val CYCLIC_RW_WITH_KEY_WITH_PIN = CyclicRwWithKeyWithPin
-        val CYCLIC_RO_WITHOUT_KEY_WITH_PIN = CyclicRoWithoutKeyWithPin
-        val CYCLIC_RO_WITH_KEY_WITH_PIN = CyclicRoWithKeyWithPin
-        val PURSE_CASHBACK_WITHOUT_KEY_WITH_PIN = PurseCashbackWithoutKeyWithPin
-        val PURSE_CASHBACK_WITH_KEY_WITH_PIN = PurseCashbackWithKeyWithPin
-        val PURSE_DECREMENT_WITHOUT_KEY_WITH_PIN = PurseDecrementWithoutKeyWithPin
-        val PURSE_DECREMENT_WITH_KEY_WITH_PIN = PurseDecrementWithKeyWithPin
-        val PURSE_RW_WITHOUT_KEY_WITH_PIN = PurseRwWithoutKeyWithPin
-        val PURSE_RW_WITH_KEY_WITH_PIN = PurseRwWithKeyWithPin
-        val PURSE_RO_WITHOUT_KEY_WITH_PIN = PurseRoWithoutKeyWithPin
-        val PURSE_RO_WITH_KEY_WITH_PIN = PurseRoWithKeyWithPin
+        private val knownByValue = mutableMapOf<Int, ServiceAttribute>()
 
-        fun fromValue(value: Int): ServiceAttribute =
-            when (value) {
-                RANDOM_RW_WITH_KEY.value -> RANDOM_RW_WITH_KEY
-                RANDOM_RW_WITHOUT_KEY.value -> RANDOM_RW_WITHOUT_KEY
-                RANDOM_RO_WITH_KEY.value -> RANDOM_RO_WITH_KEY
-                RANDOM_RO_WITHOUT_KEY.value -> RANDOM_RO_WITHOUT_KEY
-                CYCLIC_RW_WITH_KEY.value -> CYCLIC_RW_WITH_KEY
-                CYCLIC_RW_WITHOUT_KEY.value -> CYCLIC_RW_WITHOUT_KEY
-                CYCLIC_RO_WITH_KEY.value -> CYCLIC_RO_WITH_KEY
-                CYCLIC_RO_WITHOUT_KEY.value -> CYCLIC_RO_WITHOUT_KEY
-                PURSE_RW_WITH_KEY.value -> PURSE_RW_WITH_KEY
-                PURSE_RW_WITHOUT_KEY.value -> PURSE_RW_WITHOUT_KEY
-                PURSE_CASHBACK_WITH_KEY.value -> PURSE_CASHBACK_WITH_KEY
-                PURSE_CASHBACK_WITHOUT_KEY.value -> PURSE_CASHBACK_WITHOUT_KEY
-                PURSE_DECREMENT_WITH_KEY.value -> PURSE_DECREMENT_WITH_KEY
-                PURSE_DECREMENT_WITHOUT_KEY.value -> PURSE_DECREMENT_WITHOUT_KEY
-                PURSE_RO_WITH_KEY.value -> PURSE_RO_WITH_KEY
-                PURSE_RO_WITHOUT_KEY.value -> PURSE_RO_WITHOUT_KEY
-                RANDOM_RW_WITH_KEY_WITH_PIN.value -> RANDOM_RW_WITH_KEY_WITH_PIN
-                RANDOM_RW_WITHOUT_KEY_WITH_PIN.value -> RANDOM_RW_WITHOUT_KEY_WITH_PIN
-                RANDOM_RO_WITH_KEY_WITH_PIN.value -> RANDOM_RO_WITH_KEY_WITH_PIN
-                RANDOM_RO_WITHOUT_KEY_WITH_PIN.value -> RANDOM_RO_WITHOUT_KEY_WITH_PIN
-                CYCLIC_RW_WITH_KEY_WITH_PIN.value -> CYCLIC_RW_WITH_KEY_WITH_PIN
-                CYCLIC_RW_WITHOUT_KEY_WITH_PIN.value -> CYCLIC_RW_WITHOUT_KEY_WITH_PIN
-                CYCLIC_RO_WITH_KEY_WITH_PIN.value -> CYCLIC_RO_WITH_KEY_WITH_PIN
-                CYCLIC_RO_WITHOUT_KEY_WITH_PIN.value -> CYCLIC_RO_WITHOUT_KEY_WITH_PIN
-                PURSE_RW_WITH_KEY_WITH_PIN.value -> PURSE_RW_WITH_KEY_WITH_PIN
-                PURSE_RW_WITHOUT_KEY_WITH_PIN.value -> PURSE_RW_WITHOUT_KEY_WITH_PIN
-                PURSE_CASHBACK_WITH_KEY_WITH_PIN.value -> PURSE_CASHBACK_WITH_KEY_WITH_PIN
-                PURSE_CASHBACK_WITHOUT_KEY_WITH_PIN.value -> PURSE_CASHBACK_WITHOUT_KEY_WITH_PIN
-                PURSE_DECREMENT_WITH_KEY_WITH_PIN.value -> PURSE_DECREMENT_WITH_KEY_WITH_PIN
-                PURSE_DECREMENT_WITHOUT_KEY_WITH_PIN.value -> PURSE_DECREMENT_WITHOUT_KEY_WITH_PIN
-                PURSE_RO_WITH_KEY_WITH_PIN.value -> PURSE_RO_WITH_KEY_WITH_PIN
-                PURSE_RO_WITHOUT_KEY_WITH_PIN.value -> PURSE_RO_WITHOUT_KEY_WITH_PIN
-                else -> Unknown(value)
-            }
+        private fun register(attr: ServiceAttribute) {
+            knownByValue[attr.value] = attr
+        }
+
+        fun fromValue(value: Int): ServiceAttribute = knownByValue[value] ?: Unknown(value)
     }
 }

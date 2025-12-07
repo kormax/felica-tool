@@ -38,8 +38,8 @@ class Authentication1AesCommandTest {
         val idm = IDM
         val nodes =
             listOf(
-                Area(1, AreaAttribute.CAN_CREATE_SUB_AREA, 2, AreaAttribute.CAN_CREATE_SUB_AREA),
-                Service(16, ServiceAttribute.RANDOM_RW_WITH_KEY),
+                Area(1, AreaAttribute.CanCreateSubArea, 2, AreaAttribute.CanCreateSubArea),
+                Service(16, ServiceAttribute.RandomRwWithKey),
             )
         val challenge1A = CHALLENGE_1A
         val flag: Byte = 0x03

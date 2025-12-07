@@ -6,6 +6,10 @@ sealed class AreaAttribute(
     open val canCreateSubArea: Boolean,
     open val pinRequired: Boolean,
 ) {
+    init {
+        if (this !is Unknown) register(this)
+    }
+
     open val isUnknown: Boolean
         get() = false
 
@@ -33,22 +37,12 @@ sealed class AreaAttribute(
     }
 
     companion object {
-        val CAN_CREATE_SUB_AREA = CanCreateSubArea
-        val CANNOT_CREATE_SUB_AREA = CannotCreateSubArea
-        val CAN_CREATE_SUB_AREA_WITH_PIN = CanCreateSubAreaWithPin
-        val CANNOT_CREATE_SUB_AREA_WITH_PIN = CannotCreateSubAreaWithPin
-        val END_ROOT_AREA = EndRootArea
-        val END_SUB_AREA = EndSubArea
+        private val knownByValue = mutableMapOf<Int, AreaAttribute>()
 
-        fun fromValue(value: Int): AreaAttribute =
-            when (value) {
-                CAN_CREATE_SUB_AREA.value -> CAN_CREATE_SUB_AREA
-                CANNOT_CREATE_SUB_AREA.value -> CANNOT_CREATE_SUB_AREA
-                CAN_CREATE_SUB_AREA_WITH_PIN.value -> CAN_CREATE_SUB_AREA_WITH_PIN
-                CANNOT_CREATE_SUB_AREA_WITH_PIN.value -> CANNOT_CREATE_SUB_AREA_WITH_PIN
-                END_ROOT_AREA.value -> END_ROOT_AREA
-                END_SUB_AREA.value -> END_SUB_AREA
-                else -> Unknown(value)
-            }
+        private fun register(attr: AreaAttribute) {
+            knownByValue[attr.value] = attr
+        }
+
+        fun fromValue(value: Int): AreaAttribute = knownByValue[value] ?: Unknown(value)
     }
 }

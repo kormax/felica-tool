@@ -15,7 +15,7 @@ class RequestCodeListCommandTest {
     @Test
     fun testRequestCodeListCommand_creation_withNode() {
         val idm = IDM.hexToByteArray()
-        val parentNode = Service(52, ServiceAttribute.RANDOM_RW_WITHOUT_KEY)
+        val parentNode = Service(52, ServiceAttribute.RandomRwWithoutKey)
         val command = RequestCodeListCommand(idm, parentNode, INDEX)
 
         assertArrayEquals(idm, command.idm)
@@ -114,7 +114,7 @@ class RequestCodeListCommandTest {
     @Test
     fun testRequestCodeListCommand_roundTrip_withNode() {
         val idm = IDM.hexToByteArray()
-        val parentNode = Service(1023, ServiceAttribute.RANDOM_RW_WITHOUT_KEY)
+        val parentNode = Service(1023, ServiceAttribute.RandomRwWithoutKey)
         val command = RequestCodeListCommand(idm, parentNode, INDEX)
         val bytes = command.toByteArray()
         val parsedCommand = RequestCodeListCommand.fromByteArray(bytes)
