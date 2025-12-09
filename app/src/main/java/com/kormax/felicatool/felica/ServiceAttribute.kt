@@ -1,6 +1,9 @@
 package com.kormax.felicatool.felica
 
+import com.kormax.felicatool.annotation.SealedEnum
+
 /** Represents a Service Attribute in the FeliCa file system. */
+@SealedEnum
 sealed class ServiceAttribute(
     open val value: Int,
     open val type: ServiceType,
@@ -8,13 +11,6 @@ sealed class ServiceAttribute(
     open val authenticationRequired: Boolean,
     open val pinRequired: Boolean,
 ) {
-    init {
-        if (this !is Unknown) register(this)
-    }
-
-    open val isUnknown: Boolean
-        get() = false
-
     data object RandomRwWithKey :
         ServiceAttribute(0b001000, ServiceType.RANDOM, ServiceMode.READ_WRITE, true, false)
 
@@ -113,18 +109,7 @@ sealed class ServiceAttribute(
 
     /** Captures an attribute value that is not yet recognized by this client. */
     data class Unknown(override val value: Int) :
-        ServiceAttribute(value, ServiceType.UNKNOWN, ServiceMode.UNKNOWN, false, false) {
-        override val isUnknown: Boolean
-            get() = true
-    }
+        ServiceAttribute(value, ServiceType.UNKNOWN, ServiceMode.UNKNOWN, false, false)
 
-    companion object {
-        private val knownByValue = mutableMapOf<Int, ServiceAttribute>()
-
-        private fun register(attr: ServiceAttribute) {
-            knownByValue[attr.value] = attr
-        }
-
-        fun fromValue(value: Int): ServiceAttribute = knownByValue[value] ?: Unknown(value)
-    }
+    companion object
 }

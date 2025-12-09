@@ -23,3 +23,5 @@ dependencyResolutionManagement {
 rootProject.name = "FeliCa Tool"
 
 include(":app")
+include(":annotations")
+include(":processors")

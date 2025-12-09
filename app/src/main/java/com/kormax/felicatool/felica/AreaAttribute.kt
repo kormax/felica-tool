@@ -1,18 +1,14 @@
 package com.kormax.felicatool.felica
 
+import com.kormax.felicatool.annotation.SealedEnum
+
 /** Represents an Area Attribute in the FeliCa file system. */
+@SealedEnum
 sealed class AreaAttribute(
     open val value: Int,
     open val canCreateSubArea: Boolean,
     open val pinRequired: Boolean,
 ) {
-    init {
-        if (this !is Unknown) register(this)
-    }
-
-    open val isUnknown: Boolean
-        get() = false
-
     data object CanCreateSubArea :
         AreaAttribute(0b000000, true, false) // Area that can create Sub-Area
 
@@ -31,18 +27,7 @@ sealed class AreaAttribute(
     data object EndSubArea : AreaAttribute(0b111111, false, false)
 
     /** Captures an attribute value that is not yet recognized by this client. */
-    data class Unknown(override val value: Int) : AreaAttribute(value, false, false) {
-        override val isUnknown: Boolean
-            get() = true
-    }
+    data class Unknown(override val value: Int) : AreaAttribute(value, false, false)
 
-    companion object {
-        private val knownByValue = mutableMapOf<Int, AreaAttribute>()
-
-        private fun register(attr: AreaAttribute) {
-            knownByValue[attr.value] = attr
-        }
-
-        fun fromValue(value: Int): AreaAttribute = knownByValue[value] ?: Unknown(value)
-    }
+    companion object
 }
