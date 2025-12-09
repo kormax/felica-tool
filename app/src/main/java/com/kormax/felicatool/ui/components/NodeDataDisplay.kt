@@ -734,33 +734,33 @@ fun TreeNodeCard(
                         val service = node
 
                         // Warn if unknown attribute was found
-                        if (service.attribute.isUnknown) {
+                        if (service.attribute is ServiceAttribute.Unknown) {
                             AttributeChip("A?", isWarning = true, isCompact = true)
-                        }
-
-                        // Authentication requirements - show AUTH/FREE first
-                        if (service.attribute.authenticationRequired) {
-                            AttributeChip("AUTH", isWarning = true, isCompact = true)
                         } else {
-                            AttributeChip("FREE", isHighlight = true, isCompact = true)
-                        }
-                        if (service.attribute.pinRequired) {
-                            AttributeChip("PIN", isWarning = true, isCompact = true)
-                        }
-
-                        // Service type and mode - handle READ_WRITE as special case
-                        AttributeChip(service.attribute.type.name, isCompact = true)
-
-                        // Split READ_WRITE into separate chips, simplify READ_ONLY to READ
-                        when (service.attribute.mode.name) {
-                            "READ_WRITE" -> {
-                                AttributeChip("RW", isCompact = true)
+                            // Authentication requirements - show AUTH/FREE first
+                            if (service.attribute.authenticationRequired) {
+                                AttributeChip("AUTH", isWarning = true, isCompact = true)
+                            } else {
+                                AttributeChip("FREE", isHighlight = true, isCompact = true)
                             }
-                            "READ_ONLY" -> {
-                                AttributeChip("RO", isCompact = true)
+                            if (service.attribute.pinRequired) {
+                                AttributeChip("PIN", isWarning = true, isCompact = true)
                             }
-                            else -> {
-                                AttributeChip(service.attribute.mode.name, isCompact = true)
+
+                            // Service type and mode - handle READ_WRITE as special case
+                            AttributeChip(service.attribute.type.name, isCompact = true)
+
+                            // Split READ_WRITE into separate chips, simplify READ_ONLY to READ
+                            when (service.attribute.mode.name) {
+                                "READ_WRITE" -> {
+                                    AttributeChip("RW", isCompact = true)
+                                }
+                                "READ_ONLY" -> {
+                                    AttributeChip("RO", isCompact = true)
+                                }
+                                else -> {
+                                    AttributeChip(service.attribute.mode.name, isCompact = true)
+                                }
                             }
                         }
                     }
@@ -773,14 +773,17 @@ fun TreeNodeCard(
                             AttributeChip("ROOT", isHighlight = true, isCompact = true)
                         }
                         // Warn if unknown end or start attribute is found
-                        if (area.attribute.isUnknown) {
+                        if (area.attribute is AreaAttribute.Unknown) {
                             AttributeChip("SA?", isWarning = true, isCompact = true)
                         }
-                        if (area.endAttribute.isUnknown) {
+                        if (area.endAttribute is AreaAttribute.Unknown) {
                             AttributeChip("EA?", isWarning = true, isCompact = true)
                         }
-                        if (area.attribute.canCreateSubArea) {
-                            AttributeChip("NESTABLE", isHighlight = true, isCompact = true)
+
+                        if (area.attribute !is AreaAttribute.Unknown) {
+                            if (area.attribute.canCreateSubArea) {
+                                AttributeChip("NESTABLE", isHighlight = true, isCompact = true)
+                            }
                         }
                     }
                 }

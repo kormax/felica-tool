@@ -84,9 +84,9 @@ class AreaTest {
 
         assertEquals(areaNumber, area.number)
         assertEquals(AreaAttribute.Unknown(unknownAttributeValue), area.attribute)
-        assertTrue(area.attribute.isUnknown)
+        assertTrue(area.attribute is AreaAttribute.Unknown)
         assertEquals(endAttribute, area.endAttribute)
-        assertFalse(endAttribute.isUnknown)
+        assertFalse(endAttribute is AreaAttribute.Unknown)
         assertArrayEquals(data, area.toByteArray())
     }
 
