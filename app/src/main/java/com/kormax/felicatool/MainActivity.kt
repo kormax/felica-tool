@@ -27,6 +27,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -37,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import com.kormax.felicatool.felica.AndroidFeliCaTarget
 import com.kormax.felicatool.service.CardScanService
+import com.kormax.felicatool.service.ScanSettings
 import com.kormax.felicatool.ui.CardScanStep
 import com.kormax.felicatool.ui.ScanResultsOverview
 import com.kormax.felicatool.ui.StepStatus
@@ -55,6 +57,7 @@ class MainActivity : ComponentActivity() {
     private var isCardPresent by mutableStateOf(false)
     private var statusMessage by mutableStateOf("Place a FeliCa card near the device")
     private var showComprehensiveData by mutableStateOf(false)
+    private var scanSettings by mutableStateOf(ScanSettings())
 
     private fun toggleStepCollapse(stepId: String) {
         if (stepId == "scan_overview") {
@@ -90,6 +93,8 @@ class MainActivity : ComponentActivity() {
                         isCardPresent = isCardPresent,
                         statusMessage = statusMessage,
                         onToggleCollapse = ::toggleStepCollapse,
+                        scanSettings = scanSettings,
+                        onScanSettingsChange = { scanSettings = it },
                     )
 
                     // Scan results overview - overlays on top when visible
@@ -142,10 +147,13 @@ class MainActivity : ComponentActivity() {
     private fun handleTag(tag: Tag) {
         val nfcF = NfcF.get(tag)
         if (nfcF != null) {
-            // Reset steps for new card scan
-            steps = CardScanStep.createInitialSteps()
+            // Reset steps for new card scan with current settings
+            steps = CardScanStep.createInitialSteps(scanSettings)
             statusMessage = "FeliCa Card Detected! Processing steps..."
             isCardPresent = true
+
+            // Capture current scan settings for this scan session
+            val currentScanSettings = scanSettings
 
             lifecycleScope.launch {
                 try {
@@ -159,6 +167,9 @@ class MainActivity : ComponentActivity() {
                             cardScanService.wrapTargetForCommunicationLogging(
                                 AndroidFeliCaTarget.create(nfcF, idm)
                             )
+
+                        // Apply scan settings to the service
+                        cardScanService.setScanSettings(currentScanSettings)
 
                         // Execute each step sequentially
                         for (i in steps.indices) {
@@ -212,17 +223,56 @@ fun MainScreen(
     isCardPresent: Boolean,
     statusMessage: String,
     onToggleCollapse: (String) -> Unit = {},
+    scanSettings: ScanSettings = ScanSettings(),
+    onScanSettingsChange: (ScanSettings) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
+    var showSettingsMenu by remember { mutableStateOf(false) }
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
                 title = { Text("FeliCa Tool") },
+                actions = {
+                    IconButton(onClick = { showSettingsMenu = true }) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = "Scan settings",
+                        )
+                    }
+
+                    DropdownMenu(
+                        expanded = showSettingsMenu,
+                        onDismissRequest = { showSettingsMenu = false },
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Force discover all nodes") },
+                            onClick = {
+                                onScanSettingsChange(
+                                    scanSettings.copy(
+                                        forceDiscoverAllNodes = !scanSettings.forceDiscoverAllNodes
+                                    )
+                                )
+                            },
+                            trailingIcon = {
+                                Checkbox(
+                                    checked = scanSettings.forceDiscoverAllNodes,
+                                    onCheckedChange = {
+                                        onScanSettingsChange(
+                                            scanSettings.copy(forceDiscoverAllNodes = it)
+                                        )
+                                    },
+                                )
+                            },
+                        )
+                    }
+                },
                 colors =
                     TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
                         titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                     ),
             )
         },

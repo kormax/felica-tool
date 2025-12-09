@@ -733,6 +733,11 @@ fun TreeNodeCard(
                     if (node is Service) {
                         val service = node
 
+                        // Show HIDDEN chip if this node was discovered via force discovery
+                        if (context.hiddenNodes.contains(service)) {
+                            AttributeChip("HIDDEN", isWarning = true, isCompact = true)
+                        }
+
                         // Warn if unknown attribute was found
                         if (service.attribute is ServiceAttribute.Unknown) {
                             AttributeChip("A?", isWarning = true, isCompact = true)

@@ -75,6 +75,8 @@ data class SystemScanContext(
     val nodeMacCommunicationProperties: Map<Node, MacCommunicationProperty> = emptyMap(),
     val systemStatus: ByteArray? = null,
     val idm: ByteArray? = null,
+    /** Set of nodes discovered via force discovery that were not found in regular discovery */
+    val hiddenNodes: Set<Node> = emptySet(),
 )
 
 class CardScanService {
@@ -86,6 +88,14 @@ class CardScanService {
 
     // Context to store discovered nodes across steps
     private var scanContext = CardScanContext()
+
+    // Scan settings for current session
+    private var scanSettings = ScanSettings()
+
+    /** Sets the scan settings for the current session */
+    fun setScanSettings(settings: ScanSettings) {
+        scanSettings = settings
+    }
 
     // Public getter for context
     fun getScanContext(): CardScanContext = scanContext
@@ -329,6 +339,15 @@ class CardScanService {
                     "request_service_v2" -> {
                         val (collapsedResult, expandedResult) = executeRequestServiceV2(target)
                         updateCommandSupport(step.id, CommandSupport.SUPPORTED)
+                        step.copy(
+                            status = StepStatus.COMPLETED,
+                            result = expandedResult,
+                            collapsedResult = collapsedResult,
+                            isCollapsed = true,
+                        )
+                    }
+                    "force_discover_nodes" -> {
+                        val (collapsedResult, expandedResult) = executeForceDiscoverNodes(target)
                         step.copy(
                             status = StepStatus.COMPLETED,
                             result = expandedResult,
@@ -1355,6 +1374,133 @@ class CardScanService {
                 collapsedSummary + "\n" + keyVersionResults.joinToString("\n")
             } else {
                 collapsedSummary + " (no details available)"
+            }
+
+        return collapsedSummary to expandedResult
+    }
+
+    /**
+     * Force discover all nodes by iterating through all possible node codes (0-1023) with all known
+     * service attributes. Uses RequestServiceV2 if available, otherwise RequestService. Nodes
+     * discovered this way that were not found in regular discovery are marked as hidden.
+     */
+    private suspend fun executeForceDiscoverNodes(target: FeliCaTarget): Pair<String, String> {
+        // Check if RequestService commands are supported
+        val requestServiceV2Supported =
+            scanContext.requestServiceV2Support == CommandSupport.SUPPORTED
+        val requestServiceSupported = scanContext.requestServiceSupport == CommandSupport.SUPPORTED
+
+        if (!requestServiceV2Supported && !requestServiceSupported) {
+            throw RuntimeException(
+                "Force discover requires RequestService or RequestServiceV2 to be supported"
+            )
+        }
+
+        val useV2 = requestServiceV2Supported
+        val results = mutableListOf<String>()
+        val updatedSystemContexts = mutableListOf<SystemScanContext>()
+
+        // All known service attributes to probe - explicit list to avoid ambiguity
+        val serviceAttributes = ServiceAttribute.entries.filter { it.pinRequired == false }
+        val maxNodeNumber = 1023 // Node codes range from 0 to 1023 (10 bits)
+        val batchSize = 32 // Max nodes per request
+
+        var totalDiscovered = 0
+        var totalHidden = 0
+
+        // Process each system context
+        for (systemContext in scanContext.systemScanContexts) {
+            // Perform system-specific polling before executing commands
+            pollSystemCode(target, systemContext.systemCode)
+
+            val existingNodes = systemContext.nodes.toSet()
+            val existingNodeCodes = existingNodes.map { it.code.toHexString().uppercase() }.toSet()
+            val newlyDiscoveredNodes = mutableListOf<Node>()
+            val hiddenNodesSet = mutableSetOf<Node>()
+
+            // Generate all possible service nodes to probe
+            val servicesToProbe = mutableListOf<Service>()
+            for (nodeNumber in 0..maxNodeNumber) {
+                for (attribute in serviceAttributes) {
+                    servicesToProbe.add(Service(nodeNumber, attribute))
+                }
+            }
+
+            // Process in batches
+            servicesToProbe.chunked(batchSize).forEach { batch ->
+                try {
+                    val nodeCodes = batch.map { it.code }.toTypedArray()
+
+                    if (useV2) {
+                        val command = RequestServiceV2Command(target.idm, nodeCodes)
+                        val response = target.transceive(command)
+
+                        if (response.isStatusSuccessful) {
+                            batch.forEachIndexed { index, service ->
+                                val aesKeyVersion = response.aesKeyVersions[index]
+                                // If key version is not FFFF, the node exists
+                                if (!aesKeyVersion.isMissing) {
+                                    val codeHex = service.code.toHexString().uppercase()
+                                    if (!existingNodeCodes.contains(codeHex)) {
+                                        // This is a hidden node
+                                        newlyDiscoveredNodes.add(service)
+                                        hiddenNodesSet.add(service)
+                                        totalHidden++
+                                        results.add(
+                                            "${systemContext.systemCode?.toHexString() ?: "unknown"} - Hidden Service ${codeHex}: AES v${aesKeyVersion.toInt()}"
+                                        )
+                                    }
+                                    totalDiscovered++
+                                }
+                            }
+                        }
+                    } else {
+                        val command = RequestServiceCommand(target.idm, nodeCodes)
+                        val response = target.transceive(command)
+
+                        batch.forEachIndexed { index, service ->
+                            val keyVersion = response.keyVersions[index]
+                            // If key version is not FFFF, the node exists
+                            if (!keyVersion.isMissing) {
+                                val codeHex = service.code.toHexString().uppercase()
+                                if (!existingNodeCodes.contains(codeHex)) {
+                                    // This is a hidden node
+                                    newlyDiscoveredNodes.add(service)
+                                    hiddenNodesSet.add(service)
+                                    totalHidden++
+                                    results.add(
+                                        "${systemContext.systemCode?.toHexString() ?: "unknown"} - Hidden Service ${codeHex}: Key v${keyVersion.toInt()}"
+                                    )
+                                }
+                                totalDiscovered++
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    // Log error but continue with next batch
+                    Log.w("CardScanService", "Force discover batch failed: ${e.message}")
+                }
+            }
+
+            // Merge newly discovered nodes with existing nodes
+            val allNodes = systemContext.nodes + newlyDiscoveredNodes
+            val mergedHiddenNodes = systemContext.hiddenNodes + hiddenNodesSet
+
+            val updatedSystemContext =
+                systemContext.copy(nodes = allNodes, hiddenNodes = mergedHiddenNodes)
+            updatedSystemContexts.add(updatedSystemContext)
+        }
+
+        // Update scan context with all system contexts
+        scanContext = scanContext.copy(systemScanContexts = updatedSystemContexts)
+
+        val collapsedSummary =
+            "Force discovered $totalHidden hidden node(s) out of $totalDiscovered total present"
+        val expandedResult =
+            if (results.isNotEmpty()) {
+                collapsedSummary + "\n" + results.joinToString("\n")
+            } else {
+                collapsedSummary + "\nNo hidden nodes found"
             }
 
         return collapsedSummary to expandedResult

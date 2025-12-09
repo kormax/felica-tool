@@ -414,6 +414,11 @@ object ExportUtils {
 
                     nodeJson.put("data", dataJson)
                 } ?: nodeJson.put("data", null)
+
+                // Hidden flag - node was discovered via force discovery
+                if (systemContext.hiddenNodes.contains(node)) {
+                    nodeJson.put("hidden", true)
+                }
             }
         }
 
