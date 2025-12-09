@@ -93,6 +93,24 @@ object NodeRegistry {
 
     fun isReady(): Boolean = isInitialized.get()
 
+    /**
+     * Gets the extra blocks defined for a node in a given system. Extra blocks are hidden blocks
+     * stashed at the end of the block number space.
+     *
+     * @param systemCode The system code (e.g., "88B4")
+     * @param nodeCode The node code (e.g., "0900")
+     * @return Map of block number to block name, or empty map if none defined
+     */
+    fun getExtraBlocks(systemCode: String, nodeCode: String): Map<Int, String> {
+        val normalizedSystem = systemCode.uppercase()
+        val normalizedCode = nodeCode.uppercase()
+
+        val nodes = definitions[normalizedSystem] ?: return emptyMap()
+        val matchingNode = nodes.firstOrNull { definition -> definition.code == normalizedCode }
+
+        return matchingNode?.extraBlocks ?: emptyMap()
+    }
+
     private fun parseDefinitions(
         jsonText: String
     ): Pair<Map<String, List<NodeDefinition>>, Map<String, SystemDefinition>> {
@@ -146,6 +164,21 @@ object NodeRegistry {
                     }
                 val providers = provider?.let { mutableSetOf(it) } ?: mutableSetOf()
 
+                // Parse extra_blocks if present
+                val extraBlocks = mutableMapOf<Int, String>()
+                val extraBlocksObject = nodeObject.optJSONObject("extra_blocks")
+                if (extraBlocksObject != null) {
+                    val extraBlocksKeys = extraBlocksObject.keys()
+                    while (extraBlocksKeys.hasNext()) {
+                        val blockHex = extraBlocksKeys.next()
+                        val blockName = extraBlocksObject.optString(blockHex)
+                        val blockNumber = blockHex.toIntOrNull(16)
+                        if (blockNumber != null && blockName.isNotBlank()) {
+                            extraBlocks[blockNumber] = blockName
+                        }
+                    }
+                }
+
                 val type =
                     if (code.length > 4) NodeDefinitionType.AREA else NodeDefinitionType.SERVICE
 
@@ -156,6 +189,7 @@ object NodeRegistry {
                         serviceProviders = providers.toSet(),
                         type = type,
                         name = name,
+                        extraBlocks = extraBlocks.toMap(),
                     )
             }
 
@@ -174,6 +208,8 @@ data class NodeDefinition(
     val serviceProviders: Set<String>,
     val type: NodeDefinitionType,
     val name: String? = null,
+    /** Extra blocks mapping: block number (hex) -> block name */
+    val extraBlocks: Map<Int, String> = emptyMap(),
 )
 
 data class SystemDefinition(

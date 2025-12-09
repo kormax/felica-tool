@@ -69,7 +69,8 @@ data class SystemScanContext(
     val nodeBlockCounts: Map<Node, CountInformation> = emptyMap(),
     val nodeAssignedBlockCounts: Map<Node, CountInformation> = emptyMap(),
     val nodeFreeBlockCounts: Map<Node, CountInformation> = emptyMap(),
-    val serviceBlockData: Map<Node, ByteArray> = emptyMap(),
+    /** Block data stored as Map<BlockNumber, BlockData> for each node */
+    val serviceBlockData: Map<Node, Map<Int, ByteArray>> = emptyMap(),
     val nodeValueLimitedPurseProperties: Map<Node, ValueLimitedPurseServiceProperty> = emptyMap(),
     val nodeMacCommunicationProperties: Map<Node, MacCommunicationProperty> = emptyMap(),
     val systemStatus: ByteArray? = null,
@@ -2242,45 +2243,87 @@ class CardScanService {
             }
 
             // Use the utility function to read blocks with appropriate error indication mode
+            // Look up extra blocks for each service from the node registry
+            val extraBlocksByServiceCode = mutableMapOf<String, Map<Int, String>>()
+            val systemCodeHexForLookup = systemContext.systemCode?.toHexString()?.uppercase()
+            if (systemCodeHexForLookup != null) {
+                for (service in servicesWithoutAuth) {
+                    val serviceCodeHex = service.code.toHexString().uppercase()
+                    val extraBlocks =
+                        com.kormax.felicatool.util.NodeRegistry.getExtraBlocks(
+                            systemCodeHexForLookup,
+                            serviceCodeHex,
+                        )
+                    if (extraBlocks.isNotEmpty()) {
+                        extraBlocksByServiceCode[service.code.toHexString().uppercase()] =
+                            extraBlocks
+                    }
+                }
+            }
+
             val blockReader =
                 BlockReader(
                     target = target,
                     errorLocationIndication = scanContext.errorLocationIndication,
                     maxBlocksPerRequest = scanContext.maxBlocksPerRequest ?: 15,
                     maxServicesPerRequest = scanContext.maxServicesPerRequest ?: 16,
+                    extraBlocksByServiceCode = extraBlocksByServiceCode,
                 )
             val blockDataByService = blockReader.readBlocksFromServices(servicesWithoutAuth)
+            val extraBlockDataByService =
+                blockReader.readExtraBlocksFromServices(servicesWithoutAuth)
 
-            // Store block data in context for this system context
-            val serviceBlockDataMap = mutableMapOf<Node, ByteArray>()
+            // Store block data in context for this system context, merging regular and extra blocks
+            val serviceBlockDataMap = mutableMapOf<Node, Map<Int, ByteArray>>()
             blockDataByService.forEach { (service, blockData) ->
-                serviceBlockDataMap[service] = blockData
+                val mergedBlockData = blockData.toMutableMap()
+                // Merge extra blocks if available for this service
+                extraBlockDataByService[service]?.let { extraBlocks ->
+                    mergedBlockData.putAll(extraBlocks)
+                }
+                serviceBlockDataMap[service] = mergedBlockData
+            }
+            // Also add services that only have extra blocks (no regular blocks)
+            extraBlockDataByService.forEach { (service, extraBlocks) ->
+                if (!serviceBlockDataMap.containsKey(service)) {
+                    serviceBlockDataMap[service] = extraBlocks
+                }
             }
 
             // Update system context with block data
             val updatedSystemContext = systemContext.copy(serviceBlockData = serviceBlockDataMap)
             updatedSystemContexts.add(updatedSystemContext)
 
-            // Update totals
-            val contextBlocksRead = blockDataByService.values.sumOf { it.size / 16 }
+            // Update totals (using merged data)
+            val contextBlocksRead = serviceBlockDataMap.values.sumOf { it.size }
             totalBlocksRead += contextBlocksRead
-            totalServicesProcessed += blockDataByService.size
+            totalServicesProcessed += serviceBlockDataMap.size
 
             // Build context-specific results
             val contextResult = buildString {
                 appendLine("System Context ${contextIndex + 1} ($systemCodeHex):")
                 appendLine("  Blocks read: $contextBlocksRead")
-                appendLine("  Services processed: ${blockDataByService.size}")
+                appendLine("  Services processed: ${serviceBlockDataMap.size}")
                 appendLine()
 
-                blockDataByService.forEach { (service, blockData) ->
-                    val blockCount = blockData.size / 16
-                    appendLine("  Service ${service.code.toHexString()}: $blockCount blocks")
+                serviceBlockDataMap.forEach { (node, blockData) ->
+                    val service = node as? Service ?: return@forEach
+                    val blockCount = blockData.size
+                    val regularBlocks = blockData.keys.filter { it < 0x80 }.size
+                    val extraBlocks = blockData.keys.filter { it >= 0x80 }.size
+                    appendLine(
+                        "  Service ${service.code.toHexString()}: $blockCount blocks ($regularBlocks regular, $extraBlocks extra)"
+                    )
                     if (blockData.isNotEmpty()) {
-                        val previewData = blockData.take(64).toByteArray()
-                        appendLine("    Block data (first 64 bytes): ${previewData.toHexString()}")
-                        if (blockData.size > 64) {
-                            appendLine("    ... (${blockData.size - 64} more bytes)")
+                        // Show first few block numbers and their data
+                        val previewBlocks = blockData.entries.sortedBy { it.key }.take(4)
+                        previewBlocks.forEach { (blockNum, data) ->
+                            appendLine(
+                                "    Block 0x${blockNum.toString(16).uppercase().padStart(4, '0')}: ${data.toHexString()}"
+                            )
+                        }
+                        if (blockData.size > 4) {
+                            appendLine("    ... (${blockData.size - 4} more blocks)")
                         }
                     }
                     appendLine()

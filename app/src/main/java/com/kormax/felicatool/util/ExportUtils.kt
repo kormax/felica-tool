@@ -402,15 +402,14 @@ object ExportUtils {
                 }
 
                 // Data field - present as dict of 16-byte blocks by block number
-                systemContext.serviceBlockData[node]?.let { blockData ->
+                systemContext.serviceBlockData[node]?.let { blockDataMap ->
                     val dataJson = JSONObject()
 
-                    // Split the data into 16-byte blocks
-                    for (i in blockData.indices step BlockListElement.BLOCK_SIZE) {
-                        val endIndex = minOf(i + BlockListElement.BLOCK_SIZE, blockData.size)
-                        val block = blockData.sliceArray(i until endIndex)
-                        val blockNumber = i / BlockListElement.BLOCK_SIZE
-                        dataJson.put(blockNumber.toString(), block.toHexString())
+                    // Block data is now stored as Map<Int, ByteArray>
+                    for ((blockNumber, blockData) in blockDataMap.entries.sortedBy { it.key }) {
+                        // Use 4-character hex format for block numbers
+                        val blockKey = blockNumber.toString(16).uppercase().padStart(4, '0')
+                        dataJson.put(blockKey, blockData.toHexString())
                     }
 
                     nodeJson.put("data", dataJson)

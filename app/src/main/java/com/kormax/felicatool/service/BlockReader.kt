@@ -14,6 +14,11 @@ class BlockReader(
     private val errorLocationIndication: ErrorLocationIndication = ErrorLocationIndication.INDEX,
     private val maxBlocksPerRequest: Int = 15,
     private val maxServicesPerRequest: Int = 16,
+    private val extraBlocksByServiceCode: Map<String, Map<Int, String>> = emptyMap(),
+    /**
+     * Extra blocks to read for each service, keyed by service code hex string, value is map of
+     * block number to name
+     */
 ) {
 
     companion object {
@@ -29,10 +34,10 @@ class BlockReader(
     /**
      * Reads blocks from services that don't require authentication
      *
-     * @return BlockReadResult containing block data and discovered limits
+     * @return Map of Service to Map of block number to block data (16 bytes each)
      */
-    suspend fun readBlocksFromServices(services: List<Service>): Map<Service, ByteArray> {
-        val blockDataByService = mutableMapOf<Service, ByteArray>()
+    suspend fun readBlocksFromServices(services: List<Service>): Map<Service, Map<Int, ByteArray>> {
+        val blockDataByService = mutableMapOf<Service, MutableMap<Int, ByteArray>>()
         val blockCountByService = mutableMapOf<Service, Int>()
 
         // Initialize block count for each service (we'll discover this dynamically)
@@ -51,8 +56,7 @@ class BlockReader(
 
         var maxServices = maxServicesPerRequest
         var consecutiveFailures = 0
-
-        readLoop@ while (true) {
+        while (true) {
             val servicesToRead = mutableListOf<Service>()
             val blocksToRead = mutableListOf<BlockListElement>()
 
@@ -63,7 +67,7 @@ class BlockReader(
                 // Check if a service with the same number is already in the current request
                 // if (servicesToRead.map { it.number }.contains(service.number)) continue
 
-                val blocksAlreadyRead = blockDataByService[service]?.size?.div(BLOCK_SIZE) ?: 0
+                val blocksAlreadyRead = blockDataByService[service]?.size ?: 0
                 val maxBlocksForService = blockCountByService[service] ?: Int.MAX_VALUE
 
                 if (blocksAlreadyRead >= maxBlocksForService) continue
@@ -103,7 +107,7 @@ class BlockReader(
                     TAG,
                     "Circuit breaker triggered: $consecutiveFailures consecutive failures, stopping read operation",
                 )
-                break@readLoop
+                break
             }
 
             Log.d(
@@ -127,7 +131,9 @@ class BlockReader(
 
                 Log.d(
                     TAG,
-                    "Read response status: 0x${statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')} 0x${statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}",
+                    "Read response status: 0x${
+                        statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')
+                    } 0x${statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}",
                 )
 
                 if (statusFlag2 == ILLEGAL_BLOCK_LIST_SERVICE_ORDER) {
@@ -162,6 +168,7 @@ class BlockReader(
                                 "FLAG mode: Adjusting max blocks readable at once to $maxBlocks",
                             )
                         }
+
                         ErrorLocationIndication.INDEX -> {
                             // Adjust max block size and retry
                             val currentLen = blocksToRead.size
@@ -172,11 +179,14 @@ class BlockReader(
                             )
                             continue
                         }
+
                         ErrorLocationIndication.BITMASK -> {
                             val errorBitmask = statusFlag1.toInt() and 0xFF
                             Log.d(
                                 TAG,
-                                "BITMASK mode: Error bitmask = 0x${errorBitmask.toString(16).uppercase().padStart(2, '0')}",
+                                "BITMASK mode: Error bitmask = 0x${
+                                    errorBitmask.toString(16).uppercase().padStart(2, '0')
+                                }",
                             )
                             // Find the highest invalid block index from the bitmask
                             var highestInvalidIndex = -1
@@ -224,6 +234,7 @@ class BlockReader(
                             maxBlocks = 1
                             maxServices = 1
                         }
+
                         ErrorLocationIndication.INDEX -> {
                             // Adjust block count for the problematic service (indexed method)
                             val blockIndex = statusFlag1.toInt() and 0xFF
@@ -240,11 +251,14 @@ class BlockReader(
                                 "NUMBER mode: Adjusting blocks in service ${service} to ${blockCountByService[service]} (block index: $blockIndex)",
                             )
                         }
+
                         ErrorLocationIndication.BITMASK -> {
                             val errorBitmask = statusFlag1.toInt() and 0xFF
                             Log.d(
                                 TAG,
-                                "BITMASK mode: Error bitmask = 0x${errorBitmask.toString(16).uppercase().padStart(2, '0')}",
+                                "BITMASK mode: Error bitmask = 0x${
+                                    errorBitmask.toString(16).uppercase().padStart(2, '0')
+                                }",
                             )
 
                             // Process each bit in the bitmask
@@ -292,10 +306,11 @@ class BlockReader(
                     if (serviceIndex < servicesToRead.size && dataOffset < blockDataArray.size) {
                         val service = servicesToRead[serviceIndex]
                         val blockDataChunk = blockDataArray[dataOffset]
+                        val blockNumber = blockElement.blockNumber
 
-                        // Append to existing data for this service
-                        val existingData = blockDataByService[service] ?: byteArrayOf()
-                        blockDataByService[service] = existingData + blockDataChunk
+                        // Store block data by block number
+                        val serviceBlocks = blockDataByService.getOrPut(service) { mutableMapOf() }
+                        serviceBlocks[blockNumber] = blockDataChunk
 
                         dataOffset++
                     }
@@ -306,6 +321,68 @@ class BlockReader(
                 consecutiveFailures++
                 Log.e(TAG, "Error reading blocks", e)
                 break
+            }
+        }
+
+        return blockDataByService
+    }
+
+    suspend fun readExtraBlocksFromServices(
+        services: List<Service>
+    ): Map<Service, Map<Int, ByteArray>> {
+        val blockDataByService = mutableMapOf<Service, MutableMap<Int, ByteArray>>()
+
+        // Read extra blocks for services that have them configured
+        for (service in services) {
+            val extraBlocks =
+                extraBlocksByServiceCode[service.code.toHexString().uppercase()] ?: continue
+
+            if (extraBlocks.isEmpty()) continue
+
+            Log.d(TAG, "Reading ${extraBlocks.size} extra blocks for service $service")
+
+            // Read extra blocks one at a time to handle potential errors gracefully
+            for ((blockNumber, blockName) in extraBlocks.entries.sortedBy { it.key }) {
+                try {
+                    // Use extended format if block number > 255
+                    val extended = blockNumber > 255
+                    val blockElement =
+                        BlockListElement(
+                            serviceCodeListOrder = 0,
+                            blockNumber = blockNumber,
+                            accessMode = BlockListElement.AccessMode.NORMAL,
+                            extended = extended,
+                        )
+
+                    val readCommand =
+                        ReadWithoutEncryptionCommand(
+                            idm = target.idm,
+                            serviceCodes = arrayOf(service.code),
+                            blockListElements = arrayOf(blockElement),
+                        )
+
+                    val response = target.transceive(readCommand)
+
+                    if (response.isStatusSuccessful && response.blockData.isNotEmpty()) {
+                        val serviceBlocks = blockDataByService.getOrPut(service) { mutableMapOf() }
+                        serviceBlocks[blockNumber] = response.blockData[0]
+                        Log.d(
+                            TAG,
+                            "Successfully read extra block 0x${blockNumber.toString(16).uppercase()} ($blockName) for service $service",
+                        )
+                    } else {
+                        Log.d(
+                            TAG,
+                            "Failed to read extra block 0x${blockNumber.toString(16).uppercase()} ($blockName) for service $service: status=${response.statusFlag1.toUByte().toString(16)},${response.statusFlag2.toUByte().toString(16)}",
+                        )
+                    }
+                } catch (e: Exception) {
+                    Log.e(
+                        TAG,
+                        "Error reading extra block 0x${blockNumber.toString(16).uppercase()} ($blockName) for service $service",
+                        e,
+                    )
+                }
             }
         }
 

@@ -655,7 +655,7 @@ fun TreeNodeCard(
     val rotationAngle by
         animateFloatAsState(targetValue = if (isExpanded) 0f else 180f, label = "nodeRotation")
 
-    val indentWidth = (depth * 8).dp
+    val indentWidth = (depth * 6).dp
     val hasChildren = nodeInfo.hasChildren
 
     val providerIconResIds =
@@ -1043,31 +1043,58 @@ private fun NodeDetailsContent(nodeInfo: NodeInformation, context: SystemScanCon
     }
 
     // Block Data
-    context.serviceBlockData[node]?.let { blockData ->
-        if (blockData.isNotEmpty()) {
-            val blockCount = blockData.size / 16
-            CompactInfoRow(
-                label = "Block Data",
-                value = "$blockCount blocks (${blockData.size} bytes)",
-            )
+    context.serviceBlockData[node]?.let { blockDataMap ->
+        if (blockDataMap.isNotEmpty()) {
+            val blockCount = blockDataMap.size
+            val totalBytes = blockCount * 16
+            val regularBlocks = blockDataMap.keys.filter { it < 0x80 }.size
+            val extraBlocks = blockDataMap.keys.filter { it >= 0x80 }.size
 
-            // Display each block (16 bytes) on a separate line
-            for (blockIndex in 0 until blockCount) {
-                val blockStart = blockIndex * 16
-                val blockEnd = minOf(blockStart + 16, blockData.size)
-                val blockBytes = blockData.sliceArray(blockStart until blockEnd)
+            val blockInfo =
+                if (extraBlocks > 0) {
+                    "$blockCount blocks ($regularBlocks regular, $extraBlocks extra) ($totalBytes bytes)"
+                } else {
+                    "$blockCount blocks ($totalBytes bytes)"
+                }
+
+            CompactInfoRow(label = "Block Data", value = blockInfo)
+
+            // Look up extra block names from registry
+            val systemCodeHex = context.systemCode?.toHexString()?.uppercase()
+            val nodeCodeHex = (node as? Service)?.code?.toHexString()?.uppercase()
+            val extraBlockNames =
+                if (systemCodeHex != null && nodeCodeHex != null) {
+                    NodeRegistry.getExtraBlocks(systemCodeHex, nodeCodeHex)
+                } else {
+                    emptyMap()
+                }
+
+            // Display each block sorted by block number
+            for ((blockNumber, blockBytes) in blockDataMap.entries.sortedBy { it.key }) {
+                val blockNumberHex = blockNumber.toString(16).uppercase().padStart(4, '0')
+                val blockName = extraBlockNames[blockNumber]
+
+                // Show block name on separate line above block data if available
+                if (blockName != null) {
+                    Text(
+                        text = blockName,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 4.dp),
+                    )
+                }
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "${blockIndex.toString().padStart(3, '0')}:",
+                        text = "$blockNumberHex:",
                         style = MaterialTheme.typography.bodySmall,
                         fontFamily = FontFamily.Monospace,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.width(30.dp),
                     )
                     Text(
                         text = blockBytes.toHexString(),
