@@ -11546,5 +11546,26 @@
         ]
       }
     ]
+  },
+  "ffff": {
+    "name": "Unfused system",
+    "service_provider": "UNFUSED",
+    "cards": [
+      "UNFUSED"
+    ],
+    "nodes": [
+      {
+        "code": "0000feff",
+        "parent": null,
+        "name": null,
+        "service_provider": "UNFUSED",
+        "cards": [
+          "UNFUSED"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      }
+    ]
   }
 }

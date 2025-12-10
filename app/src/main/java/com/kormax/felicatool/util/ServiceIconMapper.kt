@@ -47,6 +47,7 @@ object ServiceIconMapper {
             "NICEPASS" to R.drawable.service_nicepass,
             "RYUTO" to R.drawable.service_ryuto,
             "IYOTETSU" to R.drawable.service_iyotetsu,
+            "UNFUSED" to R.drawable.service_unknown,
         )
 
     @DrawableRes
