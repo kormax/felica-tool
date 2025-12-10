@@ -266,6 +266,27 @@ fun MainScreen(
                                 )
                             },
                         )
+                        DropdownMenuItem(
+                            text = { Text("Force discover all blocks") },
+                            onClick = {
+                                onScanSettingsChange(
+                                    scanSettings.copy(
+                                        forceDiscoverAllBlocks =
+                                            !scanSettings.forceDiscoverAllBlocks
+                                    )
+                                )
+                            },
+                            trailingIcon = {
+                                Checkbox(
+                                    checked = scanSettings.forceDiscoverAllBlocks,
+                                    onCheckedChange = {
+                                        onScanSettingsChange(
+                                            scanSettings.copy(forceDiscoverAllBlocks = it)
+                                        )
+                                    },
+                                )
+                            },
+                        )
                     }
                 },
                 colors =

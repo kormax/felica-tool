@@ -222,6 +222,17 @@ data class CardScanStep(
                         icon = Icons.Default.Search,
                     )
                 )
+                if (scanSettings.forceDiscoverAllBlocks) {
+                    add(
+                        CardScanStep(
+                            id = "force_discover_blocks",
+                            title = "Force Discover Blocks",
+                            description =
+                                "Exhaustively search for blocks in readable services by iterating through all possible block numbers",
+                            icon = Icons.Default.Search,
+                        )
+                    )
+                }
                 add(
                     CardScanStep(
                         id = "get_area_information",

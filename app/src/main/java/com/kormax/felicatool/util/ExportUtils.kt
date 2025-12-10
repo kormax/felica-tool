@@ -347,7 +347,7 @@ object ExportUtils {
                 // Area attribute
                 val attributeJson = JSONObject()
                 attributeJson.put(
-                    "CanCreateSubArea",
+                    "can_create_sub_area",
                     node.attribute == AreaAttribute.CanCreateSubArea,
                 )
                 attributeJson.put("pin_required", false)
