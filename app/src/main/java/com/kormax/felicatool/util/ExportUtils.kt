@@ -4,8 +4,10 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import com.kormax.felicatool.BuildConfig
 import com.kormax.felicatool.felica.*
 import com.kormax.felicatool.service.CardScanContext
 import com.kormax.felicatool.service.CommandSupport
@@ -118,6 +120,16 @@ object ExportUtils {
     /** Generates JSON representation of the CardScanContext as a flat list organized per system */
     private fun generateFlatListJson(scanContext: CardScanContext): JSONObject {
         val json = JSONObject()
+
+        // Metadata
+        val metadataJson = JSONObject()
+        metadataJson.put("creation_time", java.lang.System.currentTimeMillis() / 1000L)
+        metadataJson.put("app_version", BuildConfig.VERSION_NAME)
+        metadataJson.put("android_sdk_version", Build.VERSION.SDK_INT)
+        metadataJson.put("android_version", Build.VERSION.RELEASE)
+        metadataJson.put("device_manufacturer", Build.MANUFACTURER)
+        metadataJson.put("device_model", Build.MODEL)
+        json.put("metadata", metadataJson)
 
         // Primary attributes from CardScanContext
         scanContext.primaryIdm?.let { json.put("primary_idm", it.toHexString().lowercase()) }
