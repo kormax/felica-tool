@@ -7,6 +7,8 @@ import com.kormax.felicatool.service.logging.CommunicationLoggedFeliCaTarget
 import com.kormax.felicatool.ui.CardScanStep
 import com.kormax.felicatool.ui.StepStatus
 import com.kormax.felicatool.util.IcTypeMapping
+import com.kormax.felicatool.util.NodeDefinitionType
+import com.kormax.felicatool.util.NodeRegistry
 import kotlin.time.TimeSource
 import kotlinx.coroutines.delay
 
@@ -62,6 +64,8 @@ data class CardScanContext(
 data class SystemScanContext(
     val systemCode: ByteArray? = null,
     val nodes: List<Node> = emptyList(),
+    /** Set of nodes that were populated from the registry (not discovered via search) */
+    val registryPopulatedNodes: Set<Node> = emptySet(),
     val nodeKeyVersions: Map<Node, KeyVersion> = emptyMap(),
     val nodeAesKeyVersions: Map<Node, KeyVersion> = emptyMap(),
     val nodeDesKeyVersions: Map<Node, KeyVersion> = emptyMap(),
@@ -1028,7 +1032,13 @@ class CardScanService {
                     populatedKnownFallbacks++
                 }
                 allDiscoveredNodes.addAll(knownNodes)
-                systemContextsToUpdate.add(systemContext.copy(nodes = knownNodes))
+                // Mark these nodes as registry-populated so they can be filtered later
+                systemContextsToUpdate.add(
+                    systemContext.copy(
+                        nodes = knownNodes,
+                        registryPopulatedNodes = knownNodes.toSet(),
+                    )
+                )
             }
         }
 
@@ -1138,49 +1148,33 @@ class CardScanService {
 
     private fun knownNodesForSystemCode(systemCode: ByteArray?): List<Node> {
         val hex = systemCode?.toHexString()?.uppercase() ?: return emptyList()
-        return when (hex) {
-            "12FC", // NDEF Type 3
-            "88B4" -> { // FeliCa Lite
-                listOf(
-                    System,
-                    Area.ROOT,
-                    Service.fromHexString("0900"),
-                    Service.fromHexString("0B00"),
-                )
+
+        // Check if NodeRegistry has data for this system code
+        if (NodeRegistry.isReady() && NodeRegistry.isSystemCodeKnown(hex)) {
+            val nodeDefinitions = NodeRegistry.getNodesForSystemCode(hex)
+            if (nodeDefinitions.isNotEmpty()) {
+                val nodes = mutableListOf<Node>()
+                for (definition in nodeDefinitions) {
+                    val node =
+                        when (definition.type) {
+                            NodeDefinitionType.AREA -> Area.fromHexString(definition.code)
+                            NodeDefinitionType.SERVICE -> Service.fromHexString(definition.code)
+                            else -> null
+                        }
+                    // Skip root area as it will be added at the beginning
+                    if (node != null && !(node is Area && node.isRoot)) {
+                        nodes.add(node)
+                    }
+                }
+                // Sort nodes by code (excluding System which will be prepended)
+                nodes.sortBy { it.number }
+                // Prepend System and root Area at the beginning
+                return listOf(System, Area.ROOT) + nodes
             }
-            "8008" -> { // Octopus
-                listOf(
-                    System,
-                    Area.ROOT,
-                    Service.fromHexString("1001"),
-                    Service.fromHexString("1201"),
-                    Service.fromHexString("1401"),
-                    Service.fromHexString("1701"),
-                    Service.fromHexString("0802"),
-                    Service.fromHexString("0a02"),
-                    Service.fromHexString("0803"),
-                    Service.fromHexString("0a03"),
-                    Service.fromHexString("0c04"),
-                    Service.fromHexString("0e04"),
-                    Service.fromHexString("0807"),
-                    Service.fromHexString("0a07"),
-                    Area.fromHexString("00083f0f"),
-                    Service.fromHexString("0809"),
-                    Service.fromHexString("0a09"),
-                    Service.fromHexString("080a"),
-                    Service.fromHexString("0a0a"),
-                    Service.fromHexString("080b"),
-                    Service.fromHexString("0a0b"),
-                    // Those 2 are present on newer cards only
-                    Service.fromHexString("0810"),
-                    Service.fromHexString("0b10"),
-                )
-            }
-            "FFFF" -> { // Unfused cards and Osaifu-Keitai
-                listOf(System, Area.ROOT)
-            }
-            else -> emptyList()
         }
+
+        // Fallback: for unknown system codes, return System and root Area
+        return listOf(System, Area.ROOT)
     }
 
     private suspend fun executeRequestService(target: FeliCaTarget): Pair<String, String> {
@@ -1239,8 +1233,28 @@ class CardScanService {
                     }
                 }
             }
-            // Update context with key version data
-            val updatedSystemContext = systemContext.copy(nodeKeyVersions = nodeKeyVersionsMap)
+            // Filter out registry-populated nodes that don't actually exist on the card
+            // Only filter nodes that were populated from registry, keep discovered nodes as-is
+            // Always keep System and root Area nodes as they are structural
+            val filteredNodes =
+                systemNodes.filter { node ->
+                    // Always keep System and root Area nodes
+                    if (node is System || (node is Area && node.isRoot)) {
+                        return@filter true
+                    }
+                    val isRegistryPopulated = systemContext.registryPopulatedNodes.contains(node)
+                    if (isRegistryPopulated) {
+                        // Registry nodes must have a key version to be kept
+                        nodeKeyVersionsMap.containsKey(node)
+                    } else {
+                        // Discovered nodes are always kept
+                        true
+                    }
+                }
+
+            // Update context with key version data and filtered nodes
+            val updatedSystemContext =
+                systemContext.copy(nodes = filteredNodes, nodeKeyVersions = nodeKeyVersionsMap)
             updatedSystemContexts.add(updatedSystemContext)
         }
 
@@ -1362,9 +1376,30 @@ class CardScanService {
                 }
             }
 
-            // Update context with key version data
+            // Filter out registry-populated nodes that don't actually exist on the card
+            // Only filter nodes that were populated from registry, keep discovered nodes as-is
+            // Always keep System and root Area nodes as they are structural
+            val filteredNodes =
+                nodes.filter { node ->
+                    // Always keep System and root Area nodes
+                    if (node is System || (node is Area && node.isRoot)) {
+                        return@filter true
+                    }
+                    val isRegistryPopulated = systemContext.registryPopulatedNodes.contains(node)
+                    if (isRegistryPopulated) {
+                        // Registry nodes must have either AES or DES key version to be kept
+                        nodeAesKeyVersionsMap.containsKey(node) ||
+                            nodeDesKeyVersionsMap.containsKey(node)
+                    } else {
+                        // Discovered nodes are always kept
+                        true
+                    }
+                }
+
+            // Update context with key version data and filtered nodes
             val updatedSystemContext =
                 systemContext.copy(
+                    nodes = filteredNodes,
                     nodeAesKeyVersions = nodeAesKeyVersionsMap,
                     nodeDesKeyVersions = nodeDesKeyVersionsMap,
                     encryptionIdentifier = encryptionId,

@@ -94,6 +94,28 @@ object NodeRegistry {
     fun isReady(): Boolean = isInitialized.get()
 
     /**
+     * Gets all node definitions for a given system code.
+     *
+     * @param systemCode The system code (e.g., "88B4")
+     * @return List of node definitions for the system, or empty list if none found
+     */
+    fun getNodesForSystemCode(systemCode: String): List<NodeDefinition> {
+        val normalizedSystem = systemCode.uppercase()
+        return definitions[normalizedSystem] ?: emptyList()
+    }
+
+    /**
+     * Checks if a system code is known in the database.
+     *
+     * @param systemCode The system code (e.g., "88B4")
+     * @return true if the system code exists in the database
+     */
+    fun isSystemCodeKnown(systemCode: String): Boolean {
+        val normalizedSystem = systemCode.uppercase()
+        return definitions.containsKey(normalizedSystem)
+    }
+
+    /**
      * Gets the extra blocks defined for a node in a given system. Extra blocks are hidden blocks
      * stashed at the end of the block number space.
      *
