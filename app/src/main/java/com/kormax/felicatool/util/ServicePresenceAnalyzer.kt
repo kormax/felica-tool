@@ -74,7 +74,7 @@ object ServicePresenceAnalyzer {
         return context.nodes
             .filterIsInstance<Area>()
             .filter { candidate -> node.belongsTo(candidate) }
-            .maxByOrNull { it.number }
+            .minByOrNull { it.endNumber - it.number }
     }
 
     private fun findParentArea(area: Area, context: SystemScanContext): Area? {

@@ -74,21 +74,65 @@ object NodeRegistry {
             return emptySet()
         }
 
-        val exactParentMatches =
-            normalizedParent?.let { parent -> matchingNodes.filter { it.parent == parent } }
-                ?: emptyList()
-
-        return when {
-            exactParentMatches.isNotEmpty() ->
-                exactParentMatches.flatMap { it.serviceProviders }.toSet()
-            normalizedParent == null -> matchingNodes.flatMap { it.serviceProviders }.toSet()
-            else ->
-                matchingNodes
-                    .filter { it.parent == null }
-                    .ifEmpty { matchingNodes }
-                    .flatMap { it.serviceProviders }
-                    .toSet()
+        // If no parent provided, return all matching providers
+        if (normalizedParent == null) {
+            return matchingNodes.flatMap { it.serviceProviders }.toSet()
         }
+
+        // Try exact parent match first
+        val exactParentMatches = matchingNodes.filter { it.parent == normalizedParent }
+        if (exactParentMatches.isNotEmpty()) {
+            return exactParentMatches.flatMap { it.serviceProviders }.toSet()
+        }
+
+        // Check if the provided parent is an ancestor of any matching node's parent
+        // by tracing up the parent chain in the definitions
+        val ancestorMatches =
+            matchingNodes.filter { definition ->
+                definition.parent != null &&
+                    isAncestorOf(nodes, normalizedParent, definition.parent)
+            }
+        if (ancestorMatches.isNotEmpty()) {
+            return ancestorMatches.flatMap { it.serviceProviders }.toSet()
+        }
+
+        // Check if any matching node's defined parent is an ancestor of the provided parent
+        // This handles cases where the card has a more specific parent than defined
+        val descendantMatches =
+            matchingNodes.filter { definition ->
+                definition.parent != null &&
+                    isAncestorOf(nodes, definition.parent, normalizedParent)
+            }
+        if (descendantMatches.isNotEmpty()) {
+            return descendantMatches.flatMap { it.serviceProviders }.toSet()
+        }
+
+        // Fall back to nodes with null parent if any, otherwise return empty
+        // (don't return all providers when parent doesn't match)
+        return matchingNodes.filter { it.parent == null }.flatMap { it.serviceProviders }.toSet()
+    }
+
+    /**
+     * Checks if potentialAncestor is an ancestor of targetCode in the node hierarchy. Traces up
+     * from targetCode through parent links to see if potentialAncestor is reached.
+     */
+    private fun isAncestorOf(
+        nodes: List<NodeDefinition>,
+        potentialAncestor: String,
+        targetCode: String,
+    ): Boolean {
+        var currentCode: String? = targetCode
+        val visited = mutableSetOf<String>()
+
+        while (currentCode != null && currentCode !in visited) {
+            if (currentCode == potentialAncestor) {
+                return true
+            }
+            visited.add(currentCode)
+            // Find the node definition for currentCode and get its parent
+            currentCode = nodes.find { it.code == currentCode }?.parent
+        }
+        return false
     }
 
     fun isReady(): Boolean = isInitialized.get()
@@ -173,7 +217,10 @@ object NodeRegistry {
             for (index in 0 until nodesArray.length()) {
                 val nodeObject = nodesArray.optJSONObject(index) ?: continue
                 val code = nodeObject.optString("code").takeIf { it.isNotBlank() } ?: continue
-                val parent = nodeObject.optString("parent").takeIf { nodeObject.has("parent") }
+                val parent =
+                    nodeObject.optString("parent").takeIf {
+                        nodeObject.has("parent") && !nodeObject.isNull("parent") && it.isNotBlank()
+                    }
                 val name =
                     nodeObject.optString("name").takeIf {
                         nodeObject.has("name") &&
