@@ -33,7 +33,6 @@ object ServiceIconMapper {
             "OKICA" to R.drawable.service_okica,
             "PASMO" to R.drawable.service_pasmo,
             "RAKUTEN_EDY" to R.drawable.service_rakuten_edy,
-            "RAPICA" to R.drawable.service_rapica,
             "SAPICA" to R.drawable.service_sapica,
             "SHENZEN_TONG" to R.drawable.service_shenzen_tong,
             "SUGOCA" to R.drawable.service_sugoca,
@@ -47,6 +46,13 @@ object ServiceIconMapper {
             "NICEPASS" to R.drawable.service_nicepass,
             "RYUTO" to R.drawable.service_ryuto,
             "IYOTETSU" to R.drawable.service_iyotetsu,
+            "HANICA" to R.drawable.service_hanica,
+            "IWASAKI" to R.drawable.service_iwasaki,
+            "RAPICA" to R.drawable.service_rapica,
+            "KAGOSHIMA" to R.drawable.service_kagoshima,
+            "RANDEN" to R.drawable.service_randen,
+            "KITAMI_BUS" to R.drawable.service_kitami_bus,
+            "ITAPPY" to R.drawable.service_itappy,
             "UNFUSED" to R.drawable.service_unknown,
         )
 
