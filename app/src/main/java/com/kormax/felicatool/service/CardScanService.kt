@@ -1,5 +1,6 @@
 package com.kormax.felicatool.service
 
+import android.nfc.TagLostException
 import android.util.Log
 import com.kormax.felicatool.felica.*
 import com.kormax.felicatool.service.logging.CommunicationLogEntry
@@ -86,8 +87,7 @@ data class SystemScanContext(
 class CardScanService {
 
     companion object {
-        const val PRESENCE_CHECK_FAILURE_MESSAGE =
-            "Card not responding after presence checks (Request Response/polling) - scan terminated"
+        const val CARD_LOST_MESSAGE = "Card lost during scan - scan terminated"
     }
 
     // Context to store discovered nodes across steps
@@ -266,13 +266,28 @@ class CardScanService {
             var presenceVerified = false
 
             // Try up to 3 attempts
-            for (attempt in 1..5) {
+            for (attempt in 1..3) {
                 try {
                     ensureCardPresence(target, step.id)
                     presenceVerified = true
                     break
                 } catch (e: Exception) {
+                    val tagLostForGood =
+                        when (e) {
+                            is TagLostException -> false
+                            is SecurityException ->
+                                e.message?.contains("out of date", ignoreCase = true) == true
+                            else -> true
+                        }
                     lastException = e
+                    if (tagLostForGood) {
+                        Log.w(
+                            "CardScanService",
+                            "Card lost during presence check for step ${step.id}",
+                            e,
+                        )
+                        break
+                    }
                     Log.w(
                         "CardScanService",
                         "Card presence check attempt $attempt failed for step ${step.id}",
@@ -287,12 +302,12 @@ class CardScanService {
             if (!presenceVerified) {
                 Log.e(
                     "CardScanService",
-                    "Card presence check failed after 3 attempts for step ${step.id}",
+                    "Card presence check failed for step ${step.id}",
                     lastException,
                 )
                 return step.copy(
                     status = StepStatus.ERROR,
-                    errorMessage = PRESENCE_CHECK_FAILURE_MESSAGE,
+                    errorMessage = CARD_LOST_MESSAGE,
                     duration = kotlin.time.Duration.ZERO,
                 )
             }
@@ -459,11 +474,11 @@ class CardScanService {
         } catch (e: Exception) {
             Log.e("CardScanService", "Error executing step ${step.id}", e)
 
-            // Mark command as unsupported if it fails
-            updateCommandSupport(step.id, CommandSupport.UNSUPPORTED)
-
             // Calculate execution duration even for errors
             val duration = startTime.elapsedNow()
+
+            // Mark command as unsupported if it fails
+            updateCommandSupport(step.id, CommandSupport.UNSUPPORTED)
 
             return step.copy(
                 status = StepStatus.ERROR,

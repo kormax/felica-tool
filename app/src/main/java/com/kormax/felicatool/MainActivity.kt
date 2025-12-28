@@ -157,6 +157,8 @@ class MainActivity : ComponentActivity() {
 
             lifecycleScope.launch {
                 try {
+                    var terminalErrorMessage: String? = null
+
                     // Perform all NFC operations on IO dispatcher
                     withContext(Dispatchers.IO) {
                         nfcF.connect()
@@ -190,13 +192,26 @@ class MainActivity : ComponentActivity() {
                             withContext(Dispatchers.Main) {
                                 steps = steps.toMutableList().apply { set(i, updatedStep) }
                             }
+
+                            if (
+                                updatedStep.status == StepStatus.ERROR &&
+                                    (updatedStep.errorMessage == CardScanService.CARD_LOST_MESSAGE)
+                            ) {
+                                terminalErrorMessage = updatedStep.errorMessage
+                                break
+                            }
                         }
 
                         nfcF.close()
                     }
 
                     // Update UI on main thread
-                    statusMessage = "Card scanning completed!"
+                    if (terminalErrorMessage != null) {
+                        statusMessage = terminalErrorMessage!!
+                        isCardPresent = false
+                    } else {
+                        statusMessage = "Card scanning completed!"
+                    }
                 } catch (e: Exception) {
                     Log.e("FeliCa", "Error reading FeliCa card", e)
                     statusMessage = "Error reading FeliCa card: ${e.message}"
