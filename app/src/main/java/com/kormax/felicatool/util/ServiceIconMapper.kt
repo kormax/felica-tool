@@ -53,6 +53,14 @@ object ServiceIconMapper {
             "RANDEN" to R.drawable.service_randen,
             "KITAMI_BUS" to R.drawable.service_kitami_bus,
             "ITAPPY" to R.drawable.service_itappy,
+            "NICOPA" to R.drawable.service_nicopa,
+            "KURURU" to R.drawable.service_kururu,
+            "DESUCA" to R.drawable.service_desuca,
+            "ICA" to R.drawable.service_ica,
+            "CICA" to R.drawable.service_cica,
+            "TSUKICA" to R.drawable.service_tsukica,
+            "SHIKOKU" to R.drawable.service_shikoku,
+            "ECOMYCA" to R.drawable.service_ecomyca,
             "UNFUSED" to R.drawable.service_unknown,
         )
 
