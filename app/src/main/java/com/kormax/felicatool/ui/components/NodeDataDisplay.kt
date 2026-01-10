@@ -838,6 +838,22 @@ fun TreeNodeCard(
                         }
                     }
 
+                    // Show VLPS chip if Value-Limited Purse Service is enabled for this service
+                    if (node is Service) {
+                        context.nodeValueLimitedPurseProperties[node]?.let { purseProperty ->
+                            if (purseProperty.enabled) {
+                                AttributeChip("VLPS", isInfo = true)
+                            }
+                        }
+
+                        // Show MAC chip if MAC Communication is enabled for this service
+                        context.nodeMacCommunicationProperties[node]?.let { macProperty ->
+                            if (macProperty.enabled) {
+                                AttributeChip("MAC", isInfo = true)
+                            }
+                        }
+                    }
+
                     // Area and System attribute chips (below the main text) - only remaining
                     // attributes
                     if (node !is Service) {
@@ -1028,23 +1044,12 @@ private fun NodeDetailsContent(nodeInfo: NodeInformation, context: SystemScanCon
         }
     }
 
-    // Properties
+    // Properties - Show VLPS details only if enabled (chip is shown in header)
     context.nodeValueLimitedPurseProperties[node]?.let { purseProperty ->
-        CompactInfoRow(
-            label = "Value-Limited Purse",
-            value = if (purseProperty.enabled) "Enabled" else "Disabled",
-        )
         if (purseProperty.enabled) {
-            CompactInfoRow(label = "Upper Limit", value = purseProperty.upperLimit.toString())
-            CompactInfoRow(label = "Lower Limit", value = purseProperty.lowerLimit.toString())
+            CompactInfoRow(label = "VLPS Upper Limit", value = purseProperty.upperLimit.toString())
+            CompactInfoRow(label = "VLPS Lower Limit", value = purseProperty.lowerLimit.toString())
         }
-    }
-
-    context.nodeMacCommunicationProperties[node]?.let { macProperty ->
-        CompactInfoRow(
-            label = "MAC Communication",
-            value = if (macProperty.enabled) "Enabled" else "Disabled",
-        )
     }
 
     // Block Data
@@ -1425,8 +1430,8 @@ private fun hasNodeDetails(node: Node, context: SystemScanContext): Boolean {
     return context.nodeBlockCounts[node] != null ||
         context.nodeAssignedBlockCounts[node] != null ||
         context.nodeFreeBlockCounts[node] != null ||
-        context.nodeValueLimitedPurseProperties[node] != null ||
-        context.nodeMacCommunicationProperties[node] != null ||
+        // Only check VLPS properties for services, and only if enabled (since chip shows in header)
+        (node is Service && context.nodeValueLimitedPurseProperties[node]?.enabled == true) ||
         context.serviceBlockData[node] != null ||
         (node is System && (context.idm != null || context.systemStatus != null))
 }
