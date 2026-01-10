@@ -61,6 +61,11 @@ object ServiceIconMapper {
             "TSUKICA" to R.drawable.service_tsukica,
             "SHIKOKU" to R.drawable.service_shikoku,
             "ECOMYCA" to R.drawable.service_ecomyca,
+            "ODECA" to R.drawable.service_odeca,
+            "KARTU_MULTI_TRIP" to R.drawable.service_kartu_multi_trip,
+            "SETAMARU" to R.drawable.service_setamaru,
+            "SAITAMA_RAILWAY" to R.drawable.service_saitama_railway,
+            "NANKAI" to R.drawable.service_nankai,
             "UNFUSED" to R.drawable.service_unknown,
         )
 

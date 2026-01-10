@@ -3,11 +3,16 @@
     "name": "CJRC Standard",
     "service_provider": "CJRC",
     "cards": [
+      "AKICA",
       "AOPASS",
       "HAYAKAKEN",
       "ICOCA",
+      "ICOCA_AINOKAZE",
+      "ICOCA_FUKUI",
+      "ICOCA_ISHIKAWA",
       "ICOCA_SHIKOKU",
       "ICSCA",
+      "IGUCA",
       "KITACA",
       "KURURU_NEW",
       "MANACA",
@@ -16,11 +21,13 @@
       "MANACA_USTAR",
       "NIMOCA",
       "NIMOCA_ICAS",
+      "NIMOCA_KUMAMOTO",
       "NIMOCA_TSUTSU",
       "PASMO",
       "SUGOCA",
       "SUGOCA_MONO",
       "SUICA",
+      "SUICA_MONO",
       "TOICA",
       "TOTRA"
     ],
@@ -31,11 +38,16 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -44,11 +56,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -63,11 +77,16 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -76,11 +95,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -95,11 +116,16 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -108,11 +134,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -127,17 +155,32 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "PASMO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
         "mediums": [
           "CARD",
           "MOBILE"
+        ]
+      },
+      {
+        "code": "0018ff1d",
+        "parent": "c017ff7f",
+        "name": null,
+        "service_provider": "TOICA",
+        "cards": [
+          "TOICA"
+        ],
+        "mediums": [
+          "CARD"
         ]
       },
       {
@@ -184,7 +227,8 @@
         "service_provider": "CJRC",
         "cards": [
           "PASMO",
-          "SUICA"
+          "SUICA",
+          "SUICA_MONO"
         ],
         "mediums": [
           "CARD",
@@ -198,6 +242,9 @@
         "service_provider": "CJRC",
         "cards": [
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
           "MANACA",
@@ -217,6 +264,9 @@
         "service_provider": "ICOCA",
         "cards": [
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU"
         ],
         "mediums": [
@@ -242,11 +292,16 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -255,11 +310,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -274,11 +331,16 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -287,11 +349,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -306,9 +370,12 @@
         "name": null,
         "service_provider": "SUICA",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "SUICA",
+          "SUICA_MONO",
           "TOTRA"
         ],
         "mediums": [
@@ -335,7 +402,8 @@
         "service_provider": "CJRC",
         "cards": [
           "PASMO",
-          "SUICA"
+          "SUICA",
+          "SUICA_MONO"
         ],
         "mediums": [
           "CARD",
@@ -388,6 +456,7 @@
         "cards": [
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU"
         ],
         "mediums": [
@@ -426,7 +495,8 @@
         "service_provider": "CJRC",
         "cards": [
           "PASMO",
-          "SUICA"
+          "SUICA",
+          "SUICA_MONO"
         ],
         "mediums": [
           "CARD",
@@ -451,7 +521,9 @@
         "name": null,
         "service_provider": "SUICA_PLUS",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "TOTRA"
         ],
@@ -465,7 +537,9 @@
         "name": null,
         "service_provider": "SUICA_PLUS",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "TOTRA"
         ],
@@ -480,6 +554,9 @@
         "service_provider": "ICOCA",
         "cards": [
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU"
         ],
         "mediums": [
@@ -532,9 +609,11 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -543,11 +622,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOTRA"
         ],
         "mediums": [
@@ -561,11 +642,16 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -574,11 +660,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -593,11 +681,16 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -606,11 +699,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -625,9 +720,12 @@
         "name": null,
         "service_provider": "SUICA",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "SUICA",
+          "SUICA_MONO",
           "TOTRA"
         ],
         "mediums": [
@@ -654,7 +752,8 @@
         "service_provider": "CJRC",
         "cards": [
           "PASMO",
-          "SUICA"
+          "SUICA",
+          "SUICA_MONO"
         ],
         "mediums": [
           "CARD",
@@ -707,6 +806,7 @@
         "cards": [
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU"
         ],
         "mediums": [
@@ -733,7 +833,8 @@
         "service_provider": "CJRC",
         "cards": [
           "PASMO",
-          "SUICA"
+          "SUICA",
+          "SUICA_MONO"
         ],
         "mediums": [
           "CARD",
@@ -758,7 +859,9 @@
         "name": null,
         "service_provider": "SUICA_PLUS",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "TOTRA"
         ],
@@ -772,7 +875,9 @@
         "name": null,
         "service_provider": "SUICA_PLUS",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "TOTRA"
         ],
@@ -786,7 +891,9 @@
         "name": null,
         "service_provider": "SUICA_PLUS",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "TOTRA"
         ],
@@ -801,6 +908,9 @@
         "service_provider": "ICOCA",
         "cards": [
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU"
         ],
         "mediums": [
@@ -866,7 +976,9 @@
         "name": null,
         "service_provider": "SUICA_PLUS",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "TOTRA"
         ],
@@ -880,11 +992,16 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -893,11 +1010,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -912,11 +1031,16 @@
         "name": "CJRC usage history",
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -925,11 +1049,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -944,11 +1070,16 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -957,11 +1088,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -976,7 +1109,9 @@
         "name": null,
         "service_provider": "SUICA_PLUS",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "TOTRA"
         ],
@@ -990,11 +1125,16 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -1003,11 +1143,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -1022,7 +1164,9 @@
         "name": null,
         "service_provider": "SUICA_PLUS",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "TOTRA"
         ],
@@ -1036,11 +1180,16 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -1049,11 +1198,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -1068,7 +1219,9 @@
         "name": null,
         "service_provider": "SUICA_PLUS",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "TOTRA"
         ],
@@ -1082,11 +1235,16 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -1095,11 +1253,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -1115,6 +1275,9 @@
         "service_provider": "ICOCA",
         "cards": [
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU"
         ],
         "mediums": [
@@ -1131,6 +1294,7 @@
           "HAYAKAKEN",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "SUGOCA",
           "SUGOCA_MONO"
@@ -1169,11 +1333,16 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -1182,11 +1351,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -1201,11 +1372,16 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -1214,11 +1390,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -1233,11 +1411,16 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -1246,11 +1429,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -1265,17 +1450,32 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "PASMO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
         "mediums": [
           "CARD",
           "MOBILE"
+        ]
+      },
+      {
+        "code": "4818",
+        "parent": "0018ff1d",
+        "name": null,
+        "service_provider": "TOICA",
+        "cards": [
+          "TOICA"
+        ],
+        "mediums": [
+          "CARD"
         ]
       },
       {
@@ -1297,7 +1497,8 @@
         "service_provider": "CJRC",
         "cards": [
           "PASMO",
-          "SUICA"
+          "SUICA",
+          "SUICA_MONO"
         ],
         "mediums": [
           "CARD",
@@ -1311,6 +1512,9 @@
         "service_provider": "ICOCA",
         "cards": [
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU"
         ],
         "mediums": [
@@ -1338,6 +1542,7 @@
         "cards": [
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU"
         ],
         "mediums": [
@@ -1353,6 +1558,7 @@
           "HAYAKAKEN",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "SUGOCA",
           "SUGOCA_MONO"
@@ -1393,7 +1599,8 @@
         "service_provider": "CJRC",
         "cards": [
           "PASMO",
-          "SUICA"
+          "SUICA",
+          "SUICA_MONO"
         ],
         "mediums": [
           "CARD",
@@ -1430,7 +1637,9 @@
         "name": null,
         "service_provider": "SUICA_PLUS",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "TOTRA"
         ],
@@ -1444,7 +1653,9 @@
         "name": null,
         "service_provider": "SUICA_PLUS",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "TOTRA"
         ],
@@ -1497,11 +1708,16 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -1510,11 +1726,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -1529,11 +1747,16 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -1542,11 +1765,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -1561,11 +1786,16 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -1574,11 +1804,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -1594,6 +1826,9 @@
         "service_provider": "ICOCA",
         "cards": [
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU"
         ],
         "mediums": [
@@ -1621,6 +1856,7 @@
         "cards": [
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU"
         ],
         "mediums": [
@@ -1636,6 +1872,7 @@
           "HAYAKAKEN",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "SUGOCA",
           "SUGOCA_MONO"
@@ -1687,7 +1924,9 @@
         "name": null,
         "service_provider": "SUICA_PLUS",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "TOTRA"
         ],
@@ -1701,7 +1940,9 @@
         "name": null,
         "service_provider": "SUICA_PLUS",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "TOTRA"
         ],
@@ -1742,17 +1983,32 @@
         "name": "CJRC commuter pass info",
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "PASMO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
         "mediums": [
           "CARD",
           "MOBILE"
+        ]
+      },
+      {
+        "code": "4b18",
+        "parent": "0018ff1d",
+        "name": "CJRC commuter pass info",
+        "service_provider": "TOICA",
+        "cards": [
+          "TOICA"
+        ],
+        "mediums": [
+          "CARD"
         ]
       },
       {
@@ -1774,7 +2030,8 @@
         "service_provider": "CJRC",
         "cards": [
           "PASMO",
-          "SUICA"
+          "SUICA",
+          "SUICA_MONO"
         ],
         "mediums": [
           "CARD",
@@ -1800,7 +2057,8 @@
         "service_provider": "CJRC",
         "cards": [
           "PASMO",
-          "SUICA"
+          "SUICA",
+          "SUICA_MONO"
         ],
         "mediums": [
           "CARD",
@@ -1825,7 +2083,9 @@
         "name": null,
         "service_provider": "SUICA_PLUS",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "TOTRA"
         ],
@@ -1839,7 +2099,9 @@
         "name": null,
         "service_provider": "SUICA_PLUS",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "TOTRA"
         ],
@@ -1853,11 +2115,16 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -1866,11 +2133,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -1885,11 +2154,16 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -1898,11 +2172,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -1917,11 +2193,16 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -1930,11 +2211,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -1961,7 +2244,9 @@
         "name": null,
         "service_provider": "SUICA_PLUS",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "TOTRA"
         ],
@@ -1975,7 +2260,9 @@
         "name": null,
         "service_provider": "SUICA_PLUS",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "TOTRA"
         ],
@@ -2004,11 +2291,16 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -2017,11 +2309,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -2049,7 +2343,8 @@
         "service_provider": "CJRC",
         "cards": [
           "PASMO",
-          "SUICA"
+          "SUICA",
+          "SUICA_MONO"
         ],
         "mediums": [
           "CARD",
@@ -2063,6 +2358,9 @@
         "service_provider": "ICOCA",
         "cards": [
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU"
         ],
         "mediums": [
@@ -2091,6 +2389,7 @@
           "HAYAKAKEN",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "SUGOCA",
           "SUGOCA_MONO"
@@ -2143,7 +2442,8 @@
         "service_provider": "CJRC",
         "cards": [
           "PASMO",
-          "SUICA"
+          "SUICA",
+          "SUICA_MONO"
         ],
         "mediums": [
           "CARD",
@@ -2168,7 +2468,9 @@
         "name": null,
         "service_provider": "SUICA_PLUS",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "TOTRA"
         ],
@@ -2182,7 +2484,9 @@
         "name": null,
         "service_provider": "SUICA_PLUS",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "TOTRA"
         ],
@@ -2196,7 +2500,9 @@
         "name": null,
         "service_provider": "SUICA_PLUS",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "TOTRA"
         ],
@@ -2253,6 +2559,9 @@
         "service_provider": "ICOCA",
         "cards": [
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU"
         ],
         "mediums": [
@@ -2281,6 +2590,7 @@
           "HAYAKAKEN",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "SUGOCA",
           "SUGOCA_MONO"
@@ -2320,7 +2630,9 @@
         "name": null,
         "service_provider": "SUICA_PLUS",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "TOTRA"
         ],
@@ -2334,7 +2646,9 @@
         "name": null,
         "service_provider": "SUICA_PLUS",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "TOTRA"
         ],
@@ -2348,7 +2662,9 @@
         "name": null,
         "service_provider": "SUICA_PLUS",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "TOTRA"
         ],
@@ -2374,11 +2690,16 @@
         "name": "CJRC attributes",
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -2387,11 +2708,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -2419,7 +2742,8 @@
         "service_provider": "CJRC",
         "cards": [
           "PASMO",
-          "SUICA"
+          "SUICA",
+          "SUICA_MONO"
         ],
         "mediums": [
           "CARD",
@@ -2469,7 +2793,8 @@
         "service_provider": "CJRC",
         "cards": [
           "PASMO",
-          "SUICA"
+          "SUICA",
+          "SUICA_MONO"
         ],
         "mediums": [
           "CARD",
@@ -2512,11 +2837,16 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -2525,11 +2855,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -2544,7 +2876,9 @@
         "name": null,
         "service_provider": "SUICA_PLUS",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "TOTRA"
         ],
@@ -2558,11 +2892,16 @@
         "name": "CJRC ticket gate history",
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -2571,11 +2910,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -2590,7 +2931,9 @@
         "name": null,
         "service_provider": "SUICA_PLUS",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "TOTRA"
         ],
@@ -2604,11 +2947,16 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -2617,11 +2965,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -2636,11 +2986,16 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -2649,11 +3004,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -2668,11 +3025,16 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -2681,11 +3043,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -2700,11 +3064,15 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA_DO",
@@ -2727,11 +3095,16 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -2740,11 +3113,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -2759,19 +3134,26 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -2812,11 +3194,15 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA_DO",
@@ -2839,11 +3225,16 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -2852,11 +3243,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -2871,11 +3264,16 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -2884,11 +3282,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -2903,7 +3303,8 @@
         "name": null,
         "service_provider": "SUICA",
         "cards": [
-          "SUICA"
+          "SUICA",
+          "SUICA_MONO"
         ],
         "mediums": [
           "CARD"
@@ -2930,6 +3331,7 @@
         "cards": [
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU"
         ],
         "mediums": [
@@ -2968,7 +3370,8 @@
         "service_provider": "CJRC",
         "cards": [
           "PASMO",
-          "SUICA"
+          "SUICA",
+          "SUICA_MONO"
         ],
         "mediums": [
           "CARD",
@@ -2993,7 +3396,9 @@
         "name": null,
         "service_provider": "SUICA_PLUS",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "TOTRA"
         ],
@@ -3007,7 +3412,9 @@
         "name": null,
         "service_provider": "SUICA_PLUS",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "TOTRA"
         ],
@@ -3021,7 +3428,9 @@
         "name": null,
         "service_provider": "SUICA_PLUS",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "TOTRA"
         ],
@@ -3035,7 +3444,9 @@
         "name": null,
         "service_provider": "SUICA_PLUS",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "TOTRA"
         ],
@@ -3061,11 +3472,15 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA_DO",
@@ -3088,11 +3503,16 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -3101,11 +3521,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -3120,7 +3542,8 @@
         "name": null,
         "service_provider": "SUICA",
         "cards": [
-          "SUICA"
+          "SUICA",
+          "SUICA_MONO"
         ],
         "mediums": [
           "CARD"
@@ -3147,6 +3570,7 @@
         "cards": [
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU"
         ],
         "mediums": [
@@ -3184,7 +3608,9 @@
         "name": null,
         "service_provider": "SUICA_PLUS",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "TOTRA"
         ],
@@ -3198,7 +3624,9 @@
         "name": null,
         "service_provider": "SUICA_PLUS",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "TOTRA"
         ],
@@ -3212,7 +3640,9 @@
         "name": null,
         "service_provider": "SUICA_PLUS",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "TOTRA"
         ],
@@ -3238,11 +3668,16 @@
         "name": "CJRC entrance station info",
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_AINOKAZE",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA",
@@ -3251,11 +3686,13 @@
           "MANACA_USTAR",
           "NIMOCA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
           "PASMO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOICA",
           "TOTRA"
         ],
@@ -3283,7 +3720,8 @@
         "service_provider": "CJRC",
         "cards": [
           "PASMO",
-          "SUICA"
+          "SUICA",
+          "SUICA_MONO"
         ],
         "mediums": [
           "CARD",
@@ -3296,7 +3734,9 @@
         "name": null,
         "service_provider": "SUICA_PLUS",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "TOTRA"
         ],
@@ -3310,11 +3750,15 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA_DO",
@@ -3364,11 +3808,15 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA_DO",
@@ -3418,11 +3866,15 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA_DO",
@@ -3445,11 +3897,15 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA_DO",
@@ -3472,11 +3928,15 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA_DO",
@@ -3499,11 +3959,15 @@
         "name": null,
         "service_provider": "CJRC",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICOCA",
+          "ICOCA_FUKUI",
+          "ICOCA_ISHIKAWA",
           "ICOCA_SHIKOKU",
           "ICSCA",
+          "IGUCA",
           "KITACA",
           "KURURU_NEW",
           "MANACA_DO",
@@ -3908,6 +4372,111 @@
         "service_provider": "NICEPASS",
         "cards": [
           "NICEPASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      }
+    ]
+  },
+  "04c7": {
+    "name": "nanaco",
+    "service_provider": "NANACO",
+    "cards": [
+      "NANACO"
+    ],
+    "nodes": [
+      {
+        "code": "0000feff",
+        "parent": null,
+        "name": null,
+        "service_provider": "NANACO",
+        "cards": [
+          "NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0001ff01",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "NANACO",
+        "cards": [
+          "NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0801",
+        "parent": "0001ff01",
+        "name": null,
+        "service_provider": "NANACO",
+        "cards": [
+          "NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0b01",
+        "parent": "0001ff01",
+        "name": null,
+        "service_provider": "NANACO",
+        "cards": [
+          "NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4801",
+        "parent": "0001ff01",
+        "name": null,
+        "service_provider": "NANACO",
+        "cards": [
+          "NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4b01",
+        "parent": "0001ff01",
+        "name": null,
+        "service_provider": "NANACO",
+        "cards": [
+          "NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8801",
+        "parent": "0001ff01",
+        "name": null,
+        "service_provider": "NANACO",
+        "cards": [
+          "NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8b01",
+        "parent": "0001ff01",
+        "name": null,
+        "service_provider": "NANACO",
+        "cards": [
+          "NANACO"
         ],
         "mediums": [
           "CARD"
@@ -4549,6 +5118,864 @@
         "service_provider": "OCTOPUS",
         "cards": [
           "OCTOPUS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      }
+    ]
+  },
+  "8029": {
+    "name": "Saitama Railway",
+    "service_provider": "SAITAMA_RAILWAY",
+    "cards": [
+      "SAITAMA_RAILWAY"
+    ],
+    "nodes": [
+      {
+        "code": "0000feff",
+        "parent": null,
+        "name": null,
+        "service_provider": "SAITAMA_RAILWAY",
+        "cards": [
+          "SAITAMA_RAILWAY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0008bf0f",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "SAITAMA_RAILWAY",
+        "cards": [
+          "SAITAMA_RAILWAY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0010bf17",
+        "parent": "c00fff7f",
+        "name": null,
+        "service_provider": "SAITAMA_RAILWAY",
+        "cards": [
+          "SAITAMA_RAILWAY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0800",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "SAITAMA_RAILWAY",
+        "cards": [
+          "SAITAMA_RAILWAY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0810",
+        "parent": "0010bf17",
+        "name": null,
+        "service_provider": "SAITAMA_RAILWAY",
+        "cards": [
+          "SAITAMA_RAILWAY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0900",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "SAITAMA_RAILWAY",
+        "cards": [
+          "SAITAMA_RAILWAY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0a10",
+        "parent": "0010bf17",
+        "name": null,
+        "service_provider": "SAITAMA_RAILWAY",
+        "cards": [
+          "SAITAMA_RAILWAY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0c09",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "SAITAMA_RAILWAY",
+        "cards": [
+          "SAITAMA_RAILWAY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0f09",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "SAITAMA_RAILWAY",
+        "cards": [
+          "SAITAMA_RAILWAY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "1008",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "SAITAMA_RAILWAY",
+        "cards": [
+          "SAITAMA_RAILWAY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "1208",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "SAITAMA_RAILWAY",
+        "cards": [
+          "SAITAMA_RAILWAY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "1608",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "SAITAMA_RAILWAY",
+        "cards": [
+          "SAITAMA_RAILWAY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4000ff07",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "SAITAMA_RAILWAY",
+        "cards": [
+          "SAITAMA_RAILWAY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4800",
+        "parent": "4000ff07",
+        "name": null,
+        "service_provider": "SAITAMA_RAILWAY",
+        "cards": [
+          "SAITAMA_RAILWAY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4810",
+        "parent": "0010bf17",
+        "name": null,
+        "service_provider": "SAITAMA_RAILWAY",
+        "cards": [
+          "SAITAMA_RAILWAY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4a00",
+        "parent": "4000ff07",
+        "name": null,
+        "service_provider": "SAITAMA_RAILWAY",
+        "cards": [
+          "SAITAMA_RAILWAY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4a10",
+        "parent": "0010bf17",
+        "name": null,
+        "service_provider": "SAITAMA_RAILWAY",
+        "cards": [
+          "SAITAMA_RAILWAY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "5008",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "SAITAMA_RAILWAY",
+        "cards": [
+          "SAITAMA_RAILWAY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "5208",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "SAITAMA_RAILWAY",
+        "cards": [
+          "SAITAMA_RAILWAY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "5608",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "SAITAMA_RAILWAY",
+        "cards": [
+          "SAITAMA_RAILWAY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8800",
+        "parent": "4000ff07",
+        "name": null,
+        "service_provider": "SAITAMA_RAILWAY",
+        "cards": [
+          "SAITAMA_RAILWAY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8b00",
+        "parent": "4000ff07",
+        "name": null,
+        "service_provider": "SAITAMA_RAILWAY",
+        "cards": [
+          "SAITAMA_RAILWAY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8c10",
+        "parent": "0010bf17",
+        "name": null,
+        "service_provider": "SAITAMA_RAILWAY",
+        "cards": [
+          "SAITAMA_RAILWAY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8f10",
+        "parent": "0010bf17",
+        "name": null,
+        "service_provider": "SAITAMA_RAILWAY",
+        "cards": [
+          "SAITAMA_RAILWAY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "9008",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "SAITAMA_RAILWAY",
+        "cards": [
+          "SAITAMA_RAILWAY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "9208",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "SAITAMA_RAILWAY",
+        "cards": [
+          "SAITAMA_RAILWAY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "9608",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "SAITAMA_RAILWAY",
+        "cards": [
+          "SAITAMA_RAILWAY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c00fff7f",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "SAITAMA_RAILWAY",
+        "cards": [
+          "SAITAMA_RAILWAY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c808",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "SAITAMA_RAILWAY",
+        "cards": [
+          "SAITAMA_RAILWAY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c810",
+        "parent": "0010bf17",
+        "name": null,
+        "service_provider": "SAITAMA_RAILWAY",
+        "cards": [
+          "SAITAMA_RAILWAY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "ca08",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "SAITAMA_RAILWAY",
+        "cards": [
+          "SAITAMA_RAILWAY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "cb10",
+        "parent": "0010bf17",
+        "name": null,
+        "service_provider": "SAITAMA_RAILWAY",
+        "cards": [
+          "SAITAMA_RAILWAY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      }
+    ]
+  },
+  "802b": {
+    "name": "Setamaru",
+    "service_provider": "SETAMARU",
+    "cards": [
+      "SETAMARU"
+    ],
+    "nodes": [
+      {
+        "code": "0000feff",
+        "parent": null,
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0008bf0f",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0010bf17",
+        "parent": "c00fff7f",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0810",
+        "parent": "0010bf17",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0811",
+        "parent": "0010bf17",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0a10",
+        "parent": "0010bf17",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0a11",
+        "parent": "0010bf17",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0c09",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0f09",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "1008",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "1208",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "1608",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4000ff07",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4032bf32",
+        "parent": "c017ff7f",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4800",
+        "parent": "4000ff07",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4810",
+        "parent": "0010bf17",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4811",
+        "parent": "0010bf17",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4a00",
+        "parent": "4000ff07",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4a10",
+        "parent": "0010bf17",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4a11",
+        "parent": "0010bf17",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4c32",
+        "parent": "4032bf32",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4f32",
+        "parent": "4032bf32",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "5008",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "5208",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "5608",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8800",
+        "parent": "4000ff07",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8b00",
+        "parent": "4000ff07",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8c10",
+        "parent": "0010bf17",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8f10",
+        "parent": "0010bf17",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "9008",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "9208",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "9608",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c00fff7f",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c017ff7f",
+        "parent": "c00fff7f",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c808",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c810",
+        "parent": "0010bf17",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "ca08",
+        "parent": "0008bf0f",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "cb10",
+        "parent": "0010bf17",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
         ],
         "mediums": [
           "CARD"
@@ -10219,9 +11646,12 @@
     "name": "Suica",
     "service_provider": "SUICA",
     "cards": [
+      "AKICA",
       "AOPASS",
+      "IGUCA",
       "KURURU_NEW",
       "SUICA",
+      "SUICA_MONO",
       "TOTRA"
     ],
     "nodes": [
@@ -10231,9 +11661,12 @@
         "name": null,
         "service_provider": "SUICA",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "SUICA",
+          "SUICA_MONO",
           "TOTRA"
         ],
         "mediums": [
@@ -10246,9 +11679,12 @@
         "name": null,
         "service_provider": "SUICA",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "SUICA",
+          "SUICA_MONO",
           "TOTRA"
         ],
         "mediums": [
@@ -10261,9 +11697,12 @@
         "name": null,
         "service_provider": "SUICA",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "SUICA",
+          "SUICA_MONO",
           "TOTRA"
         ],
         "mediums": [
@@ -10276,9 +11715,12 @@
         "name": null,
         "service_provider": "SUICA",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "SUICA",
+          "SUICA_MONO",
           "TOTRA"
         ],
         "mediums": [
@@ -10291,9 +11733,12 @@
         "name": null,
         "service_provider": "SUICA",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "SUICA",
+          "SUICA_MONO",
           "TOTRA"
         ],
         "mediums": [
@@ -10306,9 +11751,12 @@
         "name": null,
         "service_provider": "SUICA",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "SUICA",
+          "SUICA_MONO",
           "TOTRA"
         ],
         "mediums": [
@@ -10321,9 +11769,12 @@
         "name": null,
         "service_provider": "SUICA",
         "cards": [
+          "AKICA",
           "AOPASS",
+          "IGUCA",
           "KURURU_NEW",
           "SUICA",
+          "SUICA_MONO",
           "TOTRA"
         ],
         "mediums": [
@@ -11772,6 +13223,576 @@
       }
     ]
   },
+  "8e58": {
+    "name": "odeca",
+    "service_provider": "ODECA",
+    "cards": [
+      "ODECA"
+    ],
+    "nodes": [
+      {
+        "code": "0000feff",
+        "parent": null,
+        "name": null,
+        "service_provider": "ODECA",
+        "cards": [
+          "ODECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0080feff",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "ODECA",
+        "cards": [
+          "ODECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4080bf80",
+        "parent": "0080feff",
+        "name": null,
+        "service_provider": "ODECA",
+        "cards": [
+          "ODECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "40887f88",
+        "parent": "0080feff",
+        "name": null,
+        "service_provider": "ODECA",
+        "cards": [
+          "ODECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "40927f92",
+        "parent": "0080feff",
+        "name": null,
+        "service_provider": "ODECA",
+        "cards": [
+          "ODECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4880",
+        "parent": "4080bf80",
+        "name": null,
+        "service_provider": "ODECA",
+        "cards": [
+          "ODECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4888",
+        "parent": "40887f88",
+        "name": null,
+        "service_provider": "ODECA",
+        "cards": [
+          "ODECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4892",
+        "parent": "40927f92",
+        "name": null,
+        "service_provider": "ODECA",
+        "cards": [
+          "ODECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4a80",
+        "parent": "4080bf80",
+        "name": null,
+        "service_provider": "ODECA",
+        "cards": [
+          "ODECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4a88",
+        "parent": "40887f88",
+        "name": null,
+        "service_provider": "ODECA",
+        "cards": [
+          "ODECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4a92",
+        "parent": "40927f92",
+        "name": null,
+        "service_provider": "ODECA",
+        "cards": [
+          "ODECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4b80",
+        "parent": "4080bf80",
+        "name": null,
+        "service_provider": "ODECA",
+        "cards": [
+          "ODECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4b88",
+        "parent": "40887f88",
+        "name": null,
+        "service_provider": "ODECA",
+        "cards": [
+          "ODECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4b92",
+        "parent": "40927f92",
+        "name": null,
+        "service_provider": "ODECA",
+        "cards": [
+          "ODECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8089bf89",
+        "parent": "0080feff",
+        "name": null,
+        "service_provider": "ODECA",
+        "cards": [
+          "ODECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8880",
+        "parent": "4080bf80",
+        "name": null,
+        "service_provider": "ODECA",
+        "cards": [
+          "ODECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8a80",
+        "parent": "4080bf80",
+        "name": null,
+        "service_provider": "ODECA",
+        "cards": [
+          "ODECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8c89",
+        "parent": "8089bf89",
+        "name": null,
+        "service_provider": "ODECA",
+        "cards": [
+          "ODECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8e89",
+        "parent": "8089bf89",
+        "name": null,
+        "service_provider": "ODECA",
+        "cards": [
+          "ODECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8f89",
+        "parent": "8089bf89",
+        "name": null,
+        "service_provider": "ODECA",
+        "cards": [
+          "ODECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c08aff8a",
+        "parent": "0080feff",
+        "name": null,
+        "service_provider": "ODECA",
+        "cards": [
+          "ODECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c88a",
+        "parent": "c08aff8a",
+        "name": null,
+        "service_provider": "ODECA",
+        "cards": [
+          "ODECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "ca8a",
+        "parent": "c08aff8a",
+        "name": null,
+        "service_provider": "ODECA",
+        "cards": [
+          "ODECA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      }
+    ]
+  },
+  "8f18": {
+    "name": "Nankai",
+    "service_provider": "NANKAI",
+    "cards": [
+      "NANKAI"
+    ],
+    "nodes": [
+      {
+        "code": "0000feff",
+        "parent": null,
+        "name": null,
+        "service_provider": "NANKAI",
+        "cards": [
+          "NANKAI"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "00107f11",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "NANKAI",
+        "cards": [
+          "NANKAI"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "00203f20",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "NANKAI",
+        "cards": [
+          "NANKAI"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "00303f30",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "NANKAI",
+        "cards": [
+          "NANKAI"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "00403f40",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "NANKAI",
+        "cards": [
+          "NANKAI"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0810",
+        "parent": "00107f11",
+        "name": null,
+        "service_provider": "NANKAI",
+        "cards": [
+          "NANKAI"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0820",
+        "parent": "00203f20",
+        "name": null,
+        "service_provider": "NANKAI",
+        "cards": [
+          "NANKAI"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0830",
+        "parent": "00303f30",
+        "name": null,
+        "service_provider": "NANKAI",
+        "cards": [
+          "NANKAI"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0840",
+        "parent": "00403f40",
+        "name": null,
+        "service_provider": "NANKAI",
+        "cards": [
+          "NANKAI"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0a10",
+        "parent": "00107f11",
+        "name": null,
+        "service_provider": "NANKAI",
+        "cards": [
+          "NANKAI"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0b20",
+        "parent": "00203f20",
+        "name": null,
+        "service_provider": "NANKAI",
+        "cards": [
+          "NANKAI"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0b30",
+        "parent": "00303f30",
+        "name": null,
+        "service_provider": "NANKAI",
+        "cards": [
+          "NANKAI"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0b40",
+        "parent": "00403f40",
+        "name": null,
+        "service_provider": "NANKAI",
+        "cards": [
+          "NANKAI"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0c11",
+        "parent": "00107f11",
+        "name": null,
+        "service_provider": "NANKAI",
+        "cards": [
+          "NANKAI"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0f11",
+        "parent": "00107f11",
+        "name": null,
+        "service_provider": "NANKAI",
+        "cards": [
+          "NANKAI"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4810",
+        "parent": "00107f11",
+        "name": null,
+        "service_provider": "NANKAI",
+        "cards": [
+          "NANKAI"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4811",
+        "parent": "00107f11",
+        "name": null,
+        "service_provider": "NANKAI",
+        "cards": [
+          "NANKAI"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4b10",
+        "parent": "00107f11",
+        "name": null,
+        "service_provider": "NANKAI",
+        "cards": [
+          "NANKAI"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4b11",
+        "parent": "00107f11",
+        "name": null,
+        "service_provider": "NANKAI",
+        "cards": [
+          "NANKAI"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8c10",
+        "parent": "00107f11",
+        "name": null,
+        "service_provider": "NANKAI",
+        "cards": [
+          "NANKAI"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8f10",
+        "parent": "00107f11",
+        "name": null,
+        "service_provider": "NANKAI",
+        "cards": [
+          "NANKAI"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c810",
+        "parent": "00107f11",
+        "name": null,
+        "service_provider": "NANKAI",
+        "cards": [
+          "NANKAI"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "cb10",
+        "parent": "00107f11",
+        "name": null,
+        "service_provider": "NANKAI",
+        "cards": [
+          "NANKAI"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      }
+    ]
+  },
   "8fc1": {
     "name": "OKICA",
     "service_provider": "OKICA",
@@ -13104,6 +15125,531 @@
       }
     ]
   },
+  "90b7": {
+    "name": "Kartu Multi Trip",
+    "service_provider": "KARTU_MULTI_TRIP",
+    "cards": [
+      "KARTU_MULTI_TRIP"
+    ],
+    "nodes": [
+      {
+        "code": "0000feff",
+        "parent": null,
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "00103f10",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "00203f20",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0030ff30",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "00403f40",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0050ff5c",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "01103f10",
+        "parent": "00103f10",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "01203f20",
+        "parent": "00203f20",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "01307f30",
+        "parent": "0030ff30",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "01403f40",
+        "parent": "00403f40",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0830",
+        "parent": "01307f30",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0840",
+        "parent": "01403f40",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0850",
+        "parent": "0050ff5c",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0851",
+        "parent": "0050ff5c",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0930",
+        "parent": "01307f30",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0950",
+        "parent": "0050ff5c",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0b30",
+        "parent": "01307f30",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0b50",
+        "parent": "0050ff5c",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0b51",
+        "parent": "0050ff5c",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0c20",
+        "parent": "01203f20",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0d20",
+        "parent": "01203f20",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0f20",
+        "parent": "01203f20",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "1010",
+        "parent": "01103f10",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "1210",
+        "parent": "01103f10",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "1310",
+        "parent": "01103f10",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "1710",
+        "parent": "01103f10",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4830",
+        "parent": "01307f30",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4850",
+        "parent": "0050ff5c",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4851",
+        "parent": "0050ff5c",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4950",
+        "parent": "0050ff5c",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4a30",
+        "parent": "01307f30",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4b50",
+        "parent": "0050ff5c",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8130ff30",
+        "parent": "0030ff30",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8830",
+        "parent": "8130ff30",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8850",
+        "parent": "0050ff5c",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8930",
+        "parent": "8130ff30",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8950",
+        "parent": "0050ff5c",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8b50",
+        "parent": "0050ff5c",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c830",
+        "parent": "8130ff30",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c850",
+        "parent": "0050ff5c",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c851",
+        "parent": "0050ff5c",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "cb30",
+        "parent": "8130ff30",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "cb50",
+        "parent": "0050ff5c",
+        "name": null,
+        "service_provider": "KARTU_MULTI_TRIP",
+        "cards": [
+          "KARTU_MULTI_TRIP"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      }
+    ]
+  },
   "927a": {
     "name": "Hayakaken",
     "service_provider": "HAYAKAKEN",
@@ -13522,9 +16068,11 @@
     "name": "FeliCa Networks Common Area",
     "service_provider": "FELICA_NETWORKS",
     "cards": [
+      "AKICA",
       "AOPASS",
       "HAYAKAKEN",
       "ICSCA",
+      "IGUCA",
       "IRUCA",
       "ITAPPY",
       "KUMAMON",
@@ -13536,6 +16084,7 @@
       "NANACO",
       "NICOPA",
       "NIMOCA_ICAS",
+      "NIMOCA_KUMAMOTO",
       "OKICA",
       "PASMO",
       "RAKUTEN_EDY",
@@ -13543,6 +16092,7 @@
       "SUGOCA",
       "SUGOCA_MONO",
       "SUICA",
+      "SUICA_MONO",
       "TOTRA",
       "WAON"
     ],
@@ -13553,9 +16103,11 @@
         "name": null,
         "service_provider": "FELICA_NETWORKS",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICSCA",
+          "IGUCA",
           "IRUCA",
           "ITAPPY",
           "KUMAMON",
@@ -13564,8 +16116,10 @@
           "MANACA_DO",
           "MANACA_PLAIN",
           "MANACA_USTAR",
+          "NANACO",
           "NICOPA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "OKICA",
           "PASMO",
           "RAKUTEN_EDY",
@@ -13573,6 +16127,7 @@
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOTRA",
           "WAON"
         ],
@@ -13694,6 +16249,7 @@
           "NANACO"
         ],
         "mediums": [
+          "CARD",
           "MOBILE"
         ]
       },
@@ -13794,6 +16350,7 @@
           "NANACO"
         ],
         "mediums": [
+          "CARD",
           "MOBILE"
         ]
       },
@@ -13946,9 +16503,11 @@
         "name": "FeliCa Pocket root",
         "service_provider": "FELICA_POCKET",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICSCA",
+          "IGUCA",
           "IRUCA",
           "ITAPPY",
           "KUMAMON",
@@ -13959,12 +16518,14 @@
           "MANACA_USTAR",
           "NICOPA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "OKICA",
           "PASMO",
           "RYUTO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOTRA",
           "WAON"
         ],
@@ -13978,9 +16539,11 @@
         "name": "FeliCa Pocket",
         "service_provider": "FELICA_POCKET",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICSCA",
+          "IGUCA",
           "IRUCA",
           "ITAPPY",
           "KUMAMON",
@@ -13991,12 +16554,14 @@
           "MANACA_USTAR",
           "NICOPA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "OKICA",
           "PASMO",
           "RYUTO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOTRA",
           "WAON"
         ],
@@ -14010,9 +16575,11 @@
         "name": null,
         "service_provider": "FELICA_POCKET",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICSCA",
+          "IGUCA",
           "IRUCA",
           "ITAPPY",
           "KUMAMON",
@@ -14023,12 +16590,14 @@
           "MANACA_USTAR",
           "NICOPA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "OKICA",
           "PASMO",
           "RYUTO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOTRA",
           "WAON"
         ],
@@ -14045,6 +16614,7 @@
           "NANACO"
         ],
         "mediums": [
+          "CARD",
           "MOBILE"
         ]
       },
@@ -14067,9 +16637,11 @@
         "name": "Pocket capabilities",
         "service_provider": "FELICA_POCKET",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICSCA",
+          "IGUCA",
           "IRUCA",
           "ITAPPY",
           "KUMAMON",
@@ -14080,12 +16652,14 @@
           "MANACA_USTAR",
           "NICOPA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "OKICA",
           "PASMO",
           "RYUTO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOTRA",
           "WAON"
         ],
@@ -14102,6 +16676,7 @@
           "NANACO"
         ],
         "mediums": [
+          "CARD",
           "MOBILE"
         ]
       },
@@ -14127,6 +16702,7 @@
           "NANACO"
         ],
         "mediums": [
+          "CARD",
           "MOBILE"
         ]
       },
@@ -14152,6 +16728,7 @@
           "NANACO"
         ],
         "mediums": [
+          "CARD",
           "MOBILE"
         ]
       },
@@ -14199,6 +16776,7 @@
           "NANACO"
         ],
         "mediums": [
+          "CARD",
           "MOBILE"
         ]
       },
@@ -14245,6 +16823,7 @@
           "NANACO"
         ],
         "mediums": [
+          "CARD",
           "MOBILE"
         ]
       },
@@ -14288,9 +16867,11 @@
         "name": null,
         "service_provider": "FELICA_POCKET",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICSCA",
+          "IGUCA",
           "IRUCA",
           "ITAPPY",
           "KUMAMON",
@@ -14301,12 +16882,14 @@
           "MANACA_USTAR",
           "NICOPA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "OKICA",
           "PASMO",
           "RYUTO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOTRA",
           "WAON"
         ],
@@ -14323,6 +16906,7 @@
           "NANACO"
         ],
         "mediums": [
+          "CARD",
           "MOBILE"
         ]
       },
@@ -14335,6 +16919,7 @@
           "NANACO"
         ],
         "mediums": [
+          "CARD",
           "MOBILE"
         ]
       },
@@ -14391,9 +16976,11 @@
         "name": "Pocket directory",
         "service_provider": "FELICA_POCKET",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICSCA",
+          "IGUCA",
           "IRUCA",
           "ITAPPY",
           "KUMAMON",
@@ -14404,12 +16991,14 @@
           "MANACA_USTAR",
           "NICOPA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "OKICA",
           "PASMO",
           "RYUTO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOTRA",
           "WAON"
         ],
@@ -14426,6 +17015,7 @@
           "NANACO"
         ],
         "mediums": [
+          "CARD",
           "MOBILE"
         ]
       },
@@ -14438,6 +17028,7 @@
           "NANACO"
         ],
         "mediums": [
+          "CARD",
           "MOBILE"
         ]
       },
@@ -14545,6 +17136,7 @@
           "NANACO"
         ],
         "mediums": [
+          "CARD",
           "MOBILE"
         ]
       },
@@ -14557,6 +17149,7 @@
           "NANACO"
         ],
         "mediums": [
+          "CARD",
           "MOBILE"
         ]
       },
@@ -14569,6 +17162,7 @@
           "NANACO"
         ],
         "mediums": [
+          "CARD",
           "MOBILE"
         ]
       },
@@ -14617,6 +17211,7 @@
           "NANACO"
         ],
         "mediums": [
+          "CARD",
           "MOBILE"
         ]
       },
@@ -14652,9 +17247,11 @@
         "name": "Pocket data",
         "service_provider": "FELICA_POCKET",
         "cards": [
+          "AKICA",
           "AOPASS",
           "HAYAKAKEN",
           "ICSCA",
+          "IGUCA",
           "IRUCA",
           "ITAPPY",
           "KUMAMON",
@@ -14665,12 +17262,14 @@
           "MANACA_USTAR",
           "NICOPA",
           "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO",
           "OKICA",
           "PASMO",
           "RYUTO",
           "SUGOCA",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_MONO",
           "TOTRA",
           "WAON"
         ],
@@ -14697,6 +17296,7 @@
           "NANACO"
         ],
         "mediums": [
+          "CARD",
           "MOBILE"
         ]
       },
