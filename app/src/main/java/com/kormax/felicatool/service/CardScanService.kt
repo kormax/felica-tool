@@ -1336,19 +1336,25 @@ class CardScanService {
                     }
 
                     // Collect key version results for this batch
+                    val encId = requestServiceV2Response.encryptionIdentifier
+                    val supportsAes = encId?.aesKeyType != AesKeyType.NONE
+                    val supportsDes = encId?.desKeyType != DesKeyType.NONE
+
                     nodeBatch.forEachIndexed { index, node ->
-                        val aesKeyVersion =
-                            requestServiceV2Response.aesKeyVersions[index]
-                                ?: throw RuntimeException(
-                                    "AES key version missing for node at index $index"
-                                )
-                        val desKeyVersion =
-                            requestServiceV2Response.desKeyVersions[index]
-                                ?: throw RuntimeException(
-                                    "DES key version missing for node at index $index"
-                                )
-                        val aesExists = !requestServiceV2Response.aesKeyVersions[index].isMissing
-                        val desExists = !requestServiceV2Response.desKeyVersions[index].isMissing
+                        val aesKeyVersion = requestServiceV2Response.aesKeyVersions.getOrNull(index)
+                        if (aesKeyVersion == null && supportsAes) {
+                            throw RuntimeException(
+                                "AES key version missing for node at index $index"
+                            )
+                        }
+                        val desKeyVersion = requestServiceV2Response.desKeyVersions.getOrNull(index)
+                        if (desKeyVersion == null && supportsDes) {
+                            throw RuntimeException(
+                                "DES key version missing for node at index $index"
+                            )
+                        }
+                        val aesExists = aesKeyVersion?.isMissing == false
+                        val desExists = desKeyVersion?.isMissing == false
 
                         val nodeType =
                             when (node) {
@@ -1365,10 +1371,10 @@ class CardScanService {
                             } ?: ""
 
                         val aesStatus =
-                            if (aesExists) "AES: ${aesKeyVersion.toInt()}" else "AES: N/A"
+                            if (aesExists) "AES: ${aesKeyVersion?.toInt()}" else "AES: N/A"
                         val desStatus =
                             if (desExists) {
-                                "DES: ${desKeyVersion.toInt()}"
+                                "DES: ${desKeyVersion?.toInt()}"
                             } else "DES: Not supported"
 
                         keyVersionResults.add(
@@ -1376,11 +1382,11 @@ class CardScanService {
                         )
 
                         // Store key versions in maps
-                        if (aesExists) {
+                        if (aesExists && aesKeyVersion != null) {
                             nodeAesKeyVersionsMap[node] = aesKeyVersion
                         }
                         // Only store DES key version if it exists and the node supports DES
-                        if (desExists) {
+                        if (desExists && desKeyVersion != null) {
                             nodeDesKeyVersionsMap[node] = desKeyVersion
                         }
                     }
