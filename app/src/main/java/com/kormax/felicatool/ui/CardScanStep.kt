@@ -292,6 +292,14 @@ data class CardScanStep(
                 )
                 add(
                     CardScanStep(
+                        id = "internal_authenticate_and_read",
+                        title = "Internal Authenticate and Read",
+                        description = "Test MAC-authenticated read on services with MAC enabled",
+                        icon = Icons.Default.Lock,
+                    )
+                )
+                add(
+                    CardScanStep(
                         id = "authentication1_des",
                         title = "Authenticate1 DES",
                         description = "Attempt DES authentication with discovered nodes",

@@ -534,6 +534,10 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                                     },
                             )
                         }
+                        CommandSupportChip(
+                            "Internal Authenticate and Read",
+                            context.internalAuthenticateAndReadSupport,
+                        )
                     }
 
                     // Authentication Commands

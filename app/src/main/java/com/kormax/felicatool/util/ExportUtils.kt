@@ -252,6 +252,7 @@ object ExportUtils {
                 "get_container_issue_information" to
                     scanContext.getContainerIssueInformationSupport,
                 "get_container_id" to scanContext.getContainerIdSupport,
+                "internal_authenticate_and_read" to scanContext.internalAuthenticateAndReadSupport,
                 "echo" to scanContext.echoSupport,
             )
 

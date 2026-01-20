@@ -57,6 +57,7 @@ data class CardScanContext(
     val getContainerPropertySupport: CommandSupport = CommandSupport.UNKNOWN,
     val authentication1DesSupport: CommandSupport = CommandSupport.UNKNOWN,
     val authentication1AesSupport: CommandSupport = CommandSupport.UNKNOWN,
+    val internalAuthenticateAndReadSupport: CommandSupport = CommandSupport.UNKNOWN,
     // Container property values - map of property object to response data
     val containerPropertyValues: Map<GetContainerPropertyCommand.Property, ByteArray> = emptyMap(),
     val communicationLog: List<CommunicationLogEntry> = emptyList(),
@@ -156,6 +157,8 @@ class CardScanService {
                 "get_area_information" -> scanContext.copy(getAreaInformationSupport = support)
                 "authentication1_des" -> scanContext.copy(authentication1DesSupport = support)
                 "authentication1_aes" -> scanContext.copy(authentication1AesSupport = support)
+                "internal_authenticate_and_read" ->
+                    scanContext.copy(internalAuthenticateAndReadSupport = support)
                 else -> scanContext
             }
     }
@@ -200,6 +203,7 @@ class CardScanService {
             "get_container_property" -> scanContext.getContainerPropertySupport
             "authentication1_des" -> scanContext.authentication1DesSupport
             "authentication1_aes" -> scanContext.authentication1AesSupport
+            "internal_authenticate_and_read" -> scanContext.internalAuthenticateAndReadSupport
             else -> CommandSupport.UNKNOWN
         }
     }
@@ -443,6 +447,8 @@ class CardScanService {
                                 "get_container_id" -> executeGetContainerId(target)
                                 "get_container_property" -> executeGetContainerProperty(target)
                                 "echo" -> executeEcho(target)
+                                "internal_authenticate_and_read" ->
+                                    executeInternalAuthenticateAndRead(target)
                                 "reset_mode" -> executeResetMode(target)
                                 "get_node_property_value_limited_service" ->
                                     executeGetNodePropertyValueLimitedService(target)
@@ -1972,6 +1978,127 @@ class CardScanService {
 
         scanContext = scanContext.copy(echoMaxPayloadSize = bestLength)
         return formatResult(bestLength, attempts)
+    }
+
+    private suspend fun executeInternalAuthenticateAndRead(target: FeliCaTarget): String {
+        // Find a system with at least one service that has MAC communication enabled
+        var bestSystemContext: SystemScanContext? = null
+        var bestMacService: Service? = null
+
+        for (systemContext in scanContext.systemScanContexts) {
+            val macProperties = systemContext.nodeMacCommunicationProperties
+            if (macProperties.isEmpty()) {
+                continue
+            }
+
+            // Find services with MAC communication enabled
+            val services = systemContext.nodes.filterIsInstance<Service>()
+            for (service in services) {
+                val macProperty = macProperties[service]
+                if (macProperty?.enabled == true) {
+                    bestSystemContext = systemContext
+                    bestMacService = service
+                    break
+                }
+            }
+            if (bestMacService != null) break
+        }
+
+        if (bestSystemContext == null || bestMacService == null) {
+            throw RuntimeException(
+                "No services with MAC communication enabled found. " +
+                    "Internal Authenticate and Read requires at least one service with MAC enabled."
+            )
+        }
+
+        val systemCodeHex = bestSystemContext.systemCode?.toHexString() ?: "unknown"
+        val serviceCodeHex = bestMacService.code.toHexString()
+
+        Log.d(
+            "CardScanService",
+            "Selected system $systemCodeHex, service $serviceCodeHex for Internal Authenticate and Read",
+        )
+
+        // Poll the selected system before the command
+        pollSystemCode(target, bestSystemContext.systemCode)
+
+        // Generate a 16-byte challenge
+        val challenge = ByteArray(16) { 0x00 }
+
+        // Create block list element for block 0 of the service
+        val blockListElement = BlockListElement(serviceCodeListOrder = 0, blockNumber = 0)
+
+        val command =
+            InternalAuthenticateAndReadCommand(
+                idm = target.idm,
+                serviceCodes = arrayOf(bestMacService.code),
+                blockListElements = arrayOf(blockListElement),
+                challenge = challenge,
+            )
+
+        return try {
+            val response = target.transceive(command)
+
+            // Check if Reset Mode should be executed after receiving a response
+            var resetModeResult = ""
+            if (scanContext.resetModeSupport == CommandSupport.SUPPORTED) {
+                try {
+                    val resetModeCommand = ResetModeCommand(target.idm)
+                    val resetModeResponse = target.transceive(resetModeCommand)
+
+                    resetModeResult =
+                        if (resetModeResponse.isStatusSuccessful) {
+                            "Reset Mode executed - card reset to Mode0"
+                        } else {
+                            "Reset Mode failed (Status: 0x${resetModeResponse.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')} 0x${resetModeResponse.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')})"
+                        }
+                } catch (e: Exception) {
+                    resetModeResult = "Reset Mode error: ${e.message}"
+                }
+            } else {
+                resetModeResult = "Reset Mode not executed (not confirmed as supported)"
+            }
+
+            if (response.isStatusSuccessful) {
+                buildString {
+                        appendLine("Internal Authenticate and Read Results:")
+                        appendLine("System: $systemCodeHex")
+                        appendLine("Service: $serviceCodeHex (${bestMacService.attribute})")
+                        appendLine("Challenge sent: ${challenge.toHexString()}")
+                        appendLine("Status: Success")
+                        appendLine("Blocks returned: ${response.blockData.size}")
+                        response.blockData.forEachIndexed { index, block ->
+                            appendLine("  Block $index: ${block.toHexString()}")
+                        }
+                        appendLine("Challenge response: ${response.challenge.toHexString()}")
+                        appendLine("MAC: ${response.mac.toHexString()}")
+                        appendLine()
+                        appendLine("Reset Mode:")
+                        appendLine("  $resetModeResult")
+                    }
+                    .trim()
+            } else {
+                val sf1Hex =
+                    response.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')
+                val sf2Hex =
+                    response.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')
+                buildString {
+                        appendLine("Internal Authenticate and Read Results:")
+                        appendLine("System: $systemCodeHex")
+                        appendLine("Service: $serviceCodeHex (${bestMacService.attribute})")
+                        appendLine("Challenge sent: ${challenge.toHexString()}")
+                        appendLine("Status: Failed (SF1=0x$sf1Hex, SF2=0x$sf2Hex)")
+                        appendLine()
+                        appendLine("Reset Mode:")
+                        appendLine("  $resetModeResult")
+                    }
+                    .trim()
+            }
+        } catch (e: Exception) {
+            throw RuntimeException(
+                "Internal Authenticate and Read failed for service $serviceCodeHex: ${e.message}"
+            )
+        }
     }
 
     private suspend fun executeReadWithoutEncryptionDetermineErrorIndication(
