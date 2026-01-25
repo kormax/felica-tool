@@ -4,6 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Phone
@@ -183,7 +184,7 @@ data class CardScanStep(
                 add(
                     CardScanStep(
                         id = "read_without_encryption_determine_error_indication",
-                        title = "Determine type of error indication",
+                        title = "Read: Determine type of error indication",
                         description = "How errors are indicated when reading blocks",
                         icon = Icons.Default.Search,
                     )
@@ -191,7 +192,7 @@ data class CardScanStep(
                 add(
                     CardScanStep(
                         id = "read_without_encryption_detect_illegal_number_error_preference",
-                        title = "Detect Illegal Number Error Preference",
+                        title = "Read: Detect Illegal Number Error Preference",
                         description =
                             "Check which error type is preferred by the card when Read Without Encryption exceeds both block and service limits",
                         icon = Icons.Default.Search,
@@ -200,7 +201,7 @@ data class CardScanStep(
                 add(
                     CardScanStep(
                         id = "read_without_encryption_determine_max_services",
-                        title = "Determine Max Services",
+                        title = "Read: Determine Max Services",
                         description = "How many services can be read in a request",
                         icon = Icons.Default.Search,
                     )
@@ -208,7 +209,7 @@ data class CardScanStep(
                 add(
                     CardScanStep(
                         id = "read_without_encryption_determine_max_blocks",
-                        title = "Determine Max Blocks",
+                        title = "Read: Determine Max Blocks",
                         description = "How many blocks can be read in a request",
                         icon = Icons.Default.Search,
                     )
@@ -230,6 +231,25 @@ data class CardScanStep(
                             description =
                                 "Exhaustively search for blocks in readable services by iterating through all possible block numbers",
                             icon = Icons.Default.Search,
+                        )
+                    )
+                }
+                // Write command testing steps - only included when setting is enabled
+                if (scanSettings.testWriteCommands) {
+                    add(
+                        CardScanStep(
+                            id = "write_without_encryption_determine_error_indication",
+                            title = "Write: Determine Error Indication",
+                            description = "How errors are indicated when writing blocks",
+                            icon = Icons.Default.Edit,
+                        )
+                    )
+                    add(
+                        CardScanStep(
+                            id = "write_without_encryption_determine_max_blocks",
+                            title = "Write: Determine Max Blocks",
+                            description = "How many blocks can be written in a request",
+                            icon = Icons.Default.Edit,
                         )
                     )
                 }

@@ -508,22 +508,23 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                             context.readBlocksWithoutEncryptionSupport,
                         )
 
-                        context.maxBlocksPerRequest?.let { maxBlocks ->
-                            InfoChip(label = "Max Blocks", value = maxBlocks.toString())
+                        context.readWithoutEncryptionMaxBlocksPerRequest?.let { maxBlocks ->
+                            InfoChip(label = "Read Max Blocks", value = maxBlocks.toString())
                         }
-                        context.maxServicesPerRequest?.let { maxServices ->
-                            InfoChip(label = "Max Services", value = maxServices.toString())
+                        context.readWithoutEncryptionMaxServicesPerRequest?.let { maxServices ->
+                            InfoChip(label = "Read Max Services", value = maxServices.toString())
                         }
                         InfoChip(
-                            label = "Error Mode",
+                            label = "Read Error Mode",
                             value =
-                                when (context.errorLocationIndication) {
+                                when (context.readWithoutEncryptionErrorLocationIndication) {
                                     ErrorLocationIndication.FLAG -> "Flag"
                                     ErrorLocationIndication.INDEX -> "Index"
                                     ErrorLocationIndication.BITMASK -> "Bitmask"
                                 },
                         )
-                        context.illegalNumberErrorPreference?.let { preference ->
+                        context.readWithoutEncryptionIllegalNumberErrorPreference?.let { preference
+                            ->
                             InfoChip(
                                 label = "Limit Error Preference",
                                 value =
@@ -531,6 +532,25 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                                         IllegalNumberErrorPreference.SERVICE_ERROR ->
                                             "Service (0xA1)"
                                         IllegalNumberErrorPreference.BLOCK_ERROR -> "Block (0xA2)"
+                                    },
+                            )
+                        }
+                        CommandSupportChip(
+                            "Write Without Encryption",
+                            context.writeBlocksWithoutEncryptionSupport,
+                        )
+                        context.writeWithoutEncryptionMaxBlocksPerRequest?.let { maxBlocks ->
+                            InfoChip(label = "Write Max Blocks", value = maxBlocks.toString())
+                        }
+                        context.writeWithoutEncryptionErrorLocationIndication?.let { errorIndication
+                            ->
+                            InfoChip(
+                                label = "Write Error Mode",
+                                value =
+                                    when (errorIndication) {
+                                        ErrorLocationIndication.FLAG -> "Flag"
+                                        ErrorLocationIndication.INDEX -> "Index"
+                                        ErrorLocationIndication.BITMASK -> "Bitmask"
                                     },
                             )
                         }

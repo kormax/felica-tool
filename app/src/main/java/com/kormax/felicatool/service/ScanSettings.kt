@@ -18,4 +18,9 @@ data class ScanSettings(
      * beyond the normally discovered range.
      */
     val forceDiscoverAllBlocks: Boolean = false,
+    /**
+     * When enabled, tests write commands during scanning. This is OFF by default to prevent
+     * accidental modifications to card data.
+     */
+    val testWriteCommands: Boolean = false,
 )

@@ -302,6 +302,26 @@ fun MainScreen(
                                 )
                             },
                         )
+                        DropdownMenuItem(
+                            text = { Text("Test write commands") },
+                            onClick = {
+                                onScanSettingsChange(
+                                    scanSettings.copy(
+                                        testWriteCommands = !scanSettings.testWriteCommands
+                                    )
+                                )
+                            },
+                            trailingIcon = {
+                                Checkbox(
+                                    checked = scanSettings.testWriteCommands,
+                                    onCheckedChange = {
+                                        onScanSettingsChange(
+                                            scanSettings.copy(testWriteCommands = it)
+                                        )
+                                    },
+                                )
+                            },
+                        )
                     }
                 },
                 colors =

@@ -207,16 +207,31 @@ object ExportUtils {
             json.put("container_properties", containerPropertyJson)
         }
 
-        // Error indication mode
-        json.put("error_indication_mode", scanContext.errorLocationIndication.name)
+        // Read without encryption fields
+        json.put(
+            "read_without_encryption_error_location_indication",
+            scanContext.readWithoutEncryptionErrorLocationIndication.name,
+        )
 
-        scanContext.illegalNumberErrorPreference?.let { preference ->
+        scanContext.readWithoutEncryptionIllegalNumberErrorPreference?.let { preference ->
             json.put("read_without_encryption_illegal_number_error_preference", preference.name)
         }
 
-        // Max systems/blocks per read
-        scanContext.maxServicesPerRequest?.let { json.put("max_systems_per_read", it) }
-        scanContext.maxBlocksPerRequest?.let { json.put("max_blocks_per_read", it) }
+        scanContext.readWithoutEncryptionMaxServicesPerRequest?.let {
+            json.put("read_without_encryption_max_services_per_request", it)
+        }
+        scanContext.readWithoutEncryptionMaxBlocksPerRequest?.let {
+            json.put("read_without_encryption_max_blocks_per_request", it)
+        }
+
+        // Write without encryption fields
+        scanContext.writeWithoutEncryptionErrorLocationIndication?.let { errorIndication ->
+            json.put("write_without_encryption_error_location_indication", errorIndication.name)
+        }
+        scanContext.writeWithoutEncryptionMaxBlocksPerRequest?.let {
+            json.put("write_without_encryption_max_blocks_per_request", it)
+        }
+
         scanContext.echoMaxPayloadSize?.let { json.put("echo_max_payload_size", it) }
 
         // Supported commands - build as a list of only supported commands
@@ -244,6 +259,7 @@ object ExportUtils {
                 "get_node_property_mac_communication" to
                     scanContext.getNodePropertyMacCommunicationSupport,
                 "read_without_encryption" to scanContext.readBlocksWithoutEncryptionSupport,
+                "write_without_encryption" to scanContext.writeBlocksWithoutEncryptionSupport,
                 "get_area_information" to scanContext.getAreaInformationSupport,
                 "get_container_property" to scanContext.getContainerPropertySupport,
                 "set_parameter" to scanContext.setParameterSupport,

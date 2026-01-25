@@ -25,11 +25,14 @@ data class CardScanContext(
     val containerIssueInformation: ContainerInformation? = null,
     val platformInformation: GetPlatformInformationResponse? = null,
     val containerIdm: ByteArray? = null,
-    val errorLocationIndication: ErrorLocationIndication = ErrorLocationIndication.INDEX,
-    val maxBlocksPerRequest: Int? = null,
-    val maxServicesPerRequest: Int? = null,
+    val readWithoutEncryptionErrorLocationIndication: ErrorLocationIndication =
+        ErrorLocationIndication.INDEX,
+    val readWithoutEncryptionMaxBlocksPerRequest: Int? = null,
+    val readWithoutEncryptionMaxServicesPerRequest: Int? = null,
+    val writeWithoutEncryptionErrorLocationIndication: ErrorLocationIndication? = null,
+    val writeWithoutEncryptionMaxBlocksPerRequest: Int? = null,
     val echoMaxPayloadSize: Int? = null,
-    val illegalNumberErrorPreference: IllegalNumberErrorPreference? = null,
+    val readWithoutEncryptionIllegalNumberErrorPreference: IllegalNumberErrorPreference? = null,
     // Command support
     val pollingSupport: CommandSupport = CommandSupport.UNKNOWN,
     val pollingSystemCodeSupport: CommandSupport = CommandSupport.UNKNOWN,
@@ -53,6 +56,7 @@ data class CardScanContext(
     val requestBlockInformationSupport: CommandSupport = CommandSupport.UNKNOWN,
     val requestBlockInformationExSupport: CommandSupport = CommandSupport.UNKNOWN,
     val readBlocksWithoutEncryptionSupport: CommandSupport = CommandSupport.UNKNOWN,
+    val writeBlocksWithoutEncryptionSupport: CommandSupport = CommandSupport.UNKNOWN,
     val getAreaInformationSupport: CommandSupport = CommandSupport.UNKNOWN,
     val getContainerPropertySupport: CommandSupport = CommandSupport.UNKNOWN,
     val authentication1DesSupport: CommandSupport = CommandSupport.UNKNOWN,
@@ -154,6 +158,14 @@ class CardScanService {
                     scanContext.copy(readBlocksWithoutEncryptionSupport = support)
                 "read_blocks_without_encryption" ->
                     scanContext.copy(readBlocksWithoutEncryptionSupport = support)
+                "write_without_encryption_determine_error_indication" ->
+                    scanContext.copy(writeBlocksWithoutEncryptionSupport = support)
+                "write_without_encryption_determine_max_services" ->
+                    scanContext.copy(writeBlocksWithoutEncryptionSupport = support)
+                "write_without_encryption_detect_illegal_number_error_preference" ->
+                    scanContext.copy(writeBlocksWithoutEncryptionSupport = support)
+                "write_without_encryption_determine_max_blocks" ->
+                    scanContext.copy(writeBlocksWithoutEncryptionSupport = support)
                 "get_area_information" -> scanContext.copy(getAreaInformationSupport = support)
                 "authentication1_des" -> scanContext.copy(authentication1DesSupport = support)
                 "authentication1_aes" -> scanContext.copy(authentication1AesSupport = support)
@@ -199,6 +211,14 @@ class CardScanService {
             "read_without_encryption_determine_max_blocks" ->
                 scanContext.readBlocksWithoutEncryptionSupport
             "read_blocks_without_encryption" -> scanContext.readBlocksWithoutEncryptionSupport
+            "write_without_encryption_determine_error_indication" ->
+                scanContext.writeBlocksWithoutEncryptionSupport
+            "write_without_encryption_determine_max_services" ->
+                scanContext.writeBlocksWithoutEncryptionSupport
+            "write_without_encryption_detect_illegal_number_error_preference" ->
+                scanContext.writeBlocksWithoutEncryptionSupport
+            "write_without_encryption_determine_max_blocks" ->
+                scanContext.writeBlocksWithoutEncryptionSupport
             "get_area_information" -> scanContext.getAreaInformationSupport
             "get_container_property" -> scanContext.getContainerPropertySupport
             "authentication1_des" -> scanContext.authentication1DesSupport
@@ -460,6 +480,10 @@ class CardScanService {
                                     executeRequestBlockInformationEx(target)
                                 "read_without_encryption_determine_error_indication" ->
                                     executeReadWithoutEncryptionDetermineErrorIndication(target)
+                                "write_without_encryption_determine_error_indication" ->
+                                    executeWriteWithoutEncryptionDetermineErrorIndication(target)
+                                "write_without_encryption_determine_max_blocks" ->
+                                    executeWriteWithoutEncryptionDetermineMaxBlocks(target)
                                 "authentication1_des" -> executeAuthentication1Des(target)
                                 "authentication1_aes" -> executeAuthentication1Aes(target)
                                 else -> "Unknown step"
@@ -477,6 +501,17 @@ class CardScanService {
 
             // Return step with duration
             return resultStep.copy(duration = duration)
+        } catch (e: PrerequisiteException) {
+            // Prerequisite not met - don't mark command as unsupported, leave as unknown
+            Log.w("CardScanService", "Prerequisite not met for step ${step.id}: ${e.message}")
+
+            val duration = startTime.elapsedNow()
+
+            return step.copy(
+                status = StepStatus.ERROR,
+                errorMessage = e.message ?: "Prerequisite not met",
+                duration = duration,
+            )
         } catch (e: Exception) {
             Log.e("CardScanService", "Error executing step ${step.id}", e)
 
@@ -2005,7 +2040,7 @@ class CardScanService {
         }
 
         if (bestSystemContext == null || bestMacService == null) {
-            throw RuntimeException(
+            throw PrerequisiteException(
                 "No services with MAC communication enabled found. " +
                     "Internal Authenticate and Read requires at least one service with MAC enabled."
             )
@@ -2109,14 +2144,14 @@ class CardScanService {
         val allServices = allDiscoveredNodes.filterIsInstance<Service>()
 
         if (allServices.isEmpty()) {
-            throw RuntimeException("No services available for determining error indication")
+            throw PrerequisiteException("No services available for determining error indication")
         }
 
         // Filter services that don't require authentication
         val allServicesWithoutAuth = allServices.filter { !it.attribute.authenticationRequired }
 
         if (allServicesWithoutAuth.isEmpty()) {
-            throw RuntimeException(
+            throw PrerequisiteException(
                 "No services found that don't require authentication for determining error indication"
             )
         }
@@ -2130,7 +2165,7 @@ class CardScanService {
             }
 
         if (bestSystemContext == null) {
-            throw RuntimeException("No system context found with readable services")
+            throw PrerequisiteException("No system context found with readable services")
         }
 
         // Switch to the best system for testing
@@ -2202,7 +2237,7 @@ class CardScanService {
         // Update scan context with determined error indication type
         scanContext =
             scanContext.copy(
-                errorLocationIndication = errorIndicationType,
+                readWithoutEncryptionErrorLocationIndication = errorIndicationType,
                 readBlocksWithoutEncryptionSupport = CommandSupport.SUPPORTED,
             )
 
@@ -2225,7 +2260,7 @@ class CardScanService {
         val allServicesWithoutAuth = allServices.filter { !it.attribute.authenticationRequired }
 
         if (allServicesWithoutAuth.isEmpty()) {
-            throw RuntimeException(
+            throw PrerequisiteException(
                 "No services available that don't require authentication for determining max services"
             )
         }
@@ -2238,7 +2273,7 @@ class CardScanService {
             }
 
         if (bestSystemContext == null) {
-            throw RuntimeException("No system context found with readable services")
+            throw PrerequisiteException("No system context found with readable services")
         }
 
         // Switch to the best system for testing
@@ -2248,7 +2283,7 @@ class CardScanService {
         val servicesWithoutAuth = services.filter { !it.attribute.authenticationRequired }
 
         if (servicesWithoutAuth.isEmpty()) {
-            throw RuntimeException("No readable services found in the selected system")
+            throw PrerequisiteException("No readable services found in the selected system")
         }
 
         // Prefer services with service number != 0, then prefer RANDOM type
@@ -2321,7 +2356,7 @@ class CardScanService {
         // Update scan context with the determined maximum
         scanContext =
             scanContext.copy(
-                maxServicesPerRequest = maxServices,
+                readWithoutEncryptionMaxServicesPerRequest = maxServices,
                 readBlocksWithoutEncryptionSupport = CommandSupport.SUPPORTED,
             )
 
@@ -2336,7 +2371,7 @@ class CardScanService {
         val allServicesWithoutAuth = allServices.filter { !it.attribute.authenticationRequired }
 
         if (allServicesWithoutAuth.isEmpty()) {
-            throw RuntimeException(
+            throw PrerequisiteException(
                 "No services available that don't require authentication for limit error detection"
             )
         }
@@ -2346,7 +2381,7 @@ class CardScanService {
                 systemContext.nodes.filterIsInstance<Service>().count { service ->
                     !service.attribute.authenticationRequired
                 }
-            } ?: throw RuntimeException("No system context found with readable services")
+            } ?: throw PrerequisiteException("No system context found with readable services")
 
         pollSystemCode(target, bestSystemContext.systemCode)
 
@@ -2354,7 +2389,7 @@ class CardScanService {
         val servicesWithoutAuth = services.filter { !it.attribute.authenticationRequired }
 
         if (servicesWithoutAuth.isEmpty()) {
-            throw RuntimeException(
+            throw PrerequisiteException(
                 "No readable services found in the selected system for detection"
             )
         }
@@ -2420,7 +2455,8 @@ class CardScanService {
             )
         }
 
-        scanContext = scanContext.copy(illegalNumberErrorPreference = observedPreference)
+        scanContext =
+            scanContext.copy(readWithoutEncryptionIllegalNumberErrorPreference = observedPreference)
 
         Log.d(
             "CardScanService",
@@ -2464,9 +2500,6 @@ class CardScanService {
             throw RuntimeException("No system context found with readable services")
         }
 
-        // Switch to the best system for testing
-        pollSystemCode(target, bestSystemContext.systemCode)
-
         val services = bestSystemContext.nodes.filterIsInstance<Service>()
         val servicesWithoutAuth = services.filter { !it.attribute.authenticationRequired }
 
@@ -2483,10 +2516,11 @@ class CardScanService {
                 ?: candidateServices.first()
 
         // Start with theoretical maximum and work down
-        var maxBlocks =
-            ReadWithoutEncryptionCommand.MAX_BLOCKS // FeliCa specification limit for blocks
+        var maxBlocks = ReadWithoutEncryptionCommand.MAX_BLOCKS
 
         while (maxBlocks > 0) {
+            pollSystemCode(target, bestSystemContext.systemCode)
+
             // Create block list elements for blocks 0 through (maxBlocks-1)
             val blockListElements =
                 Array(maxBlocks) { blockIndex ->
@@ -2501,24 +2535,36 @@ class CardScanService {
                     blockListElements = blockListElements,
                 )
 
-            val response = target.transceive(readCommand)
-            if (response.isStatusSuccessful) {
-                // Command succeeded, we found the maximum
-                Log.d("CardScanService", "ReadWithoutEncryption succeeded with $maxBlocks blocks")
-                break
-            }
-            if (
-                response.statusFlag2.toByte() != 0xA2.toByte() &&
-                    response.statusFlag2.toByte() != 0xA8.toByte()
-            ) {
-                throw RuntimeException(
-                    "ReadWithoutEncryption failed with unexpected error (not 0xA2 or 0xA8) at $maxBlocks blocks, status1=0x${response.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')}, status2=0x${response.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}"
+            try {
+                val response = target.transceive(readCommand)
+                if (response.isStatusSuccessful) {
+                    // Command succeeded, we found the maximum
+                    Log.d(
+                        "CardScanService",
+                        "ReadWithoutEncryption succeeded with $maxBlocks blocks",
+                    )
+                    break
+                }
+                if (
+                    response.statusFlag2.toByte() != 0xA2.toByte() &&
+                        response.statusFlag2.toByte() != 0xA8.toByte()
+                ) {
+                    throw RuntimeException(
+                        "ReadWithoutEncryption failed with unexpected error (not 0xA2 or 0xA8) at $maxBlocks blocks, status1=0x${response.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')}, status2=0x${response.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}"
+                    )
+                }
+                Log.d(
+                    "CardScanService",
+                    "ReadWithoutEncryption failed with $maxBlocks blocks, status1=0x${response.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')}, status2=0x${response.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}",
+                )
+            } catch (e: Exception) {
+                // Card may not respond if command is too large (e.g., FeliCa Lite)
+                // Poll to check if card is still present, then continue with smaller size
+                Log.d(
+                    "CardScanService",
+                    "ReadWithoutEncryption got no response with $maxBlocks blocks: ${e.message}",
                 )
             }
-            Log.d(
-                "CardScanService",
-                "ReadWithoutEncryption failed with $maxBlocks blocks, status1=0x${response.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')}, status2=0x${response.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}",
-            )
             maxBlocks--
         }
 
@@ -2531,11 +2577,332 @@ class CardScanService {
         // Update scan context with the determined maximum
         scanContext =
             scanContext.copy(
-                maxBlocksPerRequest = maxBlocks,
+                readWithoutEncryptionMaxBlocksPerRequest = maxBlocks,
                 readBlocksWithoutEncryptionSupport = CommandSupport.SUPPORTED,
             )
 
         return buildString { appendLine("Maximum blocks per request: $maxBlocks") }.trim()
+    }
+
+    private suspend fun executeWriteWithoutEncryptionDetermineErrorIndication(
+        target: FeliCaTarget
+    ): String {
+        // Find a writable service and its blocks
+        val serviceInfo = findWritableServiceAndEmptyBlock()
+        pollSystemCode(target, serviceInfo.systemCode)
+
+        val writableService = serviceInfo.service
+        val emptyBlockNumber = serviceInfo.availableBlocks.keys.minOrNull()!!
+        val emptyBlockData = serviceInfo.availableBlocks[emptyBlockNumber]!!
+
+        // Find the lowest block number not present in available or unavailable blocks
+        val allKnownBlocks = serviceInfo.availableBlocks.keys + serviceInfo.unavailableBlocks
+        var invalidBlockNumber = 0
+        while (invalidBlockNumber in allKnownBlocks) {
+            invalidBlockNumber++
+        }
+
+        val blocksToWrite =
+            listOf(
+                BlockListElement(serviceCodeListOrder = 0, blockNumber = emptyBlockNumber),
+                BlockListElement(serviceCodeListOrder = 0, blockNumber = emptyBlockNumber),
+                // Third element should be out of range to trigger error indication
+                BlockListElement(serviceCodeListOrder = 0, blockNumber = invalidBlockNumber),
+            )
+
+        // Use the same data for the valid blocks (safe - no actual change), dummy for invalid block
+        val blockData = arrayOf(emptyBlockData, emptyBlockData, emptyBlockData)
+
+        val writeCommand =
+            WriteWithoutEncryptionCommand(
+                idm = target.idm,
+                serviceCodes = arrayOf(writableService.code),
+                blockListElements = blocksToWrite.toTypedArray(),
+                blockData = blockData,
+            )
+
+        val response = target.transceive(writeCommand)
+        val statusFlag1 = response.statusFlag1
+        val statusFlag2 = response.statusFlag2
+
+        if (response.isStatusSuccessful) {
+            throw RuntimeException(
+                "WriteWithoutEncryption failed to determine error indication, status1=0x${statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')}, status2=0x${statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}"
+            )
+        }
+
+        // Analyze response status to determine error indication type
+        val errorIndicationType =
+            when {
+                statusFlag1.toInt() and 0xFF == 0xFF -> {
+                    Log.d("CardScanService", "Determined FLAG error indication (status1=0xFF)")
+                    ErrorLocationIndication.FLAG
+                }
+                statusFlag1.toInt() and 0xFF == 0x04 -> {
+                    Log.d("CardScanService", "Determined BITMASK error indication (status1=0x04)")
+                    ErrorLocationIndication.BITMASK
+                }
+                statusFlag1.toInt() and 0xFF == 0x03 -> {
+                    Log.d("CardScanService", "Determined INDEX error indication (status1=0x03)")
+                    ErrorLocationIndication.INDEX
+                }
+                else -> {
+                    throw RuntimeException(
+                        "Unexpected response status for error indication determination: status1=0x${statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')}, status2=0x${statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}"
+                    )
+                }
+            }
+
+        // Update scan context with determined error indication type
+        scanContext =
+            scanContext.copy(
+                writeWithoutEncryptionErrorLocationIndication = errorIndicationType,
+                writeBlocksWithoutEncryptionSupport = CommandSupport.SUPPORTED,
+            )
+
+        Log.d("CardScanService", "Determined error indication type: $errorIndicationType")
+
+        return buildString {
+                appendLine(
+                    "Error indication type: ${errorIndicationType.name} 0x${statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')} 0x${statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}"
+                )
+            }
+            .trim()
+    }
+
+    private suspend fun executeWriteWithoutEncryptionDetermineMaxBlocks(
+        target: FeliCaTarget
+    ): String {
+        // Find a writable service and its blocks
+        val serviceInfo = findWritableServiceAndEmptyBlock()
+        pollSystemCode(target, serviceInfo.systemCode)
+
+        val writableService = serviceInfo.service
+        val emptyBlockNumber = serviceInfo.availableBlocks.keys.minOrNull()!!
+        val emptyBlockData = serviceInfo.availableBlocks[emptyBlockNumber]!!
+
+        // Start with theoretical maximum and work down
+        var maxBlocks = WriteWithoutEncryptionCommand.MAX_BLOCKS
+
+        while (maxBlocks > 0) {
+            // Create block list elements using the empty block (safe rewrite)
+            val blockListElements =
+                Array(maxBlocks) { blockIndex ->
+                    BlockListElement(serviceCodeListOrder = 0, blockNumber = emptyBlockNumber)
+                }
+            // Use the same data as the empty block (safe - no actual change)
+            val blockData = Array(maxBlocks) { emptyBlockData.copyOf() }
+
+            // Create the write command with single service and multiple blocks
+            val writeCommand =
+                WriteWithoutEncryptionCommand(
+                    idm = target.idm,
+                    serviceCodes = arrayOf(writableService.code),
+                    blockListElements = blockListElements,
+                    blockData = blockData,
+                )
+
+            try {
+                val response = target.transceive(writeCommand)
+                if (response.isStatusSuccessful) {
+                    // Command succeeded, we found the maximum
+                    Log.d(
+                        "CardScanService",
+                        "WriteWithoutEncryption succeeded with $maxBlocks blocks",
+                    )
+                    break
+                }
+                if (
+                    response.statusFlag2.toByte() != 0xA2.toByte() &&
+                        response.statusFlag2.toByte() != 0xA8.toByte()
+                ) {
+                    throw RuntimeException(
+                        "WriteWithoutEncryption failed with unexpected error (not 0xA2 or 0xA8) at $maxBlocks blocks, status1=0x${response.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')}, status2=0x${response.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}"
+                    )
+                }
+                Log.d(
+                    "CardScanService",
+                    "WriteWithoutEncryption failed with $maxBlocks blocks, status1=0x${response.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')}, status2=0x${response.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}",
+                )
+            } catch (e: Exception) {
+                // Card may not respond if command is too large (e.g., FeliCa Lite)
+                // Poll to check if card is still present, then continue with smaller size
+                Log.d(
+                    "CardScanService",
+                    "WriteWithoutEncryption got no response with $maxBlocks blocks: ${e.message}",
+                )
+                pollSystemCode(target, serviceInfo.systemCode)
+            }
+            maxBlocks--
+        }
+
+        if (maxBlocks == 0) {
+            throw RuntimeException(
+                "Unable to determine maximum blocks per request - even 1 block failed"
+            )
+        }
+
+        // Update scan context with the determined maximum
+        scanContext =
+            scanContext.copy(
+                writeWithoutEncryptionMaxBlocksPerRequest = maxBlocks,
+                writeBlocksWithoutEncryptionSupport = CommandSupport.SUPPORTED,
+            )
+
+        return buildString { appendLine("Maximum blocks per request: $maxBlocks") }.trim()
+    }
+
+    /** Result of finding a writable service and its blocks for safe testing. */
+    private data class WritableServiceInfo(
+        val service: Service,
+        val systemCode: ByteArray?,
+        /**
+         * Map of block numbers to their data for blocks that are safe to write (all 0x00 or 0xFF)
+         */
+        val availableBlocks: Map<Int, ByteArray>,
+        /** Set of block numbers that exist but are not safe to write (contain data) */
+        val unavailableBlocks: Set<Int>,
+    )
+
+    /**
+     * Helper function to find a suitable writable service and an "empty" block for safe testing.
+     * Returns a WritableServiceInfo containing the service, available empty blocks, and unavailable
+     * blocks.
+     *
+     * Requirements:
+     * - Service number should not be 0 or 1023 (except 0x0900 for FeliCa Lite/NDEF)
+     * - Service type should be R/W RANDOM (cyclic, purse should be ignored)
+     * - Block must contain all 0x00 or all 0xFF (safe to rewrite with same data)
+     */
+    private fun findWritableServiceAndEmptyBlock(): WritableServiceInfo {
+        val allDiscoveredNodes = scanContext.systemScanContexts.flatMap { it.nodes }
+        val allServices = allDiscoveredNodes.filterIsInstance<Service>()
+
+        if (allServices.isEmpty()) {
+            throw PrerequisiteException("No services available for write testing")
+        }
+
+        // FeliCa Lite (88B4) and NDEF (12FC) system codes that have protected system blocks
+        val felicaLiteSystemCode = byteArrayOf(0x88.toByte(), 0xB4.toByte())
+        val ndefSystemCode = byteArrayOf(0x12.toByte(), 0xFC.toByte())
+
+        // Filter services that don't require authentication and are writable R/W RANDOM
+        // Service number restrictions are applied per-system in the loop below
+        val writableServices =
+            allServices.filter { service ->
+                !service.attribute.authenticationRequired &&
+                    service.attribute.type == ServiceType.RANDOM &&
+                    service.attribute.mode == ServiceMode.READ_WRITE
+            }
+
+        if (writableServices.isEmpty()) {
+            throw PrerequisiteException(
+                "No suitable writable services found (R/W RANDOM, no auth required)"
+            )
+        }
+
+        // Find a service with empty blocks, tracking both available and unavailable blocks
+        data class ServiceCandidate(
+            val service: Service,
+            val systemContext: SystemScanContext,
+            val availableBlocks: MutableMap<Int, ByteArray>,
+            val unavailableBlocks: MutableSet<Int>,
+        )
+
+        val serviceCandidates = mutableListOf<ServiceCandidate>()
+
+        for (service in writableServices) {
+            val systemContext =
+                scanContext.systemScanContexts.find { context -> context.nodes.contains(service) }
+                    ?: continue
+
+            // Check if this is a FeliCa Lite or NDEF system
+            val isProtectedSystem =
+                systemContext.systemCode?.let { code ->
+                    code.contentEquals(felicaLiteSystemCode) || code.contentEquals(ndefSystemCode)
+                } ?: false
+
+            // Apply service number restrictions based on system type
+            // For FeliCa Lite/NDEF: allow service 0x0900 (scratch pad area)
+            // For other systems: service number must be != 0 and < 1023
+            val isValidServiceNumber =
+                if (isProtectedSystem) {
+                    service.number == 0 || (service.number != 0 && service.number < 1023)
+                } else {
+                    service.number != 0 && service.number < 1023
+                }
+            if (!isValidServiceNumber) {
+                continue
+            }
+
+            // Skip services that have MAC communication enabled (requires authentication)
+            val macProperties = systemContext.nodeMacCommunicationProperties[service]
+            if (macProperties != null && macProperties.enabled) {
+                continue
+            }
+
+            val blockData = systemContext.serviceBlockData[service] ?: continue
+
+            // For FeliCa Lite/NDEF systems, blocks >= 0x0E are system blocks
+            val maxSafeBlockNumber = if (isProtectedSystem) 0x0D else Int.MAX_VALUE
+
+            val availableBlocks = mutableMapOf<Int, ByteArray>()
+            val unavailableBlocks = mutableSetOf<Int>()
+
+            // Categorize blocks as available (empty) or unavailable (has data or is protected)
+            for ((blockNumber, data) in blockData) {
+                // Blocks >= 0x0E for FeliCa Lite/NDEF systems are protected system blocks
+                if (blockNumber > maxSafeBlockNumber) {
+                    unavailableBlocks.add(blockNumber)
+                    continue
+                }
+
+                // For FeliCa Lite/NDEF, allow writing to any block
+                // For other systems, only allow blocks that are all 0x00 or 0xFF (safe to rewrite)
+                val isAllZero = data.all { it == 0x00.toByte() }
+                val isAllFff = data.all { it == 0xFF.toByte() }
+                if (isProtectedSystem || isAllZero || isAllFff) {
+                    availableBlocks[blockNumber] = data
+                } else {
+                    unavailableBlocks.add(blockNumber)
+                }
+            }
+
+            if (availableBlocks.isNotEmpty()) {
+                serviceCandidates.add(
+                    ServiceCandidate(service, systemContext, availableBlocks, unavailableBlocks)
+                )
+            }
+        }
+
+        if (serviceCandidates.isEmpty()) {
+            throw PrerequisiteException(
+                "No empty blocks (all 0x00 or 0xFF) found in any writable service. " +
+                    "Cannot safely test write commands without risking data modification."
+            )
+        }
+
+        // Prefer candidates with more available blocks (for multi-block tests)
+        val bestCandidate = serviceCandidates.maxByOrNull { it.availableBlocks.size }!!
+
+        val firstAvailableBlock = bestCandidate.availableBlocks.keys.minOrNull()!!
+        val firstBlockData = bestCandidate.availableBlocks[firstAvailableBlock]!!
+
+        Log.d(
+            "CardScanService",
+            "Selected writable service ${bestCandidate.service.code.toHexString()}, " +
+                "${bestCandidate.availableBlocks.size} available blocks, " +
+                "${bestCandidate.unavailableBlocks.size} unavailable blocks, " +
+                "first available: block $firstAvailableBlock (${if (firstBlockData.all { it == 0x00.toByte() }) "all-zero" else "all-FF"}) " +
+                "for safe write testing",
+        )
+
+        return WritableServiceInfo(
+            service = bestCandidate.service,
+            systemCode = bestCandidate.systemContext.systemCode,
+            availableBlocks = bestCandidate.availableBlocks,
+            unavailableBlocks = bestCandidate.unavailableBlocks,
+        )
     }
 
     private suspend fun executeReadBlocksWithoutEncryption(
@@ -2602,9 +2969,12 @@ class CardScanService {
             val blockReader =
                 BlockReader(
                     target = target,
-                    errorLocationIndication = scanContext.errorLocationIndication,
-                    maxBlocksPerRequest = scanContext.maxBlocksPerRequest ?: 15,
-                    maxServicesPerRequest = scanContext.maxServicesPerRequest ?: 16,
+                    errorLocationIndication =
+                        scanContext.readWithoutEncryptionErrorLocationIndication,
+                    maxBlocksPerRequest =
+                        scanContext.readWithoutEncryptionMaxBlocksPerRequest ?: 15,
+                    maxServicesPerRequest =
+                        scanContext.readWithoutEncryptionMaxServicesPerRequest ?: 16,
                     extraBlocksByServiceCode = extraBlocksByServiceCode,
                 )
             val blockDataByService = blockReader.readBlocksFromServices(servicesWithoutAuth)
@@ -2712,7 +3082,7 @@ class CardScanService {
         var totalServicesProcessed = 0
         var totalBlocksScanned = 0
 
-        val maxBlocksPerRequest = scanContext.maxBlocksPerRequest ?: 15
+        val maxBlocksPerRequest = scanContext.readWithoutEncryptionMaxBlocksPerRequest ?: 15
 
         for ((contextIndex, systemContext) in scanContext.systemScanContexts.withIndex()) {
             pollSystemCode(target, systemContext.systemCode)
