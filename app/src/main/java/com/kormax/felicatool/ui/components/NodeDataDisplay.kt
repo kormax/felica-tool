@@ -878,6 +878,23 @@ fun TreeNodeCard(
                         }
                     }
 
+                    // Block count chip
+                    val blockCount =
+                        context.nodeBlockCounts[node]?.takeUnless { it.isInvalid }?.toInt()
+                    val assignedCount =
+                        context.nodeAssignedBlockCounts[node]?.takeUnless { it.isInvalid }?.toInt()
+                    val freeCount =
+                        context.nodeFreeBlockCounts[node]?.takeUnless { it.isInvalid }?.toInt()
+                    if (blockCount != null || assignedCount != null || freeCount != null) {
+                        val blockText =
+                            if (assignedCount != null && freeCount != null) {
+                                "Blocks: $freeCount/$assignedCount"
+                            } else {
+                                "Blocks: ${blockCount ?: 0}"
+                            }
+                        AttributeChip(blockText, isInfo = true)
+                    }
+
                     // Area and System attribute chips (below the main text) - only remaining
                     // attributes
                     if (node !is Service) {
@@ -1046,25 +1063,6 @@ private fun NodeDetailsContent(nodeInfo: NodeInformation, context: SystemScanCon
                     )
                 }
             }
-        }
-    }
-
-    // Block Information
-    context.nodeBlockCounts[node]?.let { blockCount ->
-        if (!blockCount.isInvalid) {
-            CompactInfoRow(label = "Block Count", value = blockCount.toInt().toString())
-        }
-    }
-
-    context.nodeAssignedBlockCounts[node]?.let { assignedCount ->
-        if (!assignedCount.isInvalid) {
-            CompactInfoRow(label = "Assigned Blocks", value = assignedCount.toInt().toString())
-        }
-    }
-
-    context.nodeFreeBlockCounts[node]?.let { freeCount ->
-        if (!freeCount.isInvalid) {
-            CompactInfoRow(label = "Free Blocks", value = freeCount.toInt().toString())
         }
     }
 
@@ -1451,11 +1449,8 @@ private fun getNodeDisplayText(
 }
 
 private fun hasNodeDetails(node: Node, context: SystemScanContext): Boolean {
-    return context.nodeBlockCounts[node] != null ||
-        context.nodeAssignedBlockCounts[node] != null ||
-        context.nodeFreeBlockCounts[node] != null ||
-        // Only check VLPS properties for services, and only if enabled (since chip shows in header)
-        (node is Service && context.nodeValueLimitedPurseProperties[node]?.enabled == true) ||
+    // Only check VLPS properties for services, and only if enabled (since chip shows in header)
+    return (node is Service && context.nodeValueLimitedPurseProperties[node]?.enabled == true) ||
         context.serviceBlockData[node] != null ||
         (node is System && (context.idm != null || context.systemStatus != null))
 }
