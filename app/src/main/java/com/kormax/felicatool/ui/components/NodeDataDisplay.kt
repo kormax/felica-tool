@@ -894,13 +894,6 @@ fun TreeNodeCard(
                             }
                         AttributeChip(blockText, isInfo = true)
                     }
-
-                    // Area and System attribute chips (below the main text) - only remaining
-                    // attributes
-                    if (node !is Service) {
-                        AttributeChip("Areas: ${nodeInfo.immediateAreaCount}", isInfo = true)
-                        AttributeChip("Services: ${nodeInfo.immediateServiceCount}", isInfo = true)
-                    }
                 }
             }
 
