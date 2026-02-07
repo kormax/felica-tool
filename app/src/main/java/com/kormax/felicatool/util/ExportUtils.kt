@@ -19,10 +19,113 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 object ExportUtils {
+    /** Masks an IDM hex string, keeping first 2 bytes and last 1 byte visible */
+    private fun maskIdm(hex: String): String {
+        if (hex.length < 6) return hex
+        val prefix = hex.substring(0, 4) // first 2 bytes
+        val suffix = hex.substring(hex.length - 2) // last 1 byte
+        val middleLength = hex.length - 6
+        val masked = "XX".repeat(middleLength / 2)
+        return prefix + masked + suffix
+    }
+
+    /**
+     * Masks block data hex string by half-blocks (8 bytes = 16 hex chars each). A half-block is
+     * kept if all its bytes are the same value, otherwise masked with XX.
+     */
+    private fun maskBlockData(hex: String): String {
+        val halfBlockSize = 16 // 8 bytes = 16 hex chars
+        return hex.chunked(halfBlockSize).joinToString("") { half ->
+            if (half.length < 2) {
+                "XX".repeat(half.length / 2)
+            } else {
+                val firstByte = half.substring(0, 2)
+                val allSame = half.chunked(2).all { it.equals(firstByte, ignoreCase = true) }
+                if (allSame) half else "XX".repeat(half.length / 2)
+            }
+        }
+    }
+
+    /**
+     * Applies privacy masking to a FeliCa communication log entry hex string based on message type
+     */
+    private fun maskCommunicationLogHex(hex: String, message: Any): String {
+        var result = hex
+        // Mask IDM (bytes 2-9, hex chars 4-19) for messages with IDM
+        if (message is FelicaMessageWithIdm && result.length >= 20) {
+            val idmHex = result.substring(4, 20) // 8 bytes = 16 hex chars
+            result = result.substring(0, 4) + maskIdm(idmHex) + result.substring(20)
+        }
+        // Mask block data in read responses
+        if (
+            message is ReadWithoutEncryptionResponse ||
+                message is InternalAuthenticateAndReadResponse
+        ) {
+            result = maskResponseBlockHex(result)
+        }
+        // Mask platform information data (bytes 13+, keep first 8 bytes of platform data)
+        if (message is GetPlatformInformationResponse) {
+            result = maskPlatformInfoHex(result)
+        }
+        return result
+    }
+
+    /**
+     * Masks platform info in a GetPlatformInformation response hex string. Keeps header (up to
+     * byte 13) and first 8 bytes of platform data, masks the rest.
+     */
+    private fun maskPlatformInfoHex(hex: String): String {
+        // Byte 12 (hex chars 24-25) is the data length, platform data starts at byte 13 (hex char
+        // 26)
+        val platformDataStart = 26
+        if (hex.length <= platformDataStart) return hex
+        val platformDataHex = hex.substring(platformDataStart)
+        val masked = maskPlatformInfo(platformDataHex)
+        return hex.substring(0, platformDataStart) + masked
+    }
+
+    /**
+     * Masks block data in a response hex string (for ReadWithoutEncryption and
+     * InternalAuthenticateAndRead)
+     */
+    private fun maskResponseBlockHex(hex: String): String {
+        // Status flags at bytes 10-11 (hex chars 20-23), block count at byte 12 (hex chars 24-25)
+        if (hex.length < 26) return hex
+        val statusFlag1 = hex.substring(20, 22)
+        if (statusFlag1 != "00") return hex
+        val numberOfBlocks = hex.substring(24, 26).toInt(16)
+        val blockDataStart = 26 // byte 13 = hex char 26
+        val sb = StringBuilder(hex.substring(0, blockDataStart))
+        for (block in 0 until numberOfBlocks) {
+            val offset = blockDataStart + block * 32 // 16 bytes = 32 hex chars
+            if (offset + 32 > hex.length) break
+            val blockHex = hex.substring(offset, offset + 32)
+            sb.append(maskBlockData(blockHex))
+        }
+        // Append any remaining data after block data (e.g. challenge + MAC)
+        val afterBlocks = blockDataStart + numberOfBlocks * 32
+        if (afterBlocks < hex.length) {
+            sb.append(hex.substring(afterBlocks))
+        }
+        return sb.toString()
+    }
+
+    /** Masks platform info hex string, keeping first 8 bytes visible */
+    private fun maskPlatformInfo(hex: String): String {
+        if (hex.length <= 16) return hex
+        val prefix = hex.substring(0, 16) // first 8 bytes
+        val remainingBytes = (hex.length - 16) / 2
+        return prefix + "XX".repeat(remainingBytes)
+    }
+
     /** Exports the communication log as a JSON file and shares it */
-    fun exportCommunicationLog(context: Context, log: List<CommunicationLogEntry>) {
+    fun exportCommunicationLog(
+        context: Context,
+        log: List<CommunicationLogEntry>,
+        privacy: Boolean = false,
+    ) {
         try {
-            val jsonArray = generateCommunicationLogJson(log)
+            val jsonArray = generateCommunicationLogJson(log, privacy)
             val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
             val fileName = "felicatools_communication_$timestamp.json"
             val jsonContent = jsonArray.toString(2)
@@ -48,7 +151,10 @@ object ExportUtils {
     }
 
     /** Generates JSON representation of the communication log */
-    fun generateCommunicationLogJson(log: List<CommunicationLogEntry>): JSONArray {
+    fun generateCommunicationLogJson(
+        log: List<CommunicationLogEntry>,
+        privacy: Boolean = false,
+    ): JSONArray {
         val jsonArray = JSONArray()
 
         // Get the timestamp of the first entry to use as baseline
@@ -56,23 +162,28 @@ object ExportUtils {
 
         log.forEach { entry ->
             val obj = JSONObject()
-            obj.put("type", entry.type.name)
-            entry.name?.let { obj.put("name", it) }
+            val message = entry.message
+            obj.put("type", if (message is FelicaCommand<*>) "COMMAND" else "RESPONSE")
+            obj.put("name", message::class.simpleName)
             obj.put("timestamp_ns", entry.timestamp - baseTimestamp)
-            obj.put("data", entry.data?.joinToString(separator = "") { "%02X".format(it) })
+            val hex = entry.toByteArray().joinToString(separator = "") { "%02X".format(it) }
+            obj.put("data", if (privacy) maskCommunicationLogHex(hex, message) else hex)
             jsonArray.put(obj)
         }
         return jsonArray
     }
 
     /** Exports the scan data as a flat list to a JSON file */
-    fun exportFlatList(context: Context, scanContext: CardScanContext) {
+    fun exportFlatList(context: Context, scanContext: CardScanContext, privacy: Boolean = false) {
         try {
-            val json = generateFlatListJson(scanContext)
+            val json = generateFlatListJson(scanContext, privacy)
 
             // Create filename with primary IDM and timestamp
             val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-            val primaryIdmPrefix = scanContext.primaryIdm?.toHexString()?.let { "${it}_" } ?: ""
+            val primaryIdmPrefix =
+                scanContext.primaryIdm?.toHexString()?.let {
+                    "${if (privacy) maskIdm(it) else it}_"
+                } ?: ""
             val fileName = "felicatools_scan_${primaryIdmPrefix}$timestamp.json"
             val jsonContent = json.toString(2)
 
@@ -118,21 +229,36 @@ object ExportUtils {
     }
 
     /** Generates JSON representation of the CardScanContext as a flat list organized per system */
-    private fun generateFlatListJson(scanContext: CardScanContext): JSONObject {
+    private fun generateFlatListJson(
+        scanContext: CardScanContext,
+        privacy: Boolean = false,
+    ): JSONObject {
         val json = JSONObject()
 
         // Metadata
         val metadataJson = JSONObject()
-        metadataJson.put("creation_time", java.lang.System.currentTimeMillis() / 1000L)
-        metadataJson.put("app_version", BuildConfig.VERSION_NAME)
-        metadataJson.put("android_sdk_version", Build.VERSION.SDK_INT)
-        metadataJson.put("android_version", Build.VERSION.RELEASE)
-        metadataJson.put("device_manufacturer", Build.MANUFACTURER)
-        metadataJson.put("device_model", Build.MODEL)
+        if (privacy) {
+            metadataJson.put("creation_time", 0)
+            metadataJson.put("app_version", BuildConfig.VERSION_NAME)
+            metadataJson.put("android_sdk_version", 0)
+            metadataJson.put("android_version", "0")
+            metadataJson.put("device_manufacturer", "")
+            metadataJson.put("device_model", "")
+        } else {
+            metadataJson.put("creation_time", java.lang.System.currentTimeMillis() / 1000L)
+            metadataJson.put("app_version", BuildConfig.VERSION_NAME)
+            metadataJson.put("android_sdk_version", Build.VERSION.SDK_INT)
+            metadataJson.put("android_version", Build.VERSION.RELEASE)
+            metadataJson.put("device_manufacturer", Build.MANUFACTURER)
+            metadataJson.put("device_model", Build.MODEL)
+        }
         json.put("metadata", metadataJson)
 
         // Primary attributes from CardScanContext
-        scanContext.primaryIdm?.let { json.put("primary_idm", it.toHexString().lowercase()) }
+        scanContext.primaryIdm?.let {
+            val hex = it.toHexString().lowercase()
+            json.put("primary_idm", if (privacy) maskIdm(hex) else hex)
+        }
 
         scanContext.pmm?.let { pmm -> json.put("pmm", pmm.toHexString().lowercase()) }
 
@@ -144,7 +270,10 @@ object ExportUtils {
 
         scanContext.primarySystemCode?.let { json.put("primary_system_code", it.toHexString()) }
 
-        scanContext.containerIdm?.let { json.put("container_idm", it.toHexString()) }
+        scanContext.containerIdm?.let {
+            val hex = it.toHexString()
+            json.put("container_idm", if (privacy) maskIdm(hex) else hex)
+        }
 
         // Specification version
         scanContext.specificationVersion?.let { spec ->
@@ -168,10 +297,8 @@ object ExportUtils {
         }
 
         scanContext.platformInformation?.let { platformInformationResponse ->
-            json.put(
-                "platform_information",
-                platformInformationResponse.platformInformationData.toHexString(),
-            )
+            val hex = platformInformationResponse.platformInformationData.toHexString()
+            json.put("platform_information", if (privacy) maskPlatformInfo(hex) else hex)
         }
 
         // Container issue information
@@ -300,7 +427,10 @@ object ExportUtils {
             val systemJson = JSONObject()
 
             // System IDM
-            systemContext.idm?.let { systemJson.put("idm", it.toHexString()) }
+            systemContext.idm?.let {
+                val hex = it.toHexString()
+                systemJson.put("idm", if (privacy) maskIdm(hex) else hex)
+            }
 
             // System name
             val systemName =
@@ -336,7 +466,7 @@ object ExportUtils {
             val nodesArray = JSONArray()
 
             systemNodes.forEach { node ->
-                val nodeJson = buildNodeJson(node, systemContext, systemCodeHex)
+                val nodeJson = buildNodeJson(node, systemContext, systemCodeHex, privacy)
                 nodesArray.put(nodeJson)
             }
 
@@ -354,6 +484,7 @@ object ExportUtils {
         node: Node,
         systemContext: SystemScanContext,
         systemCodeHex: String,
+        privacy: Boolean = false,
     ): JSONObject {
         val nodeJson = JSONObject()
 
@@ -438,7 +569,8 @@ object ExportUtils {
                     for ((blockNumber, blockData) in blockDataMap.entries.sortedBy { it.key }) {
                         // Use 4-character hex format for block numbers
                         val blockKey = blockNumber.toString(16).uppercase().padStart(4, '0')
-                        dataJson.put(blockKey, blockData.toHexString())
+                        val hex = blockData.toHexString()
+                        dataJson.put(blockKey, if (privacy) maskBlockData(hex) else hex)
                     }
 
                     nodeJson.put("data", dataJson)

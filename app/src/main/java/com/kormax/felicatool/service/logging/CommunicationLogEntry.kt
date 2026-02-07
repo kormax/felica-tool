@@ -1,13 +1,13 @@
 package com.kormax.felicatool.service.logging
 
 data class CommunicationLogEntry(
-    val type: Type,
     val timestamp: Long, // monotonic time in nanoseconds
-    val data: ByteArray?,
-    val name: String? = null,
+    val message: Any,
 ) {
-    enum class Type {
-        COMMAND,
-        RESPONSE,
-    }
+    fun toByteArray(): ByteArray =
+        when (message) {
+            is com.kormax.felicatool.felica.FelicaCommand<*> -> message.toByteArray()
+            is com.kormax.felicatool.felica.FelicaResponse -> message.toByteArray()
+            else -> ByteArray(0)
+        }
 }

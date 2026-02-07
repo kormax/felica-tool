@@ -17,24 +17,10 @@ class CommunicationLoggedFeliCaTarget(private val target: FeliCaTarget) : FeliCa
         timeout: Duration?,
     ): T {
         val now = mark.elapsedNow().inWholeNanoseconds
-        _log.add(
-            CommunicationLogEntry(
-                CommunicationLogEntry.Type.COMMAND,
-                now,
-                command.toByteArray(),
-                command::class.simpleName,
-            )
-        )
+        _log.add(CommunicationLogEntry(now, command))
         val response = target.transceive(command, timeout)
         val nowResp = mark.elapsedNow().inWholeNanoseconds
-        _log.add(
-            CommunicationLogEntry(
-                CommunicationLogEntry.Type.RESPONSE,
-                nowResp,
-                response.toByteArray(),
-                response::class.simpleName,
-            )
-        )
+        _log.add(CommunicationLogEntry(nowResp, response))
         return response
     }
 

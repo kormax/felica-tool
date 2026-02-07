@@ -3,14 +3,18 @@ package com.kormax.felicatool.ui
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -29,6 +33,7 @@ fun ScanResultsOverview(
 ) {
     val context = LocalContext.current
     var showExportMenu by remember { mutableStateOf(false) }
+    var privacyMode by remember { mutableStateOf(false) }
 
     // Handle system back button
     BackHandler { onBackPressed() }
@@ -56,12 +61,24 @@ fun ScanResultsOverview(
                         onDismissRequest = { showExportMenu = false },
                     ) {
                         DropdownMenuItem(
+                            text = {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Checkbox(checked = privacyMode, onCheckedChange = null)
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text("Privacy mode")
+                                }
+                            },
+                            onClick = { privacyMode = !privacyMode },
+                        )
+                        HorizontalDivider()
+                        DropdownMenuItem(
                             text = { Text("Export scan results as JSON") },
                             onClick = {
                                 showExportMenu = false
                                 ExportUtils.exportFlatList(
                                     context,
                                     cardScanService.getScanContext(),
+                                    privacyMode,
                                 )
                             },
                         )
@@ -72,6 +89,7 @@ fun ScanResultsOverview(
                                 ExportUtils.exportCommunicationLog(
                                     context,
                                     cardScanService.getScanContext().communicationLog,
+                                    privacyMode,
                                 )
                             },
                         )
