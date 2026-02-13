@@ -3737,14 +3737,15 @@ class CardScanService {
         // Take a subset of DES-compatible areas and services from the selected system
         // Seems to require at least 1 area (but works at 12, tested with 16 services)
         val areasToAuth = bestDesCompatibleAreas.take(1)
-        // Seems to require at least 1 service (but works at 16, tested with 12 services)
-        val servicesToAuth = bestDesCompatibleServices.take(1)
+        // Seems to require at least 1 node (service or area) (but works at 16, tested with 12
+        // services)
+        val nodesToAuth = bestDesCompatibleServices.take(1).ifEmpty { areasToAuth }
 
         val authenticateCommand =
             Authentication1DesCommand(
                 idm = target.idm,
                 areaNodes = areasToAuth,
-                serviceNodes = servicesToAuth,
+                nodes = nodesToAuth,
                 challenge1A = challenge1A,
             )
 
@@ -3774,7 +3775,7 @@ class CardScanService {
                 appendLine("DES Authentication Results:")
                 appendLine("Selected system: $systemCodeHex")
                 appendLine(
-                    "DES-compatible areas (${areasToAuth.size}) and services (${servicesToAuth.size}) used"
+                    "DES-compatible areas (${areasToAuth.size}) and nodes (${nodesToAuth.size}) used"
                 )
                 appendLine("Challenge1A (sent): ${challenge1A.toHexString()}")
                 appendLine(
@@ -3802,19 +3803,24 @@ class CardScanService {
                     appendLine()
                 }
 
-                if (servicesToAuth.isNotEmpty()) {
-                    appendLine("Services authenticated:")
-                    servicesToAuth.forEachIndexed { index, service ->
+                if (nodesToAuth.isNotEmpty()) {
+                    appendLine("Nodes authenticated:")
+                    nodesToAuth.forEachIndexed { index, node ->
                         val keyType =
                             when {
-                                bestSystemContext.nodeDesKeyVersions.containsKey(service) ->
-                                    "DES key"
-                                bestSystemContext.nodeKeyVersions.containsKey(service) ->
+                                bestSystemContext.nodeDesKeyVersions.containsKey(node) -> "DES key"
+                                bestSystemContext.nodeKeyVersions.containsKey(node) ->
                                     "Legacy (DES) key"
                                 else -> "Unknown"
                             }
+                        val nodeDescription =
+                            when (node) {
+                                is Area -> "Area ${node.number}-${node.endNumber}"
+                                is Service -> "Service ${node.number}"
+                                else -> "Node"
+                            }
                         appendLine(
-                            "  ${index + 1}. Service ${service.number} (${service.code.toHexString()}) - $keyType"
+                            "  ${index + 1}. $nodeDescription (${node.code.toHexString()}) - $keyType"
                         )
                     }
                     appendLine()
