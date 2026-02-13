@@ -31,7 +31,9 @@ object ServiceIconMapper {
             "OCTOPUS" to R.drawable.service_octopus,
             "OKICA" to R.drawable.service_okica,
             "PASMO" to R.drawable.service_pasmo,
+            "EDY" to R.drawable.service_edy,
             "RAKUTEN_EDY" to R.drawable.service_rakuten_edy,
+            "RAKUTEN_POINT" to R.drawable.service_rakuten_point,
             "SAPICA" to R.drawable.service_sapica,
             "SHENZEN_TONG" to R.drawable.service_shenzen_tong,
             "SUGOCA" to R.drawable.service_sugoca,
@@ -73,6 +75,8 @@ object ServiceIconMapper {
             "YODOBASHI_GOLDPOINT" to R.drawable.service_yodobashi_goldpoint,
             "UNFUSED" to R.drawable.service_unknown,
             "KESAKA" to R.drawable.service_kesaka,
+            "QUICPAY" to R.drawable.service_quicpay,
+            "SKYRAIL" to R.drawable.service_skyrail,
         )
 
     @DrawableRes
