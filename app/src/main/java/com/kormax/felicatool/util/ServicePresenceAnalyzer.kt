@@ -34,7 +34,7 @@ object ServicePresenceAnalyzer {
                 names.forEach { providerName ->
                     providers
                         .getOrPut(providerName) { MutableProviderPresence(providerName) }
-                        .addMatch(systemCode)
+                        .addMatch(systemCode, isRootArea = area.isRoot)
                 }
             }
 
@@ -53,14 +53,17 @@ object ServicePresenceAnalyzer {
                     names.forEach { providerName ->
                         providers
                             .getOrPut(providerName) { MutableProviderPresence(providerName) }
-                            .addMatch(systemCode)
+                            .addMatch(systemCode, isRootArea = false)
                     }
                 }
             }
         }
 
+        // Filter out providers with only root area nodes, unless they are the only ones
+        val hasAnyNonRootProvider = providers.values.any { it.hasNonRootNode }
         val providerList =
             providers.values
+                .filter { it.hasNonRootNode || !hasAnyNonRootProvider }
                 .sortedWith(
                     compareByDescending<MutableProviderPresence> { it.nodeCount }
                         .thenBy { it.provider }
@@ -90,9 +93,15 @@ object ServicePresenceAnalyzer {
         var nodeCount: Int = 0
             private set
 
-        fun addMatch(systemCode: String) {
+        var hasNonRootNode: Boolean = false
+            private set
+
+        fun addMatch(systemCode: String, isRootArea: Boolean) {
             systemCodes += systemCode
             nodeCount++
+            if (!isRootArea) {
+                hasNonRootNode = true
+            }
         }
 
         fun toImmutable(): ProviderPresence {
