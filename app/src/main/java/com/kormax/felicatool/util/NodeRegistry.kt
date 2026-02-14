@@ -32,8 +32,23 @@ object NodeRegistry {
     }
 
     fun getNodeName(systemCode: String, nodeCode: String, type: NodeDefinitionType): String? {
+        return getNodeName(systemCode, nodeCode, null, type)
+    }
+
+    /**
+     * Gets the name for a node, considering the parent area for proper resolution. This is
+     * important for services that appear multiple times in different hierarchies with different
+     * names.
+     */
+    fun getNodeName(
+        systemCode: String,
+        nodeCode: String,
+        parentCode: String?,
+        type: NodeDefinitionType,
+    ): String? {
         val normalizedSystem = systemCode.uppercase()
         val normalizedCode = nodeCode.uppercase()
+        val normalizedParent = parentCode?.uppercase()
 
         // For SYSTEM type, return the system name
         if (type == NodeDefinitionType.SYSTEM) {
@@ -46,7 +61,46 @@ object NodeRegistry {
                 definition.type == type && definition.code == normalizedCode
             }
 
-        return matchingNodes.firstOrNull()?.name
+        if (matchingNodes.isEmpty()) {
+            return null
+        }
+
+        // If no parent provided, return the first matching name
+        if (normalizedParent == null) {
+            return matchingNodes.firstOrNull { it.name != null }?.name
+        }
+
+        // Try exact parent match first
+        val exactParentMatch =
+            matchingNodes.find { it.parent == normalizedParent && it.name != null }
+        if (exactParentMatch != null) {
+            return exactParentMatch.name
+        }
+
+        // Check if the provided parent is an ancestor of any matching node's parent
+        val ancestorMatch =
+            matchingNodes.find { definition ->
+                definition.parent != null &&
+                    definition.name != null &&
+                    isAncestorOf(nodes, normalizedParent, definition.parent)
+            }
+        if (ancestorMatch != null) {
+            return ancestorMatch.name
+        }
+
+        // Check if any matching node's defined parent is an ancestor of the provided parent
+        val descendantMatch =
+            matchingNodes.find { definition ->
+                definition.parent != null &&
+                    definition.name != null &&
+                    isAncestorOf(nodes, definition.parent, normalizedParent)
+            }
+        if (descendantMatch != null) {
+            return descendantMatch.name
+        }
+
+        // Fall back to first non-null name
+        return matchingNodes.firstOrNull { it.name != null }?.name
     }
 
     fun getSystemProviders(systemCode: String): Set<String> {
