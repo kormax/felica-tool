@@ -66,7 +66,7 @@ object ServiceGrouper {
     private fun findContainingArea(service: Service, context: SystemScanContext): Area? {
         return context.nodes
             .filterIsInstance<Area>()
-            .filter { candidate -> service.belongsTo(candidate) && !candidate.isRoot }
+            .filter { candidate -> service.belongsTo(candidate) }
             .minByOrNull { it.endNumber - it.number }
     }
 

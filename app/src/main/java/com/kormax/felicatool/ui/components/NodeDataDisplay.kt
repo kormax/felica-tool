@@ -1380,8 +1380,9 @@ private fun getServiceNameFromNodeInfo(
 ): String? {
     val systemCode = context.systemCode?.toHexString()?.uppercase() ?: return null
     val serviceCode = service.code.toHexString().uppercase()
+    val parentCode = parentArea?.fullCode?.toHexString()?.uppercase()
 
-    return NodeRegistry.getNodeName(systemCode, serviceCode, NodeDefinitionType.SERVICE)
+    return NodeRegistry.getNodeName(systemCode, serviceCode, parentCode, NodeDefinitionType.SERVICE)
 }
 
 private fun getNodeDisplayText(
@@ -1395,9 +1396,11 @@ private fun getNodeDisplayText(
             val baseText = "Area ${area.fullCode.toHexString()} (${area.number}-${area.endNumber})"
             val areaName =
                 context.systemCode?.toHexString()?.uppercase()?.let { systemCode ->
+                    val areaParentCode = parentArea?.fullCode?.toHexString()?.uppercase()
                     NodeRegistry.getNodeName(
                         systemCode,
                         area.fullCode.toHexString().uppercase(),
+                        areaParentCode,
                         NodeDefinitionType.AREA,
                     )
                 }
