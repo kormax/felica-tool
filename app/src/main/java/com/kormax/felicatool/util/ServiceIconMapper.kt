@@ -66,7 +66,8 @@ object ServiceIconMapper {
             "ECOMYCA" to R.drawable.service_ecomyca,
             "PASSCA" to R.drawable.service_passca,
             "NAGASAKI_SMART" to R.drawable.service_nagasaki_smart,
-            "KARTU_MULTI_TRIP" to R.drawable.service_kartu_multi_trip,
+            "KMT_COMMET" to R.drawable.service_kmt_commet,
+            "KMT_JELAJAH" to R.drawable.service_kmt_jelajah,
             "SETAMARU" to R.drawable.service_setamaru,
             "SAITAMA_RAILWAY" to R.drawable.service_saitama_railway,
             "NANKAI" to R.drawable.service_nankai,
@@ -76,7 +77,10 @@ object ServiceIconMapper {
             "UNFUSED" to R.drawable.service_unknown,
             "KESAKA" to R.drawable.service_kesaka,
             "QUICPAY" to R.drawable.service_quicpay,
+            "KARUWAZA_CLUB" to R.drawable.service_karuwaza_club,
+            "EZLINK" to R.drawable.service_ezlink,
             "SKYRAIL" to R.drawable.service_skyrail,
+            "YAMANASHI_KOTSU" to R.drawable.service_yamanashi_kotsu,
         )
 
     @DrawableRes
