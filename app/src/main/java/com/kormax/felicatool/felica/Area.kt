@@ -11,7 +11,7 @@ package com.kormax.felicatool.felica
  */
 data class Area(
     override val number: Int,
-    val attribute: AreaAttribute,
+    override val attribute: AreaAttribute,
     val endNumber: Int,
     val endAttribute: AreaAttribute,
 ) : Node {

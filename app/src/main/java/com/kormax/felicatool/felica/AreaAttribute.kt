@@ -5,10 +5,10 @@ import com.kormax.felicatool.annotation.SealedEnum
 /** Represents an Area Attribute in the FeliCa file system. */
 @SealedEnum
 sealed class AreaAttribute(
-    open val value: Int,
+    override val value: Int,
     open val canCreateSubArea: Boolean,
     open val pinRequired: Boolean,
-) {
+) : NodeAttribute {
     data object CanCreateSubArea :
         AreaAttribute(0b000000, true, false) // Area that can create Sub-Area
 

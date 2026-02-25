@@ -6,6 +6,8 @@ package com.kormax.felicatool.felica
  */
 object System : Node {
 
+    override val attribute: SystemAttribute = SystemAttribute
+
     /** Returns the system code as a byte array (2 bytes: 0xFF 0xFF). */
     override val code: ByteArray
         get() = byteArrayOf(0xFF.toByte(), 0xFF.toByte())

@@ -5,12 +5,12 @@ import com.kormax.felicatool.annotation.SealedEnum
 /** Represents a Service Attribute in the FeliCa file system. */
 @SealedEnum
 sealed class ServiceAttribute(
-    open val value: Int,
+    override val value: Int,
     open val type: ServiceType,
     open val mode: ServiceMode,
     open val authenticationRequired: Boolean,
     open val pinRequired: Boolean,
-) {
+) : NodeAttribute {
     data object RandomRwWithKey :
         ServiceAttribute(0b001000, ServiceType.RANDOM, ServiceMode.READ_WRITE, true, false)
 

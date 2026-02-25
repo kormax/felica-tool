@@ -14,6 +14,7 @@ interface Node {
      */
     abstract val code: ByteArray
     abstract val number: Int
+    abstract val attribute: NodeAttribute
 
     /**
      * Returns the full code bytes for this node.

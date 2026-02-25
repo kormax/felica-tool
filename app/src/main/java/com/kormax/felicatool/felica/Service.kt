@@ -7,7 +7,7 @@ package com.kormax.felicatool.felica
  * @property number The Service Number (upper 10 bits of Service Code)
  * @property attribute The Service Attribute (lower 6 bits of Service Code)
  */
-data class Service(override val number: Int, val attribute: ServiceAttribute) : Node {
+data class Service(override val number: Int, override val attribute: ServiceAttribute) : Node {
 
     init {
         require(number in 0..1023) {
