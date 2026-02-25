@@ -466,9 +466,9 @@ object ExportUtils {
             val nodesArray = JSONArray()
 
             systemNodes.forEach { node ->
-                val containingArea = findContainingArea(node, systemContext)
+                val parentArea = findContainingArea(node, systemContext)
                 val nodeJson =
-                    buildNodeJson(node, systemContext, systemCodeHex, privacy, containingArea)
+                    buildNodeJson(node, systemContext, systemCodeHex, privacy, parentArea)
                 nodesArray.put(nodeJson)
             }
 
@@ -481,12 +481,25 @@ object ExportUtils {
         return json
     }
 
-    /** Finds the most immediate containing area for a node */
+    /** Finds the immediate containing area for a node. */
     private fun findContainingArea(node: Node, context: SystemScanContext): Area? {
-        return context.nodes
-            .filterIsInstance<Area>()
-            .filter { candidate -> node.belongsTo(candidate) }
-            .minByOrNull { it.endNumber - it.number }
+        val areas = context.nodes.filterIsInstance<Area>()
+        return when (node) {
+            is Service ->
+                areas
+                    .filter { candidate -> node.belongsTo(candidate) }
+                    .minByOrNull { it.endNumber - it.number }
+            is Area ->
+                areas
+                    .filter { candidate ->
+                        candidate != node &&
+                            node.belongsTo(candidate) &&
+                            // Strict containment avoids choosing same-range variants/self.
+                            (candidate.number < node.number || candidate.endNumber > node.endNumber)
+                    }
+                    .minByOrNull { it.endNumber - it.number }
+            else -> null
+        }
     }
 
     /** Builds JSON representation for a single node */
@@ -506,7 +519,7 @@ object ExportUtils {
                 nodeJson.put("number", node.number)
                 nodeJson.put("end_number", node.endNumber)
 
-                // Area name (using parent-aware lookup)
+                // Area name
                 val parentCode = parentArea?.fullCode?.toHexString()?.uppercase()
                 val areaName =
                     NodeRegistry.getNodeName(
@@ -532,7 +545,7 @@ object ExportUtils {
                 nodeJson.put("code", node.code.toHexString())
                 nodeJson.put("number", node.number)
 
-                // Service name (using parent-aware lookup)
+                // Service name
                 val parentCode = parentArea?.fullCode?.toHexString()?.uppercase()
                 val serviceName =
                     NodeRegistry.getNodeName(

@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Lock
@@ -23,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.kormax.felicatool.felica.Area
+import com.kormax.felicatool.felica.AreaAttribute
 import com.kormax.felicatool.felica.Service
 import com.kormax.felicatool.felica.ServiceAttribute
 import com.kormax.felicatool.service.SystemScanContext
@@ -30,6 +32,22 @@ import com.kormax.felicatool.util.NodeDefinitionType
 import com.kormax.felicatool.util.NodeRegistry
 import com.kormax.felicatool.util.ServiceGrouper
 import com.kormax.felicatool.util.ServiceIconMapper
+
+private data class AreaHeaderGroupKey(val number: Int, val endNumber: Int)
+
+private data class AreaHeaderGroup(val areas: List<Area>, val parentArea: Area?) {
+    val number: Int = areas.first().number
+    val endNumber: Int = areas.first().endNumber
+    val isRoot: Boolean = areas.any { it.isRoot }
+    val preferredArea: Area =
+        areas.firstOrNull { it.isRoot }
+            ?: areas.firstOrNull {
+                val attribute = it.attribute
+                attribute !is AreaAttribute.Unknown && attribute.canCreateSubArea
+            }
+            ?: areas.first()
+    val hasUnknownAttribute: Boolean = areas.any { it.attribute is AreaAttribute.Unknown }
+}
 
 /**
  * Displays services grouped by their service number. Services with the same number share the same
@@ -44,6 +62,7 @@ fun GroupedServicesSection(
 ) {
     // Use context-aware grouping that considers parent areas
     val groups = remember(context) { ServiceGrouper.groupServices(context) }
+    val areaHeaderGroupsByArea = remember(context) { buildAreaHeaderGroups(context) }
 
     Column(modifier = modifier.fillMaxWidth().padding(start = 8.dp)) {
         if (groups.isEmpty()) {
@@ -54,9 +73,110 @@ fun GroupedServicesSection(
                 modifier = Modifier.padding(16.dp),
             )
         } else {
+            var previousHeader: AreaHeaderGroup? = null
             groups.forEach { group ->
-                ServiceGroupCard(group = group, context = context, depth = depth)
+                val headerGroup = group.parentArea?.let { areaHeaderGroupsByArea[it] }
+
+                if (headerGroup != null && headerGroup != previousHeader) {
+                    AreaGroupHeader(headerGroup = headerGroup, context = context, depth = depth)
+                }
+
+                ServiceGroupCard(
+                    group = group,
+                    context = context,
+                    depth = if (headerGroup != null) depth + 1 else depth,
+                )
+
+                previousHeader = headerGroup
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun AreaGroupHeader(
+    headerGroup: AreaHeaderGroup,
+    context: SystemScanContext,
+    depth: Int,
+    modifier: Modifier = Modifier,
+) {
+    val indentWidth = (depth * 6).dp
+    val providerIconResIds =
+        remember(context.systemCode, headerGroup) {
+            resolveAreaGroupProviderIcons(headerGroup, context)
+        }
+    val areaName =
+        remember(context.systemCode, headerGroup) { getAreaGroupName(headerGroup, context) }
+    val areaCodesText =
+        remember(headerGroup) {
+            headerGroup.areas.joinToString(separator = " / ") {
+                it.fullCode.toHexString().uppercase()
+            }
+        }
+    val baseTitle =
+        if (headerGroup.areas.size > 1) {
+            "Area Group ${headerGroup.number}-${headerGroup.endNumber}"
+        } else {
+            "Area ${headerGroup.number}-${headerGroup.endNumber}"
+        }
+    val title = if (areaName != null) "$baseTitle - $areaName" else baseTitle
+
+    Row(
+        modifier = modifier.fillMaxWidth().padding(start = indentWidth).padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        if (providerIconResIds.isNotEmpty()) {
+            Surface(
+                shape = RoundedCornerShape(4.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant,
+            ) {
+                Row(modifier = Modifier.height(20.dp), verticalAlignment = Alignment.Top) {
+                    Icon(
+                        painter = painterResource(id = providerIconResIds.first()),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = Color.Unspecified,
+                    )
+                }
+            }
+        } else {
+            Icon(
+                imageVector = Icons.Default.AccountBox,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(16.dp),
+            )
+        }
+
+        Column(modifier = Modifier.weight(1f)) {
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+
+                if (headerGroup.isRoot) {
+                    ServiceGroupChip(text = "ROOT", isHighlight = true)
+                }
+                if (headerGroup.hasUnknownAttribute) {
+                    ServiceGroupChip(text = "SA?", isWarning = true)
+                }
+            }
+
+            Text(
+                text = areaCodesText,
+                style = MaterialTheme.typography.bodySmall,
+                fontFamily = FontFamily.Monospace,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 2.dp),
+            )
         }
     }
 }
@@ -84,9 +204,6 @@ fun ServiceGroupCard(
         remember(group.primaryService, context.systemCode, parentArea) {
             resolveServiceGroupProviderIcons(group, context, parentArea)
         }
-
-    // Check if any service in the group has block data
-    val hasBlockData = group.services.any { context.serviceBlockData[it]?.isNotEmpty() == true }
 
     // Get service name from registry (using primary service and parent area)
     val serviceName =
@@ -174,15 +291,13 @@ fun ServiceGroupCard(
                 }
             }
 
-            // Expand/collapse arrow
-            if (hasBlockData || group.isMultiService) {
-                Icon(
-                    imageVector = Icons.Default.KeyboardArrowDown,
-                    contentDescription = if (isExpanded) "Collapse" else "Expand",
-                    modifier = Modifier.size(16.dp).rotate(rotationAngle),
-                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                )
-            }
+            // Expand/collapse arrow - always show since expanded view has service details
+            Icon(
+                imageVector = Icons.Default.KeyboardArrowDown,
+                contentDescription = if (isExpanded) "Collapse" else "Expand",
+                modifier = Modifier.size(16.dp).rotate(rotationAngle),
+                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+            )
         }
 
         // Expanded content
@@ -488,6 +603,124 @@ private fun ServiceDetailRow(
             }
         }
     }
+}
+
+private fun buildAreaHeaderGroups(context: SystemScanContext): Map<Area, AreaHeaderGroup> {
+    val areas = context.nodes.filterIsInstance<Area>()
+    if (areas.isEmpty()) {
+        return emptyMap()
+    }
+
+    val parentByArea = areas.associateWith { area -> findImmediateParentArea(area, areas) }
+    val topLevelAreaByArea =
+        areas.associateWith { area -> findTopLevelAreaUnderRoot(area, parentByArea) }
+
+    val headersByTopLevelArea =
+        topLevelAreaByArea.values
+            .filterNotNull()
+            .distinct()
+            .groupBy { topLevelArea ->
+                AreaHeaderGroupKey(number = topLevelArea.number, endNumber = topLevelArea.endNumber)
+            }
+            .values
+            .flatMap { sameRangeTopLevelAreas ->
+                val sortedAreas =
+                    sameRangeTopLevelAreas.sortedWith(
+                        compareByDescending<Area> { it.isRoot }
+                            .thenByDescending { it.attribute.canCreateSubArea }
+                            .thenBy { it.attribute.value }
+                            .thenBy { it.fullCode.toHexString() }
+                    )
+                val headerGroup =
+                    AreaHeaderGroup(
+                        areas = sortedAreas,
+                        parentArea = parentByArea[sortedAreas.first()],
+                    )
+                sortedAreas.map { topLevelArea -> topLevelArea to headerGroup }
+            }
+            .toMap()
+
+    return topLevelAreaByArea
+        .mapNotNull { (area, topLevelArea) ->
+            topLevelArea?.let { top ->
+                headersByTopLevelArea[top]?.let { header -> area to header }
+            }
+        }
+        .toMap()
+}
+
+private fun findTopLevelAreaUnderRoot(area: Area, parentByArea: Map<Area, Area?>): Area? {
+    var current = area
+    var parent = parentByArea[current]
+
+    while (parent != null && !parent.isRoot) {
+        current = parent
+        parent = parentByArea[current]
+    }
+
+    return if (parent?.isRoot == true) current else null
+}
+
+private fun resolveAreaGroupProviderIcons(
+    headerGroup: AreaHeaderGroup,
+    context: SystemScanContext,
+): List<Int> {
+    val systemCode = context.systemCode?.toHexString()?.uppercase() ?: return emptyList()
+    val parentCode = headerGroup.parentArea?.fullCode?.toHexString()?.uppercase()
+
+    fun resolveIcons(area: Area): List<Int> {
+        val areaCode = area.fullCode.toHexString().uppercase()
+        val providers =
+            NodeRegistry.getProvidersForNode(
+                systemCode,
+                areaCode,
+                parentCode,
+                NodeDefinitionType.AREA,
+            )
+        return providers.mapNotNull { ServiceIconMapper.iconFor(it) }
+    }
+
+    return resolveInAreaGroup(headerGroup) { area -> resolveIcons(area).takeIf { it.isNotEmpty() } }
+        ?: emptyList()
+}
+
+private fun getAreaGroupName(headerGroup: AreaHeaderGroup, context: SystemScanContext): String? {
+    val systemCode = context.systemCode?.toHexString()?.uppercase() ?: return null
+    val parentCode = headerGroup.parentArea?.fullCode?.toHexString()?.uppercase()
+
+    fun resolveName(area: Area): String? {
+        val areaCode = area.fullCode.toHexString().uppercase()
+        return NodeRegistry.getNodeName(systemCode, areaCode, parentCode, NodeDefinitionType.AREA)
+    }
+
+    return resolveInAreaGroup(headerGroup, ::resolveName)
+}
+
+private fun <T> resolveInAreaGroup(headerGroup: AreaHeaderGroup, resolver: (Area) -> T?): T? {
+    resolver(headerGroup.preferredArea)?.let {
+        return it
+    }
+    for (area in headerGroup.areas) {
+        if (area == headerGroup.preferredArea) {
+            continue
+        }
+        resolver(area)?.let {
+            return it
+        }
+    }
+    return null
+}
+
+private fun findImmediateParentArea(area: Area, areas: List<Area>): Area? {
+    return areas
+        .filter { candidate ->
+            candidate != area &&
+                area.number >= candidate.number &&
+                area.endNumber <= candidate.endNumber &&
+                // Strict containment avoids same-range variants becoming parent/child.
+                (candidate.number < area.number || candidate.endNumber > area.endNumber)
+        }
+        .minWithOrNull(compareBy<Area>({ it.endNumber - it.number }, { it.number }))
 }
 
 @Composable

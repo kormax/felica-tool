@@ -107,10 +107,14 @@ object ServiceGrouper {
             }
             .sortedWith(
                 compareBy(
-                    // Sort by parent area number first (null/root areas come first)
-                    { it.parentArea?.number ?: -1 },
+                    // Sort primarily by service number
                     { it.number },
+                    // Then by attribute value of the primary service
+                    { it.primaryService.attribute.value },
+                    // Then by service type
                     { it.type.ordinal },
+                    // Then by parent area number (null/root areas come first)
+                    { it.parentArea?.number ?: -1 },
                 )
             )
     }
@@ -143,7 +147,9 @@ object ServiceGrouper {
                     parentArea = null,
                 )
             }
-            .sortedWith(compareBy({ it.number }, { it.type.ordinal }))
+            .sortedWith(
+                compareBy({ it.number }, { it.primaryService.attribute.value }, { it.type.ordinal })
+            )
     }
 
     /** Statistics about service grouping for a scan context. */
