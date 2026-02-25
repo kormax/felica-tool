@@ -22,6 +22,8 @@ class BlockReader(
 
     companion object {
         private const val TAG = "BlockReader"
+        private const val STATUS_FLAG2_SUCCESS = 0x00.toByte()
+        private const val STATUS_FLAG2_OK_MEMORY_WARNING = 0x71.toByte()
         private const val ILLEGAL_NUMBER_OF_SERVICE = 0xA1.toByte()
         private const val ILLEGAL_NUMBER_OF_BLOCK = 0xA2.toByte()
         private const val ILLEGAL_BLOCK_NUMBER = 0xA8.toByte()
@@ -31,6 +33,9 @@ class BlockReader(
         private const val BLOCK_SIZE = 16 // Each block is 16 bytes
         private const val MAX_CONSECUTIVE_FAILURES = 32
     }
+
+    private fun isReadStatusFlag2Successful(statusFlag2: Byte): Boolean =
+        statusFlag2 == STATUS_FLAG2_SUCCESS || statusFlag2 == STATUS_FLAG2_OK_MEMORY_WARNING
 
     /**
      * Reads blocks from services that don't require authentication
@@ -379,6 +384,34 @@ class BlockReader(
                     continue
                 }
 
+                if (!isReadStatusFlag2Successful(statusFlag2)) {
+                    consecutiveFailures++
+                    if (maxBlocks > 1) {
+                        maxBlocks = 1
+                        Log.w(
+                            TAG,
+                            "Unhandled read response status 0x${statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')} 0x${statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}: reducing max blocks per request to 1 and retrying",
+                        )
+                        continue
+                    }
+                    val failedBlockElement =
+                        blocksToRead.firstOrNull()
+                            ?: throw IllegalStateException(
+                                "Unhandled read status with max blocks already at 1 but request block list is empty"
+                            )
+                    val failedService =
+                        servicesToRead.getOrNull(failedBlockElement.serviceCodeListOrder)
+                            ?: throw IllegalStateException(
+                                "Unhandled read status with invalid serviceCodeListOrder=${failedBlockElement.serviceCodeListOrder}, services=${servicesToRead.size}"
+                            )
+                    blockCountByService[failedService] = failedBlockElement.blockNumber
+                    Log.w(
+                        TAG,
+                        "Unhandled read response status 0x${statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')} 0x${statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')} with max blocks already at 1: marking service $failedService as checked up to block ${failedBlockElement.blockNumber}",
+                    )
+                    continue
+                }
+
                 // Process successful response
                 consecutiveFailures = 0 // Reset failure counter on successful read
                 val blockDataArray = response.blockData
@@ -447,7 +480,10 @@ class BlockReader(
 
                     val response = target.transceive(readCommand)
 
-                    if (response.isStatusSuccessful && response.blockData.isNotEmpty()) {
+                    if (
+                        isReadStatusFlag2Successful(response.statusFlag2) &&
+                            response.blockData.isNotEmpty()
+                    ) {
                         val serviceBlocks = blockDataByService.getOrPut(service) { mutableMapOf() }
                         serviceBlocks[blockNumber] = response.blockData[0]
                         Log.d(

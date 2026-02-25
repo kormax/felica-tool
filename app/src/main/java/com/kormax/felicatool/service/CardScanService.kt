@@ -91,8 +91,21 @@ data class SystemScanContext(
 
 class CardScanService {
 
+    private data class ReadWithoutEncryptionTestTarget(
+        val systemContext: SystemScanContext,
+        val service: Service,
+        val blockNumber: Int,
+    )
+
     companion object {
         const val CARD_LOST_MESSAGE = "Card lost during scan - scan terminated"
+        private const val NO_SERVICES_AVAILABLE = "No services available"
+        private const val NO_SERVICES_WITHOUT_AUTHENTICATION =
+            "No services found that don't require authentication"
+        private const val NO_READABLE_SERVICE_IN_SELECTED_SYSTEM =
+            "No readable services found in the selected system"
+        private const val NO_SYSTEM_CONTEXT_WITH_READABLE_SERVICES =
+            "No system context found with readable services"
         private val FELICA_LITE_SYSTEM_CODE = byteArrayOf(0x88.toByte(), 0xB4.toByte())
         private val NDEF_SYSTEM_CODE = byteArrayOf(0x12.toByte(), 0xFC.toByte())
         private val PROTECTED_READ_TEST_SERVICE_CODES = setOf("0B00", "0900")
@@ -154,6 +167,8 @@ class CardScanService {
                     scanContext.copy(requestBlockInformationExSupport = support)
                 "read_without_encryption_determine_error_indication" ->
                     scanContext.copy(readBlocksWithoutEncryptionSupport = support)
+                "read_without_encryption_determine_supported" ->
+                    scanContext.copy(readBlocksWithoutEncryptionSupport = support)
                 "read_without_encryption_determine_max_services" ->
                     scanContext.copy(readBlocksWithoutEncryptionSupport = support)
                 "read_without_encryption_detect_illegal_number_error_preference" ->
@@ -207,6 +222,8 @@ class CardScanService {
             "request_block_information" -> scanContext.requestBlockInformationSupport
             "request_block_information_ex" -> scanContext.requestBlockInformationExSupport
             "read_without_encryption_determine_error_indication" ->
+                scanContext.readBlocksWithoutEncryptionSupport
+            "read_without_encryption_determine_supported" ->
                 scanContext.readBlocksWithoutEncryptionSupport
             "read_without_encryption_determine_max_services" ->
                 scanContext.readBlocksWithoutEncryptionSupport
@@ -275,6 +292,164 @@ class CardScanService {
         } else {
             0
         }
+    }
+
+    private fun byteToHex(statusFlag: Number): String =
+        (statusFlag.toInt() and 0xFF).toString(16).uppercase().padStart(2, '0')
+
+    private fun formatStatus(
+        statusFlag1: Number?,
+        statusFlag2: Number?,
+        prefix: String = "status{n}=",
+    ): String {
+        val value1 = "0x${statusFlag1?.let { byteToHex(it) } ?: "??"}"
+        val value2 = "0x${statusFlag2?.let { byteToHex(it) } ?: "??"}"
+        if (prefix.isEmpty()) {
+            return "$value1 $value2"
+        }
+
+        val label1 = prefix.replace("{n}", "1")
+        val label2 = prefix.replace("{n}", "2")
+        val entry1 = if (label1.endsWith("=")) "$label1$value1" else "$label1=$value1"
+        val entry2 = if (label2.endsWith("=")) "$label2$value2" else "$label2=$value2"
+        return "$entry1, $entry2"
+    }
+
+    private fun formatStatus(response: WithStatusFlags, prefix: String = "status{n}="): String =
+        formatStatus(response.statusFlag1, response.statusFlag2, prefix)
+
+    private fun markReadWithoutEncryptionSupported() {
+        scanContext =
+            scanContext.copy(readBlocksWithoutEncryptionSupport = CommandSupport.SUPPORTED)
+    }
+
+    private fun throwReadWithoutEncryptionProbeFallback(message: String): Nothing {
+        markReadWithoutEncryptionSupported()
+        throw CommandSupportedBehaviorUnexpectedException(message)
+    }
+
+    /**
+     * Finds the preferred system/service/block target for Read Without Encryption probe commands.
+     * Includes all shared guard checks and system selection.
+     *
+     * Preference order for service selection in the chosen system:
+     * 1) non-zero service number
+     * 2) RANDOM service type
+     * 3) READ_ONLY mode (READ_WRITE is still acceptable)
+     */
+    private fun findReadWithoutEncryptionTestTarget(
+        allowAuthenticationRequiredFallback: Boolean = false
+    ): ReadWithoutEncryptionTestTarget {
+        val allServices =
+            scanContext.systemScanContexts.flatMap { context ->
+                context.nodes.filterIsInstance<Service>()
+            }
+        if (allServices.isEmpty()) {
+            throw PrerequisiteException(NO_SERVICES_AVAILABLE)
+        }
+
+        val allServicesWithoutAuth =
+            allServices.filter { service -> !service.attribute.authenticationRequired }
+        val useAuthenticationRequiredFallback =
+            allowAuthenticationRequiredFallback && allServicesWithoutAuth.isEmpty()
+        if (allServicesWithoutAuth.isEmpty() && !useAuthenticationRequiredFallback) {
+            throw PrerequisiteException(NO_SERVICES_WITHOUT_AUTHENTICATION)
+        }
+
+        val bestSystemContext =
+            if (useAuthenticationRequiredFallback) {
+                scanContext.systemScanContexts.maxByOrNull { systemContext ->
+                    systemContext.nodes.filterIsInstance<Service>().size
+                }
+            } else {
+                scanContext.systemScanContexts.maxByOrNull { systemContext ->
+                    systemContext.nodes.filterIsInstance<Service>().count { service ->
+                        !service.attribute.authenticationRequired
+                    }
+                }
+            } ?: throw PrerequisiteException(NO_SYSTEM_CONTEXT_WITH_READABLE_SERVICES)
+
+        val servicesInBestSystem = bestSystemContext.nodes.filterIsInstance<Service>()
+        val servicesWithoutAuth =
+            servicesInBestSystem.filter { service -> !service.attribute.authenticationRequired }
+        val candidateServices =
+            if (servicesWithoutAuth.isNotEmpty()) {
+                servicesWithoutAuth
+            } else if (useAuthenticationRequiredFallback) {
+                servicesInBestSystem
+            } else {
+                emptyList()
+            }
+        if (candidateServices.isEmpty()) {
+            throw PrerequisiteException(NO_READABLE_SERVICE_IN_SELECTED_SYSTEM)
+        }
+
+        val testService =
+            candidateServices.maxByOrNull { service ->
+                var score = 0
+                if (service.number != 0) score += 4
+                if (service.attribute.type == ServiceType.RANDOM) score += 2
+                if (service.attribute.mode == ServiceMode.READ_ONLY) score += 1
+                score
+            }!!
+
+        val testBlockNumber =
+            resolveReadWithoutEncryptionTestBlockNumber(
+                systemCode = bestSystemContext.systemCode,
+                serviceCode = testService.code,
+            )
+
+        return ReadWithoutEncryptionTestTarget(
+            systemContext = bestSystemContext,
+            service = testService,
+            blockNumber = testBlockNumber,
+        )
+    }
+
+    private suspend fun executeReadWithoutEncryptionDetermineSupported(
+        target: FeliCaTarget
+    ): String {
+        val testTarget =
+            findReadWithoutEncryptionTestTarget(allowAuthenticationRequiredFallback = true)
+        pollSystemCode(target, testTarget.systemContext.systemCode)
+
+        val command =
+            ReadWithoutEncryptionCommand(
+                idm = target.idm,
+                serviceCodes = arrayOf(testTarget.service.code),
+                blockListElements =
+                    arrayOf(
+                        BlockListElement(
+                            serviceCodeListOrder = 0,
+                            blockNumber = testTarget.blockNumber,
+                        )
+                    ),
+            )
+
+        val response = target.transceive(command)
+        markReadWithoutEncryptionSupported()
+
+        val systemCodeHex = testTarget.systemContext.systemCode?.toHexString() ?: "unknown"
+        val serviceCodeHex = testTarget.service.code.toHexString().uppercase()
+        val authFallbackUsed = testTarget.service.attribute.authenticationRequired
+
+        return buildString {
+                appendLine("Read Without Encryption command is supported (response received)")
+                appendLine(
+                    "System: $systemCodeHex; Service: $serviceCodeHex; Block: ${
+                    testTarget.blockNumber.toString(
+                        16
+                    ).uppercase().padStart(4, '0')
+                }"
+                )
+                appendLine("(${formatStatus(response)})")
+                if (authFallbackUsed) {
+                    appendLine(
+                        "Note: Used auth-required service fallback because no no-auth service was available."
+                    )
+                }
+            }
+            .trim()
     }
 
     /**
@@ -431,6 +606,11 @@ class CardScanService {
                         updateCommandSupport(step.id, CommandSupport.SUPPORTED)
                         step.copy(status = StepStatus.COMPLETED, result = result)
                     }
+                    "read_without_encryption_determine_supported" -> {
+                        val result = executeReadWithoutEncryptionDetermineSupported(target)
+                        updateCommandSupport(step.id, CommandSupport.SUPPORTED)
+                        step.copy(status = StepStatus.COMPLETED, result = result)
+                    }
                     "read_without_encryption_detect_illegal_number_error_preference" -> {
                         val result =
                             executeReadWithoutEncryptionDetectIllegalNumberErrorPreference(target)
@@ -529,6 +709,17 @@ class CardScanService {
 
             // Return step with duration
             return resultStep.copy(duration = duration)
+        } catch (e: CommandSupportedBehaviorUnexpectedException) {
+            // Probe fallback applied - command responded but fallback values were used
+            Log.w("CardScanService", "Probe fallback used for step ${step.id}: ${e.message}")
+
+            val duration = startTime.elapsedNow()
+
+            return step.copy(
+                status = StepStatus.ERROR,
+                errorMessage = e.message ?: "Probe fallback applied",
+                duration = duration,
+            )
         } catch (e: PrerequisiteException) {
             // Prerequisite not met - don't mark command as unsupported, leave as unknown
             Log.w("CardScanService", "Prerequisite not met for step ${step.id}: ${e.message}")
@@ -641,9 +832,7 @@ class CardScanService {
                 appendLine()
                 appendLine("PMM Information:")
                 appendLine("  Raw PMM: ${pmm.toString()}")
-                appendLine(
-                    "  ROM Type: 0x${pmm.romType.toUByte().toString(16).uppercase().padStart(2, '0')}"
-                )
+                appendLine("  ROM Type: 0x${byteToHex(pmm.romType)}")
                 appendLine("  IC Type: ${IcTypeMapping.getFormattedIcType(pmm.icType)}")
                 appendLine()
                 appendLine("Timeout Multipliers (ms):")
@@ -673,7 +862,6 @@ class CardScanService {
         val requestResponseCommand = RequestResponseCommand(target.idm)
         val requestResponseResponse = target.transceive(requestResponseCommand)
 
-        val responseIdmHex = requestResponseResponse.idm.toHexString()
         val mode = requestResponseResponse.mode
 
         return buildString {
@@ -741,9 +929,7 @@ class CardScanService {
 
         return buildString {
                 appendLine("Specification Version Information:")
-                appendLine(
-                    "Status Flags: 0x${requestSpecVersionResponse.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')} 0x${requestSpecVersionResponse.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}"
-                )
+                appendLine("Status Flags: ${formatStatus(requestSpecVersionResponse, prefix = "")}")
 
                 if (requestSpecVersionResponse.isStatusSuccessful) {
                     appendLine(
@@ -836,11 +1022,9 @@ class CardScanService {
                 val systemResult = buildString {
                     appendLine("System ${contextIndex + 1} ($systemCodeHex):")
                     appendLine(
-                        "  Status Flags: 0x${getSystemStatusResponse.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')} 0x${getSystemStatusResponse.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}"
+                        "  Status Flags: ${formatStatus(getSystemStatusResponse, prefix = "")}"
                     )
-                    appendLine(
-                        "  Flag: 0x${getSystemStatusResponse.flag.toUByte().toString(16).uppercase().padStart(2, '0')}"
-                    )
+                    appendLine("  Flag: 0x${byteToHex(getSystemStatusResponse.flag)}")
 
                     if (getSystemStatusResponse.data.isNotEmpty()) {
                         appendLine("  Data: ${getSystemStatusResponse.data.toHexString()}")
@@ -984,7 +1168,7 @@ class CardScanService {
                 if (!requestCodeListResponse.isStatusSuccessful) {
                     Log.d(
                         "CardScanService",
-                        "RequestCodeList error at index $index for system ${systemContext.systemCode?.toHexString()}: status1=0x${requestCodeListResponse.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')}, status2=0x${requestCodeListResponse.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}",
+                        "RequestCodeList error at index $index for system ${systemContext.systemCode?.toHexString()}: ${formatStatus(requestCodeListResponse)}",
                     )
                     break
                 }
@@ -1873,7 +2057,7 @@ class CardScanService {
         // Check if the command failed based on status flags
         if (!setParameterResponse1.isStatusSuccessful) {
             throw RuntimeException(
-                "Set Parameter command failed with status1=0x${setParameterResponse1.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')}, status2=0x${setParameterResponse1.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}"
+                "Set Parameter command failed with ${formatStatus(setParameterResponse1)}"
             )
         }
 
@@ -1881,9 +2065,7 @@ class CardScanService {
             buildString {
                 appendLine("Set Parameter Test 1 (SRM_TYPE1, NODECODESIZE_2):")
                 appendLine("  Response IDM: ${setParameterResponse1.idm.toHexString()}")
-                appendLine(
-                    "  Status: 0x${setParameterResponse1.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')} 0x${setParameterResponse1.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}"
-                )
+                appendLine("  Status: ${formatStatus(setParameterResponse1)}")
                 appendLine("  Result: SUCCESS")
             }
         ) // Test with different parameters (SRM_TYPE2, NODECODESIZE_4)
@@ -1899,7 +2081,7 @@ class CardScanService {
             // Check if the command failed based on status flags
             if (!setParameterResponse2.isStatusSuccessful) {
                 throw RuntimeException(
-                    "Set Parameter Test 2 failed with status1=0x${setParameterResponse2.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')}, status2=0x${setParameterResponse2.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}"
+                    "Set Parameter Test 2 failed with ${formatStatus(setParameterResponse2)}"
                 )
             }
 
@@ -1907,9 +2089,7 @@ class CardScanService {
                 buildString {
                     appendLine("Set Parameter Test 2 (SRM_TYPE2, NODECODESIZE_4):")
                     appendLine("  Response IDM: ${setParameterResponse2.idm.toHexString()}")
-                    appendLine(
-                        "  Status: 0x${setParameterResponse2.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')} 0x${setParameterResponse2.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}"
-                    )
+                    appendLine("  Status: ${formatStatus(setParameterResponse2)}")
                     appendLine("  Result: SUCCESS")
                 }
             )
@@ -1972,7 +2152,7 @@ class CardScanService {
 
         return buildString {
                 appendLine(
-                    "Status Flags: 0x${getPlatformInformationResponse.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')} 0x${getPlatformInformationResponse.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}"
+                    "Status Flags: ${formatStatus(getPlatformInformationResponse, prefix = "")}"
                 )
 
                 if (getPlatformInformationResponse.isStatusSuccessful) {
@@ -1991,9 +2171,7 @@ class CardScanService {
         val resetModeResponse = target.transceive(resetModeCommand)
 
         return buildString {
-                appendLine(
-                    "Status Flags: 0x${resetModeResponse.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')} 0x${resetModeResponse.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}"
-                )
+                appendLine("Status Flags: ${formatStatus(resetModeResponse, prefix = "")}")
 
                 // appendLine("Note: Reset Mode command resets the card's mode to Mode0.")
                 // appendLine("This command is supported by AES and AES/DES cards.")
@@ -2162,7 +2340,7 @@ class CardScanService {
                         if (resetModeResponse.isStatusSuccessful) {
                             "Reset Mode executed - card reset to Mode0"
                         } else {
-                            "Reset Mode failed (Status: 0x${resetModeResponse.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')} 0x${resetModeResponse.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')})"
+                            "Reset Mode failed (Status: ${formatStatus(resetModeResponse)})"
                         }
                 } catch (e: Exception) {
                     resetModeResult = "Reset Mode error: ${e.message}"
@@ -2190,16 +2368,12 @@ class CardScanService {
                     }
                     .trim()
             } else {
-                val sf1Hex =
-                    response.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')
-                val sf2Hex =
-                    response.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')
                 buildString {
                         appendLine("Internal Authenticate and Read Results:")
                         appendLine("System: $systemCodeHex")
                         appendLine("Service: $serviceCodeHex (${bestMacService.attribute})")
                         appendLine("Challenge sent: ${challenge.toHexString()}")
-                        appendLine("Status: Failed (SF1=0x$sf1Hex, SF2=0x$sf2Hex)")
+                        appendLine("Status: Failed (${formatStatus(response)})")
                         appendLine()
                         appendLine("Reset Mode:")
                         appendLine("  $resetModeResult")
@@ -2216,58 +2390,12 @@ class CardScanService {
     private suspend fun executeReadWithoutEncryptionDetermineErrorIndication(
         target: FeliCaTarget
     ): String {
-        // Find the system with at least one readable service
-        val allDiscoveredNodes = scanContext.systemScanContexts.flatMap { it.nodes }
-        val allServices = allDiscoveredNodes.filterIsInstance<Service>()
-
-        if (allServices.isEmpty()) {
-            throw PrerequisiteException("No services available for determining error indication")
-        }
-
-        // Filter services that don't require authentication
-        val allServicesWithoutAuth = allServices.filter { !it.attribute.authenticationRequired }
-
-        if (allServicesWithoutAuth.isEmpty()) {
-            throw PrerequisiteException(
-                "No services found that don't require authentication for determining error indication"
-            )
-        }
-
-        // Find the system with the most services that don't require authentication
-        val bestSystemContext =
-            scanContext.systemScanContexts.maxByOrNull { systemContext ->
-                val services = systemContext.nodes.filterIsInstance<Service>()
-                // Count services that don't require authentication (potentially readable)
-                services.count { service -> !service.attribute.authenticationRequired }
-            }
-
-        if (bestSystemContext == null) {
-            throw PrerequisiteException("No system context found with readable services")
-        }
+        val testTarget = findReadWithoutEncryptionTestTarget()
 
         // Switch to the best system for testing
-        pollSystemCode(target, bestSystemContext.systemCode)
-
-        val services = bestSystemContext.nodes.filterIsInstance<Service>()
-        val servicesWithoutAuth = services.filter { !it.attribute.authenticationRequired }
-
-        if (servicesWithoutAuth.isEmpty()) {
-            throw RuntimeException("No readable services found in the selected system")
-        }
-
-        // Prefer services with service number != 0, then prefer RANDOM type
-        val servicesWithNonZeroNumber = servicesWithoutAuth.filter { it.number != 0 }
-        val candidateServices = servicesWithNonZeroNumber.ifEmpty { servicesWithoutAuth }
-
-        val testService =
-            candidateServices.firstOrNull { it.attribute.type == ServiceType.RANDOM }
-                ?: candidateServices.last()
-
-        val testBlockNumber =
-            resolveReadWithoutEncryptionTestBlockNumber(
-                systemCode = bestSystemContext.systemCode,
-                serviceCode = testService.code,
-            )
+        pollSystemCode(target, testTarget.systemContext.systemCode)
+        val testService = testTarget.service
+        val testBlockNumber = testTarget.blockNumber
 
         val blocksToRead =
             listOf(
@@ -2288,13 +2416,31 @@ class CardScanService {
         val response = target.transceive(readCommand)
         val statusFlag1 = response.statusFlag1
         val statusFlag2 = response.statusFlag2
+        val fallbackType = ErrorLocationIndication.FLAG
 
         if (response.isStatusSuccessful) {
-            throw RuntimeException(
-                "ReadWithoutEncryption failed to determine error indication, status1=0x${statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')}, status2=0x${statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}"
-            )
+            val fallbackMessage =
+                "Error indication fallback to ${fallbackType.name}: unexpected successful status (${formatStatus(response)})"
+
+            scanContext =
+                scanContext.copy(readWithoutEncryptionErrorLocationIndication = fallbackType)
+
+            throwReadWithoutEncryptionProbeFallback(fallbackMessage)
         }
 
+        if ((statusFlag2.toInt() and 0xFF) != 0xA8) {
+            val fallbackMessage =
+                "Error indication fallback to ${fallbackType.name}: unexpected status (${formatStatus(response)})"
+            Log.w("CardScanService", fallbackMessage)
+
+            scanContext =
+                scanContext.copy(readWithoutEncryptionErrorLocationIndication = fallbackType)
+
+            throwReadWithoutEncryptionProbeFallback(fallbackMessage)
+        }
+
+        var usedFallback = false
+        var fallbackMessage: String? = null
         // Analyze response status to determine error indication type
         val errorIndicationType =
             when {
@@ -2311,9 +2457,10 @@ class CardScanService {
                     ErrorLocationIndication.INDEX
                 }
                 else -> {
-                    throw RuntimeException(
-                        "Unexpected response status for error indication determination: status1=0x${statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')}, status2=0x${statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}"
-                    )
+                    usedFallback = true
+                    fallbackMessage =
+                        "Error indication fallback to ${fallbackType.name}: unexpected status (${formatStatus(response)})"
+                    fallbackType
                 }
             }
 
@@ -2324,11 +2471,17 @@ class CardScanService {
                 readBlocksWithoutEncryptionSupport = CommandSupport.SUPPORTED,
             )
 
+        if (usedFallback) {
+            throwReadWithoutEncryptionProbeFallback(
+                fallbackMessage ?: "Error indication fallback to ${fallbackType.name}"
+            )
+        }
+
         Log.d("CardScanService", "Determined error indication type: $errorIndicationType")
 
         return buildString {
                 appendLine(
-                    "Error indication type: ${errorIndicationType.name} 0x${statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')} 0x${statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}"
+                    "Error indication type: ${errorIndicationType.name} (${formatStatus(response)})"
                 )
             }
             .trim()
@@ -2337,56 +2490,20 @@ class CardScanService {
     private suspend fun executeReadWithoutEncryptionDetermineMaxServices(
         target: FeliCaTarget
     ): String {
-        // Find services that don't require authentication across all system contexts
-        val allDiscoveredNodes = scanContext.systemScanContexts.flatMap { it.nodes }
-        val allServices = allDiscoveredNodes.filterIsInstance<Service>()
-        val allServicesWithoutAuth = allServices.filter { !it.attribute.authenticationRequired }
-
-        if (allServicesWithoutAuth.isEmpty()) {
-            throw PrerequisiteException(
-                "No services available that don't require authentication for determining max services"
-            )
-        }
-
-        // Find the system with the most readable services
-        val bestSystemContext =
-            scanContext.systemScanContexts.maxByOrNull { systemContext ->
-                val services = systemContext.nodes.filterIsInstance<Service>()
-                services.count { service -> !service.attribute.authenticationRequired }
-            }
-
-        if (bestSystemContext == null) {
-            throw PrerequisiteException("No system context found with readable services")
-        }
+        val testTarget = findReadWithoutEncryptionTestTarget()
 
         // Switch to the best system for testing
-        pollSystemCode(target, bestSystemContext.systemCode)
-
-        val services = bestSystemContext.nodes.filterIsInstance<Service>()
-        val servicesWithoutAuth = services.filter { !it.attribute.authenticationRequired }
-
-        if (servicesWithoutAuth.isEmpty()) {
-            throw PrerequisiteException("No readable services found in the selected system")
-        }
-
-        // Prefer services with service number != 0, then prefer RANDOM type
-        val servicesWithNonZeroNumber = servicesWithoutAuth.filter { it.number != 0 }
-        val candidateServices = servicesWithNonZeroNumber.ifEmpty { servicesWithoutAuth }
-
-        val testService =
-            candidateServices.firstOrNull { it.attribute.type == ServiceType.RANDOM }
-                ?: candidateServices.first()
-
-        val testBlockNumber =
-            resolveReadWithoutEncryptionTestBlockNumber(
-                systemCode = bestSystemContext.systemCode,
-                serviceCode = testService.code,
-            )
+        pollSystemCode(target, testTarget.systemContext.systemCode)
+        val testService = testTarget.service
+        val testBlockNumber = testTarget.blockNumber
 
         // Start with theoretical maximum and work down
         var maxServices =
             ReadWithoutEncryptionCommand
                 .MAX_SERVICE_CODES // FeliCa specification limit for service codes
+        var usedFallback = false
+        var fallbackStatus1: Byte? = null
+        var fallbackStatus2: Byte? = null
         var observedIllegalNumberPreference: IllegalNumberErrorPreference? = null
 
         while (maxServices > 0) {
@@ -2427,14 +2544,20 @@ class CardScanService {
                 }
 
             if (observedIllegalNumberPreference == null) {
-                throw RuntimeException(
-                    "ReadWithoutEncryption failed with unexpected error at $maxServices services, status1=0x${response.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')}, status2=0x${response.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}"
+                usedFallback = true
+                maxServices = 1
+                fallbackStatus1 = response.statusFlag1
+                fallbackStatus2 = response.statusFlag2
+                Log.w(
+                    "CardScanService",
+                    "ReadWithoutEncryption returned unexpected status while determining max services, falling back to 1 service (${formatStatus(fallbackStatus1, fallbackStatus2)})",
                 )
+                break
             }
 
             Log.d(
                 "CardScanService",
-                "ReadWithoutEncryption failed with $maxServices services, status1=0x${response.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')}, status2=0x${response.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')} (${observedIllegalNumberPreference.name})",
+                "ReadWithoutEncryption failed with $maxServices services, ${formatStatus(response)} (${observedIllegalNumberPreference.name})",
             )
             maxServices--
         }
@@ -2452,39 +2575,21 @@ class CardScanService {
                 readBlocksWithoutEncryptionSupport = CommandSupport.SUPPORTED,
             )
 
+        if (usedFallback) {
+            throwReadWithoutEncryptionProbeFallback(
+                "Maximum services fallback to 1: unexpected status (${formatStatus(fallbackStatus1, fallbackStatus2)})"
+            )
+        }
+
         return buildString { appendLine("Maximum services per request: $maxServices") }.trim()
     }
 
     private suspend fun executeReadWithoutEncryptionDetectIllegalNumberErrorPreference(
         target: FeliCaTarget
     ): String {
-        val allDiscoveredNodes = scanContext.systemScanContexts.flatMap { it.nodes }
-        val allServices = allDiscoveredNodes.filterIsInstance<Service>()
-        val allServicesWithoutAuth = allServices.filter { !it.attribute.authenticationRequired }
+        val testTarget = findReadWithoutEncryptionTestTarget()
 
-        if (allServicesWithoutAuth.isEmpty()) {
-            throw PrerequisiteException(
-                "No services available that don't require authentication for limit error detection"
-            )
-        }
-
-        val bestSystemContext =
-            scanContext.systemScanContexts.maxByOrNull { systemContext ->
-                systemContext.nodes.filterIsInstance<Service>().count { service ->
-                    !service.attribute.authenticationRequired
-                }
-            } ?: throw PrerequisiteException("No system context found with readable services")
-
-        pollSystemCode(target, bestSystemContext.systemCode)
-
-        val services = bestSystemContext.nodes.filterIsInstance<Service>()
-        val servicesWithoutAuth = services.filter { !it.attribute.authenticationRequired }
-
-        if (servicesWithoutAuth.isEmpty()) {
-            throw PrerequisiteException(
-                "No readable services found in the selected system for detection"
-            )
-        }
+        pollSystemCode(target, testTarget.systemContext.systemCode)
 
         val requestedCount =
             minOf(
@@ -2492,19 +2597,8 @@ class CardScanService {
                 ReadWithoutEncryptionCommand.MAX_BLOCKS,
             )
 
-        // Prefer services with service number != 0, then prefer RANDOM type
-        val servicesWithNonZeroNumber = servicesWithoutAuth.filter { it.number != 0 }
-        val candidateServices = servicesWithNonZeroNumber.ifEmpty { servicesWithoutAuth }
-
-        val testService =
-            candidateServices.firstOrNull { it.attribute.type == ServiceType.RANDOM }
-                ?: candidateServices.first()
-
-        val testBlockNumber =
-            resolveReadWithoutEncryptionTestBlockNumber(
-                systemCode = bestSystemContext.systemCode,
-                serviceCode = testService.code,
-            )
+        val testService = testTarget.service
+        val testBlockNumber = testTarget.blockNumber
 
         val serviceCodes = Array(requestedCount) { testService.code }
         val blockListElements =
@@ -2523,9 +2617,6 @@ class CardScanService {
         val statusFlag1 = response.statusFlag1
         val statusFlag2 = response.statusFlag2
 
-        val status1Hex = statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')
-        val status2Hex = statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')
-
         if (response.isStatusSuccessful) {
             Log.w(
                 "CardScanService",
@@ -2533,7 +2624,7 @@ class CardScanService {
             )
             return buildString {
                     appendLine(
-                        "Card accepted $requestedCount services and $requestedCount blocks (status1=0x$status1Hex, status2=0x$status2Hex)"
+                        "Card accepted $requestedCount services and $requestedCount blocks (${formatStatus(response)})"
                     )
                     appendLine("Limit error preference unchanged")
                 }
@@ -2548,17 +2639,22 @@ class CardScanService {
             }
 
         if (observedPreference == null) {
-            throw RuntimeException(
-                "ReadWithoutEncryption limit detection failed with unexpected error, status1=0x$status1Hex status2=0x$status2Hex"
-            )
+            val fallbackPreference = scanContext.readWithoutEncryptionIllegalNumberErrorPreference
+            val fallbackLabel = fallbackPreference?.name ?: "UNCHANGED"
+            val fallbackMessage =
+                "Limit error preference fallback to $fallbackLabel: unexpected status (${formatStatus(response)})"
+            throwReadWithoutEncryptionProbeFallback(fallbackMessage)
         }
 
         scanContext =
-            scanContext.copy(readWithoutEncryptionIllegalNumberErrorPreference = observedPreference)
+            scanContext.copy(
+                readWithoutEncryptionIllegalNumberErrorPreference = observedPreference,
+                readBlocksWithoutEncryptionSupport = CommandSupport.SUPPORTED,
+            )
 
         Log.d(
             "CardScanService",
-            "Detected Read Without Encryption limit preference: ${observedPreference.name} (status1=0x$status1Hex, status2=0x$status2Hex)",
+            "Detected Read Without Encryption limit preference: ${observedPreference.name} (${formatStatus(response)})",
         )
 
         val preferenceLabel =
@@ -2568,7 +2664,7 @@ class CardScanService {
             }
 
         return buildString {
-                appendLine("Limit error preference: $preferenceLabel 0x$status1Hex 0x$status2Hex")
+                appendLine("Limit error preference: $preferenceLabel (${formatStatus(response)})")
             }
             .trim()
     }
@@ -2576,54 +2672,18 @@ class CardScanService {
     private suspend fun executeReadWithoutEncryptionDetermineMaxBlocks(
         target: FeliCaTarget
     ): String {
-        // Find services that don't require authentication across all system contexts
-        val allDiscoveredNodes = scanContext.systemScanContexts.flatMap { it.nodes }
-        val allServices = allDiscoveredNodes.filterIsInstance<Service>()
-        val allServicesWithoutAuth = allServices.filter { !it.attribute.authenticationRequired }
-
-        if (allServicesWithoutAuth.isEmpty()) {
-            throw RuntimeException(
-                "No services available that don't require authentication for determining max blocks"
-            )
-        }
-
-        // Find the system with the most readable services
-        val bestSystemContext =
-            scanContext.systemScanContexts.maxByOrNull { systemContext ->
-                val services = systemContext.nodes.filterIsInstance<Service>()
-                services.count { service -> !service.attribute.authenticationRequired }
-            }
-
-        if (bestSystemContext == null) {
-            throw RuntimeException("No system context found with readable services")
-        }
-
-        val services = bestSystemContext.nodes.filterIsInstance<Service>()
-        val servicesWithoutAuth = services.filter { !it.attribute.authenticationRequired }
-
-        if (servicesWithoutAuth.isEmpty()) {
-            throw RuntimeException("No readable services found in the selected system")
-        }
-
-        // Prefer services with service number != 0, then prefer RANDOM type
-        val servicesWithNonZeroNumber = servicesWithoutAuth.filter { it.number != 0 }
-        val candidateServices = servicesWithNonZeroNumber.ifEmpty { servicesWithoutAuth }
-
-        val testService =
-            candidateServices.firstOrNull { it.attribute.type == ServiceType.RANDOM }
-                ?: candidateServices.first()
-
-        val testBlockNumber =
-            resolveReadWithoutEncryptionTestBlockNumber(
-                systemCode = bestSystemContext.systemCode,
-                serviceCode = testService.code,
-            )
+        val testTarget = findReadWithoutEncryptionTestTarget()
+        val testService = testTarget.service
+        val testBlockNumber = testTarget.blockNumber
 
         // Start with theoretical maximum and work down
         var maxBlocks = ReadWithoutEncryptionCommand.MAX_BLOCKS
+        var usedFallback = false
+        var fallbackStatus1: Byte? = null
+        var fallbackStatus2: Byte? = null
 
         while (maxBlocks > 0) {
-            pollSystemCode(target, bestSystemContext.systemCode)
+            pollSystemCode(target, testTarget.systemContext.systemCode)
 
             // Create block list elements for blocks 0 through (maxBlocks-1)
             val blockListElements =
@@ -2653,13 +2713,19 @@ class CardScanService {
                     response.statusFlag2.toByte() != 0xA2.toByte() &&
                         response.statusFlag2.toByte() != 0xA8.toByte()
                 ) {
-                    throw RuntimeException(
-                        "ReadWithoutEncryption failed with unexpected error (not 0xA2 or 0xA8) at $maxBlocks blocks, status1=0x${response.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')}, status2=0x${response.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}"
+                    usedFallback = true
+                    maxBlocks = 1
+                    fallbackStatus1 = response.statusFlag1
+                    fallbackStatus2 = response.statusFlag2
+                    Log.w(
+                        "CardScanService",
+                        "ReadWithoutEncryption returned unexpected status while determining max blocks, falling back to 1 block (${formatStatus(fallbackStatus1, fallbackStatus2)})",
                     )
+                    break
                 }
                 Log.d(
                     "CardScanService",
-                    "ReadWithoutEncryption failed with $maxBlocks blocks, status1=0x${response.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')}, status2=0x${response.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}",
+                    "ReadWithoutEncryption failed with $maxBlocks blocks, ${formatStatus(response)}",
                 )
             } catch (e: Exception) {
                 // Card may not respond if command is too large (e.g., FeliCa Lite)
@@ -2684,6 +2750,12 @@ class CardScanService {
                 readWithoutEncryptionMaxBlocksPerRequest = maxBlocks,
                 readBlocksWithoutEncryptionSupport = CommandSupport.SUPPORTED,
             )
+
+        if (usedFallback) {
+            throwReadWithoutEncryptionProbeFallback(
+                "Maximum blocks fallback to 1: unexpected status (${formatStatus(fallbackStatus1, fallbackStatus2)})"
+            )
+        }
 
         return buildString { appendLine("Maximum blocks per request: $maxBlocks") }.trim()
     }
@@ -2731,7 +2803,7 @@ class CardScanService {
 
         if (response.isStatusSuccessful) {
             throw RuntimeException(
-                "WriteWithoutEncryption failed to determine error indication, status1=0x${statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')}, status2=0x${statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}"
+                "WriteWithoutEncryption failed to determine error indication, ${formatStatus(statusFlag1, statusFlag2)}"
             )
         }
 
@@ -2752,7 +2824,7 @@ class CardScanService {
                 }
                 else -> {
                     throw RuntimeException(
-                        "Unexpected response status for error indication determination: status1=0x${statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')}, status2=0x${statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}"
+                        "Unexpected response status for error indication determination: ${formatStatus(statusFlag1, statusFlag2)}"
                     )
                 }
             }
@@ -2768,7 +2840,7 @@ class CardScanService {
 
         return buildString {
                 appendLine(
-                    "Error indication type: ${errorIndicationType.name} 0x${statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')} 0x${statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}"
+                    "Error indication type: ${errorIndicationType.name} (${formatStatus(statusFlag1, statusFlag2)})"
                 )
             }
             .trim()
@@ -2821,12 +2893,12 @@ class CardScanService {
                         response.statusFlag2.toByte() != 0xA8.toByte()
                 ) {
                     throw RuntimeException(
-                        "WriteWithoutEncryption failed with unexpected error (not 0xA2 or 0xA8) at $maxBlocks blocks, status1=0x${response.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')}, status2=0x${response.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}"
+                        "WriteWithoutEncryption failed with unexpected error (not 0xA2 or 0xA8) at $maxBlocks blocks, ${formatStatus(response)}"
                     )
                 }
                 Log.d(
                     "CardScanService",
-                    "WriteWithoutEncryption failed with $maxBlocks blocks, status1=0x${response.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')}, status2=0x${response.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}",
+                    "WriteWithoutEncryption failed with $maxBlocks blocks, ${formatStatus(response)}",
                 )
             } catch (e: Exception) {
                 // Card may not respond if command is too large (e.g., FeliCa Lite)
@@ -3023,8 +3095,7 @@ class CardScanService {
         val allServicesWithoutAuth = allServices.filter { !it.attribute.authenticationRequired }
 
         if (allServicesWithoutAuth.isEmpty()) {
-            val noAuthServicesMessage = "No services found that don't require authentication"
-            return noAuthServicesMessage to noAuthServicesMessage
+            throw PrerequisiteException(NO_SERVICES_WITHOUT_AUTHENTICATION)
         }
 
         // Process each system context separately
@@ -3400,7 +3471,7 @@ class CardScanService {
                     }
                 } else {
                     valueLimitedPurseResults.add(
-                        "Batch ${batchIndex + 1}: Failed to retrieve Value-Limited Purse Service properties (Status: 0x${valueLimitedPurseResponse.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')})"
+                        "Batch ${batchIndex + 1}: Failed to retrieve Value-Limited Purse Service properties (Status: 0x${byteToHex(valueLimitedPurseResponse.statusFlag1)})"
                     )
                 }
             }
@@ -3521,7 +3592,7 @@ class CardScanService {
                     }
                 } else {
                     macCommunicationResults.add(
-                        "Batch ${batchIndex + 1}: Failed to retrieve MAC Communication properties (Status: 0x${macCommunicationResponse.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')})"
+                        "Batch ${batchIndex + 1}: Failed to retrieve MAC Communication properties (Status: 0x${byteToHex(macCommunicationResponse.statusFlag1)})"
                     )
                 }
             }
@@ -3866,7 +3937,7 @@ class CardScanService {
                     if (resetModeResponse.isStatusSuccessful) {
                         "Reset Mode executed - card reset to Mode0"
                     } else {
-                        "Reset Mode failed (Status: 0x${resetModeResponse.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')} 0x${resetModeResponse.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')})"
+                        "Reset Mode failed (Status: ${formatStatus(resetModeResponse)})"
                     }
             } catch (e: Exception) {
                 resetModeResult = "Reset Mode error: ${e.message}"
@@ -4029,7 +4100,7 @@ class CardScanService {
                     if (resetModeResponse.isStatusSuccessful) {
                         "Reset Mode executed - card reset to Mode0"
                     } else {
-                        "Reset Mode failed (Status: 0x${resetModeResponse.statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')} 0x${resetModeResponse.statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')})"
+                        "Reset Mode failed (Status: ${formatStatus(resetModeResponse)})"
                     }
             } catch (e: Exception) {
                 resetModeResult = "Reset Mode error: ${e.message}"

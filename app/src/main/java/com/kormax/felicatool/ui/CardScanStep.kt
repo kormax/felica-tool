@@ -183,6 +183,15 @@ data class CardScanStep(
                 )
                 add(
                     CardScanStep(
+                        id = "read_without_encryption_determine_supported",
+                        title = "Read: Determine Supported",
+                        description =
+                            "Probe if Read Without Encryption is supported by sending a single-service, single-block read request",
+                        icon = Icons.Default.Search,
+                    )
+                )
+                add(
+                    CardScanStep(
                         id = "read_without_encryption_determine_error_indication",
                         title = "Read: Determine type of error indication",
                         description = "How errors are indicated when reading blocks",
