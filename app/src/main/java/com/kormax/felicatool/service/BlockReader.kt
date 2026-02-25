@@ -6,7 +6,6 @@ import com.kormax.felicatool.felica.ErrorLocationIndication
 import com.kormax.felicatool.felica.FeliCaTarget
 import com.kormax.felicatool.felica.ReadWithoutEncryptionCommand
 import com.kormax.felicatool.felica.Service
-import kotlin.math.min
 
 /** Utility class for reading blocks from FeliCa services that don't require encryption */
 class BlockReader(
@@ -27,8 +26,10 @@ class BlockReader(
         private const val ILLEGAL_NUMBER_OF_BLOCK = 0xA2.toByte()
         private const val ILLEGAL_BLOCK_NUMBER = 0xA8.toByte()
         private const val ILLEGAL_BLOCK_LIST_SERVICE_ORDER = 0xA3.toByte()
+        private const val BLOCK_WITH_AUTHENTICATION_READ_BEFORE_AUTHENTICATION_COMPLETE =
+            0xB1.toByte()
         private const val BLOCK_SIZE = 16 // Each block is 16 bytes
-        private const val MAX_CONSECUTIVE_FAILURES = 24
+        private const val MAX_CONSECUTIVE_FAILURES = 32
     }
 
     /**
@@ -67,22 +68,42 @@ class BlockReader(
                 // Check if a service with the same number is already in the current request
                 // if (servicesToRead.map { it.number }.contains(service.number)) continue
 
-                val blocksAlreadyRead = blockDataByService[service]?.size ?: 0
+                val serviceBlocks = blockDataByService[service]
+                val blocksAlreadyRead =
+                    if (serviceBlocks.isNullOrEmpty()) {
+                        0
+                    } else {
+                        var nextBlock = 0
+                        while (serviceBlocks.containsKey(nextBlock)) {
+                            nextBlock++
+                        }
+                        nextBlock
+                    }
                 val maxBlocksForService = blockCountByService[service] ?: Int.MAX_VALUE
 
                 if (blocksAlreadyRead >= maxBlocksForService) continue
 
-                val blocksToReadForService = maxBlocksForService - blocksAlreadyRead
-                val blocksToReadForRequest =
-                    min(blocksToReadForService, maxBlocks - blocksToRead.size)
+                val requestBlocksRemaining = maxBlocks - blocksToRead.size
+                if (requestBlocksRemaining <= 0) break
 
-                if (blocksToReadForRequest > 0) {
+                val blockNumbersToRead = mutableListOf<Int>()
+                var candidateBlockNumber = blocksAlreadyRead
+                while (
+                    candidateBlockNumber < maxBlocksForService &&
+                        blockNumbersToRead.size < requestBlocksRemaining
+                ) {
+                    if (serviceBlocks?.containsKey(candidateBlockNumber) != true) {
+                        blockNumbersToRead.add(candidateBlockNumber)
+                    }
+                    candidateBlockNumber++
+                }
+
+                if (blockNumbersToRead.isNotEmpty()) {
                     servicesToRead.add(service)
+                    val serviceCodeListOrder = servicesToRead.size - 1
 
                     // Create block list elements for this service
-                    for (i in 0 until blocksToReadForRequest) {
-                        val blockNumber = blocksAlreadyRead + i
-                        val serviceCodeListOrder = servicesToRead.indexOf(service)
+                    for (blockNumber in blockNumbersToRead) {
 
                         // Create block list element (normal format, 2 bytes)
                         val blockElement =
@@ -288,6 +309,69 @@ class BlockReader(
                                 Log.d(
                                     TAG,
                                     "BITMASK mode: Adjusting blocks in service ${service} to ${newMaxBlocks} (bit $bitIndex)",
+                                )
+                            }
+                        }
+                    }
+                    continue
+                }
+
+                if (statusFlag2 == BLOCK_WITH_AUTHENTICATION_READ_BEFORE_AUTHENTICATION_COMPLETE) {
+                    consecutiveFailures++
+                    // The block exists but requires authentication — skip it by storing an empty
+                    // sentinel so the sequential block counter advances past it
+                    when (errorLocationIndication) {
+                        ErrorLocationIndication.FLAG -> {
+                            if (blocksToRead.size == 1) {
+                                val blockElement = blocksToRead[0]
+                                val service = servicesToRead[blockElement.serviceCodeListOrder]
+                                blockDataByService
+                                    .getOrPut(service) { mutableMapOf() }[
+                                        blockElement.blockNumber] = ByteArray(0)
+                                Log.d(
+                                    TAG,
+                                    "FLAG mode: Skipping block ${blockElement.blockNumber} of service $service (authentication required)",
+                                )
+                            } else {
+                                Log.d(
+                                    TAG,
+                                    "FLAG mode: Adjusting settings max blocks per read to 1, as unable to determine which exact block is problematic",
+                                )
+                                maxBlocks = 1
+                                maxServices = 1
+                            }
+                        }
+                        ErrorLocationIndication.INDEX -> {
+                            val blockIndex = statusFlag1.toInt() and 0xFF
+                            if (blockIndex > 0 && blockIndex <= blocksToRead.size) {
+                                val blockElement = blocksToRead[blockIndex - 1]
+                                val service = servicesToRead[blockElement.serviceCodeListOrder]
+                                blockDataByService
+                                    .getOrPut(service) { mutableMapOf() }[
+                                        blockElement.blockNumber] = ByteArray(0)
+                                Log.d(
+                                    TAG,
+                                    "INDEX mode: Skipping block ${blockElement.blockNumber} of service $service (authentication required, index $blockIndex)",
+                                )
+                            }
+                        }
+                        ErrorLocationIndication.BITMASK -> {
+                            val errorBitmask = statusFlag1.toInt() and 0xFF
+                            Log.d(
+                                TAG,
+                                "BITMASK mode: Auth error bitmask = 0x${errorBitmask.toString(16).uppercase().padStart(2, '0')}",
+                            )
+                            for (bitIndex in 0 until 8) {
+                                if ((errorBitmask and (1 shl bitIndex)) == 0) continue
+                                if (bitIndex >= blocksToRead.size) continue
+                                val blockElement = blocksToRead[bitIndex]
+                                val service = servicesToRead[blockElement.serviceCodeListOrder]
+                                blockDataByService
+                                    .getOrPut(service) { mutableMapOf() }[
+                                        blockElement.blockNumber] = ByteArray(0)
+                                Log.d(
+                                    TAG,
+                                    "BITMASK mode: Skipping block ${blockElement.blockNumber} of service $service (authentication required, bit $bitIndex)",
                                 )
                             }
                         }

@@ -93,6 +93,10 @@ class CardScanService {
 
     companion object {
         const val CARD_LOST_MESSAGE = "Card lost during scan - scan terminated"
+        private val FELICA_LITE_SYSTEM_CODE = byteArrayOf(0x88.toByte(), 0xB4.toByte())
+        private val NDEF_SYSTEM_CODE = byteArrayOf(0x12.toByte(), 0xFC.toByte())
+        private val PROTECTED_READ_TEST_SERVICE_CODES = setOf("0B00", "0900")
+        private const val PROTECTED_READ_TEST_BLOCK_NUMBER = 0x0092
     }
 
     // Context to store discovered nodes across steps
@@ -247,6 +251,30 @@ class CardScanService {
             )
         val pollingResponse = target.transceive(pollingCommand)
         target.idm = pollingResponse.idm
+    }
+
+    /**
+     * Returns the block number to use for Read Without Encryption probe commands. For FeliCa Lite
+     * (88B4) and NDEF (12FC) systems, services 0x000B (0B00) and 0x0009 (0900) must probe block
+     * 0x0092 (STATE); all other cases use block 0.
+     */
+    private fun resolveReadWithoutEncryptionTestBlockNumber(
+        systemCode: ByteArray?,
+        serviceCode: ByteArray,
+    ): Int {
+        val isProtectedSystem =
+            systemCode?.let { code ->
+                code.contentEquals(FELICA_LITE_SYSTEM_CODE) || code.contentEquals(NDEF_SYSTEM_CODE)
+            } ?: false
+        if (!isProtectedSystem) {
+            return 0
+        }
+        val serviceCodeHex = serviceCode.toHexString().uppercase()
+        return if (serviceCodeHex in PROTECTED_READ_TEST_SERVICE_CODES) {
+            PROTECTED_READ_TEST_BLOCK_NUMBER
+        } else {
+            0
+        }
     }
 
     /**
@@ -2235,10 +2263,16 @@ class CardScanService {
             candidateServices.firstOrNull { it.attribute.type == ServiceType.RANDOM }
                 ?: candidateServices.last()
 
+        val testBlockNumber =
+            resolveReadWithoutEncryptionTestBlockNumber(
+                systemCode = bestSystemContext.systemCode,
+                serviceCode = testService.code,
+            )
+
         val blocksToRead =
             listOf(
-                BlockListElement(serviceCodeListOrder = 0, blockNumber = 0),
-                BlockListElement(serviceCodeListOrder = 0, blockNumber = 0),
+                BlockListElement(serviceCodeListOrder = 0, blockNumber = testBlockNumber),
+                BlockListElement(serviceCodeListOrder = 0, blockNumber = testBlockNumber),
                 // Third element should be out of range to trigger error indication, with 0x03 for
                 // NUMERIC and 0x04 for BITMASK
                 BlockListElement(serviceCodeListOrder = 0, blockNumber = 127),
@@ -2343,6 +2377,12 @@ class CardScanService {
             candidateServices.firstOrNull { it.attribute.type == ServiceType.RANDOM }
                 ?: candidateServices.first()
 
+        val testBlockNumber =
+            resolveReadWithoutEncryptionTestBlockNumber(
+                systemCode = bestSystemContext.systemCode,
+                serviceCode = testService.code,
+            )
+
         // Start with theoretical maximum and work down
         var maxServices =
             ReadWithoutEncryptionCommand
@@ -2355,7 +2395,10 @@ class CardScanService {
             // Create block list elements for block 0, one for each service
             val blockListElements =
                 Array(maxServices) { serviceIndex ->
-                    BlockListElement(serviceCodeListOrder = serviceIndex, blockNumber = 0)
+                    BlockListElement(
+                        serviceCodeListOrder = serviceIndex,
+                        blockNumber = testBlockNumber,
+                    )
                 }
 
             // Create the read command with the repeated service and corresponding block elements
@@ -2443,6 +2486,12 @@ class CardScanService {
             )
         }
 
+        val requestedCount =
+            minOf(
+                ReadWithoutEncryptionCommand.MAX_SERVICE_CODES,
+                ReadWithoutEncryptionCommand.MAX_BLOCKS,
+            )
+
         // Prefer services with service number != 0, then prefer RANDOM type
         val servicesWithNonZeroNumber = servicesWithoutAuth.filter { it.number != 0 }
         val candidateServices = servicesWithNonZeroNumber.ifEmpty { servicesWithoutAuth }
@@ -2451,16 +2500,16 @@ class CardScanService {
             candidateServices.firstOrNull { it.attribute.type == ServiceType.RANDOM }
                 ?: candidateServices.first()
 
-        val requestedCount =
-            minOf(
-                ReadWithoutEncryptionCommand.MAX_SERVICE_CODES,
-                ReadWithoutEncryptionCommand.MAX_BLOCKS,
+        val testBlockNumber =
+            resolveReadWithoutEncryptionTestBlockNumber(
+                systemCode = bestSystemContext.systemCode,
+                serviceCode = testService.code,
             )
 
         val serviceCodes = Array(requestedCount) { testService.code }
         val blockListElements =
             Array(requestedCount) { index ->
-                BlockListElement(serviceCodeListOrder = index, blockNumber = 0)
+                BlockListElement(serviceCodeListOrder = index, blockNumber = testBlockNumber)
             }
 
         val readCommand =
@@ -2564,6 +2613,12 @@ class CardScanService {
             candidateServices.firstOrNull { it.attribute.type == ServiceType.RANDOM }
                 ?: candidateServices.first()
 
+        val testBlockNumber =
+            resolveReadWithoutEncryptionTestBlockNumber(
+                systemCode = bestSystemContext.systemCode,
+                serviceCode = testService.code,
+            )
+
         // Start with theoretical maximum and work down
         var maxBlocks = ReadWithoutEncryptionCommand.MAX_BLOCKS
 
@@ -2573,7 +2628,7 @@ class CardScanService {
             // Create block list elements for blocks 0 through (maxBlocks-1)
             val blockListElements =
                 Array(maxBlocks) { blockIndex ->
-                    BlockListElement(serviceCodeListOrder = 0, blockNumber = 0)
+                    BlockListElement(serviceCodeListOrder = 0, blockNumber = testBlockNumber)
                 }
 
             // Create the read command with single service and multiple blocks
