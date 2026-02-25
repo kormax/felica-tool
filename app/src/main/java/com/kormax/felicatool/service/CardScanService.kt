@@ -1487,8 +1487,8 @@ class CardScanService {
 
     /**
      * Force discover all nodes by iterating through all possible node codes (0-1023) with all known
-     * service attributes. Uses RequestServiceV2 if available, otherwise RequestService. Nodes
-     * discovered this way that were not found in regular discovery are marked as hidden.
+     * service and area attributes. Uses RequestServiceV2 if available, otherwise RequestService.
+     * Nodes discovered this way that were not found in regular discovery are marked as hidden.
      */
     private suspend fun executeForceDiscoverNodes(target: FeliCaTarget): Pair<String, String> {
         // Check if RequestService commands are supported
@@ -1506,13 +1506,21 @@ class CardScanService {
         val results = mutableListOf<String>()
         val updatedSystemContexts = mutableListOf<SystemScanContext>()
 
-        // All known service attributes to probe - explicit list to avoid ambiguity
-        val serviceAttributes = ServiceAttribute.entries.filter { it.pinRequired == false }
+        // All known service attributes to probe
+        val serviceAttributes = ServiceAttribute.entries
+        // Area attributes to probe - exclude end markers (EndRootArea, EndSubArea),
+        // as they are not valid start attributes
+        val areaAttributes =
+            AreaAttribute.entries.filter {
+                it != AreaAttribute.EndRootArea && it != AreaAttribute.EndSubArea
+            }
         val maxNodeNumber = 1023 // Node codes range from 0 to 1023 (10 bits)
         val batchSize = 32 // Max nodes per request
 
         var totalDiscovered = 0
         var totalHidden = 0
+        var totalHiddenServices = 0
+        var totalHiddenAreas = 0
 
         // Process each system context
         for (systemContext in scanContext.systemScanContexts) {
@@ -1524,62 +1532,92 @@ class CardScanService {
             val newlyDiscoveredNodes = mutableListOf<Node>()
             val hiddenNodesSet = mutableSetOf<Node>()
 
-            // Generate all possible service nodes to probe
-            val servicesToProbe = mutableListOf<Service>()
-            for (nodeNumber in 0..maxNodeNumber) {
-                for (attribute in serviceAttributes) {
-                    servicesToProbe.add(Service(nodeNumber, attribute))
-                }
-            }
+            // Track key versions for discovered nodes
+            val newNodeKeyVersions = mutableMapOf<Node, KeyVersion>()
+            val newNodeAesKeyVersions = mutableMapOf<Node, KeyVersion>()
+            val newNodeDesKeyVersions = mutableMapOf<Node, KeyVersion>()
+
+            // Generate all possible nodes to probe (services and areas),
+            // skipping codes that were already discovered by normal scanning
+            // For areas, we create minimal areas where endNumber equals number
+            // since we don't know the actual end code from RequestService
+            val nodesToProbe =
+                (0..maxNodeNumber)
+                    .flatMap { nodeNumber ->
+                        areaAttributes.map { attribute ->
+                            Area(
+                                number = nodeNumber,
+                                attribute = attribute,
+                                endNumber = nodeNumber,
+                                endAttribute = AreaAttribute.EndSubArea,
+                            )
+                        } + serviceAttributes.map { attribute -> Service(nodeNumber, attribute) }
+                    }
+                    .filter { it.code.toHexString().uppercase() !in existingNodeCodes }
+
+            // Normalised per-slot result: the key version to check for presence,
+            // a display label, and a store action that writes into the correct maps.
+            data class SlotResult(
+                val keyVersion: KeyVersion,
+                val keyLabel: String,
+                val store: (Node) -> Unit,
+            )
 
             // Process in batches
-            servicesToProbe.chunked(batchSize).forEach { batch ->
+            nodesToProbe.chunked(batchSize).forEach { batch ->
                 try {
                     val nodeCodes = batch.map { it.code }.toTypedArray()
 
-                    if (useV2) {
-                        val command = RequestServiceV2Command(target.idm, nodeCodes)
-                        val response = target.transceive(command)
-
-                        if (response.isStatusSuccessful) {
-                            batch.forEachIndexed { index, service ->
-                                val aesKeyVersion = response.aesKeyVersions[index]
-                                // If key version is not FFFF, the node exists
-                                if (!aesKeyVersion.isMissing) {
-                                    val codeHex = service.code.toHexString().uppercase()
-                                    if (!existingNodeCodes.contains(codeHex)) {
-                                        // This is a hidden node
-                                        newlyDiscoveredNodes.add(service)
-                                        hiddenNodesSet.add(service)
-                                        totalHidden++
-                                        results.add(
-                                            "${systemContext.systemCode?.toHexString() ?: "unknown"} - Hidden Service ${codeHex}: AES v${aesKeyVersion.toInt()}"
-                                        )
-                                    }
-                                    totalDiscovered++
+                    val slots: List<SlotResult> =
+                        if (useV2) {
+                            val response =
+                                target.transceive(RequestServiceV2Command(target.idm, nodeCodes))
+                            if (!response.isStatusSuccessful) return@forEach
+                            batch.indices.map { i ->
+                                val aes = response.aesKeyVersions[i]
+                                val des = response.desKeyVersions[i]
+                                SlotResult(aes, "AES") { node ->
+                                    newNodeAesKeyVersions[node] = aes
+                                    if (!des.isMissing) newNodeDesKeyVersions[node] = des
                                 }
+                            }
+                        } else {
+                            val response =
+                                target.transceive(RequestServiceCommand(target.idm, nodeCodes))
+                            batch.indices.map { i ->
+                                val kv = response.keyVersions[i]
+                                SlotResult(kv, "Key") { node -> newNodeKeyVersions[node] = kv }
                             }
                         }
-                    } else {
-                        val command = RequestServiceCommand(target.idm, nodeCodes)
-                        val response = target.transceive(command)
 
-                        batch.forEachIndexed { index, service ->
-                            val keyVersion = response.keyVersions[index]
-                            // If key version is not FFFF, the node exists
-                            if (!keyVersion.isMissing) {
-                                val codeHex = service.code.toHexString().uppercase()
-                                if (!existingNodeCodes.contains(codeHex)) {
-                                    // This is a hidden node
-                                    newlyDiscoveredNodes.add(service)
-                                    hiddenNodesSet.add(service)
-                                    totalHidden++
-                                    results.add(
-                                        "${systemContext.systemCode?.toHexString() ?: "unknown"} - Hidden Service ${codeHex}: Key v${keyVersion.toInt()}"
-                                    )
+                    batch.forEachIndexed { index, node ->
+                        val (keyVersion, keyLabel, store) = slots[index]
+                        // If key version is not FFFF, the node exists
+                        if (!keyVersion.isMissing) {
+                            val codeHex = node.code.toHexString().uppercase()
+                            store(node)
+                            if (!existingNodeCodes.contains(codeHex)) {
+                                // This is a hidden node
+                                newlyDiscoveredNodes.add(node)
+                                hiddenNodesSet.add(node)
+                                totalHidden++
+                                when (node) {
+                                    is Service -> {
+                                        totalHiddenServices++
+                                        results.add(
+                                            "${systemContext.systemCode?.toHexString() ?: "unknown"} - Hidden Service $codeHex: $keyLabel v${keyVersion.toInt()}"
+                                        )
+                                    }
+                                    is Area -> {
+                                        totalHiddenAreas++
+                                        results.add(
+                                            "${systemContext.systemCode?.toHexString() ?: "unknown"} - Hidden Area $codeHex: $keyLabel v${keyVersion.toInt()}"
+                                        )
+                                    }
+                                    else -> {}
                                 }
-                                totalDiscovered++
                             }
+                            totalDiscovered++
                         }
                     }
                 } catch (e: Exception) {
@@ -1592,8 +1630,19 @@ class CardScanService {
             val allNodes = systemContext.nodes + newlyDiscoveredNodes
             val mergedHiddenNodes = systemContext.hiddenNodes + hiddenNodesSet
 
+            // Merge key versions (existing + newly discovered)
+            val mergedNodeKeyVersions = systemContext.nodeKeyVersions + newNodeKeyVersions
+            val mergedNodeAesKeyVersions = systemContext.nodeAesKeyVersions + newNodeAesKeyVersions
+            val mergedNodeDesKeyVersions = systemContext.nodeDesKeyVersions + newNodeDesKeyVersions
+
             val updatedSystemContext =
-                systemContext.copy(nodes = allNodes, hiddenNodes = mergedHiddenNodes)
+                systemContext.copy(
+                    nodes = allNodes,
+                    hiddenNodes = mergedHiddenNodes,
+                    nodeKeyVersions = mergedNodeKeyVersions,
+                    nodeAesKeyVersions = mergedNodeAesKeyVersions,
+                    nodeDesKeyVersions = mergedNodeDesKeyVersions,
+                )
             updatedSystemContexts.add(updatedSystemContext)
         }
 
@@ -1601,7 +1650,7 @@ class CardScanService {
         scanContext = scanContext.copy(systemScanContexts = updatedSystemContexts)
 
         val collapsedSummary =
-            "Force discovered $totalHidden hidden node(s) out of $totalDiscovered total present"
+            "Force discovered $totalHidden hidden node(s) ($totalHiddenAreas areas, $totalHiddenServices services) out of $totalDiscovered total present"
         val expandedResult =
             if (results.isNotEmpty()) {
                 collapsedSummary + "\n" + results.joinToString("\n")
