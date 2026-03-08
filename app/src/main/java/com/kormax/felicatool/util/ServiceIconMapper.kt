@@ -32,7 +32,7 @@ object ServiceIconMapper {
             "OKICA" to R.drawable.service_okica,
             "PASMO" to R.drawable.service_pasmo,
             "EDY" to R.drawable.service_edy,
-            "RAKUTEN_EDY" to R.drawable.service_rakuten_edy,
+            "EDY_RAKUTEN" to R.drawable.service_rakuten_edy,
             "RAKUTEN_POINT" to R.drawable.service_rakuten_point,
             "SAPICA" to R.drawable.service_sapica,
             "SHENZEN_TONG" to R.drawable.service_shenzen_tong,
@@ -81,6 +81,15 @@ object ServiceIconMapper {
             "EZLINK" to R.drawable.service_ezlink,
             "SKYRAIL" to R.drawable.service_skyrail,
             "YAMANASHI_KOTSU" to R.drawable.service_yamanashi_kotsu,
+            "MIWA" to R.drawable.service_miwa,
+            "MIWA_FKL" to R.drawable.service_miwa_fkl,
+            "MIWA_IEL" to R.drawable.service_miwa_iel,
+            "MIWA_KEYMO" to R.drawable.service_miwa_keymo,
+            "SPEEDPASS" to R.drawable.service_speedpass,
+            "AMPM" to R.drawable.service_ampm,
+            "SAN_IN_SHINPAN" to R.drawable.service_san_in_shinpan,
+            "HONDA_C_CARD" to R.drawable.service_honda_c_card,
+            "STARBUCKS_TOUCH" to R.drawable.service_starbucks_touch,
         )
 
     @DrawableRes
