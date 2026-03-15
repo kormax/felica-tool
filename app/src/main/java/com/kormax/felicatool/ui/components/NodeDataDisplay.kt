@@ -473,6 +473,12 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                     ) {
                         CommandSupportChip("Request Service", context.requestServiceSupport)
                         CommandSupportChip("Request Service V2", context.requestServiceV2Support)
+                        context.requestServiceUnknownNodeAttributesSupported?.let { supported ->
+                            InfoChip(
+                                label = "Request Service Unknown Attr",
+                                value = if (supported) "true" else "false",
+                            )
+                        }
                         CommandSupportChip(
                             "Request Block Info",
                             context.requestBlockInformationSupport,

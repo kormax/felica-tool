@@ -129,6 +129,15 @@ data class CardScanStep(
                 )
                 add(
                     CardScanStep(
+                        id = "request_service_determine_unknown_node_attributes_supported",
+                        title = "Request Service - Unknown Attributes",
+                        description =
+                            "Check Request Service behavior when a node with an unknown attribute is requested",
+                        icon = Icons.Default.CheckCircle,
+                    )
+                )
+                add(
+                    CardScanStep(
                         id = "request_service_v2",
                         title = "Request Service V2",
                         description =

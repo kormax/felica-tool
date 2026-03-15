@@ -360,6 +360,10 @@ object ExportUtils {
         }
 
         scanContext.echoMaxPayloadSize?.let { json.put("echo_max_payload_size", it) }
+        json.put(
+            "request_service_unknown_node_attributes_supported",
+            scanContext.requestServiceUnknownNodeAttributesSupported,
+        )
 
         // Supported commands - build as a list of only supported commands
         val supportedCommandsArray = JSONArray()

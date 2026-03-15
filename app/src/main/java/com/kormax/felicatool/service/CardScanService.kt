@@ -32,6 +32,7 @@ data class CardScanContext(
     val writeWithoutEncryptionErrorLocationIndication: ErrorLocationIndication? = null,
     val writeWithoutEncryptionMaxBlocksPerRequest: Int? = null,
     val echoMaxPayloadSize: Int? = null,
+    val requestServiceUnknownNodeAttributesSupported: Boolean? = null,
     val readWithoutEncryptionIllegalNumberErrorPreference: IllegalNumberErrorPreference? = null,
     // Command support
     val pollingSupport: CommandSupport = CommandSupport.UNKNOWN,
@@ -110,6 +111,10 @@ class CardScanService {
         private val NDEF_SYSTEM_CODE = byteArrayOf(0x12.toByte(), 0xFC.toByte())
         private val PROTECTED_READ_TEST_SERVICE_CODES = setOf("0B00", "0900")
         private const val PROTECTED_READ_TEST_BLOCK_NUMBER = 0x0092
+        private const val REQUEST_SERVICE_UNAVAILABLE_FOR_UNKNOWN_ATTRIBUTE_PROBE =
+            "Request Service command is unavailable; cannot probe unknown attribute behavior"
+        private const val REQUEST_SERVICE_UNKNOWN_ATTRIBUTE_PROBE_ATTEMPTS = 3
+        private const val REQUEST_SERVICE_UNKNOWN_ATTRIBUTE_SERVICE_NUMBER = 0
     }
 
     // Context to store discovered nodes across steps
@@ -208,6 +213,7 @@ class CardScanService {
             "request_code_list" -> scanContext.requestCodeListSupport
             "search_service_code" -> scanContext.searchServiceCodeSupport
             "request_service" -> scanContext.requestServiceSupport
+            "request_service_determine_unknown_node_attributes_supported" -> CommandSupport.UNKNOWN
             "request_service_v2" -> scanContext.requestServiceV2Support
             "set_parameter" -> scanContext.setParameterSupport
             "get_container_issue_information" -> scanContext.getContainerIssueInformationSupport
@@ -296,6 +302,15 @@ class CardScanService {
 
     private fun byteToHex(statusFlag: Number): String =
         (statusFlag.toInt() and 0xFF).toString(16).uppercase().padStart(2, '0')
+
+    private fun resolveUnknownNodeAttributeValue(): Int {
+        val knownAttributes = buildSet {
+            addAll(ServiceAttribute.entries.map { it.value })
+            addAll(AreaAttribute.entries.map { it.value })
+        }
+        return (0..0x3F).firstOrNull { it !in knownAttributes }
+            ?: throw IllegalStateException("No unknown node attribute value available for probing")
+    }
 
     private fun formatStatus(
         statusFlag1: Number?,
@@ -543,8 +558,8 @@ class CardScanService {
         // Check if command is already known to be unsupported
         val commandSupport = getCommandSupport(step.id)
         if (commandSupport == CommandSupport.UNSUPPORTED) {
-            // Skip execution for known unsupported commands
             val duration = kotlin.time.Duration.ZERO
+            // Skip execution for known unsupported commands
             return step.copy(
                 status = StepStatus.COMPLETED,
                 result = "Command not supported by this card",
@@ -581,6 +596,10 @@ class CardScanService {
                             collapsedResult = collapsedResult,
                             isCollapsed = true,
                         )
+                    }
+                    "request_service_determine_unknown_node_attributes_supported" -> {
+                        val result = executeRequestServiceUnknownNodeAttributes(target)
+                        step.copy(status = StepStatus.COMPLETED, result = result)
                     }
                     "request_service_v2" -> {
                         val (collapsedResult, expandedResult) = executeRequestServiceV2(target)
@@ -1540,6 +1559,64 @@ class CardScanService {
             }
 
         return collapsedSummary to expandedResult
+    }
+
+    private suspend fun executeRequestServiceUnknownNodeAttributes(target: FeliCaTarget): String {
+        if (scanContext.requestServiceSupport != CommandSupport.SUPPORTED) {
+            throw PrerequisiteException(REQUEST_SERVICE_UNAVAILABLE_FOR_UNKNOWN_ATTRIBUTE_PROBE)
+        }
+
+        val systemContext = scanContext.systemScanContexts.firstOrNull()
+        val unknownAttributeValue = resolveUnknownNodeAttributeValue()
+        val unknownAttributeNodeCodeValue =
+            (REQUEST_SERVICE_UNKNOWN_ATTRIBUTE_SERVICE_NUMBER shl 6) or unknownAttributeValue
+        val unknownAttributeNodeCode =
+            byteArrayOf(
+                (unknownAttributeNodeCodeValue and 0xFF).toByte(),
+                ((unknownAttributeNodeCodeValue shr 8) and 0xFF).toByte(),
+            )
+
+        val attemptResults = mutableListOf<String>()
+        var responseReceived = false
+
+        for (attempt in 1..REQUEST_SERVICE_UNKNOWN_ATTRIBUTE_PROBE_ATTEMPTS) {
+            try {
+                pollSystemCode(target, systemContext?.systemCode)
+                val response =
+                    target.transceive(
+                        RequestServiceCommand(target.idm, arrayOf(unknownAttributeNodeCode))
+                    )
+                val keyVersionHex =
+                    response.keyVersions.first().toByteArray().toHexString().uppercase()
+                attemptResults += "$attempt. response received (key_version=$keyVersionHex)"
+                responseReceived = true
+                break
+            } catch (e: Exception) {
+                val error = e.message ?: e::class.simpleName ?: "Unknown error"
+                attemptResults += "$attempt. no response ($error)"
+                if (attempt < REQUEST_SERVICE_UNKNOWN_ATTRIBUTE_PROBE_ATTEMPTS) {
+                    delay(50)
+                }
+            }
+        }
+
+        scanContext =
+            scanContext.copy(requestServiceUnknownNodeAttributesSupported = responseReceived)
+
+        return buildString {
+                appendLine(
+                    "Probe node: ${unknownAttributeNodeCode.toHexString().uppercase()} " +
+                        "(service=${REQUEST_SERVICE_UNKNOWN_ATTRIBUTE_SERVICE_NUMBER}, " +
+                        "attribute=0x${unknownAttributeValue.toString(16).uppercase().padStart(2, '0')})"
+                )
+                appendLine(
+                    "System: ${systemContext?.systemCode?.toHexString()?.uppercase() ?: "wildcard"}"
+                )
+                appendLine("Attempts:")
+                attemptResults.forEach { appendLine("  $it") }
+                appendLine("Supported = $responseReceived")
+            }
+            .trim()
     }
 
     private suspend fun executeRequestServiceV2(target: FeliCaTarget): Pair<String, String> {
