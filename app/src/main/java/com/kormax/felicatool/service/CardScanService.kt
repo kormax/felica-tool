@@ -3916,68 +3916,50 @@ class CardScanService {
     }
 
     private suspend fun executeAuthentication1Des(target: FeliCaTarget): String {
-        // Find the best system context that contains DES-compatible nodes requiring authentication
+        // For support probing, authenticate using root area in both fields.
         var bestSystemContext: SystemScanContext? = null
-        var bestDesCompatibleAreas = emptyList<Area>()
-        var bestDesCompatibleServices = emptyList<Service>()
-        var bestScore = 0
+        var bestRootArea: Area? = null
+        var bestNodeCount = -1
 
         for (systemContext in scanContext.systemScanContexts) {
             val areas = systemContext.nodes.filterIsInstance<Area>()
-            val services = systemContext.nodes.filterIsInstance<Service>()
-            val authServices = services.filter { it.attribute.authenticationRequired }
+            val rootArea = areas.firstOrNull { it.isRoot } ?: Area.ROOT
 
             // Collect key version information for this system context
             val systemDesKeyVersions = systemContext.nodeDesKeyVersions
             val systemAesKeyVersions = systemContext.nodeAesKeyVersions
             val systemKeyVersions = systemContext.nodeKeyVersions
 
-            // Filter areas and services for DES authentication:
-            // a) Has nodeDesKeyVersion, OR
-            // b) Does not have nodeAesKeyVersion but has nodeKeyVersion (legacy DES)
-            val desCompatibleAreas =
-                areas.filter { area ->
-                    systemDesKeyVersions.containsKey(area) ||
-                        (!systemAesKeyVersions.containsKey(area) &&
-                            systemKeyVersions.containsKey(area))
-                }
+            // Mandatory filter: root area must have DES/legacy DES key mapping.
+            val hasValidDesKeyOnRootArea =
+                systemDesKeyVersions.containsKey(rootArea) ||
+                    (!systemAesKeyVersions.containsKey(rootArea) &&
+                        systemKeyVersions.containsKey(rootArea))
 
-            val desCompatibleServices =
-                authServices.filter { service ->
-                    systemDesKeyVersions.containsKey(service) ||
-                        (!systemAesKeyVersions.containsKey(service) &&
-                            systemKeyVersions.containsKey(service))
-                }
+            if (!hasValidDesKeyOnRootArea) {
+                continue
+            }
 
-            // Score this system context: prefer systems with both areas and services, then by total
-            // count
-            val score =
-                (if (desCompatibleAreas.isNotEmpty()) 100 else 0) +
-                    (if (desCompatibleServices.isNotEmpty()) 100 else 0) +
-                    desCompatibleAreas.size +
-                    desCompatibleServices.size
+            // Priority: among suitable systems, choose one with the highest node count.
+            val nodeCount = systemContext.nodes.size
 
-            if (
-                score > bestScore &&
-                    (desCompatibleAreas.isNotEmpty() || desCompatibleServices.isNotEmpty())
-            ) {
-                bestScore = score
+            if (nodeCount > bestNodeCount) {
+                bestNodeCount = nodeCount
                 bestSystemContext = systemContext
-                bestDesCompatibleAreas = desCompatibleAreas
-                bestDesCompatibleServices = desCompatibleServices
+                bestRootArea = rootArea
             }
         }
 
-        if (bestSystemContext == null) {
+        if (bestSystemContext == null || bestRootArea == null) {
             throw RuntimeException(
-                "No system found with DES-compatible nodes. DES authentication requires nodes with DES key versions or legacy key versions without AES."
+                "No suitable system found for DES authentication (root area with valid DES key is required)."
             )
         }
 
         val systemCodeHex = bestSystemContext.systemCode?.toHexString() ?: "unknown"
         Log.d(
             "CardScanService",
-            "Selected system $systemCodeHex for DES authentication with ${bestDesCompatibleAreas.size} areas and ${bestDesCompatibleServices.size} services",
+            "Selected system $systemCodeHex for DES authentication using root area ${bestRootArea.code.toHexString()} in area and node lists (node count: $bestNodeCount)",
         )
 
         // Poll the selected system before authentication
@@ -3986,12 +3968,8 @@ class CardScanService {
         // Generate a random challenge1A (8 bytes)
         val challenge1A = ByteArray(8) { 0x00.toByte() }
 
-        // Take a subset of DES-compatible areas and services from the selected system
-        // Seems to require at least 1 area (but works at 12, tested with 16 services)
-        val areasToAuth = bestDesCompatibleAreas.take(1)
-        // Seems to require at least 1 node (service or area) (but works at 16, tested with 12
-        // services)
-        val nodesToAuth = bestDesCompatibleServices.take(1).ifEmpty { areasToAuth }
+        val areasToAuth = listOf(bestRootArea)
+        val nodesToAuth = listOf<Node>(bestRootArea)
 
         val authenticateCommand =
             Authentication1DesCommand(
@@ -4026,9 +4004,7 @@ class CardScanService {
         return buildString {
                 appendLine("DES Authentication Results:")
                 appendLine("Selected system: $systemCodeHex")
-                appendLine(
-                    "DES-compatible areas (${areasToAuth.size}) and nodes (${nodesToAuth.size}) used"
-                )
+                appendLine("Using root area in both area and node lists for support check")
                 appendLine("Challenge1A (sent): ${challenge1A.toHexString()}")
                 appendLine(
                     "Challenge1B (received): ${authenticateResponse.challenge1B.toHexString()}"
