@@ -90,6 +90,8 @@ object ServiceIconMapper {
             "SAN_IN_SHINPAN" to R.drawable.service_san_in_shinpan,
             "HONDA_C_CARD" to R.drawable.service_honda_c_card,
             "STARBUCKS_TOUCH" to R.drawable.service_starbucks_touch,
+            "CLAVIS" to R.drawable.service_clavis,
+            "HCMC" to R.drawable.service_hcmc,
         )
 
     @DrawableRes

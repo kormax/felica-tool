@@ -9621,6 +9621,27 @@
       }
     ]
   },
+  "81a1": {
+    "name": "Tebra-F ID",
+    "service_provider": "CLAVIS",
+    "cards": [
+      "CLAVIS"
+    ],
+    "nodes": [
+      {
+        "code": "0000feff",
+        "parent": null,
+        "name": null,
+        "service_provider": "CLAVIS",
+        "cards": [
+          "CLAVIS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      }
+    ]
+  },
   "81ca": {
     "name": "Honda C Card",
     "service_provider": "HONDA_C_CARD",
@@ -18832,6 +18853,423 @@
       }
     ]
   },
+  "9450": {
+    "name": "HCMC",
+    "service_provider": "HCMC",
+    "cards": [
+      "HCMC"
+    ],
+    "nodes": [
+      {
+        "code": "0000feff",
+        "parent": null,
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "00103f11",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0810",
+        "parent": "00103f11",
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0b10",
+        "parent": "00103f11",
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4810",
+        "parent": "00103f11",
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4a10",
+        "parent": "00103f11",
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8810",
+        "parent": "00103f11",
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8a10",
+        "parent": "00103f11",
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "d010",
+        "parent": "00103f11",
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "d410",
+        "parent": "00103f11",
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "d610",
+        "parent": "00103f11",
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "d710",
+        "parent": "00103f11",
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0811",
+        "parent": "00103f11",
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0a11",
+        "parent": "00103f11",
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0021ff22",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0821",
+        "parent": "0021ff22",
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0a21",
+        "parent": "0021ff22",
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4c21",
+        "parent": "0021ff22",
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4e21",
+        "parent": "0021ff22",
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8821",
+        "parent": "0021ff22",
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8a21",
+        "parent": "0021ff22",
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c821",
+        "parent": "0021ff22",
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "ca21",
+        "parent": "0021ff22",
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0c22",
+        "parent": "0021ff22",
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0e22",
+        "parent": "0021ff22",
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4822",
+        "parent": "0021ff22",
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4a22",
+        "parent": "0021ff22",
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8822",
+        "parent": "0021ff22",
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8a22",
+        "parent": "0021ff22",
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c822",
+        "parent": "0021ff22",
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "ca22",
+        "parent": "0021ff22",
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "00233f23",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0823",
+        "parent": "00233f23",
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0a23",
+        "parent": "00233f23",
+        "name": null,
+        "service_provider": "HCMC",
+        "cards": [
+          "HCMC"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      }
+    ]
+  },
   "9506": {
     "name": "kinoca",
     "service_provider": "KINOCA",
@@ -19149,6 +19587,7 @@
       "AOPASS",
       "CHERICA_SHOKO",
       "CHERICA_YAMAKO",
+      "CLAVIS",
       "EDY_AMPM",
       "EDY_HONDA_C_CARD",
       "EDY_KARUWAZA_CLUB",
@@ -19203,6 +19642,7 @@
           "AOPASS",
           "CHERICA_SHOKO",
           "CHERICA_YAMAKO",
+          "CLAVIS",
           "EDY_AMPM",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
@@ -20210,8 +20650,11 @@
         "parent": "0000feff",
         "name": "KESAKA",
         "service_provider": "KESAKA",
-        "cards": [],
+        "cards": [
+          "CLAVIS"
+        ],
         "mediums": [
+          "CARD",
           "MOBILE"
         ]
       },
@@ -20220,8 +20663,11 @@
         "parent": "802e3f2f",
         "name": "KESAKA",
         "service_provider": "KESAKA",
-        "cards": [],
+        "cards": [
+          "CLAVIS"
+        ],
         "mediums": [
+          "CARD",
           "MOBILE"
         ]
       },
@@ -20230,8 +20676,11 @@
         "parent": "812e3f2f",
         "name": null,
         "service_provider": "KESAKA",
-        "cards": [],
+        "cards": [
+          "CLAVIS"
+        ],
         "mediums": [
+          "CARD",
           "MOBILE"
         ]
       },
@@ -20240,8 +20689,11 @@
         "parent": "812e3f2f",
         "name": null,
         "service_provider": "KESAKA",
-        "cards": [],
+        "cards": [
+          "CLAVIS"
+        ],
         "mediums": [
+          "CARD",
           "MOBILE"
         ]
       },
@@ -20250,8 +20702,11 @@
         "parent": "812e3f2f",
         "name": null,
         "service_provider": "KESAKA",
-        "cards": [],
+        "cards": [
+          "CLAVIS"
+        ],
         "mediums": [
+          "CARD",
           "MOBILE"
         ]
       },
@@ -20260,8 +20715,11 @@
         "parent": "812e3f2f",
         "name": null,
         "service_provider": "KESAKA",
-        "cards": [],
+        "cards": [
+          "CLAVIS"
+        ],
         "mediums": [
+          "CARD",
           "MOBILE"
         ]
       },
@@ -20270,8 +20728,11 @@
         "parent": "812e3f2f",
         "name": null,
         "service_provider": "KESAKA",
-        "cards": [],
+        "cards": [
+          "CLAVIS"
+        ],
         "mediums": [
+          "CARD",
           "MOBILE"
         ]
       },
@@ -20280,8 +20741,11 @@
         "parent": "812e3f2f",
         "name": null,
         "service_provider": "KESAKA",
-        "cards": [],
+        "cards": [
+          "CLAVIS"
+        ],
         "mediums": [
+          "CARD",
           "MOBILE"
         ]
       },
@@ -20290,8 +20754,11 @@
         "parent": "812e3f2f",
         "name": null,
         "service_provider": "KESAKA",
-        "cards": [],
+        "cards": [
+          "CLAVIS"
+        ],
         "mediums": [
+          "CARD",
           "MOBILE"
         ]
       },
@@ -20300,8 +20767,11 @@
         "parent": "812e3f2f",
         "name": null,
         "service_provider": "KESAKA",
-        "cards": [],
+        "cards": [
+          "CLAVIS"
+        ],
         "mediums": [
+          "CARD",
           "MOBILE"
         ]
       },
@@ -20310,8 +20780,11 @@
         "parent": "812e3f2f",
         "name": null,
         "service_provider": "KESAKA",
-        "cards": [],
+        "cards": [
+          "CLAVIS"
+        ],
         "mediums": [
+          "CARD",
           "MOBILE"
         ]
       },
@@ -20320,8 +20793,11 @@
         "parent": "812e3f2f",
         "name": null,
         "service_provider": "KESAKA",
-        "cards": [],
+        "cards": [
+          "CLAVIS"
+        ],
         "mediums": [
+          "CARD",
           "MOBILE"
         ]
       },
@@ -20330,8 +20806,11 @@
         "parent": "812e3f2f",
         "name": null,
         "service_provider": "KESAKA",
-        "cards": [],
+        "cards": [
+          "CLAVIS"
+        ],
         "mediums": [
+          "CARD",
           "MOBILE"
         ]
       },
