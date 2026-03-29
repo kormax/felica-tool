@@ -469,13 +469,11 @@ class CardScanService {
 
     /**
      * Ensures the card is present before executing a command. If Request Response is known to be
-     * supported, it is attempted first. Falls back to polling if Request Response fails or is not
-     * supported.
+     * supported, it is attempted first. Request Service (service 0, read-only without key) is then
+     * tried, and polling is used as the last resort.
      */
     private suspend fun ensureCardPresence(target: FeliCaTarget, stepId: String) {
-        val requestResponseSupport = getCommandSupport("request_response")
-
-        if (requestResponseSupport == CommandSupport.SUPPORTED) {
+        if (getCommandSupport("request_response") == CommandSupport.SUPPORTED) {
             try {
                 val response = target.transceive(RequestResponseCommand(target.idm))
                 target.idm = response.idm
@@ -483,7 +481,25 @@ class CardScanService {
             } catch (e: Exception) {
                 Log.w(
                     "CardScanService",
-                    "Request Response presence check failed for step $stepId, falling back to polling",
+                    "Request Response presence check failed for step $stepId",
+                    e,
+                )
+            }
+        }
+
+        if (getCommandSupport("request_service") == CommandSupport.SUPPORTED) {
+            // Some cards, such as IC 0x24 on Octopus, may stop responding to RequestResponse in
+            // Mode1, while RequestService (and Authentication1) still respond.
+            try {
+                val probeService = Service(0, ServiceAttribute.RandomRoWithoutKey)
+                val response =
+                    target.transceive(RequestServiceCommand(target.idm, arrayOf(probeService.code)))
+                target.idm = response.idm
+                return
+            } catch (e: Exception) {
+                Log.w(
+                    "CardScanService",
+                    "Request Service presence check failed for step $stepId",
                     e,
                 )
             }
