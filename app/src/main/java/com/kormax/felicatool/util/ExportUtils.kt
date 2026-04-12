@@ -364,6 +364,10 @@ object ExportUtils {
             "request_service_unknown_node_attributes_supported",
             scanContext.requestServiceUnknownNodeAttributesSupported,
         )
+        json.put(
+            "authentication1_des_node_list_hierarchy_validation",
+            scanContext.authentication1DesNodeListHierarchyValidation.name,
+        )
 
         // Supported commands - build as a list of only supported commands
         val supportedCommandsArray = JSONArray()

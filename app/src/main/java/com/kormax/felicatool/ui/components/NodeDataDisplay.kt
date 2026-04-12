@@ -579,6 +579,10 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                         modifier = Modifier.padding(bottom = 8.dp),
                     ) {
                         CommandSupportChip("Authenticate1 DES", context.authentication1DesSupport)
+                        InfoChip(
+                            label = "Auth1 DES Node List Validation",
+                            value = context.authentication1DesNodeListHierarchyValidation.name,
+                        )
                         CommandSupportChip("Authenticate1 AES", context.authentication1AesSupport)
                     }
 

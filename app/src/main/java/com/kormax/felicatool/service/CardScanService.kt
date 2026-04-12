@@ -33,6 +33,8 @@ data class CardScanContext(
     val writeWithoutEncryptionMaxBlocksPerRequest: Int? = null,
     val echoMaxPayloadSize: Int? = null,
     val requestServiceUnknownNodeAttributesSupported: Boolean? = null,
+    val authentication1DesNodeListHierarchyValidation: Authentication1DesNodeListHierarchyValidation =
+        Authentication1DesNodeListHierarchyValidation.UNKNOWN,
     val readWithoutEncryptionIllegalNumberErrorPreference: IllegalNumberErrorPreference? = null,
     // Command support
     val pollingSupport: CommandSupport = CommandSupport.UNKNOWN,
@@ -99,6 +101,16 @@ class CardScanService {
         val blockNumber: Int,
     )
 
+    private data class Authentication1DesTestTarget(
+        val systemContext: SystemScanContext,
+        val rootArea: Area,
+    )
+
+    private data class AuthenticationStateResetResult(
+        val message: String,
+        val modeSetToMode0: Boolean,
+    )
+
     companion object {
         const val CARD_LOST_MESSAGE = "Card lost during scan - scan terminated"
         private const val NO_SERVICES_AVAILABLE = "No services available"
@@ -116,6 +128,9 @@ class CardScanService {
             "Request Service command is unavailable; cannot probe unknown attribute behavior"
         private const val REQUEST_SERVICE_UNKNOWN_ATTRIBUTE_PROBE_ATTEMPTS = 3
         private const val REQUEST_SERVICE_UNKNOWN_ATTRIBUTE_SERVICE_NUMBER = 0
+        private const val AUTHENTICATION1_DES_UNAVAILABLE_FOR_NODE_LIST_HIERARCHY_VALIDATION =
+            "Authenticate1 DES support is not confirmed; cannot check node-list hierarchy validation"
+        private const val AUTHENTICATION1_DES_NODE_LIST_HIERARCHY_VALIDATION_ATTEMPTS = 3
     }
 
     // Context to store discovered nodes across steps
@@ -215,6 +230,7 @@ class CardScanService {
             "search_service_code" -> scanContext.searchServiceCodeSupport
             "request_service" -> scanContext.requestServiceSupport
             "request_service_determine_unknown_node_attributes_supported" -> CommandSupport.UNKNOWN
+            "authentication1_des_node_list_hierarchy_validation" -> CommandSupport.UNKNOWN
             "request_service_v2" -> scanContext.requestServiceV2Support
             "set_parameter" -> scanContext.setParameterSupport
             "get_container_issue_information" -> scanContext.getContainerIssueInformationSupport
@@ -392,6 +408,94 @@ class CardScanService {
         updateModeAfterSuccessfulPolling(systemCode)
     }
 
+    private suspend fun resetAuthenticationState(
+        target: FeliCaTarget,
+        authenticatedSystemCode: ByteArray?,
+        authenticatedSystemIdm: ByteArray?,
+        allowAlternateSystemPollingFallback: Boolean = true,
+    ): AuthenticationStateResetResult {
+        if (authenticatedSystemIdm == null) {
+            return AuthenticationStateResetResult(
+                message = "State reset skipped: selected-system IDM is unavailable",
+                modeSetToMode0 = false,
+            )
+        }
+
+        if (scanContext.resetModeSupport == CommandSupport.SUPPORTED) {
+            return try {
+                val resetModeResponse = target.transceive(ResetModeCommand(authenticatedSystemIdm))
+                if (resetModeResponse.isStatusSuccessful) {
+                    setSystemMode(authenticatedSystemCode, Mode.Mode0)
+                    AuthenticationStateResetResult(
+                        message = "Reset Mode executed - card reset to Mode0",
+                        modeSetToMode0 = true,
+                    )
+                } else {
+                    AuthenticationStateResetResult(
+                        message = "Reset Mode failed (${formatStatus(resetModeResponse)})",
+                        modeSetToMode0 = false,
+                    )
+                }
+            } catch (e: Exception) {
+                val details = e.message ?: e::class.simpleName ?: "Unknown error"
+                AuthenticationStateResetResult(
+                    message = "Reset Mode error ($details)",
+                    modeSetToMode0 = false,
+                )
+            }
+        }
+
+        if (!allowAlternateSystemPollingFallback) {
+            return AuthenticationStateResetResult(
+                message = "Reset Mode not executed (not confirmed as supported)",
+                modeSetToMode0 = false,
+            )
+        }
+
+        val alternativeSystemCode =
+            scanContext.systemScanContexts
+                .firstOrNull { context ->
+                    !context.systemCode.sameBytes(authenticatedSystemCode)
+                }
+                ?.systemCode
+
+        if (alternativeSystemCode == null) {
+            return AuthenticationStateResetResult(
+                message =
+                    "State reset unavailable: Reset Mode support is not confirmed and no alternate system is available for polling reset",
+                modeSetToMode0 = false,
+            )
+        }
+
+        return try {
+            pollSystemCode(target, alternativeSystemCode)
+            val returnPollingResult =
+                try {
+                    if (authenticatedSystemCode != null) {
+                        pollSystemCode(target, authenticatedSystemCode)
+                        "re-polled back to selected system (${authenticatedSystemCode.toHexString().uppercase()})"
+                    } else {
+                        "selected system code is unavailable for re-poll"
+                    }
+                } catch (e: Exception) {
+                    val details = e.message ?: e::class.simpleName ?: "Unknown error"
+                    "failed to re-poll selected system ($details)"
+                }
+
+            AuthenticationStateResetResult(
+                message =
+                    "State reset by polling another system (${alternativeSystemCode.toHexString().uppercase()}); $returnPollingResult",
+                modeSetToMode0 = true,
+            )
+        } catch (e: Exception) {
+            val details = e.message ?: e::class.simpleName ?: "Unknown error"
+            AuthenticationStateResetResult(
+                message = "State reset via alternate-system polling failed ($details)",
+                modeSetToMode0 = false,
+            )
+        }
+    }
+
     /**
      * Returns the block number to use for Read Without Encryption probe commands. For FeliCa Lite
      * (88B4) and NDEF (12FC) systems, services 0x000B (0B00) and 0x0009 (0900) must probe block
@@ -426,6 +530,78 @@ class CardScanService {
         }
         return (0..0x3F).firstOrNull { it !in knownAttributes }
             ?: throw IllegalStateException("No unknown node attribute value available for probing")
+    }
+
+    private fun describeNodeForAuthenticationCheck(node: Node): String =
+        when (node) {
+            is Area -> "Area ${node.number}-${node.endNumber} (${node.code.toHexString().uppercase()})"
+            is Service -> "Service ${node.number} (${node.code.toHexString().uppercase()})"
+            is System -> "System (${node.code.toHexString().uppercase()})"
+            else -> "Node (${node.code.toHexString().uppercase()})"
+        }
+
+    private fun hasValidDesKeyOnRootArea(systemContext: SystemScanContext, rootArea: Area): Boolean {
+        return systemContext.nodeDesKeyVersions.containsKey(rootArea) ||
+            (!systemContext.nodeAesKeyVersions.containsKey(rootArea) &&
+                systemContext.nodeKeyVersions.containsKey(rootArea))
+    }
+
+    private fun findBestAuthentication1DesTarget(
+        modeAllowed: ((Mode) -> Boolean)? = null
+    ): Authentication1DesTestTarget? {
+        var bestTarget: Authentication1DesTestTarget? = null
+        var bestNodeCount = -1
+
+        for (systemContext in scanContext.systemScanContexts) {
+            if (modeAllowed != null && !modeAllowed(systemContext.mode)) {
+                continue
+            }
+
+            val rootArea = systemContext.nodes.filterIsInstance<Area>().firstOrNull { it.isRoot } ?: Area.ROOT
+            if (!hasValidDesKeyOnRootArea(systemContext, rootArea)) {
+                continue
+            }
+
+            val nodeCount = systemContext.nodes.size
+            if (nodeCount > bestNodeCount) {
+                bestNodeCount = nodeCount
+                bestTarget = Authentication1DesTestTarget(systemContext = systemContext, rootArea = rootArea)
+            }
+        }
+
+        return bestTarget
+    }
+
+    private fun findAuthentication1DesNonImmediateNode(
+        testTarget: Authentication1DesTestTarget
+    ): Node? {
+        val rootArea = testTarget.rootArea
+        val areasInSystem = testTarget.systemContext.nodes.filterIsInstance<Area>()
+        val nonRootAreas =
+            areasInSystem.filter { area ->
+                area != rootArea && !area.isRoot && area.belongsTo(rootArea)
+            }
+
+        if (nonRootAreas.isEmpty()) {
+            return null
+        }
+
+        val serviceCandidate =
+            testTarget.systemContext.nodes
+                .filterIsInstance<Service>()
+                .filter { service -> nonRootAreas.any { area -> service.belongsTo(area) } }
+                .sortedBy { it.number }
+                .firstOrNull()
+        if (serviceCandidate != null) {
+            return serviceCandidate
+        }
+
+        return nonRootAreas
+            .filter { candidate ->
+                nonRootAreas.any { parent -> parent != candidate && candidate.belongsTo(parent) }
+            }
+            .sortedBy { it.number }
+            .firstOrNull()
     }
 
     private fun formatStatus(
@@ -731,6 +907,10 @@ class CardScanService {
                     }
                     "request_service_determine_unknown_node_attributes_supported" -> {
                         val result = executeRequestServiceUnknownNodeAttributes(target)
+                        step.copy(status = StepStatus.COMPLETED, result = result)
+                    }
+                    "authentication1_des_node_list_hierarchy_validation" -> {
+                        val result = executeAuthentication1DesNodeListHierarchyValidation(target)
                         step.copy(status = StepStatus.COMPLETED, result = result)
                     }
                     "request_service_v2" -> {
@@ -1751,6 +1931,133 @@ class CardScanService {
             .trim()
     }
 
+    private suspend fun executeAuthentication1DesNodeListHierarchyValidation(
+        target: FeliCaTarget
+    ): String {
+        if (scanContext.authentication1DesSupport != CommandSupport.SUPPORTED) {
+            throw PrerequisiteException(
+                AUTHENTICATION1_DES_UNAVAILABLE_FOR_NODE_LIST_HIERARCHY_VALIDATION
+            )
+        }
+
+        val preferredTarget =
+            findBestAuthentication1DesTarget { mode ->
+                mode == Mode.Mode0
+            }
+        val targetForErrorMessage = preferredTarget ?: findBestAuthentication1DesTarget()
+
+        if (targetForErrorMessage == null) {
+            throw PrerequisiteException(
+                "No suitable system found for Authenticate1 DES node-list hierarchy validation (root area with valid DES key is required)."
+            )
+        }
+
+        if (preferredTarget == null) {
+            throw PrerequisiteException(
+                "Authenticate1 DES node-list hierarchy validation requires Mode0 on the selected system (current: ${targetForErrorMessage.systemContext.mode})."
+            )
+        }
+
+        val nonImmediateNode = findAuthentication1DesNonImmediateNode(preferredTarget)
+        if (nonImmediateNode == null) {
+            throw PrerequisiteException(
+                "No node found under an area under root area; cannot check Authenticate1 DES node-list hierarchy validation."
+            )
+        }
+
+        val challenge1A = ByteArray(8) { 0x00.toByte() }
+        val areasToAuth = listOf(preferredTarget.rootArea)
+        // Area0 may appear in both lists: this is allowed because key updates can target areas.
+        val nodesToAuth = listOf<Node>(preferredTarget.rootArea, nonImmediateNode)
+
+        val attemptResults = mutableListOf<String>()
+        var responseReceived = false
+        var selectedSystemIdmUsed: ByteArray? = null
+        var responseChallenge1BHex: String? = null
+        var responseChallenge2AHex: String? = null
+
+        for (attempt in 1..AUTHENTICATION1_DES_NODE_LIST_HIERARCHY_VALIDATION_ATTEMPTS) {
+            try {
+                pollSystemCode(target, preferredTarget.systemContext.systemCode)
+                val currentSystemContext =
+                    scanContext.systemScanContexts.firstOrNull { context ->
+                        context.systemCode.sameBytes(preferredTarget.systemContext.systemCode)
+                    }
+                val selectedSystemIdm = currentSystemContext?.idm ?: target.idm
+                selectedSystemIdmUsed = selectedSystemIdm
+
+                val response =
+                    target.transceive(
+                        Authentication1DesCommand(
+                            idm = selectedSystemIdm,
+                            areaNodes = areasToAuth,
+                            nodes = nodesToAuth,
+                            challenge1A = challenge1A,
+                        )
+                    )
+
+                responseChallenge1BHex = response.challenge1B.toHexString().uppercase()
+                responseChallenge2AHex = response.challenge2A.toHexString().uppercase()
+                responseReceived = true
+                setSystemMode(preferredTarget.systemContext.systemCode, Mode.Mode1.Des)
+                attemptResults +=
+                    "$attempt. response received (challenge1B=$responseChallenge1BHex, challenge2A=$responseChallenge2AHex)"
+                break
+            } catch (e: Exception) {
+                val error = e.message ?: e::class.simpleName ?: "Unknown error"
+                attemptResults += "$attempt. no response ($error)"
+                if (attempt < AUTHENTICATION1_DES_NODE_LIST_HIERARCHY_VALIDATION_ATTEMPTS) {
+                    delay(50)
+                }
+            }
+        }
+
+        val resetStateResult =
+            if (responseReceived) {
+                resetAuthenticationState(
+                        target = target,
+                        authenticatedSystemCode = preferredTarget.systemContext.systemCode,
+                        authenticatedSystemIdm = selectedSystemIdmUsed,
+                    )
+                    .message
+            } else {
+                null
+            }
+
+        val validationBehavior =
+            if (responseReceived) {
+                Authentication1DesNodeListHierarchyValidation.LENIENT
+            } else {
+                Authentication1DesNodeListHierarchyValidation.STRICT
+            }
+        scanContext =
+            scanContext.copy(
+                authentication1DesNodeListHierarchyValidation = validationBehavior
+            )
+
+        return buildString {
+                appendLine("Authenticate1 DES node-list validation check:")
+                appendLine(
+                    "System: ${preferredTarget.systemContext.systemCode?.toHexString()?.uppercase() ?: "unknown"}"
+                )
+                appendLine("Mode before check: ${preferredTarget.systemContext.mode}")
+                appendLine("Area list:")
+                appendLine("  1. ${describeNodeForAuthenticationCheck(preferredTarget.rootArea)}")
+                appendLine("Node list:")
+                appendLine("  1. ${describeNodeForAuthenticationCheck(preferredTarget.rootArea)}")
+                appendLine("  2. ${describeNodeForAuthenticationCheck(nonImmediateNode)}")
+                appendLine("Challenge1A: ${challenge1A.toHexString().uppercase()}")
+                appendLine("Attempts:")
+                attemptResults.forEach { appendLine("  $it") }
+                appendLine("Validation behavior: $validationBehavior")
+                resetStateResult?.let {
+                    appendLine()
+                    appendLine("$it")
+                }
+            }
+            .trim()
+    }
+
     private suspend fun executeRequestServiceV2(target: FeliCaTarget): Pair<String, String> {
         val allDiscoveredNodes = scanContext.systemScanContexts.flatMap { it.nodes }
         val areas = allDiscoveredNodes.filterIsInstance<Area>()
@@ -2523,7 +2830,11 @@ class CardScanService {
 
         // Poll the selected system before the command
         pollSystemCode(target, bestSystemContext.systemCode)
-        val selectedSystemIdm = bestSystemContext.idm ?: target.idm
+        val selectedSystemContext =
+            scanContext.systemScanContexts.firstOrNull { context ->
+                context.systemCode.sameBytes(bestSystemContext.systemCode)
+            }
+        val selectedSystemIdm = selectedSystemContext?.idm ?: target.idm
 
         // Generate a 16-byte challenge
         val challenge = ByteArray(16) { 0x00 }
@@ -2545,26 +2856,13 @@ class CardScanService {
                 setSystemMode(bestSystemContext.systemCode, Mode.Mode1.AesMac)
             }
 
-            // Check if Reset Mode should be executed after receiving a response
-            var resetModeResult = ""
-            if (scanContext.resetModeSupport == CommandSupport.SUPPORTED) {
-                try {
-                    val resetModeCommand = ResetModeCommand(selectedSystemIdm)
-                    val resetModeResponse = target.transceive(resetModeCommand)
-
-                    resetModeResult =
-                        if (resetModeResponse.isStatusSuccessful) {
-                            setSystemMode(bestSystemContext.systemCode, Mode.Mode0)
-                            "Reset Mode executed - card reset to Mode0"
-                        } else {
-                            "Reset Mode failed (Status: ${formatStatus(resetModeResponse)})"
-                        }
-                } catch (e: Exception) {
-                    resetModeResult = "Reset Mode error: ${e.message}"
-                }
-            } else {
-                resetModeResult = "Reset Mode not executed (not confirmed as supported)"
-            }
+            val resetResult =
+                resetAuthenticationState(
+                    target = target,
+                    authenticatedSystemCode = bestSystemContext.systemCode,
+                    authenticatedSystemIdm = selectedSystemIdm,
+                )
+            val resetModeResult = resetResult.message
 
             if (response.isStatusSuccessful) {
                 buildString {
@@ -4056,61 +4354,33 @@ class CardScanService {
     }
 
     private suspend fun executeAuthentication1Des(target: FeliCaTarget): String {
-        // For support probing, authenticate using root area in both fields.
-        var bestSystemContext: SystemScanContext? = null
-        var bestRootArea: Area? = null
-        var bestNodeCount = -1
-
-        for (systemContext in scanContext.systemScanContexts) {
-            val areas = systemContext.nodes.filterIsInstance<Area>()
-            val rootArea = areas.firstOrNull { it.isRoot } ?: Area.ROOT
-
-            // Collect key version information for this system context
-            val systemDesKeyVersions = systemContext.nodeDesKeyVersions
-            val systemAesKeyVersions = systemContext.nodeAesKeyVersions
-            val systemKeyVersions = systemContext.nodeKeyVersions
-
-            // Mandatory filter: root area must have DES/legacy DES key mapping.
-            val hasValidDesKeyOnRootArea =
-                systemDesKeyVersions.containsKey(rootArea) ||
-                    (!systemAesKeyVersions.containsKey(rootArea) &&
-                        systemKeyVersions.containsKey(rootArea))
-
-            if (!hasValidDesKeyOnRootArea) {
-                continue
-            }
-
-            // Priority: among suitable systems, choose one with the highest node count.
-            val nodeCount = systemContext.nodes.size
-
-            if (nodeCount > bestNodeCount) {
-                bestNodeCount = nodeCount
-                bestSystemContext = systemContext
-                bestRootArea = rootArea
-            }
-        }
-
-        if (bestSystemContext == null || bestRootArea == null) {
+        val testTarget = findBestAuthentication1DesTarget()
+        if (testTarget == null) {
             throw RuntimeException(
                 "No suitable system found for DES authentication (root area with valid DES key is required)."
             )
         }
 
-        val systemCodeHex = bestSystemContext.systemCode?.toHexString() ?: "unknown"
+        val systemCodeHex = testTarget.systemContext.systemCode?.toHexString() ?: "unknown"
         Log.d(
             "CardScanService",
-            "Selected system $systemCodeHex for DES authentication using root area ${bestRootArea.code.toHexString()} in area and node lists (node count: $bestNodeCount)",
+            "Selected system $systemCodeHex for DES authentication using root area ${testTarget.rootArea.code.toHexString()} in area and node lists (node count: ${testTarget.systemContext.nodes.size})",
         )
 
         // Poll the selected system before authentication
-        pollSystemCode(target, bestSystemContext.systemCode)
-        val selectedSystemIdm = bestSystemContext.idm ?: target.idm
+        pollSystemCode(target, testTarget.systemContext.systemCode)
+        val selectedSystemContext =
+            scanContext.systemScanContexts.firstOrNull { context ->
+                context.systemCode.sameBytes(testTarget.systemContext.systemCode)
+            }
+        val selectedSystemIdm = selectedSystemContext?.idm ?: target.idm
 
         // Generate a random challenge1A (8 bytes)
         val challenge1A = ByteArray(8) { 0x00.toByte() }
 
-        val areasToAuth = listOf(bestRootArea)
-        val nodesToAuth = listOf<Node>(bestRootArea)
+        val areasToAuth = listOf(testTarget.rootArea)
+        // Area0 may appear in both lists: this is allowed because key updates can target areas.
+        val nodesToAuth = listOf<Node>(testTarget.rootArea)
 
         val authenticateCommand =
             Authentication1DesCommand(
@@ -4121,28 +4391,15 @@ class CardScanService {
             )
 
         val authenticateResponse = target.transceive(authenticateCommand)
-        setSystemMode(bestSystemContext.systemCode, Mode.Mode1.Des)
+        setSystemMode(testTarget.systemContext.systemCode, Mode.Mode1.Des)
 
-        // Check if Reset Mode should be executed after successful authentication
-        var resetModeResult = ""
-        if (scanContext.resetModeSupport == CommandSupport.SUPPORTED) {
-            try {
-                val resetModeCommand = ResetModeCommand(selectedSystemIdm)
-                val resetModeResponse = target.transceive(resetModeCommand)
-
-                resetModeResult =
-                    if (resetModeResponse.isStatusSuccessful) {
-                        setSystemMode(bestSystemContext.systemCode, Mode.Mode0)
-                        "Reset Mode executed - card reset to Mode0"
-                    } else {
-                        "Reset Mode failed (Status: ${formatStatus(resetModeResponse)})"
-                    }
-            } catch (e: Exception) {
-                resetModeResult = "Reset Mode error: ${e.message}"
-            }
-        } else {
-            resetModeResult = "Reset Mode not executed (not confirmed as supported)"
-        }
+        val resetResult =
+            resetAuthenticationState(
+                target = target,
+                authenticatedSystemCode = testTarget.systemContext.systemCode,
+                authenticatedSystemIdm = selectedSystemIdm,
+            )
+        val resetModeResult = resetResult.message
 
         return buildString {
                 appendLine("DES Authentication Results:")
@@ -4162,8 +4419,9 @@ class CardScanService {
                     areasToAuth.forEachIndexed { index, area ->
                         val keyType =
                             when {
-                                bestSystemContext.nodeDesKeyVersions.containsKey(area) -> "DES key"
-                                bestSystemContext.nodeKeyVersions.containsKey(area) ->
+                                testTarget.systemContext.nodeDesKeyVersions.containsKey(area) ->
+                                    "DES key"
+                                testTarget.systemContext.nodeKeyVersions.containsKey(area) ->
                                     "Legacy (DES) key"
                                 else -> "Unknown"
                             }
@@ -4179,8 +4437,9 @@ class CardScanService {
                     nodesToAuth.forEachIndexed { index, node ->
                         val keyType =
                             when {
-                                bestSystemContext.nodeDesKeyVersions.containsKey(node) -> "DES key"
-                                bestSystemContext.nodeKeyVersions.containsKey(node) ->
+                                testTarget.systemContext.nodeDesKeyVersions.containsKey(node) ->
+                                    "DES key"
+                                testTarget.systemContext.nodeKeyVersions.containsKey(node) ->
                                     "Legacy (DES) key"
                                 else -> "Unknown"
                             }
@@ -4198,14 +4457,7 @@ class CardScanService {
                 }
 
                 appendLine()
-                appendLine("Reset Mode:")
-                appendLine("  $resetModeResult")
-                if (
-                    scanContext.resetModeSupport == CommandSupport.SUPPORTED &&
-                        resetModeResult.contains("executed")
-                ) {
-                    appendLine("  Card is now in Mode0 and can be polled again")
-                }
+                appendLine("$resetModeResult")
             }
             .trim()
     }
@@ -4264,7 +4516,11 @@ class CardScanService {
 
         // Poll the selected system before authentication
         pollSystemCode(target, bestSystemContext.systemCode)
-        val selectedSystemIdm = bestSystemContext.idm ?: target.idm
+        val selectedSystemContext =
+            scanContext.systemScanContexts.firstOrNull { context ->
+                context.systemCode.sameBytes(bestSystemContext.systemCode)
+            }
+        val selectedSystemIdm = selectedSystemContext?.idm ?: target.idm
 
         // Generate a random challenge1A (16 bytes for AES)
         val challenge1A = ByteArray(16) { 0x0.toByte() }
@@ -4287,26 +4543,13 @@ class CardScanService {
         val authenticateResponse = target.transceive(authenticateCommand)
         setSystemMode(bestSystemContext.systemCode, Mode.Mode1.Aes)
 
-        // Check if Reset Mode should be executed after successful authentication
-        var resetModeResult = ""
-        if (scanContext.resetModeSupport == CommandSupport.SUPPORTED) {
-            try {
-                val resetModeCommand = ResetModeCommand(selectedSystemIdm)
-                val resetModeResponse = target.transceive(resetModeCommand)
-
-                resetModeResult =
-                    if (resetModeResponse.isStatusSuccessful) {
-                        setSystemMode(bestSystemContext.systemCode, Mode.Mode0)
-                        "Reset Mode executed - card reset to Mode0"
-                    } else {
-                        "Reset Mode failed (Status: ${formatStatus(resetModeResponse)})"
-                    }
-            } catch (e: Exception) {
-                resetModeResult = "Reset Mode error: ${e.message}"
-            }
-        } else {
-            resetModeResult = "Reset Mode not executed (not confirmed as supported)"
-        }
+        val resetResult =
+            resetAuthenticationState(
+                target = target,
+                authenticatedSystemCode = bestSystemContext.systemCode,
+                authenticatedSystemIdm = selectedSystemIdm,
+            )
+        val resetModeResult = resetResult.message
 
         return buildString {
                 appendLine("AES Authentication Results:")
@@ -4335,14 +4578,7 @@ class CardScanService {
                 }
 
                 appendLine()
-                appendLine("Reset Mode:")
-                appendLine("  $resetModeResult")
-                if (
-                    scanContext.resetModeSupport == CommandSupport.SUPPORTED &&
-                        resetModeResult.contains("executed")
-                ) {
-                    appendLine("  Card is now in Mode0 and can be polled again")
-                }
+                appendLine("$resetModeResult")
             }
             .trim()
     }

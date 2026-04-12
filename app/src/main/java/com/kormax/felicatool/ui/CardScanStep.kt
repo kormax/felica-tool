@@ -346,6 +346,15 @@ data class CardScanStep(
                 )
                 add(
                     CardScanStep(
+                        id = "authentication1_des_node_list_hierarchy_validation",
+                        title = "Authenticate1 DES: Node List Hierarchy Validation",
+                        description =
+                            "Check Authenticate1 DES validation behavior for nodes that aren't immediate children of specified areas",
+                        icon = Icons.Default.Lock,
+                    )
+                )
+                add(
+                    CardScanStep(
                         id = "authentication1_aes",
                         title = "Authenticate1 AES",
                         description = "Attempt AES authentication with discovered nodes",
