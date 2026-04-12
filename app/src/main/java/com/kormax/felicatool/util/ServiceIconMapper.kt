@@ -92,6 +92,7 @@ object ServiceIconMapper {
             "STARBUCKS_TOUCH" to R.drawable.service_starbucks_touch,
             "CLAVIS" to R.drawable.service_clavis,
             "HCMC" to R.drawable.service_hcmc,
+            "LULUCA" to R.drawable.service_luluca,
         )
 
     @DrawableRes
