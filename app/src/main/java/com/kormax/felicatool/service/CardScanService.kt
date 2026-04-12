@@ -70,6 +70,7 @@ data class CardScanContext(
 
 data class SystemScanContext(
     val systemCode: ByteArray? = null,
+    val mode: Mode = Mode.Mode0,
     val nodes: List<Node> = emptyList(),
     /** Set of nodes that were populated from the registry (not discovered via search) */
     val registryPopulatedNodes: Set<Node> = emptySet(),
@@ -262,6 +263,119 @@ class CardScanService {
      * @param systemCode The system code to poll, or null for wildcard polling
      * @throws Exception if the card does not respond to system-specific polling
      */
+    private fun ByteArray?.sameBytes(other: ByteArray?): Boolean =
+        when {
+            this == null && other == null -> true
+            this == null || other == null -> false
+            else -> this.contentEquals(other)
+        }
+
+    private fun setSystemMode(systemCode: ByteArray?, mode: Mode) {
+        var matched = false
+        val updatedContexts =
+            scanContext.systemScanContexts.map { context ->
+                when {
+                    context.systemCode.sameBytes(systemCode) -> {
+                        matched = true
+                        context.copy(mode = mode)
+                    }
+                    mode != Mode.Mode0 && context.mode != Mode.Mode0 ->
+                        context.copy(mode = Mode.Mode0)
+                    else -> context
+                }
+            }
+        if (matched) {
+            scanContext = scanContext.copy(systemScanContexts = updatedContexts)
+        }
+    }
+
+    private fun resetAllSystemModesToMode0() {
+        scanContext =
+            scanContext.copy(
+                systemScanContexts =
+                    scanContext.systemScanContexts.map { context ->
+                        if (context.mode == Mode.Mode0) {
+                            context
+                        } else {
+                            context.copy(mode = Mode.Mode0)
+                        }
+                    }
+            )
+    }
+
+    private fun updateSystemIdmFromPolling(polledSystemCode: ByteArray?, polledIdm: ByteArray) {
+        if (scanContext.systemScanContexts.isEmpty()) {
+            return
+        }
+
+        var updated = false
+        val updatedContexts =
+            scanContext.systemScanContexts.mapIndexed { index, context ->
+                val shouldUpdate =
+                    when {
+                        polledSystemCode != null -> context.systemCode.sameBytes(polledSystemCode)
+                        scanContext.primarySystemCode != null ->
+                            context.systemCode.sameBytes(scanContext.primarySystemCode)
+                        scanContext.systemScanContexts.size == 1 -> index == 0
+                        else -> false
+                    }
+                if (shouldUpdate && context.idm?.contentEquals(polledIdm) != true) {
+                    updated = true
+                    context.copy(idm = polledIdm)
+                } else {
+                    context
+                }
+            }
+
+        if (updated) {
+            scanContext = scanContext.copy(systemScanContexts = updatedContexts)
+        }
+    }
+
+    private fun updateModeAfterSuccessfulPolling(polledSystemCode: ByteArray?) {
+        val contexts = scanContext.systemScanContexts
+        val activeModes = contexts.filter { context -> context.mode != Mode.Mode0 }
+        if (activeModes.isEmpty()) {
+            return
+        }
+
+        val keepCurrentMode =
+            if (polledSystemCode != null) {
+                activeModes.any { context -> context.systemCode.sameBytes(polledSystemCode) }
+            } else {
+                val primarySystemCode = scanContext.primarySystemCode
+                primarySystemCode != null &&
+                    activeModes.any { context -> context.systemCode.sameBytes(primarySystemCode) }
+            }
+
+        if (!keepCurrentMode) {
+            resetAllSystemModesToMode0()
+        }
+    }
+
+    private fun setSystemModeByIdm(idm: ByteArray, mode: Mode) {
+        var matched = false
+        val updatedContexts =
+            scanContext.systemScanContexts.map { context ->
+                if (context.idm?.contentEquals(idm) == true) {
+                    matched = true
+                    context.copy(mode = mode)
+                } else {
+                    context
+                }
+            }
+
+        if (matched) {
+            scanContext = scanContext.copy(systemScanContexts = updatedContexts)
+        } else if (scanContext.systemScanContexts.size == 1) {
+            scanContext =
+                scanContext.copy(
+                    systemScanContexts =
+                        listOf(scanContext.systemScanContexts.first().copy(mode = mode))
+                )
+        }
+    }
+
     private suspend fun pollSystemCode(target: FeliCaTarget, systemCode: ByteArray? = null) {
         val pollingSystemCode =
             systemCode
@@ -274,6 +388,8 @@ class CardScanService {
             )
         val pollingResponse = target.transceive(pollingCommand)
         target.idm = pollingResponse.idm
+        updateSystemIdmFromPolling(systemCode, pollingResponse.idm)
+        updateModeAfterSuccessfulPolling(systemCode)
     }
 
     /**
@@ -2262,6 +2378,9 @@ class CardScanService {
     private suspend fun executeResetMode(target: FeliCaTarget): String {
         val resetModeCommand = ResetModeCommand(target.idm)
         val resetModeResponse = target.transceive(resetModeCommand)
+        if (resetModeResponse.isStatusSuccessful) {
+            setSystemModeByIdm(resetModeResponse.idm, Mode.Mode0)
+        }
 
         return buildString {
                 appendLine("Status Flags: ${formatStatus(resetModeResponse, prefix = "")}")
@@ -2404,6 +2523,7 @@ class CardScanService {
 
         // Poll the selected system before the command
         pollSystemCode(target, bestSystemContext.systemCode)
+        val selectedSystemIdm = bestSystemContext.idm ?: target.idm
 
         // Generate a 16-byte challenge
         val challenge = ByteArray(16) { 0x00 }
@@ -2413,7 +2533,7 @@ class CardScanService {
 
         val command =
             InternalAuthenticateAndReadCommand(
-                idm = target.idm,
+                idm = selectedSystemIdm,
                 serviceCodes = arrayOf(bestMacService.code),
                 blockListElements = arrayOf(blockListElement),
                 challenge = challenge,
@@ -2421,16 +2541,20 @@ class CardScanService {
 
         return try {
             val response = target.transceive(command)
+            if (response.isStatusSuccessful) {
+                setSystemMode(bestSystemContext.systemCode, Mode.Mode1.AesMac)
+            }
 
             // Check if Reset Mode should be executed after receiving a response
             var resetModeResult = ""
             if (scanContext.resetModeSupport == CommandSupport.SUPPORTED) {
                 try {
-                    val resetModeCommand = ResetModeCommand(target.idm)
+                    val resetModeCommand = ResetModeCommand(selectedSystemIdm)
                     val resetModeResponse = target.transceive(resetModeCommand)
 
                     resetModeResult =
                         if (resetModeResponse.isStatusSuccessful) {
+                            setSystemMode(bestSystemContext.systemCode, Mode.Mode0)
                             "Reset Mode executed - card reset to Mode0"
                         } else {
                             "Reset Mode failed (Status: ${formatStatus(resetModeResponse)})"
@@ -3980,6 +4104,7 @@ class CardScanService {
 
         // Poll the selected system before authentication
         pollSystemCode(target, bestSystemContext.systemCode)
+        val selectedSystemIdm = bestSystemContext.idm ?: target.idm
 
         // Generate a random challenge1A (8 bytes)
         val challenge1A = ByteArray(8) { 0x00.toByte() }
@@ -3989,23 +4114,25 @@ class CardScanService {
 
         val authenticateCommand =
             Authentication1DesCommand(
-                idm = target.idm,
+                idm = selectedSystemIdm,
                 areaNodes = areasToAuth,
                 nodes = nodesToAuth,
                 challenge1A = challenge1A,
             )
 
         val authenticateResponse = target.transceive(authenticateCommand)
+        setSystemMode(bestSystemContext.systemCode, Mode.Mode1.Des)
 
         // Check if Reset Mode should be executed after successful authentication
         var resetModeResult = ""
         if (scanContext.resetModeSupport == CommandSupport.SUPPORTED) {
             try {
-                val resetModeCommand = ResetModeCommand(target.idm)
+                val resetModeCommand = ResetModeCommand(selectedSystemIdm)
                 val resetModeResponse = target.transceive(resetModeCommand)
 
                 resetModeResult =
                     if (resetModeResponse.isStatusSuccessful) {
+                        setSystemMode(bestSystemContext.systemCode, Mode.Mode0)
                         "Reset Mode executed - card reset to Mode0"
                     } else {
                         "Reset Mode failed (Status: ${formatStatus(resetModeResponse)})"
@@ -4137,6 +4264,7 @@ class CardScanService {
 
         // Poll the selected system before authentication
         pollSystemCode(target, bestSystemContext.systemCode)
+        val selectedSystemIdm = bestSystemContext.idm ?: target.idm
 
         // Generate a random challenge1A (16 bytes for AES)
         val challenge1A = ByteArray(16) { 0x0.toByte() }
@@ -4151,22 +4279,24 @@ class CardScanService {
 
         val authenticateCommand =
             Authentication1AesCommand(
-                idm = target.idm,
+                idm = selectedSystemIdm,
                 nodeCodes = aesCompatibleNodes.map { it.code }.toTypedArray(),
                 challenge1A = challenge1A,
             )
 
         val authenticateResponse = target.transceive(authenticateCommand)
+        setSystemMode(bestSystemContext.systemCode, Mode.Mode1.Aes)
 
         // Check if Reset Mode should be executed after successful authentication
         var resetModeResult = ""
         if (scanContext.resetModeSupport == CommandSupport.SUPPORTED) {
             try {
-                val resetModeCommand = ResetModeCommand(target.idm)
+                val resetModeCommand = ResetModeCommand(selectedSystemIdm)
                 val resetModeResponse = target.transceive(resetModeCommand)
 
                 resetModeResult =
                     if (resetModeResponse.isStatusSuccessful) {
+                        setSystemMode(bestSystemContext.systemCode, Mode.Mode0)
                         "Reset Mode executed - card reset to Mode0"
                     } else {
                         "Reset Mode failed (Status: ${formatStatus(resetModeResponse)})"
