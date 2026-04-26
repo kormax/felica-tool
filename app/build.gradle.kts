@@ -12,9 +12,9 @@ android {
     defaultConfig {
         applicationId = "com.kormax.felicatool"
         minSdk = 31
-        targetSdk = 36
-        versionCode = 20
-        versionName = "0.20.0"
+        targetSdk = 37
+        versionCode = 21
+        versionName = "0.21.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
