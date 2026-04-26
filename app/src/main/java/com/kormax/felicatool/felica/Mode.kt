@@ -1,8 +1,6 @@
 package com.kormax.felicatool.felica
 
-/**
- * Per-system card operating mode with authentication subtype tracking.
- */
+/** Per-system card operating mode with authentication subtype tracking. */
 sealed class Mode(val modeNumber: Int) {
     data object Mode0 : Mode(0) {
         override fun toString(): String = "Mode0"

@@ -56,10 +56,9 @@ object NodeRegistry {
         }
 
         val nodes = definitions[normalizedSystem] ?: return null
-        val matchingNodes =
-            nodes.filter { definition ->
-                definition.type == type && definition.code == normalizedCode
-            }
+        val matchingNodes = nodes.filter { definition ->
+            definition.type == type && definition.code == normalizedCode
+        }
 
         if (matchingNodes.isEmpty()) {
             return null
@@ -71,30 +70,29 @@ object NodeRegistry {
         }
 
         // Try exact parent match first
-        val exactParentMatch =
-            matchingNodes.find { it.parent == normalizedParent && it.name != null }
+        val exactParentMatch = matchingNodes.find {
+            it.parent == normalizedParent && it.name != null
+        }
         if (exactParentMatch != null) {
             return exactParentMatch.name
         }
 
         // Check if the provided parent is an ancestor of any matching node's parent
-        val ancestorMatch =
-            matchingNodes.find { definition ->
-                definition.parent != null &&
-                    definition.name != null &&
-                    isAncestorOf(nodes, normalizedParent, definition.parent)
-            }
+        val ancestorMatch = matchingNodes.find { definition ->
+            definition.parent != null &&
+                definition.name != null &&
+                isAncestorOf(nodes, normalizedParent, definition.parent)
+        }
         if (ancestorMatch != null) {
             return ancestorMatch.name
         }
 
         // Check if any matching node's defined parent is an ancestor of the provided parent
-        val descendantMatch =
-            matchingNodes.find { definition ->
-                definition.parent != null &&
-                    definition.name != null &&
-                    isAncestorOf(nodes, definition.parent, normalizedParent)
-            }
+        val descendantMatch = matchingNodes.find { definition ->
+            definition.parent != null &&
+                definition.name != null &&
+                isAncestorOf(nodes, definition.parent, normalizedParent)
+        }
         if (descendantMatch != null) {
             return descendantMatch.name
         }
@@ -119,10 +117,9 @@ object NodeRegistry {
         val normalizedParent = parentCode?.uppercase()
 
         val nodes = definitions[normalizedSystem] ?: return emptySet()
-        val matchingNodes =
-            nodes.filter { definition ->
-                definition.type == type && definition.code == normalizedCode
-            }
+        val matchingNodes = nodes.filter { definition ->
+            definition.type == type && definition.code == normalizedCode
+        }
 
         if (matchingNodes.isEmpty()) {
             return emptySet()
@@ -141,22 +138,18 @@ object NodeRegistry {
 
         // Check if the provided parent is an ancestor of any matching node's parent
         // by tracing up the parent chain in the definitions
-        val ancestorMatches =
-            matchingNodes.filter { definition ->
-                definition.parent != null &&
-                    isAncestorOf(nodes, normalizedParent, definition.parent)
-            }
+        val ancestorMatches = matchingNodes.filter { definition ->
+            definition.parent != null && isAncestorOf(nodes, normalizedParent, definition.parent)
+        }
         if (ancestorMatches.isNotEmpty()) {
             return ancestorMatches.flatMap { it.serviceProviders }.toSet()
         }
 
         // Check if any matching node's defined parent is an ancestor of the provided parent
         // This handles cases where the card has a more specific parent than defined
-        val descendantMatches =
-            matchingNodes.filter { definition ->
-                definition.parent != null &&
-                    isAncestorOf(nodes, definition.parent, normalizedParent)
-            }
+        val descendantMatches = matchingNodes.filter { definition ->
+            definition.parent != null && isAncestorOf(nodes, definition.parent, normalizedParent)
+        }
         if (descendantMatches.isNotEmpty()) {
             return descendantMatches.flatMap { it.serviceProviders }.toSet()
         }

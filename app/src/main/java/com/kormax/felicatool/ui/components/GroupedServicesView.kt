@@ -612,8 +612,9 @@ private fun buildAreaHeaderGroups(context: SystemScanContext): Map<Area, AreaHea
     }
 
     val parentByArea = areas.associateWith { area -> findImmediateParentArea(area, areas) }
-    val topLevelAreaByArea =
-        areas.associateWith { area -> findTopLevelAreaUnderRoot(area, parentByArea) }
+    val topLevelAreaByArea = areas.associateWith { area ->
+        findTopLevelAreaUnderRoot(area, parentByArea)
+    }
 
     val headersByTopLevelArea =
         topLevelAreaByArea.values

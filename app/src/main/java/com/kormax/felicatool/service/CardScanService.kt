@@ -3,6 +3,8 @@ package com.kormax.felicatool.service
 import android.nfc.TagLostException
 import android.util.Log
 import com.kormax.felicatool.felica.*
+import com.kormax.felicatool.nfc.AnotherTagDiscoveredException
+import com.kormax.felicatool.nfc.TagRediscoveredException
 import com.kormax.felicatool.service.logging.CommunicationLogEntry
 import com.kormax.felicatool.service.logging.CommunicationLoggedFeliCaTarget
 import com.kormax.felicatool.ui.CardScanStep
@@ -33,7 +35,8 @@ data class CardScanContext(
     val writeWithoutEncryptionMaxBlocksPerRequest: Int? = null,
     val echoMaxPayloadSize: Int? = null,
     val requestServiceUnknownNodeAttributesSupported: Boolean? = null,
-    val authentication1DesNodeListHierarchyValidation: Authentication1DesNodeListHierarchyValidation =
+    val authentication1DesNodeListHierarchyValidation:
+        Authentication1DesNodeListHierarchyValidation =
         Authentication1DesNodeListHierarchyValidation.UNKNOWN,
     val readWithoutEncryptionIllegalNumberErrorPreference: IllegalNumberErrorPreference? = null,
     // Command support
@@ -113,6 +116,8 @@ class CardScanService {
 
     companion object {
         const val CARD_LOST_MESSAGE = "Card lost during scan - scan terminated"
+        private const val PRESENCE_CHECK_ATTEMPTS = 3
+        private const val PRESENCE_CHECK_RETRY_DELAY_STEP_MS = 50L
         private const val NO_SERVICES_AVAILABLE = "No services available"
         private const val NO_SERVICES_WITHOUT_AUTHENTICATION =
             "No services found that don't require authentication"
@@ -454,9 +459,7 @@ class CardScanService {
 
         val alternativeSystemCode =
             scanContext.systemScanContexts
-                .firstOrNull { context ->
-                    !context.systemCode.sameBytes(authenticatedSystemCode)
-                }
+                .firstOrNull { context -> !context.systemCode.sameBytes(authenticatedSystemCode) }
                 ?.systemCode
 
         if (alternativeSystemCode == null) {
@@ -534,13 +537,17 @@ class CardScanService {
 
     private fun describeNodeForAuthenticationCheck(node: Node): String =
         when (node) {
-            is Area -> "Area ${node.number}-${node.endNumber} (${node.code.toHexString().uppercase()})"
+            is Area ->
+                "Area ${node.number}-${node.endNumber} (${node.code.toHexString().uppercase()})"
             is Service -> "Service ${node.number} (${node.code.toHexString().uppercase()})"
             is System -> "System (${node.code.toHexString().uppercase()})"
             else -> "Node (${node.code.toHexString().uppercase()})"
         }
 
-    private fun hasValidDesKeyOnRootArea(systemContext: SystemScanContext, rootArea: Area): Boolean {
+    private fun hasValidDesKeyOnRootArea(
+        systemContext: SystemScanContext,
+        rootArea: Area,
+    ): Boolean {
         return systemContext.nodeDesKeyVersions.containsKey(rootArea) ||
             (!systemContext.nodeAesKeyVersions.containsKey(rootArea) &&
                 systemContext.nodeKeyVersions.containsKey(rootArea))
@@ -557,7 +564,8 @@ class CardScanService {
                 continue
             }
 
-            val rootArea = systemContext.nodes.filterIsInstance<Area>().firstOrNull { it.isRoot } ?: Area.ROOT
+            val rootArea =
+                systemContext.nodes.filterIsInstance<Area>().firstOrNull { it.isRoot } ?: Area.ROOT
             if (!hasValidDesKeyOnRootArea(systemContext, rootArea)) {
                 continue
             }
@@ -565,7 +573,8 @@ class CardScanService {
             val nodeCount = systemContext.nodes.size
             if (nodeCount > bestNodeCount) {
                 bestNodeCount = nodeCount
-                bestTarget = Authentication1DesTestTarget(systemContext = systemContext, rootArea = rootArea)
+                bestTarget =
+                    Authentication1DesTestTarget(systemContext = systemContext, rootArea = rootArea)
             }
         }
 
@@ -577,10 +586,9 @@ class CardScanService {
     ): Node? {
         val rootArea = testTarget.rootArea
         val areasInSystem = testTarget.systemContext.nodes.filterIsInstance<Area>()
-        val nonRootAreas =
-            areasInSystem.filter { area ->
-                area != rootArea && !area.isRoot && area.belongsTo(rootArea)
-            }
+        val nonRootAreas = areasInSystem.filter { area ->
+            area != rootArea && !area.isRoot && area.belongsTo(rootArea)
+        }
 
         if (nonRootAreas.isEmpty()) {
             return null
@@ -655,8 +663,9 @@ class CardScanService {
             throw PrerequisiteException(NO_SERVICES_AVAILABLE)
         }
 
-        val allServicesWithoutAuth =
-            allServices.filter { service -> !service.attribute.authenticationRequired }
+        val allServicesWithoutAuth = allServices.filter { service ->
+            !service.attribute.authenticationRequired
+        }
         val useAuthenticationRequiredFallback =
             allowAuthenticationRequiredFallback && allServicesWithoutAuth.isEmpty()
         if (allServicesWithoutAuth.isEmpty() && !useAuthenticationRequiredFallback) {
@@ -677,8 +686,9 @@ class CardScanService {
             } ?: throw PrerequisiteException(NO_SYSTEM_CONTEXT_WITH_READABLE_SERVICES)
 
         val servicesInBestSystem = bestSystemContext.nodes.filterIsInstance<Service>()
-        val servicesWithoutAuth =
-            servicesInBestSystem.filter { service -> !service.attribute.authenticationRequired }
+        val servicesWithoutAuth = servicesInBestSystem.filter { service ->
+            !service.attribute.authenticationRequired
+        }
         val candidateServices =
             if (servicesWithoutAuth.isNotEmpty()) {
                 servicesWithoutAuth
@@ -764,18 +774,27 @@ class CardScanService {
      * supported, it is attempted first. Request Service (service 0, read-only without key) is then
      * tried, and polling is used as the last resort.
      */
-    private suspend fun ensureCardPresence(target: FeliCaTarget, stepId: String) {
+    private suspend fun ensureCardPresence(
+        target: FeliCaTarget,
+        stepId: String,
+        logFailures: Boolean = true,
+    ) {
         if (getCommandSupport("request_response") == CommandSupport.SUPPORTED) {
             try {
                 val response = target.transceive(RequestResponseCommand(target.idm))
                 target.idm = response.idm
                 return
             } catch (e: Exception) {
-                Log.w(
-                    "CardScanService",
-                    "Request Response presence check failed for step $stepId",
-                    e,
-                )
+                if (e is TagRediscoveredException || e is AnotherTagDiscoveredException) {
+                    throw e
+                }
+                if (logFailures) {
+                    Log.w(
+                        "CardScanService",
+                        "Request Response presence check failed for step $stepId",
+                        e,
+                    )
+                }
             }
         }
 
@@ -789,15 +808,86 @@ class CardScanService {
                 target.idm = response.idm
                 return
             } catch (e: Exception) {
-                Log.w(
-                    "CardScanService",
-                    "Request Service presence check failed for step $stepId",
-                    e,
-                )
+                if (e is TagRediscoveredException || e is AnotherTagDiscoveredException) {
+                    throw e
+                }
+                if (logFailures) {
+                    Log.w(
+                        "CardScanService",
+                        "Request Service presence check failed for step $stepId",
+                        e,
+                    )
+                }
             }
         }
 
         pollSystemCode(target)
+    }
+
+    suspend fun isCardPresent(target: FeliCaTarget): Boolean =
+        checkCardPresence(target, stepId = "tag_removal_wait", logFailures = false) == null
+
+    private suspend fun checkCardPresence(
+        target: FeliCaTarget,
+        stepId: String,
+        logFailures: Boolean,
+    ): Exception? {
+        var lastException: Exception? = null
+        var maxAttempts = PRESENCE_CHECK_ATTEMPTS
+        var rediscoveryGraceAttempts = 1
+
+        // Try a few times before treating brief presence-check failures as card loss.
+        var attempt = 1
+        while (attempt <= maxAttempts) {
+            try {
+                ensureCardPresence(target, stepId, logFailures)
+                return null
+            } catch (e: Exception) {
+                if (e is TagRediscoveredException) {
+                    if (rediscoveryGraceAttempts > 0) {
+                        maxAttempts++
+                        rediscoveryGraceAttempts--
+                    }
+                    if (logFailures) {
+                        Log.i(
+                            "CardScanService",
+                            "Tag rediscovered during presence check for step $stepId; extending presence check attempts",
+                        )
+                    }
+                }
+
+                val tagLostForGood =
+                    when (e) {
+                        is TagLostException -> false
+                        is TagRediscoveredException -> false
+                        is SecurityException ->
+                            e.message?.contains("out of date", ignoreCase = true) == true
+                        else -> true
+                    }
+                lastException = e
+                if (tagLostForGood) {
+                    if (logFailures) {
+                        Log.w(
+                            "CardScanService",
+                            "Card lost during presence check for step $stepId",
+                            e,
+                        )
+                    }
+                    break
+                }
+                if (logFailures) {
+                    Log.w(
+                        "CardScanService",
+                        "Card presence check attempt $attempt failed for step $stepId",
+                        e,
+                    )
+                }
+                delay(PRESENCE_CHECK_RETRY_DELAY_STEP_MS * attempt)
+            }
+            attempt++
+        }
+
+        return lastException
     }
 
     suspend fun executeStep(
@@ -812,48 +902,13 @@ class CardScanService {
 
         // Check card presence before executing any command (except initial_info)
         if (step.id != "polling") {
-            var lastException: Exception? = null
-            var presenceVerified = false
+            val presenceFailure = checkCardPresence(target, step.id, logFailures = true)
 
-            // Try up to 3 attempts
-            for (attempt in 1..3) {
-                try {
-                    ensureCardPresence(target, step.id)
-                    presenceVerified = true
-                    break
-                } catch (e: Exception) {
-                    val tagLostForGood =
-                        when (e) {
-                            is TagLostException -> false
-                            is SecurityException ->
-                                e.message?.contains("out of date", ignoreCase = true) == true
-                            else -> true
-                        }
-                    lastException = e
-                    if (tagLostForGood) {
-                        Log.w(
-                            "CardScanService",
-                            "Card lost during presence check for step ${step.id}",
-                            e,
-                        )
-                        break
-                    }
-                    Log.w(
-                        "CardScanService",
-                        "Card presence check attempt $attempt failed for step ${step.id}",
-                        e,
-                    )
-                    if (attempt < 3) {
-                        delay(50) // Small delay between attempts
-                    }
-                }
-            }
-
-            if (!presenceVerified) {
+            if (presenceFailure != null) {
                 Log.e(
                     "CardScanService",
                     "Card presence check failed for step ${step.id}",
-                    lastException,
+                    presenceFailure,
                 )
                 return step.copy(
                     status = StepStatus.ERROR,
@@ -1088,14 +1143,12 @@ class CardScanService {
         allSystemCodes.addAll(discoveredSystemCodes)
 
         // Check for special system codes 12FC and 88B4
-        val hasSystemCode12FC =
-            discoveredSystemCodes.any {
-                it.contentEquals(byteArrayOf(0x12.toByte(), 0xFC.toByte()))
-            }
-        val hasSystemCode88B4 =
-            discoveredSystemCodes.any {
-                it.contentEquals(byteArrayOf(0x88.toByte(), 0xB4.toByte()))
-            }
+        val hasSystemCode12FC = discoveredSystemCodes.any {
+            it.contentEquals(byteArrayOf(0x12.toByte(), 0xFC.toByte()))
+        }
+        val hasSystemCode88B4 = discoveredSystemCodes.any {
+            it.contentEquals(byteArrayOf(0x88.toByte(), 0xB4.toByte()))
+        }
 
         // Add the complementary system code if one of the special codes is found
         if (hasSystemCode12FC && !hasSystemCode88B4) {
@@ -1219,10 +1272,9 @@ class CardScanService {
 
         // Calculate which codes were added for display
         val allSystemCodes = updatedSystemContexts.map { it.systemCode }.filterNotNull()
-        val addedCodes =
-            allSystemCodes.filter { additionalCode ->
-                !requestSystemCodeResponse.systemCodes.any { it.contentEquals(additionalCode) }
-            }
+        val addedCodes = allSystemCodes.filter { additionalCode ->
+            !requestSystemCodeResponse.systemCodes.any { it.contentEquals(additionalCode) }
+        }
 
         return if (requestSystemCodeResponse.systemCodes.isNotEmpty()) {
             buildString {
@@ -1835,21 +1887,20 @@ class CardScanService {
             // Filter out registry-populated nodes that don't actually exist on the card
             // Only filter nodes that were populated from registry, keep discovered nodes as-is
             // Always keep System and root Area nodes as they are structural
-            val filteredNodes =
-                systemNodes.filter { node ->
-                    // Always keep System and root Area nodes
-                    if (node is System || (node is Area && node.isRoot)) {
-                        return@filter true
-                    }
-                    val isRegistryPopulated = systemContext.registryPopulatedNodes.contains(node)
-                    if (isRegistryPopulated) {
-                        // Registry nodes must have a key version to be kept
-                        nodeKeyVersionsMap.containsKey(node)
-                    } else {
-                        // Discovered nodes are always kept
-                        true
-                    }
+            val filteredNodes = systemNodes.filter { node ->
+                // Always keep System and root Area nodes
+                if (node is System || (node is Area && node.isRoot)) {
+                    return@filter true
                 }
+                val isRegistryPopulated = systemContext.registryPopulatedNodes.contains(node)
+                if (isRegistryPopulated) {
+                    // Registry nodes must have a key version to be kept
+                    nodeKeyVersionsMap.containsKey(node)
+                } else {
+                    // Discovered nodes are always kept
+                    true
+                }
+            }
 
             // Update context with key version data and filtered nodes
             val updatedSystemContext =
@@ -1940,10 +1991,7 @@ class CardScanService {
             )
         }
 
-        val preferredTarget =
-            findBestAuthentication1DesTarget { mode ->
-                mode == Mode.Mode0
-            }
+        val preferredTarget = findBestAuthentication1DesTarget { mode -> mode == Mode.Mode0 }
         val targetForErrorMessage = preferredTarget ?: findBestAuthentication1DesTarget()
 
         if (targetForErrorMessage == null) {
@@ -2031,9 +2079,7 @@ class CardScanService {
                 Authentication1DesNodeListHierarchyValidation.STRICT
             }
         scanContext =
-            scanContext.copy(
-                authentication1DesNodeListHierarchyValidation = validationBehavior
-            )
+            scanContext.copy(authentication1DesNodeListHierarchyValidation = validationBehavior)
 
         return buildString {
                 appendLine("Authenticate1 DES node-list validation check:")
@@ -2169,22 +2215,21 @@ class CardScanService {
             // Filter out registry-populated nodes that don't actually exist on the card
             // Only filter nodes that were populated from registry, keep discovered nodes as-is
             // Always keep System and root Area nodes as they are structural
-            val filteredNodes =
-                nodes.filter { node ->
-                    // Always keep System and root Area nodes
-                    if (node is System || (node is Area && node.isRoot)) {
-                        return@filter true
-                    }
-                    val isRegistryPopulated = systemContext.registryPopulatedNodes.contains(node)
-                    if (isRegistryPopulated) {
-                        // Registry nodes must have either AES or DES key version to be kept
-                        nodeAesKeyVersionsMap.containsKey(node) ||
-                            nodeDesKeyVersionsMap.containsKey(node)
-                    } else {
-                        // Discovered nodes are always kept
-                        true
-                    }
+            val filteredNodes = nodes.filter { node ->
+                // Always keep System and root Area nodes
+                if (node is System || (node is Area && node.isRoot)) {
+                    return@filter true
                 }
+                val isRegistryPopulated = systemContext.registryPopulatedNodes.contains(node)
+                if (isRegistryPopulated) {
+                    // Registry nodes must have either AES or DES key version to be kept
+                    nodeAesKeyVersionsMap.containsKey(node) ||
+                        nodeDesKeyVersionsMap.containsKey(node)
+                } else {
+                    // Discovered nodes are always kept
+                    true
+                }
+            }
 
             // Update context with key version data and filtered nodes
             val updatedSystemContext =
@@ -3479,12 +3524,11 @@ class CardScanService {
 
         // Filter services that don't require authentication and are writable R/W RANDOM
         // Service number restrictions are applied per-system in the loop below
-        val writableServices =
-            allServices.filter { service ->
-                !service.attribute.authenticationRequired &&
-                    service.attribute.type == ServiceType.RANDOM &&
-                    service.attribute.mode == ServiceMode.READ_WRITE
-            }
+        val writableServices = allServices.filter { service ->
+            !service.attribute.authenticationRequired &&
+                service.attribute.type == ServiceType.RANDOM &&
+                service.attribute.mode == ServiceMode.READ_WRITE
+        }
 
         if (writableServices.isEmpty()) {
             throw PrerequisiteException(
@@ -4480,8 +4524,9 @@ class CardScanService {
             // Filter areas and services for AES authentication:
             // Has nodeAesKeyVersion
             val aesCompatibleAreas = areas.filter { area -> systemAesKeyVersions.containsKey(area) }
-            val aesCompatibleServices =
-                authServices.filter { service -> systemAesKeyVersions.containsKey(service) }
+            val aesCompatibleServices = authServices.filter { service ->
+                systemAesKeyVersions.containsKey(service)
+            }
 
             // Score this system context: prefer systems with both areas and services, then by total
             // count

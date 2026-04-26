@@ -27,11 +27,6 @@ fun StepCard(
     modifier: Modifier = Modifier,
     onToggleCollapse: ((String) -> Unit)? = null,
 ) {
-    // Skip rendering the scan_overview step as it's handled by the prominent button
-    if (step.id == "scan_overview") {
-        return
-    }
-
     val cardColor by
         animateColorAsState(
             targetValue =
@@ -191,12 +186,15 @@ fun StepsList(
     steps: List<CardScanStep>,
     modifier: Modifier = Modifier,
     onToggleCollapse: ((String) -> Unit)? = null,
+    contentPadding: PaddingValues = PaddingValues(16.dp),
 ) {
+    val visibleSteps = steps.filterNot { step -> step.id == "scan_overview" }
+
     LazyColumn(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp),
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = contentPadding,
     ) {
-        items(steps) { step -> StepCard(step = step, onToggleCollapse = onToggleCollapse) }
+        items(visibleSteps) { step -> StepCard(step = step, onToggleCollapse = onToggleCollapse) }
     }
 }
