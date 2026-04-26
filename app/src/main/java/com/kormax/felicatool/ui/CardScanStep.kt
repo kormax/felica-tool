@@ -105,18 +105,27 @@ data class CardScanStep(
                 )
                 add(
                     CardScanStep(
-                        id = "request_code_list",
-                        title = "Request Code List",
-                        description = "Request a list of nodes for given a root node iteratively",
+                        id = "request_code_list_determine_supported",
+                        title = "Request Code List: Determine Supported",
+                        description = "Check whether Request Code List is available",
                         icon = Icons.AutoMirrored.Filled.List,
                     )
                 )
                 add(
                     CardScanStep(
-                        id = "search_service_code",
-                        title = "Search Service Codes",
-                        description = "Search all available nodes on the card iteratively",
+                        id = "search_service_code_determine_supported",
+                        title = "Search Service Code: Determine Supported",
+                        description = "Check whether Search Service Code is available",
                         icon = Icons.AutoMirrored.Filled.List,
+                    )
+                )
+                add(
+                    CardScanStep(
+                        id = "discover_nodes",
+                        title = "Discover Nodes",
+                        description =
+                            "Discover all available nodes using the best supported node discovery command",
+                        icon = Icons.Default.Search,
                     )
                 )
                 add(
