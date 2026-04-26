@@ -182,8 +182,10 @@ class CardScanService {
                     scanContext.copy(requestCodeListSupport = support)
                 "search_service_code_determine_supported" ->
                     scanContext.copy(searchServiceCodeSupport = support)
-                "request_service" -> scanContext.copy(requestServiceSupport = support)
-                "request_service_v2" -> scanContext.copy(requestServiceV2Support = support)
+                "request_service_determine_supported" ->
+                    scanContext.copy(requestServiceSupport = support)
+                "request_service_v2_determine_supported" ->
+                    scanContext.copy(requestServiceV2Support = support)
                 "set_parameter" -> scanContext.copy(setParameterSupport = support)
                 "get_container_issue_information" ->
                     scanContext.copy(getContainerIssueInformationSupport = support)
@@ -241,10 +243,11 @@ class CardScanService {
             "get_system_status" -> scanContext.getSystemStatusSupport
             "request_code_list_determine_supported" -> scanContext.requestCodeListSupport
             "search_service_code_determine_supported" -> scanContext.searchServiceCodeSupport
-            "request_service" -> scanContext.requestServiceSupport
+            "request_service_determine_supported" -> scanContext.requestServiceSupport
             "request_service_determine_unknown_node_attributes_supported" -> CommandSupport.UNKNOWN
+            "get_node_key_versions" -> CommandSupport.UNKNOWN
             "authentication1_des_node_list_hierarchy_validation" -> CommandSupport.UNKNOWN
-            "request_service_v2" -> scanContext.requestServiceV2Support
+            "request_service_v2_determine_supported" -> scanContext.requestServiceV2Support
             "set_parameter" -> scanContext.setParameterSupport
             "get_container_issue_information" -> scanContext.getContainerIssueInformationSupport
             "get_platform_information" -> scanContext.getPlatformInformationSupport
@@ -892,7 +895,7 @@ class CardScanService {
             }
         }
 
-        if (getCommandSupport("request_service") == CommandSupport.SUPPORTED) {
+        if (scanContext.requestServiceSupport == CommandSupport.SUPPORTED) {
             // Some cards, such as IC 0x24 on Octopus, may stop responding to RequestResponse in
             // Mode1, while RequestService (and Authentication1) still respond.
             try {
@@ -1034,16 +1037,6 @@ class CardScanService {
         try {
             val resultStep =
                 when (step.id) {
-                    "request_service" -> {
-                        val (collapsedResult, expandedResult) = executeRequestService(target)
-                        updateCommandSupport(step.id, CommandSupport.SUPPORTED)
-                        step.copy(
-                            status = StepStatus.COMPLETED,
-                            result = expandedResult,
-                            collapsedResult = collapsedResult,
-                            isCollapsed = true,
-                        )
-                    }
                     "request_service_determine_unknown_node_attributes_supported" -> {
                         val result = executeRequestServiceUnknownNodeAttributes(target)
                         step.copy(status = StepStatus.COMPLETED, result = result)
@@ -1052,9 +1045,8 @@ class CardScanService {
                         val result = executeAuthentication1DesNodeListHierarchyValidation(target)
                         step.copy(status = StepStatus.COMPLETED, result = result)
                     }
-                    "request_service_v2" -> {
-                        val (collapsedResult, expandedResult) = executeRequestServiceV2(target)
-                        updateCommandSupport(step.id, CommandSupport.SUPPORTED)
+                    "get_node_key_versions" -> {
+                        val (collapsedResult, expandedResult) = executeGetNodeKeyVersions(target)
                         step.copy(
                             status = StepStatus.COMPLETED,
                             result = expandedResult,
@@ -1149,6 +1141,10 @@ class CardScanService {
                                     executeRequestCodeList(target)
                                 "search_service_code_determine_supported" ->
                                     executeSearchServiceCode(target)
+                                "request_service_determine_supported" ->
+                                    executeRequestServiceDetermineSupported(target)
+                                "request_service_v2_determine_supported" ->
+                                    executeRequestServiceV2DetermineSupported(target)
                                 "get_area_information" -> executeGetAreaInformation(target)
                                 "set_parameter" -> executeSetParameter(target)
                                 "get_container_issue_information" ->
@@ -1963,7 +1959,34 @@ class CardScanService {
         return listOf(System, Area.ROOT)
     }
 
-    private suspend fun executeRequestService(target: FeliCaTarget): Pair<String, String> {
+    private suspend fun executeRequestServiceDetermineSupported(target: FeliCaTarget): String {
+        val systemContext = scanContext.systemScanContexts.firstOrNull()
+        pollSystemCode(target, systemContext?.systemCode)
+
+        val requestServiceCommand = RequestServiceCommand(target.idm, arrayOf(System.code))
+        val requestServiceResponse = target.transceive(requestServiceCommand)
+        val keyVersion = requestServiceResponse.keyVersions.first()
+
+        return buildString {
+                appendLine("Request Service command is supported (response received)")
+                appendLine("System: ${systemCodeLabel(systemContext?.systemCode)}")
+                appendLine("Node: ${System.code.toHexString().uppercase()} (System)")
+                appendLine(
+                    "System Key Version: ${
+                        if (keyVersion.isMissing) {
+                            "Not found"
+                        } else {
+                            keyVersion.toInt().toString()
+                        }
+                    }"
+                )
+            }
+            .trim()
+    }
+
+    private suspend fun executeRequestServiceKeyVersions(
+        target: FeliCaTarget
+    ): Pair<String, String> {
         val allDiscoveredNodes = scanContext.systemScanContexts.flatMap { it.nodes }
         val areas = allDiscoveredNodes.filterIsInstance<Area>()
         val services = allDiscoveredNodes.filterIsInstance<Service>()
@@ -1976,7 +1999,7 @@ class CardScanService {
             )
         }
 
-        // Request key versions in batches (max 32 nodes per request)
+        // Get key versions in batches (max 32 nodes per request)
         val maxNodesPerRequest = 32
         val keyVersionResults = mutableListOf<String>()
         val updatedSystemContexts = mutableListOf<SystemScanContext>()
@@ -2048,7 +2071,7 @@ class CardScanService {
 
         // Return summary with key version details
         val collapsedSummary =
-            "Requested key versions for ${areas.size} areas, ${services.size} services across ${updatedSystemContexts.size} system(s)"
+            "Got node key versions for ${areas.size} areas, ${services.size} services across ${updatedSystemContexts.size} system(s)"
         val expandedResult =
             if (keyVersionResults.isNotEmpty()) {
                 collapsedSummary + "\n" + keyVersionResults.joinToString("\n")
@@ -2239,7 +2262,64 @@ class CardScanService {
             .trim()
     }
 
-    private suspend fun executeRequestServiceV2(target: FeliCaTarget): Pair<String, String> {
+    private suspend fun executeRequestServiceV2DetermineSupported(target: FeliCaTarget): String {
+        val systemContext = scanContext.systemScanContexts.firstOrNull()
+        pollSystemCode(target, systemContext?.systemCode)
+
+        val requestServiceV2Command = RequestServiceV2Command(target.idm, arrayOf(System.code))
+        val requestServiceV2Response = target.transceive(requestServiceV2Command)
+        val aesKeyVersion = requestServiceV2Response.aesKeyVersions.firstOrNull()
+        val desKeyVersion = requestServiceV2Response.desKeyVersions.firstOrNull()
+
+        return buildString {
+                appendLine("Request Service V2 command is supported (response received)")
+                appendLine("System: ${systemCodeLabel(systemContext?.systemCode)}")
+                appendLine("Node: ${System.code.toHexString().uppercase()} (System)")
+                appendLine("Status: ${formatStatus(requestServiceV2Response)}")
+                requestServiceV2Response.encryptionIdentifier?.let { encryptionIdentifier ->
+                    appendLine("Encryption Identifier: ${encryptionIdentifier.name}")
+                }
+                aesKeyVersion?.let { keyVersion ->
+                    appendLine(
+                        "AES System Key Version: ${
+                            if (keyVersion.isMissing) {
+                                "Not found"
+                            } else {
+                                keyVersion.toInt().toString()
+                            }
+                        }"
+                    )
+                }
+                desKeyVersion?.let { keyVersion ->
+                    appendLine(
+                        "DES System Key Version: ${
+                            if (keyVersion.isMissing) {
+                                "Not found"
+                            } else {
+                                keyVersion.toInt().toString()
+                            }
+                        }"
+                    )
+                }
+            }
+            .trim()
+    }
+
+    private suspend fun executeGetNodeKeyVersions(target: FeliCaTarget): Pair<String, String> =
+        when {
+            scanContext.requestServiceV2Support == CommandSupport.SUPPORTED ->
+                executeRequestServiceV2KeyVersions(target)
+            scanContext.requestServiceSupport == CommandSupport.SUPPORTED ->
+                executeRequestServiceKeyVersions(target)
+            else ->
+                throw PrerequisiteException(
+                    "Get node key versions requires Request Service or Request Service V2 support"
+                )
+        }
+
+    private suspend fun executeRequestServiceV2KeyVersions(
+        target: FeliCaTarget
+    ): Pair<String, String> {
         val allDiscoveredNodes = scanContext.systemScanContexts.flatMap { it.nodes }
         val areas = allDiscoveredNodes.filterIsInstance<Area>()
         val services = allDiscoveredNodes.filterIsInstance<Service>()
@@ -2252,7 +2332,7 @@ class CardScanService {
             )
         }
 
-        // Request key versions in batches (max 32 nodes per request)
+        // Get key versions in batches (max 32 nodes per request)
         val maxNodesPerRequest = 32
         val keyVersionResults = mutableListOf<String>()
         val updatedSystemContexts = mutableListOf<SystemScanContext>()
@@ -2382,7 +2462,7 @@ class CardScanService {
 
         // Return summary with key version details
         val collapsedSummary =
-            "Requested enhanced key versions for ${areas.size} areas, ${services.size} services across ${updatedSystemContexts.size} system(s)"
+            "Got enhanced node key versions for ${areas.size} areas, ${services.size} services across ${updatedSystemContexts.size} system(s)"
         val expandedResult =
             if (keyVersionResults.isNotEmpty()) {
                 collapsedSummary + "\n" + keyVersionResults.joinToString("\n")

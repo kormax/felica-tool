@@ -121,6 +121,22 @@ data class CardScanStep(
                 )
                 add(
                     CardScanStep(
+                        id = "request_service_determine_supported",
+                        title = "Request Service: Determine Supported",
+                        description = "Check whether Request Service is available",
+                        icon = Icons.Default.CheckCircle,
+                    )
+                )
+                add(
+                    CardScanStep(
+                        id = "request_service_v2_determine_supported",
+                        title = "Request Service V2: Determine Supported",
+                        description = "Check whether Request Service V2 is available",
+                        icon = Icons.Default.CheckCircle,
+                    )
+                )
+                add(
+                    CardScanStep(
                         id = "discover_nodes",
                         title = "Discover Nodes",
                         description =
@@ -130,9 +146,10 @@ data class CardScanStep(
                 )
                 add(
                     CardScanStep(
-                        id = "request_service",
-                        title = "Request Service",
-                        description = "Request key versions for discovered nodes",
+                        id = "get_node_key_versions",
+                        title = "Get Node Key Versions",
+                        description =
+                            "Get key versions for discovered nodes using the best supported command",
                         icon = Icons.Default.CheckCircle,
                     )
                 )
@@ -142,15 +159,6 @@ data class CardScanStep(
                         title = "Request Service - Unknown Attributes",
                         description =
                             "Check Request Service behavior when a node with an unknown attribute is requested",
-                        icon = Icons.Default.CheckCircle,
-                    )
-                )
-                add(
-                    CardScanStep(
-                        id = "request_service_v2",
-                        title = "Request Service V2",
-                        description =
-                            "Request AES and DES key versions for nodes alongside the used key type identifier",
                         icon = Icons.Default.CheckCircle,
                     )
                 )

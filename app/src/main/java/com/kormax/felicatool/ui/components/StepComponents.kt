@@ -157,11 +157,7 @@ fun StepCard(
                 step.status == StepStatus.COMPLETED &&
                     step.collapsedResult != null &&
                     step.id in
-                        listOf(
-                            "search_services",
-                            "request_service_key_versions",
-                            "request_service_v2_key_versions",
-                        ) &&
+                        listOf("discover_nodes", "get_node_key_versions", "force_discover_nodes") &&
                     onToggleCollapse != null
             ) {
                 IconButton(
