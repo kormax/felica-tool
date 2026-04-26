@@ -1035,152 +1035,76 @@ class CardScanService {
         val startTime = TimeSource.Monotonic.markNow()
 
         try {
-            val resultStep =
+            val result =
                 when (step.id) {
-                    "request_service_determine_unknown_node_attributes_supported" -> {
-                        val result = executeRequestServiceUnknownNodeAttributes(target)
-                        step.copy(status = StepStatus.COMPLETED, result = result)
-                    }
-                    "authentication1_des_node_list_hierarchy_validation" -> {
-                        val result = executeAuthentication1DesNodeListHierarchyValidation(target)
-                        step.copy(status = StepStatus.COMPLETED, result = result)
-                    }
-                    "get_node_key_versions" -> {
-                        val (collapsedResult, expandedResult) = executeGetNodeKeyVersions(target)
-                        step.copy(
-                            status = StepStatus.COMPLETED,
-                            result = expandedResult,
-                            collapsedResult = collapsedResult,
-                            isCollapsed = true,
-                        )
-                    }
-                    "discover_nodes" -> {
-                        val (collapsedResult, expandedResult) = executeDiscoverNodes(target)
-                        step.copy(
-                            status = StepStatus.COMPLETED,
-                            result = expandedResult,
-                            collapsedResult = collapsedResult,
-                            isCollapsed = true,
-                        )
-                    }
-                    "force_discover_nodes" -> {
-                        val (collapsedResult, expandedResult) = executeForceDiscoverNodes(target)
-                        step.copy(
-                            status = StepStatus.COMPLETED,
-                            result = expandedResult,
-                            collapsedResult = collapsedResult,
-                            isCollapsed = true,
-                        )
-                    }
-                    "read_without_encryption_determine_max_services" -> {
-                        val result = executeReadWithoutEncryptionDetermineMaxServices(target)
-                        updateCommandSupport(step.id, CommandSupport.SUPPORTED)
-                        step.copy(status = StepStatus.COMPLETED, result = result)
-                    }
-                    "read_without_encryption_determine_supported" -> {
-                        val result = executeReadWithoutEncryptionDetermineSupported(target)
-                        updateCommandSupport(step.id, CommandSupport.SUPPORTED)
-                        step.copy(status = StepStatus.COMPLETED, result = result)
-                    }
-                    "read_without_encryption_detect_illegal_number_error_preference" -> {
-                        val result =
-                            executeReadWithoutEncryptionDetectIllegalNumberErrorPreference(target)
-                        updateCommandSupport(step.id, CommandSupport.SUPPORTED)
-                        step.copy(status = StepStatus.COMPLETED, result = result)
-                    }
-                    "read_without_encryption_determine_max_blocks" -> {
-                        val result = executeReadWithoutEncryptionDetermineMaxBlocks(target)
-                        updateCommandSupport(step.id, CommandSupport.SUPPORTED)
-                        step.copy(status = StepStatus.COMPLETED, result = result)
-                    }
-                    "read_blocks_without_encryption" -> {
-                        val (collapsedResult, expandedResult) =
-                            executeReadBlocksWithoutEncryption(target)
-                        updateCommandSupport(step.id, CommandSupport.SUPPORTED)
-                        step.copy(
-                            status = StepStatus.COMPLETED,
-                            result = expandedResult,
-                            collapsedResult = collapsedResult,
-                            isCollapsed = true,
-                        )
-                    }
-                    "force_discover_blocks" -> {
-                        val (collapsedResult, expandedResult) = executeForceDiscoverBlocks(target)
-                        step.copy(
-                            status = StepStatus.COMPLETED,
-                            result = expandedResult,
-                            collapsedResult = collapsedResult,
-                            isCollapsed = true,
-                        )
-                    }
+                    "polling" -> executeInitialInfo(target)
+                    "request_response" -> executeRequestResponse(target)
+                    "request_system_code" -> executeRequestSystemCode(target)
+                    "request_specification_version" -> executeRequestSpecificationVersion(target)
+                    "get_system_status" -> executeGetSystemStatus(target)
+                    "polling_system_code" -> executePollingSystemCode(target)
+                    "polling_communication_performance" ->
+                        executePollingCommunicationPerformance(target)
+                    "request_code_list_determine_supported" -> executeRequestCodeList(target)
+                    "search_service_code_determine_supported" -> executeSearchServiceCode(target)
+                    "request_service_determine_supported" ->
+                        executeRequestServiceDetermineSupported(target)
+                    "request_service_v2_determine_supported" ->
+                        executeRequestServiceV2DetermineSupported(target)
+                    "request_service_determine_unknown_node_attributes_supported" ->
+                        executeRequestServiceUnknownNodeAttributes(target)
+                    "get_node_key_versions" -> executeGetNodeKeyVersions(target)
+                    "discover_nodes" -> executeDiscoverNodes(target)
+                    "force_discover_nodes" -> executeForceDiscoverNodes(target)
+                    "set_parameter" -> executeSetParameter(target)
+                    "get_container_issue_information" -> executeGetContainerIssueInformation(target)
+                    "get_platform_information" -> executeGetPlatformInformation(target)
+                    "get_container_id" -> executeGetContainerId(target)
+                    "get_container_property" -> executeGetContainerProperty(target)
+                    "echo" -> executeEcho(target)
+                    "internal_authenticate_and_read" -> executeInternalAuthenticateAndRead(target)
+                    "reset_mode" -> executeResetMode(target)
+                    "get_area_information" -> executeGetAreaInformation(target)
+                    "get_node_property_value_limited_service" ->
+                        executeGetNodePropertyValueLimitedService(target)
+                    "get_node_property_mac_communication" ->
+                        executeGetNodePropertyMacCommunication(target)
+                    "request_block_information" -> executeRequestBlockInformation(target)
+                    "request_block_information_ex" -> executeRequestBlockInformationEx(target)
+                    "read_without_encryption_determine_error_indication" ->
+                        executeReadWithoutEncryptionDetermineErrorIndication(target)
+                    "read_without_encryption_determine_max_services" ->
+                        executeReadWithoutEncryptionDetermineMaxServices(target)
+                    "read_without_encryption_determine_supported" ->
+                        executeReadWithoutEncryptionDetermineSupported(target)
+                    "read_without_encryption_detect_illegal_number_error_preference" ->
+                        executeReadWithoutEncryptionDetectIllegalNumberErrorPreference(target)
+                    "read_without_encryption_determine_max_blocks" ->
+                        executeReadWithoutEncryptionDetermineMaxBlocks(target)
+                    "read_blocks_without_encryption" -> executeReadBlocksWithoutEncryption(target)
+                    "force_discover_blocks" -> executeForceDiscoverBlocks(target)
+                    "write_without_encryption_determine_error_indication" ->
+                        executeWriteWithoutEncryptionDetermineErrorIndication(target)
+                    "write_without_encryption_determine_max_blocks" ->
+                        executeWriteWithoutEncryptionDetermineMaxBlocks(target)
+                    "authentication1_des_node_list_hierarchy_validation" ->
+                        executeAuthentication1DesNodeListHierarchyValidation(target)
+                    "authentication1_des" -> executeAuthentication1Des(target)
+                    "authentication1_aes" -> executeAuthentication1Aes(target)
                     "scan_overview" -> {
                         // Copy logs from target into scan context at overview step
                         (target as? CommunicationLoggedFeliCaTarget)?.let { loggedTarget ->
                             scanContext = scanContext.copy(communicationLog = loggedTarget.log)
                         }
-
-                        step.copy(
-                            status = StepStatus.COMPLETED,
-                            result =
-                                "Click to view comprehensive overview of all discovered card data",
-                        )
+                        "Click to view comprehensive overview of all discovered card data"
                     }
-                    else -> {
-                        val result =
-                            when (step.id) {
-                                "polling" -> executeInitialInfo(target)
-                                "request_response" -> executeRequestResponse(target)
-                                "request_system_code" -> executeRequestSystemCode(target)
-                                "request_specification_version" ->
-                                    executeRequestSpecificationVersion(target)
-                                "get_system_status" -> executeGetSystemStatus(target)
-                                "polling_system_code" -> executePollingSystemCode(target)
-                                "polling_communication_performance" ->
-                                    executePollingCommunicationPerformance(target)
-                                "request_code_list_determine_supported" ->
-                                    executeRequestCodeList(target)
-                                "search_service_code_determine_supported" ->
-                                    executeSearchServiceCode(target)
-                                "request_service_determine_supported" ->
-                                    executeRequestServiceDetermineSupported(target)
-                                "request_service_v2_determine_supported" ->
-                                    executeRequestServiceV2DetermineSupported(target)
-                                "get_area_information" -> executeGetAreaInformation(target)
-                                "set_parameter" -> executeSetParameter(target)
-                                "get_container_issue_information" ->
-                                    executeGetContainerIssueInformation(target)
-                                "get_platform_information" -> executeGetPlatformInformation(target)
-                                "get_container_id" -> executeGetContainerId(target)
-                                "get_container_property" -> executeGetContainerProperty(target)
-                                "echo" -> executeEcho(target)
-                                "internal_authenticate_and_read" ->
-                                    executeInternalAuthenticateAndRead(target)
-                                "reset_mode" -> executeResetMode(target)
-                                "get_node_property_value_limited_service" ->
-                                    executeGetNodePropertyValueLimitedService(target)
-                                "get_node_property_mac_communication" ->
-                                    executeGetNodePropertyMacCommunication(target)
-                                "request_block_information" ->
-                                    executeRequestBlockInformation(target)
-                                "request_block_information_ex" ->
-                                    executeRequestBlockInformationEx(target)
-                                "read_without_encryption_determine_error_indication" ->
-                                    executeReadWithoutEncryptionDetermineErrorIndication(target)
-                                "write_without_encryption_determine_error_indication" ->
-                                    executeWriteWithoutEncryptionDetermineErrorIndication(target)
-                                "write_without_encryption_determine_max_blocks" ->
-                                    executeWriteWithoutEncryptionDetermineMaxBlocks(target)
-                                "authentication1_des" -> executeAuthentication1Des(target)
-                                "authentication1_aes" -> executeAuthentication1Aes(target)
-                                else -> "Unknown step"
-                            }
-
-                        // Mark command as supported if we reach this point
-                        updateCommandSupport(step.id, CommandSupport.SUPPORTED)
-
-                        step.copy(status = StepStatus.COMPLETED, result = result)
-                    }
+                    else -> "Unknown step"
                 }
+
+            // Mark command as supported if we reach this point.
+            updateCommandSupport(step.id, CommandSupport.SUPPORTED)
+
+            val resultStep = step.completedWith(result)
 
             // Calculate execution duration
             val duration = startTime.elapsedNow()
@@ -1225,6 +1149,20 @@ class CardScanService {
             )
         }
     }
+
+    private fun CardScanStep.completedWith(result: Any): CardScanStep =
+        when (result) {
+            is Pair<*, *> ->
+                copy(
+                    status = StepStatus.COMPLETED,
+                    result = result.second.toStepResultText(),
+                    collapsedResult = result.first.toStepResultText(),
+                    isCollapsed = true,
+                )
+            else -> copy(status = StepStatus.COMPLETED, result = result.toStepResultText())
+        }
+
+    private fun Any?.toStepResultText(): String = this?.toString().orEmpty()
 
     private suspend fun handleDiscoveredSystemCodes(
         discoveredSystemCodes: List<ByteArray>,
@@ -2649,7 +2587,7 @@ class CardScanService {
         return collapsedSummary to expandedResult
     }
 
-    private suspend fun executeGetAreaInformation(target: FeliCaTarget): String {
+    private suspend fun executeGetAreaInformation(target: FeliCaTarget): Pair<String, String> {
         val allAreas = scanContext.systemScanContexts.flatMap { it.nodes.filterIsInstance<Area>() }
 
         if (allAreas.isEmpty()) {
@@ -2755,17 +2693,22 @@ class CardScanService {
             }
         }
 
-        return buildString {
-                appendLine(
-                    "Get Area Information Results: $totalSuccessful/$totalTested areas returned data"
-                )
-                appendLine()
-                results.forEach { result ->
-                    appendLine(result.trimEnd())
+        val collapsedResult =
+            "Got area information for $totalSuccessful/$totalTested area(s) across ${scanContext.systemScanContexts.size} system(s)"
+        val expandedResult =
+            buildString {
+                    appendLine(
+                        "Get Area Information Results: $totalSuccessful/$totalTested areas returned data"
+                    )
                     appendLine()
+                    results.forEach { result ->
+                        appendLine(result.trimEnd())
+                        appendLine()
+                    }
                 }
-            }
-            .trim()
+                .trim()
+
+        return collapsedResult to expandedResult
     }
 
     private suspend fun executeGetContainerProperty(target: FeliCaTarget): String {
@@ -4173,7 +4116,9 @@ class CardScanService {
         return collapsedResult to expandedResult
     }
 
-    private suspend fun executeGetNodePropertyValueLimitedService(target: FeliCaTarget): String {
+    private suspend fun executeGetNodePropertyValueLimitedService(
+        target: FeliCaTarget
+    ): Pair<String, String> {
         val allDiscoveredNodes = scanContext.systemScanContexts.flatMap { it.nodes }
 
         if (allDiscoveredNodes.isEmpty()) {
@@ -4186,6 +4131,8 @@ class CardScanService {
         val results = mutableListOf<String>()
         val maxNodesPerRequest = 16 // FeliCa specification limit
         val updatedSystemContexts = mutableListOf<SystemScanContext>()
+        var totalProperties = 0
+        var enabledProperties = 0
 
         // Process each system context separately
         for ((contextIndex, systemContext) in scanContext.systemScanContexts.withIndex()) {
@@ -4223,6 +4170,10 @@ class CardScanService {
                     nodeBatch.zip(valueLimitedPurseResponse.nodeProperties).forEach {
                         (node, property) ->
                         if (property is ValueLimitedPurseServiceProperty) {
+                            totalProperties++
+                            if (property.enabled) {
+                                enabledProperties++
+                            }
                             val nodeCode = node.fullCode.toHexString()
                             val formatted =
                                 if (property.enabled) {
@@ -4294,20 +4245,27 @@ class CardScanService {
             )
         }
 
-        return buildString {
-                appendLine("Get Node Property (Value-Limited Service) Results:")
-                appendLine("Processed ${scanContext.systemScanContexts.size} system(s)")
-                results.forEachIndexed { index, result ->
-                    appendLine(result.trimEnd())
-                    if (index < results.lastIndex) {
-                        appendLine()
+        val collapsedResult =
+            "Value-limited purse properties: $enabledProperties enabled / $totalProperties returned for ${allDiscoveredNodes.size} node(s)"
+        val expandedResult =
+            buildString {
+                    appendLine("Get Node Property (Value-Limited Service) Results:")
+                    appendLine("Processed ${scanContext.systemScanContexts.size} system(s)")
+                    results.forEachIndexed { index, result ->
+                        appendLine(result.trimEnd())
+                        if (index < results.lastIndex) {
+                            appendLine()
+                        }
                     }
                 }
-            }
-            .trimEnd()
+                .trimEnd()
+
+        return collapsedResult to expandedResult
     }
 
-    private suspend fun executeGetNodePropertyMacCommunication(target: FeliCaTarget): String {
+    private suspend fun executeGetNodePropertyMacCommunication(
+        target: FeliCaTarget
+    ): Pair<String, String> {
         val allDiscoveredNodes = scanContext.systemScanContexts.flatMap { it.nodes }
 
         if (allDiscoveredNodes.isEmpty()) {
@@ -4320,6 +4278,8 @@ class CardScanService {
         val results = mutableListOf<String>()
         val maxNodesPerRequest = 16 // FeliCa specification limit
         val updatedSystemContexts = mutableListOf<SystemScanContext>()
+        var totalProperties = 0
+        var enabledProperties = 0
 
         // Process each system context separately
         for ((contextIndex, systemContext) in scanContext.systemScanContexts.withIndex()) {
@@ -4357,6 +4317,10 @@ class CardScanService {
                     nodeBatch.zip(macCommunicationResponse.nodeProperties).forEach {
                         (node, property) ->
                         if (property is MacCommunicationProperty) {
+                            totalProperties++
+                            if (property.enabled) {
+                                enabledProperties++
+                            }
                             val nodeCode = node.fullCode.toHexString().padStart(8, ' ')
                             macCommunicationResults.add(
                                 " $nodeCode: ${if (property.enabled) "Enabled" else "Disabled"}"
@@ -4414,20 +4378,25 @@ class CardScanService {
             )
         }
 
-        return buildString {
-                appendLine("Get Node Property (MAC Communication) Results:")
-                appendLine("Processed ${scanContext.systemScanContexts.size} system(s)")
-                results.forEachIndexed { index, result ->
-                    appendLine(result.trimEnd())
-                    if (index < results.lastIndex) {
-                        appendLine()
+        val collapsedResult =
+            "MAC communication properties: $enabledProperties enabled / $totalProperties returned for ${allDiscoveredNodes.size} node(s)"
+        val expandedResult =
+            buildString {
+                    appendLine("Get Node Property (MAC Communication) Results:")
+                    appendLine("Processed ${scanContext.systemScanContexts.size} system(s)")
+                    results.forEachIndexed { index, result ->
+                        appendLine(result.trimEnd())
+                        if (index < results.lastIndex) {
+                            appendLine()
+                        }
                     }
                 }
-            }
-            .trim()
+                .trim()
+
+        return collapsedResult to expandedResult
     }
 
-    private suspend fun executeRequestBlockInformation(target: FeliCaTarget): String {
+    private suspend fun executeRequestBlockInformation(target: FeliCaTarget): Pair<String, String> {
         val allNodes = scanContext.systemScanContexts.flatMap { it.nodes }
 
         if (allNodes.isEmpty()) {
@@ -4440,6 +4409,7 @@ class CardScanService {
         val maxServicesPerRequest = 32
         val results = mutableListOf<String>()
         val updatedSystemContexts = mutableListOf<SystemScanContext>()
+        var totalBlockCountsRetrieved = 0
 
         // Process each system context separately
         for ((contextIndex, systemContext) in scanContext.systemScanContexts.withIndex()) {
@@ -4465,6 +4435,7 @@ class CardScanService {
                 // Process the block information for each service in this batch
                 nodeBatch.zip(requestBlockInfoResponse.assignedBlockCountInformation).forEach {
                     (node, blockInfo) ->
+                    totalBlockCountsRetrieved++
                     val blockCount = blockInfo.toInt()
                     blockInfoResults.add(
                         "${node.fullCode.toHexString().padStart(8, ' ')}: ${blockCount.toString().padStart(5, ' ')} blocks"
@@ -4496,21 +4467,28 @@ class CardScanService {
         // Update scan context with all system contexts
         scanContext = scanContext.copy(systemScanContexts = updatedSystemContexts)
 
-        return buildString {
-                appendLine("Request Block Information Results:")
-                appendLine("Processed ${scanContext.systemScanContexts.size} system(s)")
-                appendLine("Total services processed: ${allNodes.size}")
-                appendLine()
-
-                results.forEach { result ->
-                    appendLine(result)
+        val collapsedResult =
+            "Loaded block counts for $totalBlockCountsRetrieved/${allNodes.size} node(s) across ${updatedSystemContexts.size} system(s)"
+        val expandedResult =
+            buildString {
+                    appendLine("Request Block Information Results:")
+                    appendLine("Processed ${scanContext.systemScanContexts.size} system(s)")
+                    appendLine("Total services processed: ${allNodes.size}")
                     appendLine()
+
+                    results.forEach { result ->
+                        appendLine(result)
+                        appendLine()
+                    }
                 }
-            }
-            .trim()
+                .trim()
+
+        return collapsedResult to expandedResult
     }
 
-    private suspend fun executeRequestBlockInformationEx(target: FeliCaTarget): String {
+    private suspend fun executeRequestBlockInformationEx(
+        target: FeliCaTarget
+    ): Pair<String, String> {
         val allNodes = scanContext.systemScanContexts.flatMap { it.nodes }
 
         if (allNodes.isEmpty()) {
@@ -4523,6 +4501,7 @@ class CardScanService {
         val maxServicesPerRequest = 16
         val results = mutableListOf<String>()
         val updatedSystemContexts = mutableListOf<SystemScanContext>()
+        var totalBlockCountsRetrieved = 0
 
         // Process each system context separately
         for ((contextIndex, systemContext) in scanContext.systemScanContexts.withIndex()) {
@@ -4559,6 +4538,7 @@ class CardScanService {
                     )
                     .forEach { (node, blockCounts) ->
                         val (assignedCount, freeCount) = blockCounts
+                        totalBlockCountsRetrieved++
                         val assignedBlocks = assignedCount.toInt()
                         val freeBlocks = freeCount.toInt()
                         val totalBlocks = assignedBlocks + freeBlocks
@@ -4598,18 +4578,23 @@ class CardScanService {
         // Update scan context with all system contexts
         scanContext = scanContext.copy(systemScanContexts = updatedSystemContexts)
 
-        return buildString {
-                appendLine("Request Block Information Ex Results:")
-                appendLine("Processed ${scanContext.systemScanContexts.size} system(s)")
-                appendLine("Total nodes processed: ${allNodes.size}")
-                appendLine()
-
-                results.forEach { result ->
-                    appendLine(result)
+        val collapsedResult =
+            "Loaded extended block counts for $totalBlockCountsRetrieved/${allNodes.size} node(s) across ${updatedSystemContexts.size} system(s)"
+        val expandedResult =
+            buildString {
+                    appendLine("Request Block Information Ex Results:")
+                    appendLine("Processed ${scanContext.systemScanContexts.size} system(s)")
+                    appendLine("Total nodes processed: ${allNodes.size}")
                     appendLine()
+
+                    results.forEach { result ->
+                        appendLine(result)
+                        appendLine()
+                    }
                 }
-            }
-            .trim()
+                .trim()
+
+        return collapsedResult to expandedResult
     }
 
     private suspend fun executeAuthentication1Des(target: FeliCaTarget): String {

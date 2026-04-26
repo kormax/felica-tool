@@ -151,13 +151,10 @@ fun StepCard(
                 }
             }
 
-            // Add expand/collapse button for steps that support it (excluding comprehensive data
-            // view)
+            // Add expand/collapse button for steps that provide expanded details.
             if (
                 step.status == StepStatus.COMPLETED &&
                     step.collapsedResult != null &&
-                    step.id in
-                        listOf("discover_nodes", "get_node_key_versions", "force_discover_nodes") &&
                     onToggleCollapse != null
             ) {
                 IconButton(
