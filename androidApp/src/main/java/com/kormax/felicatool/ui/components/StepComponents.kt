@@ -4,6 +4,7 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Build
@@ -20,21 +21,38 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.kormax.felicatool.ui.CardScanStep
 import com.kormax.felicatool.ui.ScanStepIcon
 import com.kormax.felicatool.ui.StepStatus
+import kotlin.math.roundToInt
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
+
+private const val ActiveStepPreferredViewportFraction = 0.66f
+
+private data class StepListScrollTarget(
+    val key: String,
+    val index: Int,
+    val scrollOffsetPx: Int,
+)
 
 @Composable
 fun StepCard(
     step: CardScanStep,
     modifier: Modifier = Modifier,
     onToggleCollapse: ((String) -> Unit)? = null,
+    isCollapseEnabled: Boolean = true,
 ) {
     val cardColor by
         animateColorAsState(
@@ -168,6 +186,7 @@ fun StepCard(
             ) {
                 IconButton(
                     onClick = { onToggleCollapse(step.id) },
+                    enabled = isCollapseEnabled,
                     modifier = Modifier.size(24.dp),
                 ) {
                     Icon(
@@ -203,14 +222,65 @@ fun StepsList(
     modifier: Modifier = Modifier,
     onToggleCollapse: ((String) -> Unit)? = null,
     contentPadding: PaddingValues = PaddingValues(16.dp),
+    isScrollLocked: Boolean = false,
+    isScanCompleted: Boolean = false,
 ) {
     val visibleSteps = steps.filterNot { step -> step.id == "scan_overview" }
+    val listState = rememberLazyListState()
+    val activeStepIndex =
+        visibleSteps.indexOfFirst { step -> step.status == StepStatus.IN_PROGRESS }
+    val activeStepId = visibleSteps.getOrNull(activeStepIndex)?.id
 
-    LazyColumn(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        contentPadding = contentPadding,
-    ) {
-        items(visibleSteps) { step -> StepCard(step = step, onToggleCollapse = onToggleCollapse) }
+    BoxWithConstraints(modifier = modifier) {
+        val density = LocalDensity.current
+        val preferredActiveStepOffsetPx =
+            with(density) {
+                (maxHeight.toPx() * ActiveStepPreferredViewportFraction).roundToInt()
+            }
+        val scrollTarget =
+            when {
+                activeStepId != null ->
+                    StepListScrollTarget(
+                        key = "active:$activeStepId",
+                        index = activeStepIndex,
+                        scrollOffsetPx = -preferredActiveStepOffsetPx,
+                    )
+                isScanCompleted && visibleSteps.isNotEmpty() ->
+                    StepListScrollTarget(
+                        key = "completed:${visibleSteps.last().id}",
+                        index = visibleSteps.lastIndex,
+                        scrollOffsetPx = preferredActiveStepOffsetPx,
+                    )
+                else -> null
+            }
+        val currentScrollTarget = rememberUpdatedState(scrollTarget)
+
+        LaunchedEffect(listState) {
+            snapshotFlow { currentScrollTarget.value }
+                .filterNotNull()
+                .distinctUntilChanged()
+                .collectLatest { target ->
+                    listState.animateScrollToItem(
+                        index = target.index,
+                        scrollOffset = target.scrollOffsetPx,
+                    )
+                }
+        }
+
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            state = listState,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = contentPadding,
+            userScrollEnabled = !isScrollLocked,
+        ) {
+            items(visibleSteps, key = { step -> step.id }) { step ->
+                StepCard(
+                    step = step,
+                    onToggleCollapse = onToggleCollapse,
+                    isCollapseEnabled = !isScrollLocked,
+                )
+            }
+        }
     }
 }

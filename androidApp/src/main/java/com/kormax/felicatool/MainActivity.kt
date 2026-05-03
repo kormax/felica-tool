@@ -71,7 +71,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 
 private const val MANUAL_READER_SESSION_TIMEOUT_SECONDS = 60
 private const val AUTOMATIC_READER_RETRY_DELAY_SECONDS = 2
-private const val AUTOMATIC_READER_START_DELAY_SECONDS = 3
+private const val AUTOMATIC_READER_START_DELAY_SECONDS = 2
 private const val READER_PREFERENCES_NAME = "reader_settings"
 private const val KEY_BACKGROUND_READING = "background_reading"
 private const val TAG = "MainActivity"
@@ -800,6 +800,11 @@ private fun FeliCaReaderScreen(
     val isScanCompleted = steps.any { step ->
         step.id == "scan_overview" && step.status == StepStatus.COMPLETED
     }
+    val isStepScanActive =
+        !isScanCompleted &&
+            steps.isNotEmpty() &&
+            (readerControlState.isReaderActive ||
+                steps.any { step -> step.status == StepStatus.IN_PROGRESS })
 
     Box(modifier = modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -809,6 +814,8 @@ private fun FeliCaReaderScreen(
                         steps = steps,
                         onToggleCollapse = onToggleCollapse,
                         modifier = Modifier.fillMaxSize(),
+                        isScrollLocked = isStepScanActive,
+                        isScanCompleted = isScanCompleted,
                         contentPadding =
                             PaddingValues(
                                 start = 16.dp,
