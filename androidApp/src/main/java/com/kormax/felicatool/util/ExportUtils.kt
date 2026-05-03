@@ -264,7 +264,10 @@ object ExportUtils {
 
         // IC type from PMM data
         scanContext.pmm?.let { pmm ->
-            val icTypeName = IcTypeMapping.getIcName(pmm.icType)
+            val icTypeName =
+                IcTypeRegistry.resolveIcType(pmm.icType, pmm.romType)?.let { resolution ->
+                    if (resolution.isUncertain) "${resolution.name}?" else resolution.name
+                }
             json.put("ic_type_name", icTypeName)
         }
 

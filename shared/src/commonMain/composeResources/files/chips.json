@@ -1,0 +1,232 @@
+[
+  {
+    "ic": "00",
+    "rom": "02",
+    "name": "RC-S830"
+  },
+  {
+    "ic": "00",
+    "rom": "03",
+    "name": "RC-S833"
+  },
+  {
+    "ic": "01",
+    "name": "RC-S915"
+  },
+  {
+    "ic": "02",
+    "name": "RC-S919"
+  },
+  {
+    "ic": "06",
+    "name": "Mobile FeliCa 1.0"
+  },
+  {
+    "ic": "07",
+    "name": "Mobile FeliCa 1.1"
+  },
+  {
+    "ic": "08",
+    "name": "RC-S952"
+  },
+  {
+    "ic": "09",
+    "name": "RC-S953"
+  },
+  {
+    "ic": "0B",
+    "name": "RC-S953/?"
+  },
+  {
+    "ic": "0C",
+    "name": "RC-S954"
+  },
+  {
+    "ic": "0D",
+    "name": "RC-S960"
+  },
+  {
+    "ic": "10",
+    "name": "Mobile FeliCa 2.0"
+  },
+  {
+    "ic": "11",
+    "name": "Mobile FeliCa 2.0"
+  },
+  {
+    "ic": "12",
+    "name": "Mobile FeliCa 2.0"
+  },
+  {
+    "ic": "13",
+    "name": "Mobile FeliCa 2.0"
+  },
+  {
+    "ic": "14",
+    "name": "Mobile FeliCa 3.0"
+  },
+  {
+    "ic": "15",
+    "name": "Mobile FeliCa 3.0"
+  },
+  {
+    "ic": "16",
+    "name": "Mobile FeliCa 4.0 for Apple Wallet"
+  },
+  {
+    "ic": "17",
+    "name": "Mobile FeliCa 4.0"
+  },
+  {
+    "ic": "18",
+    "name": "Mobile FeliCa 4.1"
+  },
+  {
+    "ic": "19",
+    "name": "Mobile FeliCa 4.1"
+  },
+  {
+    "ic": "1A",
+    "name": "Mobile FeliCa 4.1"
+  },
+  {
+    "ic": "1B",
+    "name": "Mobile FeliCa 4.1"
+  },
+  {
+    "ic": "1C",
+    "name": "Mobile FeliCa 4.1"
+  },
+  {
+    "ic": "1D",
+    "name": "Mobile FeliCa 4.1"
+  },
+  {
+    "ic": "1E",
+    "name": "Mobile FeliCa 4.1"
+  },
+  {
+    "ic": "1F",
+    "name": "Mobile FeliCa 4.1"
+  },
+  {
+    "ic": "20",
+    "name": "RC-S962"
+  },
+  {
+    "ic": "24",
+    "rom": "02",
+    "name": "FeliCa Standard China/Hong Kong version"
+  },
+  {
+    "ic": "31",
+    "name": "RC-S114"
+  },
+  {
+    "ic": "31",
+    "rom": "05",
+    "name": "RC-S1XX"
+  },
+  {
+    "ic": "31",
+    "rom": "06",
+    "name": "RC-S1XX for regional collaboration"
+  },
+  {
+    "ic": "32",
+    "rom": "03",
+    "name": "RC-SA00/1"
+  },
+  {
+    "ic": "33",
+    "rom": "03",
+    "name": "RC-SA00/2"
+  },
+  {
+    "ic": "34",
+    "rom": "03",
+    "name": "RC-SA01/1"
+  },
+  {
+    "ic": "35",
+    "rom": "03",
+    "name": "RC-SA01/2"
+  },
+  {
+    "ic": "36",
+    "rom": "01",
+    "name": "RC-SA04/1"
+  },
+  {
+    "ic": "3E",
+    "name": "RC-SA08/1"
+  },
+  {
+    "ic": "3E",
+    "rom": "03",
+    "name": "RC-SA08/X"
+  },
+  {
+    "ic": "43",
+    "rom": "01",
+    "name": "RC-SA24/1-3x"
+  },
+  {
+    "ic": "44",
+    "rom": "01",
+    "name": "RC-SA20/1-3x"
+  },
+  {
+    "ic": "45",
+    "rom": "01",
+    "name": "RC-SA20/2-4x"
+  },
+  {
+    "ic": "46",
+    "rom": "01",
+    "name": "RC-SA21/2x"
+  },
+  {
+    "ic": "47",
+    "rom": "01",
+    "name": "RC-SA24/1-3x1"
+  },
+  {
+    "ic": "48",
+    "rom": "01",
+    "name": "RC-SA21/2x1"
+  },
+  {
+    "ic": "4B",
+    "rom": "02",
+    "name": "RC-SA28/1x"
+  },
+  {
+    "ic": "A2",
+    "name": "RC-SA14"
+  },
+  {
+    "ic": "E0",
+    "name": "RC-S926 FeliCa Plug"
+  },
+  {
+    "ic": "E1",
+    "name": "RC-S967 in Plug Mode"
+  },
+  {
+    "ic": "F0",
+    "name": "RC-S965 FeliCa Lite"
+  },
+  {
+    "ic": "F1",
+    "name": "RC-S966 FeliCa Lite-S"
+  },
+  {
+    "ic": "F2",
+    "name": "RC-S967 in Lite-S Mode"
+  },
+  {
+    "ic": "FF",
+    "name": "RC-S967 in NFC-DEP Mode"
+  }
+]

@@ -54,6 +54,7 @@ import com.kormax.felicatool.ui.ScanResultsOverview
 import com.kormax.felicatool.ui.StepStatus
 import com.kormax.felicatool.ui.components.StepsList
 import com.kormax.felicatool.ui.theme.FeliCaToolTheme
+import com.kormax.felicatool.util.IcTypeRegistry
 import com.kormax.felicatool.util.NodeRegistry
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -155,8 +156,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         lifecycleScope.launch(Dispatchers.IO) {
-            runCatching { NodeRegistry.ensureReady() }
-                .onFailure { Log.w(TAG, "Failed to preload node metadata", it) }
+            runCatching {
+                NodeRegistry.ensureReady()
+                IcTypeRegistry.ensureReady()
+            }.onFailure { Log.w(TAG, "Failed to preload shared metadata", it) }
         }
 
         isBackgroundReadingEnabled = readerPreferences.getBoolean(KEY_BACKGROUND_READING, false)

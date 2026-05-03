@@ -9,7 +9,7 @@ import com.kormax.felicatool.felica.System
 import com.kormax.felicatool.service.CardScanContext
 import com.kormax.felicatool.service.CommandSupport
 import com.kormax.felicatool.service.SystemScanContext
-import com.kormax.felicatool.util.IcTypeMapping
+import com.kormax.felicatool.util.IcTypeRegistry
 import com.kormax.felicatool.util.NodeDefinitionType
 import com.kormax.felicatool.util.NodeRegistry
 import com.kormax.felicatool.util.ServiceIconCatalog
@@ -24,7 +24,11 @@ data class ScanOverviewModel(
     val commandSupportSections: List<ScanOverviewCommandSection>,
 )
 
-data class ScanOverviewField(val label: String, val value: String)
+data class ScanOverviewField(
+    val label: String,
+    val value: String,
+    val role: ScanOverviewChipRole = ScanOverviewChipRole.DEFAULT,
+)
 
 data class ScanOverviewProvider(
     val name: String,
@@ -164,9 +168,22 @@ object ScanOverviewModelBuilder {
                 add(
                     ScanOverviewField(
                         "IC",
-                        IcTypeMapping.getFormattedIcType(pmm.icType),
+                        "0x${pmm.icType.toUByte().toString(16).uppercase().padStart(2, '0')}",
                     )
                 )
+                IcTypeRegistry.resolveIcType(pmm.icType, pmm.romType)?.let { resolution ->
+                    add(
+                        ScanOverviewField(
+                            "IC Type",
+                            if (resolution.isUncertain) "${resolution.name}?" else resolution.name,
+                            if (resolution.isUncertain) {
+                                ScanOverviewChipRole.WARNING
+                            } else {
+                                ScanOverviewChipRole.DEFAULT
+                            },
+                        )
+                    )
+                }
             }
             scanContext.primarySystemCode?.let {
                 add(ScanOverviewField("Primary System Code", it.toHexString()))

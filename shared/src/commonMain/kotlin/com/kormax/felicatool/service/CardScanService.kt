@@ -8,7 +8,7 @@ import com.kormax.felicatool.service.logging.CommunicationLoggedFeliCaTarget
 import com.kormax.felicatool.ui.CardScanStep
 import com.kormax.felicatool.ui.StepStatus
 import com.kormax.felicatool.util.EmptyNodeMetadataProvider
-import com.kormax.felicatool.util.IcTypeMapping
+import com.kormax.felicatool.util.IcTypeRegistry
 import com.kormax.felicatool.util.NodeDefinitionType
 import com.kormax.felicatool.util.NodeMetadataProvider
 import kotlin.time.TimeSource
@@ -1234,6 +1234,8 @@ class CardScanService(
     }
 
     private suspend fun executeInitialInfo(target: FeliCaTarget): String {
+        IcTypeRegistry.ensureReady()
+
         // Use the PMM from the target (already obtained during creation)
         val pmm = target.pmm
         val idmHex = target.idm.toHexString()
@@ -1252,7 +1254,10 @@ class CardScanService(
                 appendLine("PMM Information:")
                 appendLine("  Raw PMM: ${pmm.toString()}")
                 appendLine("  ROM Type: 0x${byteToHex(pmm.romType)}")
-                appendLine("  IC Type: ${IcTypeMapping.getFormattedIcType(pmm.icType)}")
+                appendLine("  IC Type: 0x${byteToHex(pmm.icType)}")
+                IcTypeRegistry.getIcName(pmm.icType, pmm.romType)?.let { icTypeName ->
+                    appendLine("  IC Type Name: $icTypeName")
+                }
                 appendLine()
                 appendLine("Timeout Multipliers (ms):")
                 appendLine(

@@ -31,7 +31,7 @@ import com.kormax.felicatool.felica.IllegalNumberErrorPreference
 import com.kormax.felicatool.service.CardScanContext
 import com.kormax.felicatool.service.CommandSupport
 import com.kormax.felicatool.service.SystemScanContext
-import com.kormax.felicatool.util.IcTypeMapping
+import com.kormax.felicatool.util.IcTypeRegistry
 import com.kormax.felicatool.util.NodeDefinitionType
 import com.kormax.felicatool.util.NodeRegistry
 import com.kormax.felicatool.util.ServiceIconMapper
@@ -176,9 +176,11 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
 
                 // PMM
                 context.pmm?.let { pmm ->
+                    val icTypeResolution = IcTypeRegistry.resolveIcType(pmm.icType, pmm.romType)
                     CompactInfoRow(label = "PMM", value = pmm.toHexString())
-                    Row(
+                    FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
                         modifier = Modifier.padding(vertical = 4.dp),
                     ) {
                         InfoChip(
@@ -186,7 +188,20 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                             value =
                                 "0x${pmm.romType.toUByte().toString(16).uppercase().padStart(2, '0')}",
                         )
-                        InfoChip(label = "IC", value = IcTypeMapping.getFormattedIcType(pmm.icType))
+                        InfoChip(
+                            label = "IC",
+                            value =
+                                "0x${pmm.icType.toUByte().toString(16).uppercase().padStart(2, '0')}",
+                        )
+                        icTypeResolution?.let { resolution ->
+                            InfoChip(
+                                label = "IC Type",
+                                value =
+                                    if (resolution.isUncertain) "${resolution.name}?"
+                                    else resolution.name,
+                                isWarning = resolution.isUncertain,
+                            )
+                        }
                     }
                 }
 
@@ -1184,10 +1199,12 @@ private fun InfoChip(
     value: String,
     isSuccessful: Boolean = false,
     isHighlight: Boolean = false,
+    isWarning: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     val backgroundColor =
         when {
+            isWarning -> MaterialTheme.colorScheme.errorContainer
             isSuccessful -> MaterialTheme.colorScheme.primaryContainer
             isHighlight -> MaterialTheme.colorScheme.secondaryContainer
             else -> MaterialTheme.colorScheme.surfaceVariant
@@ -1195,6 +1212,7 @@ private fun InfoChip(
 
     val contentColor =
         when {
+            isWarning -> MaterialTheme.colorScheme.onErrorContainer
             isSuccessful -> MaterialTheme.colorScheme.onPrimaryContainer
             isHighlight -> MaterialTheme.colorScheme.onSecondaryContainer
             else -> MaterialTheme.colorScheme.onSurfaceVariant
