@@ -53,14 +53,34 @@ This application enables users to:
 
 # Project Structure
 
+* `shared` - Kotlin Multiplatform library for platform-neutral code and reusable resources:
+  * Core FeliCa protocol models and entities;
+  * Command validators and parsers;
+  * Response validators and parsers;
+  * Protocol constants and enumerations;
+  * Shared scan orchestration, analysis, and service metadata.
+* `androidApp` - Android application containing:
+  * Android NFC reader integration;
+  * Android application entry points;
+  * Compose UI components;
+  * Android-specific export and asset lookup helpers.
+* `assets` - Project screenshots and README media.
+
+Within the Android app:
+* `felica` - Android-specific FeliCa target implementation;
+* `nfc` - Android NFC reader integration;
+* `ui` - Android Compose screens and components;
+* `util` - Android export and resource-mapping helpers.
+
+Within the shared module:
 * `felica` - Core FeliCa protocol implementation containing:
   * Protocol models and entities;
   * Command classes validators & parsers;
   * Response classes validators & parsers;
   * Protocol constants and enumerations.
-* `service` - Application business logic (scanning, analysis);
-* `ui` - User interface components;
-* `util` - Helper functions and extensions for data processing.
+* `service` / `overview` - Shared scan orchestration, logs, and overview models;
+* `util` - Shared metadata, grouping, and service-provider catalogs;
+* `ui` - Shared scan-step model data.
 
 
 # Supported FeliCa Commands
@@ -108,7 +128,7 @@ Most models used in the project have comprehensive data parsing tests.
 
 Run tests using:
 ```bash
-./gradlew :app:testDebugUnitTest --info
+./gradlew :androidApp:testDebugUnitTest --info
 ```
 
 
@@ -116,7 +136,17 @@ Run tests using:
 
 Build and install the debug version:
 ```bash
-./gradlew :app:installDebug
+./gradlew :androidApp:installDebug
+```
+
+Build the shared Android artifact:
+```bash
+./gradlew :shared:assemble
+```
+
+Build the Android debug APK and shared library:
+```bash
+./gradlew :androidApp:assembleDebug :shared:assemble
 ```
 
 
@@ -127,8 +157,8 @@ Build and install the debug version:
 * Add testing for some more commands with unknown meaning;
 * Add support for FALP commands (need hardware to test on);
 * Implement support for DES authentication commands (WIP, waiting for an ability to properly test Authentication2);
-* Support external readers (PN532, PCSC);
-* Add desktop (macOS, Linux, Windows) support by moving over to Compose Multiplatform;
+* (WIP) Support external readers (PN532, PCSC);
+* (WIP) Add desktop (macOS, Linux, Windows) support by moving over to Compose Multiplatform;
 * Add root-related functionality:
   * An ability to emulate a FeliCa standard card;
   * Support for commands with two-byte codes, some of which may only be available on wired interface, while communicating with the embedded Osaifu-Keitai applet or chip.

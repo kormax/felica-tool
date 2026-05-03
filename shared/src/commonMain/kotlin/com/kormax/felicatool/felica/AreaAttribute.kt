@@ -1,0 +1,45 @@
+package com.kormax.felicatool.felica
+
+/** Represents an Area Attribute in the FeliCa file system. */
+sealed class AreaAttribute(
+    override val value: Int,
+    open val canCreateSubArea: Boolean,
+    open val pinRequired: Boolean,
+) : NodeAttribute {
+    data object CanCreateSubArea :
+        AreaAttribute(0b000000, true, false) // Area that can create Sub-Area
+
+    data object CannotCreateSubArea :
+        AreaAttribute(0b000001, false, false) // Area that cannot create Sub-Area
+
+    data object CanCreateSubAreaWithPin :
+        AreaAttribute(0b100000, true, true) // Area that can create Sub-Area with PIN access
+
+    data object CannotCreateSubAreaWithPin :
+        AreaAttribute(0b100001, false, true) // Area that cannot create Sub-Area with PIN access
+
+    // First bit for end code of root area is 0
+    data object EndRootArea : AreaAttribute(0b111110, false, false)
+
+    data object EndSubArea : AreaAttribute(0b111111, false, false)
+
+    /** Captures an attribute value that is not yet recognized by this client. */
+    data class Unknown(override val value: Int) : AreaAttribute(value, false, false)
+
+    companion object {
+        val entries: List<AreaAttribute> by lazy {
+            listOf(
+                CanCreateSubArea,
+                CannotCreateSubArea,
+                CanCreateSubAreaWithPin,
+                CannotCreateSubAreaWithPin,
+                EndRootArea,
+                EndSubArea,
+            )
+        }
+
+        private val knownByValue: Map<Int, AreaAttribute> by lazy { entries.associateBy { it.value } }
+
+        fun fromValue(value: Int): AreaAttribute = knownByValue[value] ?: Unknown(value)
+    }
+}

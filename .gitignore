@@ -13,8 +13,7 @@
 .externalNativeBuild
 .cxx
 local.properties
-.kotlin/errors
-./app/release/
-./app/build/
-/annotations/build
-/processors/build
+/.kotlin/
+/androidApp/release/
+/androidApp/build/
+/shared/build/
