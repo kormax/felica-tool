@@ -1,8 +1,10 @@
 package com.kormax.felicatool.felica
 
+import android.nfc.TagLostException as AndroidTagLostException
 import android.nfc.tech.NfcF
 import android.util.Log
 import com.kormax.felicatool.nfc.AnotherTagDiscoveredException
+import com.kormax.felicatool.nfc.TagLostException
 import com.kormax.felicatool.nfc.TagRediscoveredException
 import kotlin.time.Duration
 
@@ -93,8 +95,18 @@ class AndroidFeliCaTarget(
         } catch (e: Exception) {
             ensureSessionActive()
             throwPendingReaderException()
-            Log.e(TAG, "Transceive failed", e)
-            throw e
+            val mappedException =
+                if (
+                    e is AndroidTagLostException ||
+                        (e is SecurityException &&
+                            e.message?.contains("out of date", ignoreCase = true) == true)
+                ) {
+                    TagLostException(e)
+                } else {
+                    e
+                }
+            Log.e(TAG, "Transceive failed", mappedException)
+            throw mappedException
         }
     }
 

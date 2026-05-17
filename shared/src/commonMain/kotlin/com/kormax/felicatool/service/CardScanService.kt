@@ -2,6 +2,7 @@ package com.kormax.felicatool.service
 
 import com.kormax.felicatool.felica.*
 import com.kormax.felicatool.nfc.AnotherTagDiscoveredException
+import com.kormax.felicatool.nfc.TagLostException
 import com.kormax.felicatool.nfc.TagRediscoveredException
 import com.kormax.felicatool.service.logging.CommunicationLogEntry
 import com.kormax.felicatool.service.logging.CommunicationLoggedFeliCaTarget
@@ -11,7 +12,10 @@ import com.kormax.felicatool.util.EmptyNodeMetadataProvider
 import com.kormax.felicatool.util.IcTypeRegistry
 import com.kormax.felicatool.util.NodeDefinitionType
 import com.kormax.felicatool.util.NodeMetadataProvider
+import kotlin.time.DurationUnit
 import kotlin.time.TimeSource
+import kotlin.time.toDuration
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 
 /** Context class to store discovered card data across multiple scan steps */
@@ -143,6 +147,8 @@ class CardScanService(
         const val CARD_LOST_MESSAGE = "Card lost during scan - scan terminated"
         private const val PRESENCE_CHECK_ATTEMPTS = 3
         private const val PRESENCE_CHECK_RETRY_DELAY_STEP_MS = 50L
+        private const val RETRY_ATTEMPTS = 3
+        private const val RETRY_DELAY_STEP_MS = 10L
         private const val NO_SERVICES_AVAILABLE = "No services available"
         private const val NO_SERVICES_WITHOUT_AUTHENTICATION =
             "No services found that don't require authentication"
@@ -906,22 +912,23 @@ class CardScanService(
     ): String {
         val testTarget =
             findReadWithoutEncryptionTestTarget(allowAuthenticationRequiredFallback = true)
-        pollSystemCode(target, testTarget.systemContext.systemCode)
 
-        val command =
-            ReadWithoutEncryptionCommand(
-                idm = target.idm,
-                serviceCodes = arrayOf(testTarget.service.code),
-                blockListElements =
-                    arrayOf(
-                        BlockListElement(
-                            serviceCodeListOrder = 0,
-                            blockNumber = testTarget.blockNumber,
-                        )
-                    ),
+        val response =
+            executeWithRetries(
+                target,
+                ReadWithoutEncryptionCommand(
+                    idm = target.idm,
+                    serviceCodes = arrayOf(testTarget.service.code),
+                    blockListElements =
+                        arrayOf(
+                            BlockListElement(
+                                serviceCodeListOrder = 0,
+                                blockNumber = testTarget.blockNumber,
+                            )
+                        ),
+                ),
+                systemCode = testTarget.systemContext.systemCode,
             )
-
-        val response = target.transceive(command)
         markReadWithoutEncryptionSupported()
 
         val systemCodeHex = testTarget.systemContext.systemCode?.toHexString() ?: "unknown"
@@ -1037,9 +1044,7 @@ class CardScanService(
                 val tagLostForGood =
                     when {
                         e is TagRediscoveredException -> false
-                        e::class.simpleName == "TagLostException" -> false
-                        e::class.simpleName == "SecurityException" ->
-                            e.message?.contains("out of date", ignoreCase = true) == true
+                        e is TagLostException -> false
                         else -> true
                     }
                 lastException = e
@@ -1066,6 +1071,44 @@ class CardScanService(
         }
 
         return lastException
+    }
+
+    private suspend fun <T : FelicaResponse> executeWithRetries(
+        target: FeliCaTarget,
+        command: FelicaCommand<T>,
+        systemCode: ByteArray? = null,
+        maxAttempts: Int = RETRY_ATTEMPTS,
+        retryDelayStepMs: Long = RETRY_DELAY_STEP_MS,
+    ): T {
+        val commandLabel = command::class.simpleName ?: "FeliCa command"
+        var lastException: Exception? = null
+
+        for (attempt in 1..maxAttempts) {
+            try {
+                systemCode?.let { pollSystemCode(target, it) }
+                val retryTimeoutExtension =
+                    (retryDelayStepMs * (attempt - 1)).toDuration(DurationUnit.MILLISECONDS)
+                return target.transceive(
+                    command,
+                    target.inferTimeout(command) + retryTimeoutExtension,
+                )
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: TagRediscoveredException) {
+                throw e
+            } catch (e: AnotherTagDiscoveredException) {
+                throw e
+            } catch (e: Exception) {
+                lastException = e
+                if (attempt >= maxAttempts) {
+                    break
+                }
+
+                ScanLog.w("CardScanService", "$commandLabel attempt $attempt failed; retrying", e)
+            }
+        }
+
+        throw lastException ?: RuntimeException("$commandLabel failed without an exception")
     }
 
     suspend fun executeStep(
@@ -1534,8 +1577,7 @@ class CardScanService(
     }
 
     private suspend fun executeRequestResponse(target: FeliCaTarget): String {
-        val requestResponseCommand = RequestResponseCommand(target.idm)
-        val requestResponseResponse = target.transceive(requestResponseCommand)
+        val requestResponseResponse = executeWithRetries(target, RequestResponseCommand(target.idm))
 
         val mode = requestResponseResponse.mode
 
@@ -1547,8 +1589,8 @@ class CardScanService(
     }
 
     private suspend fun executeRequestSystemCode(target: FeliCaTarget): String {
-        val requestSystemCodeCommand = RequestSystemCodeCommand(target.idm)
-        val requestSystemCodeResponse = target.transceive(requestSystemCodeCommand)
+        val requestSystemCodeResponse =
+            executeWithRetries(target, RequestSystemCodeCommand(target.idm))
 
         // Handle special system codes and ensure system contexts exist
         val updatedSystemContexts =
@@ -1868,11 +1910,14 @@ class CardScanService(
 
     private suspend fun executeRequestCodeList(target: FeliCaTarget): String {
         val systemContext = scanContext.systemScanContexts.firstOrNull()
-        pollSystemCode(target, systemContext?.systemCode)
 
         val index = 1
-        val requestCodeListCommand = RequestCodeListCommand(target.idm, Area.ROOT, index)
-        val requestCodeListResponse = target.transceive(requestCodeListCommand)
+        val requestCodeListResponse =
+            executeWithRetries(
+                target,
+                RequestCodeListCommand(target.idm, Area.ROOT, index),
+                systemCode = systemContext?.systemCode,
+            )
         val systemCodeHex = systemCodeLabel(systemContext?.systemCode)
 
         return buildString {
@@ -1896,11 +1941,14 @@ class CardScanService(
 
     private suspend fun executeSearchServiceCode(target: FeliCaTarget): String {
         val systemContext = scanContext.systemScanContexts.firstOrNull()
-        pollSystemCode(target, systemContext?.systemCode)
 
         val index = 0
-        val searchServiceCodeCommand = SearchServiceCodeCommand(target.idm, index)
-        val searchServiceCodeResponse = target.transceive(searchServiceCodeCommand)
+        val searchServiceCodeResponse =
+            executeWithRetries(
+                target,
+                SearchServiceCodeCommand(target.idm, index),
+                systemCode = systemContext?.systemCode,
+            )
         val systemCodeHex = systemCodeLabel(systemContext?.systemCode)
         val node = searchServiceCodeResponse.node
 
@@ -2209,10 +2257,13 @@ class CardScanService(
 
     private suspend fun executeRequestServiceDetermineSupported(target: FeliCaTarget): String {
         val systemContext = scanContext.systemScanContexts.firstOrNull()
-        pollSystemCode(target, systemContext?.systemCode)
 
-        val requestServiceCommand = RequestServiceCommand(target.idm, arrayOf(System.code))
-        val requestServiceResponse = target.transceive(requestServiceCommand)
+        val requestServiceResponse =
+            executeWithRetries(
+                target,
+                RequestServiceCommand(target.idm, arrayOf(System.code)),
+                systemCode = systemContext?.systemCode,
+            )
         val keyVersion = requestServiceResponse.keyVersions.first()
 
         return buildString {
@@ -2512,10 +2563,13 @@ class CardScanService(
 
     private suspend fun executeRequestServiceV2DetermineSupported(target: FeliCaTarget): String {
         val systemContext = scanContext.systemScanContexts.firstOrNull()
-        pollSystemCode(target, systemContext?.systemCode)
 
-        val requestServiceV2Command = RequestServiceV2Command(target.idm, arrayOf(System.code))
-        val requestServiceV2Response = target.transceive(requestServiceV2Command)
+        val requestServiceV2Response =
+            executeWithRetries(
+                target,
+                RequestServiceV2Command(target.idm, arrayOf(System.code)),
+                systemCode = systemContext?.systemCode,
+            )
         val aesKeyVersion = requestServiceV2Response.aesKeyVersions.firstOrNull()
         val desKeyVersion = requestServiceV2Response.desKeyVersions.firstOrNull()
 
