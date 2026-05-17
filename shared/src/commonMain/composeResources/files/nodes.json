@@ -8265,9 +8265,10 @@
         "code": "01008b00",
         "parent": "0000feff",
         "name": "DESUCA",
-        "service_provider": "DESUCA",
+        "service_provider": "SHIKOKU",
         "cards": [
-          "DESUCA"
+          "DESUCA",
+          "IYOTETSU"
         ],
         "mediums": [
           "CARD"
@@ -8277,8 +8278,9 @@
         "code": "0100bf00",
         "parent": "0000feff",
         "name": "Iyotetsu",
-        "service_provider": "IYOTETSU",
+        "service_provider": "SHIKOKU",
         "cards": [
+          "DESUCA",
           "IYOTETSU"
         ],
         "mediums": [
@@ -8289,9 +8291,10 @@
         "code": "0800",
         "parent": "01008b00",
         "name": null,
-        "service_provider": "DESUCA",
+        "service_provider": "SHIKOKU",
         "cards": [
-          "DESUCA"
+          "DESUCA",
+          "IYOTETSU"
         ],
         "mediums": [
           "CARD"
@@ -8301,8 +8304,9 @@
         "code": "0800",
         "parent": "0100bf00",
         "name": null,
-        "service_provider": "IYOTETSU",
+        "service_provider": "SHIKOKU",
         "cards": [
+          "DESUCA",
           "IYOTETSU"
         ],
         "mediums": [
@@ -8313,9 +8317,10 @@
         "code": "0a00",
         "parent": "01008b00",
         "name": null,
-        "service_provider": "DESUCA",
+        "service_provider": "SHIKOKU",
         "cards": [
-          "DESUCA"
+          "DESUCA",
+          "IYOTETSU"
         ],
         "mediums": [
           "CARD"
@@ -8325,8 +8330,9 @@
         "code": "0a00",
         "parent": "0100bf00",
         "name": null,
-        "service_provider": "IYOTETSU",
+        "service_provider": "SHIKOKU",
         "cards": [
+          "DESUCA",
           "IYOTETSU"
         ],
         "mediums": [
@@ -8336,10 +8342,11 @@
       {
         "code": "0b00",
         "parent": "01008b00",
-        "name": "DESUCA attributes",
-        "service_provider": "DESUCA",
+        "name": "Shokoku attributes",
+        "service_provider": "SHIKOKU",
         "cards": [
-          "DESUCA"
+          "DESUCA",
+          "IYOTETSU"
         ],
         "mediums": [
           "CARD"
@@ -8348,9 +8355,10 @@
       {
         "code": "0b00",
         "parent": "0100bf00",
-        "name": "Iyotetsu attributes",
-        "service_provider": "IYOTETSU",
+        "name": "Shokoku attributes",
+        "service_provider": "SHIKOKU",
         "cards": [
+          "DESUCA",
           "IYOTETSU"
         ],
         "mediums": [
@@ -8361,9 +8369,10 @@
         "code": "0c00",
         "parent": "01008b00",
         "name": null,
-        "service_provider": "DESUCA",
+        "service_provider": "SHIKOKU",
         "cards": [
-          "DESUCA"
+          "DESUCA",
+          "IYOTETSU"
         ],
         "mediums": [
           "CARD"
@@ -8373,8 +8382,9 @@
         "code": "0c00",
         "parent": "0100bf00",
         "name": null,
-        "service_provider": "IYOTETSU",
+        "service_provider": "SHIKOKU",
         "cards": [
+          "DESUCA",
           "IYOTETSU"
         ],
         "mediums": [
@@ -8385,9 +8395,10 @@
         "code": "0e00",
         "parent": "01008b00",
         "name": null,
-        "service_provider": "DESUCA",
+        "service_provider": "SHIKOKU",
         "cards": [
-          "DESUCA"
+          "DESUCA",
+          "IYOTETSU"
         ],
         "mediums": [
           "CARD"
@@ -8397,8 +8408,9 @@
         "code": "0e00",
         "parent": "0100bf00",
         "name": null,
-        "service_provider": "IYOTETSU",
+        "service_provider": "SHIKOKU",
         "cards": [
+          "DESUCA",
           "IYOTETSU"
         ],
         "mediums": [
@@ -8408,10 +8420,11 @@
       {
         "code": "0f00",
         "parent": "01008b00",
-        "name": "DESUCA usage history",
-        "service_provider": "DESUCA",
+        "name": "Shokoku usage history",
+        "service_provider": "SHIKOKU",
         "cards": [
-          "DESUCA"
+          "DESUCA",
+          "IYOTETSU"
         ],
         "mediums": [
           "CARD"
@@ -8420,9 +8433,10 @@
       {
         "code": "0f00",
         "parent": "0100bf00",
-        "name": "Iyotetsu usage history",
-        "service_provider": "IYOTETSU",
+        "name": "Shokoku usage history",
+        "service_provider": "SHIKOKU",
         "cards": [
+          "DESUCA",
           "IYOTETSU"
         ],
         "mediums": [
@@ -8433,9 +8447,10 @@
         "code": "4800",
         "parent": "01008b00",
         "name": null,
-        "service_provider": "DESUCA",
+        "service_provider": "SHIKOKU",
         "cards": [
-          "DESUCA"
+          "DESUCA",
+          "IYOTETSU"
         ],
         "mediums": [
           "CARD"
@@ -8445,8 +8460,9 @@
         "code": "4800",
         "parent": "0100bf00",
         "name": null,
-        "service_provider": "IYOTETSU",
+        "service_provider": "SHIKOKU",
         "cards": [
+          "DESUCA",
           "IYOTETSU"
         ],
         "mediums": [
@@ -8457,9 +8473,10 @@
         "code": "4a00",
         "parent": "01008b00",
         "name": null,
-        "service_provider": "DESUCA",
+        "service_provider": "SHIKOKU",
         "cards": [
-          "DESUCA"
+          "DESUCA",
+          "IYOTETSU"
         ],
         "mediums": [
           "CARD"
@@ -8469,8 +8486,9 @@
         "code": "4a00",
         "parent": "0100bf00",
         "name": null,
-        "service_provider": "IYOTETSU",
+        "service_provider": "SHIKOKU",
         "cards": [
+          "DESUCA",
           "IYOTETSU"
         ],
         "mediums": [
@@ -8480,10 +8498,11 @@
       {
         "code": "4b00",
         "parent": "01008b00",
-        "name": "DESUCA commuter pass info",
-        "service_provider": "DESUCA",
+        "name": "Shokoku commuter pass info",
+        "service_provider": "SHIKOKU",
         "cards": [
-          "DESUCA"
+          "DESUCA",
+          "IYOTETSU"
         ],
         "mediums": [
           "CARD"
@@ -8492,9 +8511,10 @@
       {
         "code": "4b00",
         "parent": "0100bf00",
-        "name": "Iyotetsu commuter pass info",
-        "service_provider": "IYOTETSU",
+        "name": "Shokoku commuter pass info",
+        "service_provider": "SHIKOKU",
         "cards": [
+          "DESUCA",
           "IYOTETSU"
         ],
         "mediums": [
@@ -8505,9 +8525,10 @@
         "code": "8800",
         "parent": "01008b00",
         "name": null,
-        "service_provider": "DESUCA",
+        "service_provider": "SHIKOKU",
         "cards": [
-          "DESUCA"
+          "DESUCA",
+          "IYOTETSU"
         ],
         "mediums": [
           "CARD"
@@ -8517,8 +8538,9 @@
         "code": "8800",
         "parent": "0100bf00",
         "name": null,
-        "service_provider": "IYOTETSU",
+        "service_provider": "SHIKOKU",
         "cards": [
+          "DESUCA",
           "IYOTETSU"
         ],
         "mediums": [
@@ -8529,9 +8551,10 @@
         "code": "8a00",
         "parent": "01008b00",
         "name": null,
-        "service_provider": "DESUCA",
+        "service_provider": "SHIKOKU",
         "cards": [
-          "DESUCA"
+          "DESUCA",
+          "IYOTETSU"
         ],
         "mediums": [
           "CARD"
@@ -8541,8 +8564,9 @@
         "code": "8a00",
         "parent": "0100bf00",
         "name": null,
-        "service_provider": "IYOTETSU",
+        "service_provider": "SHIKOKU",
         "cards": [
+          "DESUCA",
           "IYOTETSU"
         ],
         "mediums": [
@@ -8553,9 +8577,10 @@
         "code": "8b00",
         "parent": "01008b00",
         "name": null,
-        "service_provider": "DESUCA",
+        "service_provider": "SHIKOKU",
         "cards": [
-          "DESUCA"
+          "DESUCA",
+          "IYOTETSU"
         ],
         "mediums": [
           "CARD"
@@ -8565,8 +8590,9 @@
         "code": "8b00",
         "parent": "0100bf00",
         "name": null,
-        "service_provider": "IYOTETSU",
+        "service_provider": "SHIKOKU",
         "cards": [
+          "DESUCA",
           "IYOTETSU"
         ],
         "mediums": [
@@ -14227,7 +14253,9 @@
       "HCMC_SINGLE",
       "KARTU_SINGLE_TRIP",
       "KONAMI",
-      "MTR_TICKET"
+      "MOBIRY_DAYS",
+      "MTR_TICKET",
+      "SHIBATA_BUSDOKUPAY"
     ],
     "nodes": [
       {
@@ -14244,7 +14272,9 @@
           "HCMC_SINGLE",
           "KARTU_SINGLE_TRIP",
           "KONAMI",
-          "MTR_TICKET"
+          "MOBIRY_DAYS",
+          "MTR_TICKET",
+          "SHIBATA_BUSDOKUPAY"
         ],
         "mediums": [
           "CARD"
@@ -14264,7 +14294,9 @@
           "HCMC_SINGLE",
           "KARTU_SINGLE_TRIP",
           "KONAMI",
-          "MTR_TICKET"
+          "MOBIRY_DAYS",
+          "MTR_TICKET",
+          "SHIBATA_BUSDOKUPAY"
         ],
         "mediums": [
           "CARD"
@@ -14302,7 +14334,9 @@
           "HCMC_SINGLE",
           "KARTU_SINGLE_TRIP",
           "KONAMI",
-          "MTR_TICKET"
+          "MOBIRY_DAYS",
+          "MTR_TICKET",
+          "SHIBATA_BUSDOKUPAY"
         ],
         "mediums": [
           "CARD"
@@ -14329,9 +14363,10 @@
     ]
   },
   "8b43": {
-    "name": "NorucA",
-    "service_provider": "NORUCA",
+    "name": "Fukushima",
+    "service_provider": "FUKUSHIMA",
     "cards": [
+      "AIZU_NORUCA",
       "NORUCA"
     ],
     "nodes": [
@@ -14339,8 +14374,9 @@
         "code": "0000feff",
         "parent": null,
         "name": null,
-        "service_provider": "NORUCA",
+        "service_provider": "FUKUSHIMA",
         "cards": [
+          "AIZU_NORUCA",
           "NORUCA"
         ],
         "mediums": [
@@ -14351,8 +14387,9 @@
         "code": "00807f92",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "NORUCA",
+        "service_provider": "FUKUSHIMA",
         "cards": [
+          "AIZU_NORUCA",
           "NORUCA"
         ],
         "mediums": [
@@ -14363,8 +14400,9 @@
         "code": "4080bf80",
         "parent": "00807f92",
         "name": null,
-        "service_provider": "NORUCA",
+        "service_provider": "FUKUSHIMA",
         "cards": [
+          "AIZU_NORUCA",
           "NORUCA"
         ],
         "mediums": [
@@ -14375,8 +14413,9 @@
         "code": "4880",
         "parent": "4080bf80",
         "name": null,
-        "service_provider": "NORUCA",
+        "service_provider": "FUKUSHIMA",
         "cards": [
+          "AIZU_NORUCA",
           "NORUCA"
         ],
         "mediums": [
@@ -14387,8 +14426,9 @@
         "code": "4a80",
         "parent": "4080bf80",
         "name": null,
-        "service_provider": "NORUCA",
+        "service_provider": "FUKUSHIMA",
         "cards": [
+          "AIZU_NORUCA",
           "NORUCA"
         ],
         "mediums": [
@@ -14399,8 +14439,9 @@
         "code": "4b80",
         "parent": "4080bf80",
         "name": null,
-        "service_provider": "NORUCA",
+        "service_provider": "FUKUSHIMA",
         "cards": [
+          "AIZU_NORUCA",
           "NORUCA"
         ],
         "mediums": [
@@ -14411,8 +14452,9 @@
         "code": "8880",
         "parent": "4080bf80",
         "name": null,
-        "service_provider": "NORUCA",
+        "service_provider": "FUKUSHIMA",
         "cards": [
+          "AIZU_NORUCA",
           "NORUCA"
         ],
         "mediums": [
@@ -14423,8 +14465,9 @@
         "code": "8a80",
         "parent": "4080bf80",
         "name": null,
-        "service_provider": "NORUCA",
+        "service_provider": "FUKUSHIMA",
         "cards": [
+          "AIZU_NORUCA",
           "NORUCA"
         ],
         "mediums": [
@@ -14435,8 +14478,9 @@
         "code": "40887f88",
         "parent": "00807f92",
         "name": null,
-        "service_provider": "NORUCA",
+        "service_provider": "FUKUSHIMA",
         "cards": [
+          "AIZU_NORUCA",
           "NORUCA"
         ],
         "mediums": [
@@ -14447,8 +14491,9 @@
         "code": "4888",
         "parent": "40887f88",
         "name": null,
-        "service_provider": "NORUCA",
+        "service_provider": "FUKUSHIMA",
         "cards": [
+          "AIZU_NORUCA",
           "NORUCA"
         ],
         "mediums": [
@@ -14459,8 +14504,9 @@
         "code": "4a88",
         "parent": "40887f88",
         "name": null,
-        "service_provider": "NORUCA",
+        "service_provider": "FUKUSHIMA",
         "cards": [
+          "AIZU_NORUCA",
           "NORUCA"
         ],
         "mediums": [
@@ -14471,8 +14517,9 @@
         "code": "4b88",
         "parent": "40887f88",
         "name": null,
-        "service_provider": "NORUCA",
+        "service_provider": "FUKUSHIMA",
         "cards": [
+          "AIZU_NORUCA",
           "NORUCA"
         ],
         "mediums": [
@@ -14483,8 +14530,9 @@
         "code": "8089bf89",
         "parent": "00807f92",
         "name": null,
-        "service_provider": "NORUCA",
+        "service_provider": "FUKUSHIMA",
         "cards": [
+          "AIZU_NORUCA",
           "NORUCA"
         ],
         "mediums": [
@@ -14495,8 +14543,9 @@
         "code": "8c89",
         "parent": "8089bf89",
         "name": null,
-        "service_provider": "NORUCA",
+        "service_provider": "FUKUSHIMA",
         "cards": [
+          "AIZU_NORUCA",
           "NORUCA"
         ],
         "mediums": [
@@ -14507,8 +14556,9 @@
         "code": "8e89",
         "parent": "8089bf89",
         "name": null,
-        "service_provider": "NORUCA",
+        "service_provider": "FUKUSHIMA",
         "cards": [
+          "AIZU_NORUCA",
           "NORUCA"
         ],
         "mediums": [
@@ -14519,8 +14569,9 @@
         "code": "8f89",
         "parent": "8089bf89",
         "name": null,
-        "service_provider": "NORUCA",
+        "service_provider": "FUKUSHIMA",
         "cards": [
+          "AIZU_NORUCA",
           "NORUCA"
         ],
         "mediums": [
@@ -14531,8 +14582,9 @@
         "code": "c08aff8a",
         "parent": "00807f92",
         "name": null,
-        "service_provider": "NORUCA",
+        "service_provider": "FUKUSHIMA",
         "cards": [
+          "AIZU_NORUCA",
           "NORUCA"
         ],
         "mediums": [
@@ -14543,8 +14595,9 @@
         "code": "c88a",
         "parent": "c08aff8a",
         "name": null,
-        "service_provider": "NORUCA",
+        "service_provider": "FUKUSHIMA",
         "cards": [
+          "AIZU_NORUCA",
           "NORUCA"
         ],
         "mediums": [
@@ -14555,8 +14608,9 @@
         "code": "ca8a",
         "parent": "c08aff8a",
         "name": null,
-        "service_provider": "NORUCA",
+        "service_provider": "FUKUSHIMA",
         "cards": [
+          "AIZU_NORUCA",
           "NORUCA"
         ],
         "mediums": [
@@ -14567,8 +14621,9 @@
         "code": "40927f92",
         "parent": "00807f92",
         "name": null,
-        "service_provider": "NORUCA",
+        "service_provider": "FUKUSHIMA",
         "cards": [
+          "AIZU_NORUCA",
           "NORUCA"
         ],
         "mediums": [
@@ -14579,8 +14634,9 @@
         "code": "4892",
         "parent": "40927f92",
         "name": null,
-        "service_provider": "NORUCA",
+        "service_provider": "FUKUSHIMA",
         "cards": [
+          "AIZU_NORUCA",
           "NORUCA"
         ],
         "mediums": [
@@ -14591,8 +14647,9 @@
         "code": "4a92",
         "parent": "40927f92",
         "name": null,
-        "service_provider": "NORUCA",
+        "service_provider": "FUKUSHIMA",
         "cards": [
+          "AIZU_NORUCA",
           "NORUCA"
         ],
         "mediums": [
@@ -14603,8 +14660,9 @@
         "code": "4b92",
         "parent": "40927f92",
         "name": null,
-        "service_provider": "NORUCA",
+        "service_provider": "FUKUSHIMA",
         "cards": [
+          "AIZU_NORUCA",
           "NORUCA"
         ],
         "mediums": [
@@ -16103,8 +16161,8 @@
     ]
   },
   "8db6": {
-    "name": "ASACA / DoCard",
-    "service_provider": "ASACA_DOCARD",
+    "name": "Asahikawa",
+    "service_provider": "ASAHIKAWA",
     "cards": [
       "ASACA",
       "DOCARD"
@@ -16114,7 +16172,7 @@
         "code": "0000feff",
         "parent": null,
         "name": null,
-        "service_provider": "ASACA_DOCARD",
+        "service_provider": "ASAHIKAWA",
         "cards": [
           "ASACA",
           "DOCARD"
@@ -16127,7 +16185,7 @@
         "code": "4000bf00",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "ASACA_DOCARD",
+        "service_provider": "ASAHIKAWA",
         "cards": [
           "ASACA",
           "DOCARD"
@@ -16140,7 +16198,7 @@
         "code": "4800",
         "parent": "4000bf00",
         "name": null,
-        "service_provider": "ASACA_DOCARD",
+        "service_provider": "ASAHIKAWA",
         "cards": [
           "ASACA",
           "DOCARD"
@@ -16153,7 +16211,7 @@
         "code": "4b00",
         "parent": "4000bf00",
         "name": null,
-        "service_provider": "ASACA_DOCARD",
+        "service_provider": "ASAHIKAWA",
         "cards": [
           "ASACA",
           "DOCARD"
@@ -16166,7 +16224,7 @@
         "code": "8800",
         "parent": "4000bf00",
         "name": null,
-        "service_provider": "ASACA_DOCARD",
+        "service_provider": "ASAHIKAWA",
         "cards": [
           "ASACA",
           "DOCARD"
@@ -16179,7 +16237,7 @@
         "code": "8b00",
         "parent": "4000bf00",
         "name": null,
-        "service_provider": "ASACA_DOCARD",
+        "service_provider": "ASAHIKAWA",
         "cards": [
           "ASACA",
           "DOCARD"
@@ -16192,7 +16250,7 @@
         "code": "00017f01",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "ASACA_DOCARD",
+        "service_provider": "ASAHIKAWA",
         "cards": [
           "ASACA",
           "DOCARD"
@@ -16205,7 +16263,7 @@
         "code": "0c01",
         "parent": "00017f01",
         "name": null,
-        "service_provider": "ASACA_DOCARD",
+        "service_provider": "ASAHIKAWA",
         "cards": [
           "ASACA",
           "DOCARD"
@@ -16218,7 +16276,7 @@
         "code": "0f01",
         "parent": "00017f01",
         "name": null,
-        "service_provider": "ASACA_DOCARD",
+        "service_provider": "ASAHIKAWA",
         "cards": [
           "ASACA",
           "DOCARD"
@@ -16231,7 +16289,7 @@
         "code": "4c01",
         "parent": "00017f01",
         "name": null,
-        "service_provider": "ASACA_DOCARD",
+        "service_provider": "ASAHIKAWA",
         "cards": [
           "ASACA",
           "DOCARD"
@@ -16244,7 +16302,7 @@
         "code": "4f01",
         "parent": "00017f01",
         "name": null,
-        "service_provider": "ASACA_DOCARD",
+        "service_provider": "ASAHIKAWA",
         "cards": [
           "ASACA",
           "DOCARD"
@@ -16257,7 +16315,7 @@
         "code": "00027f02",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "ASACA_DOCARD",
+        "service_provider": "ASAHIKAWA",
         "cards": [
           "ASACA",
           "DOCARD"
@@ -16270,7 +16328,7 @@
         "code": "0802",
         "parent": "00027f02",
         "name": null,
-        "service_provider": "ASACA_DOCARD",
+        "service_provider": "ASAHIKAWA",
         "cards": [
           "ASACA",
           "DOCARD"
@@ -16283,7 +16341,7 @@
         "code": "0b02",
         "parent": "00027f02",
         "name": null,
-        "service_provider": "ASACA_DOCARD",
+        "service_provider": "ASAHIKAWA",
         "cards": [
           "ASACA",
           "DOCARD"
@@ -16296,7 +16354,7 @@
         "code": "4802",
         "parent": "00027f02",
         "name": null,
-        "service_provider": "ASACA_DOCARD",
+        "service_provider": "ASAHIKAWA",
         "cards": [
           "ASACA",
           "DOCARD"
@@ -16309,7 +16367,7 @@
         "code": "4b02",
         "parent": "00027f02",
         "name": null,
-        "service_provider": "ASACA_DOCARD",
+        "service_provider": "ASAHIKAWA",
         "cards": [
           "ASACA",
           "DOCARD"
@@ -16322,7 +16380,7 @@
         "code": "0804",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "ASACA_DOCARD",
+        "service_provider": "ASAHIKAWA",
         "cards": [
           "ASACA",
           "DOCARD"
@@ -16335,7 +16393,7 @@
         "code": "0b04",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "ASACA_DOCARD",
+        "service_provider": "ASAHIKAWA",
         "cards": [
           "ASACA",
           "DOCARD"
@@ -16348,7 +16406,7 @@
         "code": "0808",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "ASACA_DOCARD",
+        "service_provider": "ASAHIKAWA",
         "cards": [
           "ASACA",
           "DOCARD"
@@ -16361,7 +16419,7 @@
         "code": "0b08",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "ASACA_DOCARD",
+        "service_provider": "ASAHIKAWA",
         "cards": [
           "ASACA",
           "DOCARD"
@@ -18820,6 +18878,447 @@
       }
     ]
   },
+  "90e3": {
+    "name": "Dhaka Mass Transit",
+    "service_provider": "DMTCL",
+    "cards": [
+      "MRT_PASS"
+    ],
+    "nodes": [
+      {
+        "code": "0000feff",
+        "parent": null,
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0010ff1f",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0811",
+        "parent": "0010ff1f",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0a11",
+        "parent": "0010ff1f",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0812",
+        "parent": "0010ff1f",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0a12",
+        "parent": "0010ff1f",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0813",
+        "parent": "0010ff1f",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0a13",
+        "parent": "0010ff1f",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "1014",
+        "parent": "0010ff1f",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "1214",
+        "parent": "0010ff1f",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "1614",
+        "parent": "0010ff1f",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0815",
+        "parent": "0010ff1f",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0a15",
+        "parent": "0010ff1f",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0020ff2f",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0021ff2f",
+        "parent": "0020ff2f",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0821",
+        "parent": "0021ff2f",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0a21",
+        "parent": "0021ff2f",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0c22",
+        "parent": "0021ff2f",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0f22",
+        "parent": "0021ff2f",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0823",
+        "parent": "0021ff2f",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0a23",
+        "parent": "0021ff2f",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0824",
+        "parent": "0021ff2f",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0a24",
+        "parent": "0021ff2f",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0c25",
+        "parent": "0021ff2f",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0f25",
+        "parent": "0021ff2f",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0826",
+        "parent": "0021ff2f",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0b26",
+        "parent": "0021ff2f",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0827",
+        "parent": "0021ff2f",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0a27",
+        "parent": "0021ff2f",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0828",
+        "parent": "0021ff2f",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0b28",
+        "parent": "0021ff2f",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0030ff3f",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0c30",
+        "parent": "0030ff3f",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0f30",
+        "parent": "0030ff3f",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0831",
+        "parent": "0030ff3f",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0a31",
+        "parent": "0030ff3f",
+        "name": null,
+        "service_provider": "DMTCL",
+        "cards": [
+          "MRT_PASS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      }
+    ]
+  },
   "9105": {
     "name": "Starbucks Touch",
     "service_provider": "STARBUCKS_TOUCH",
@@ -19356,6 +19855,315 @@
         "service_provider": "KMT_JELAJAH",
         "cards": [
           "KMT_JELAJAH"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      }
+    ]
+  },
+  "93ec": {
+    "name": null,
+    "service_provider": "NTASU",
+    "cards": [
+      "NTASU"
+    ],
+    "nodes": [
+      {
+        "code": "0000feff",
+        "parent": null,
+        "name": null,
+        "service_provider": "NTASU",
+        "cards": [
+          "NTASU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0010ff1f",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "NTASU",
+        "cards": [
+          "NTASU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4810",
+        "parent": "0010ff1f",
+        "name": null,
+        "service_provider": "NTASU",
+        "cards": [
+          "NTASU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4a10",
+        "parent": "0010ff1f",
+        "name": null,
+        "service_provider": "NTASU",
+        "cards": [
+          "NTASU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0020ff3f",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "NTASU",
+        "cards": [
+          "NTASU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4820",
+        "parent": "0020ff3f",
+        "name": null,
+        "service_provider": "NTASU",
+        "cards": [
+          "NTASU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4b20",
+        "parent": "0020ff3f",
+        "name": null,
+        "service_provider": "NTASU",
+        "cards": [
+          "NTASU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4830",
+        "parent": "0020ff3f",
+        "name": null,
+        "service_provider": "NTASU",
+        "cards": [
+          "NTASU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4b30",
+        "parent": "0020ff3f",
+        "name": null,
+        "service_provider": "NTASU",
+        "cards": [
+          "NTASU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0040ff4f",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "NTASU",
+        "cards": [
+          "NTASU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8840",
+        "parent": "0040ff4f",
+        "name": null,
+        "service_provider": "NTASU",
+        "cards": [
+          "NTASU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8b40",
+        "parent": "0040ff4f",
+        "name": null,
+        "service_provider": "NTASU",
+        "cards": [
+          "NTASU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0050ff6f",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "NTASU",
+        "cards": [
+          "NTASU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0850",
+        "parent": "0050ff6f",
+        "name": null,
+        "service_provider": "NTASU",
+        "cards": [
+          "NTASU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0b50",
+        "parent": "0050ff6f",
+        "name": null,
+        "service_provider": "NTASU",
+        "cards": [
+          "NTASU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0860",
+        "parent": "0050ff6f",
+        "name": null,
+        "service_provider": "NTASU",
+        "cards": [
+          "NTASU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0a60",
+        "parent": "0050ff6f",
+        "name": null,
+        "service_provider": "NTASU",
+        "cards": [
+          "NTASU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0070ff7f",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "NTASU",
+        "cards": [
+          "NTASU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0870",
+        "parent": "0070ff7f",
+        "name": null,
+        "service_provider": "NTASU",
+        "cards": [
+          "NTASU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0b70",
+        "parent": "0070ff7f",
+        "name": null,
+        "service_provider": "NTASU",
+        "cards": [
+          "NTASU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0080ff8f",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "NTASU",
+        "cards": [
+          "NTASU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "cc80",
+        "parent": "0080ff8f",
+        "name": null,
+        "service_provider": "NTASU",
+        "cards": [
+          "NTASU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "cf80",
+        "parent": "0080ff8f",
+        "name": null,
+        "service_provider": "NTASU",
+        "cards": [
+          "NTASU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "cca8",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "NTASU",
+        "cards": [
+          "NTASU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "cfa8",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "NTASU",
+        "cards": [
+          "NTASU"
         ],
         "mediums": [
           "CARD"
@@ -20089,6 +20897,21 @@
       }
     ]
   },
+  "957A": {
+    "name": "FeliCa Secure ID",
+    "service_provider": "FELICA_SECURE_ID",
+    "cards": [],
+    "nodes": [
+      {
+        "code": "0000feff",
+        "parent": null,
+        "name": null,
+        "service_provider": "FELICA_SECURE_ID",
+        "cards": [],
+        "mediums": []
+      }
+    ]
+  },
   "fe00": {
     "name": "FeliCa Networks Common Area",
     "service_provider": "FELICA_NETWORKS",
@@ -20127,6 +20950,7 @@
       "NIMOCA_ICAS",
       "NIMOCA_KUMAMOTO",
       "NOLBE",
+      "NTASU",
       "ODECA_NEW",
       "OKICA",
       "PASMO",
@@ -20183,6 +21007,7 @@
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NOLBE",
+          "NTASU",
           "ODECA_NEW",
           "OKICA",
           "PASMO",
@@ -21677,6 +22502,7 @@
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NOLBE",
+          "NTASU",
           "ODECA_NEW",
           "OKICA",
           "PASMO",
@@ -21724,6 +22550,7 @@
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NOLBE",
+          "NTASU",
           "ODECA_NEW",
           "OKICA",
           "PASMO",
@@ -21771,6 +22598,7 @@
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NOLBE",
+          "NTASU",
           "ODECA_NEW",
           "OKICA",
           "PASMO",
@@ -21818,6 +22646,7 @@
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NOLBE",
+          "NTASU",
           "ODECA_NEW",
           "OKICA",
           "PASMO",
@@ -21865,6 +22694,7 @@
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NOLBE",
+          "NTASU",
           "ODECA_NEW",
           "OKICA",
           "PASMO",
@@ -21912,6 +22742,7 @@
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NOLBE",
+          "NTASU",
           "ODECA_NEW",
           "OKICA",
           "PASMO",
@@ -21959,6 +22790,7 @@
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NOLBE",
+          "NTASU",
           "ODECA_NEW",
           "OKICA",
           "PASMO",
