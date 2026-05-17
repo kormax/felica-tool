@@ -5747,22 +5747,22 @@
           "CARD"
         ],
         "extra_blocks": {
-          "0E": "REG",
-          "80": "RC",
-          "81": "MAC",
-          "82": "ID",
-          "83": "D_ID",
-          "84": "SER_C",
-          "85": "SYS_C",
-          "86": "CKV",
-          "87": "CK",
-          "88": "MC",
-          "90": "WCNT",
-          "91": "MAC_A",
-          "92": "STATE",
-          "93": "EXKV",
-          "94": "EXK",
-          "A0": "CRC_CHECK"
+          "000E": "REG",
+          "0080": "RC",
+          "0081": "MAC",
+          "0082": "ID",
+          "0083": "D_ID",
+          "0084": "SER_C",
+          "0085": "SYS_C",
+          "0086": "CKV",
+          "0087": "CK",
+          "0088": "MC",
+          "0090": "WCNT",
+          "0091": "MAC_A",
+          "0092": "STATE",
+          "0093": "EXKV",
+          "0094": "EXK",
+          "00A0": "CRC_CHECK"
         }
       },
       {
@@ -5777,22 +5777,22 @@
           "CARD"
         ],
         "extra_blocks": {
-          "0E": "REG",
-          "80": "RC",
-          "81": "MAC",
-          "82": "ID",
-          "83": "D_ID",
-          "84": "SER_C",
-          "85": "SYS_C",
-          "86": "CKV",
-          "87": "CK",
-          "88": "MC",
-          "90": "WCNT",
-          "91": "MAC_A",
-          "92": "STATE",
-          "93": "EXKV",
-          "94": "EXK",
-          "A0": "CRC_CHECK"
+          "000E": "REG",
+          "0080": "RC",
+          "0081": "MAC",
+          "0082": "ID",
+          "0083": "D_ID",
+          "0084": "SER_C",
+          "0085": "SYS_C",
+          "0086": "CKV",
+          "0087": "CK",
+          "0088": "MC",
+          "0090": "WCNT",
+          "0091": "MAC_A",
+          "0092": "STATE",
+          "0093": "EXKV",
+          "0094": "EXK",
+          "00A0": "CRC_CHECK"
         }
       }
     ]
@@ -8342,10 +8342,70 @@
       {
         "code": "0b00",
         "parent": "01008b00",
+        "data": {
+          "0000": "^0ff0............................$"
+        },
+        "name": "DESUCA attributes",
+        "service_provider": "DESUCA",
+        "cards": [
+          "DESUCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0b00",
+        "parent": "01008b00",
+        "data": {
+          "0000": "^05d3............................$"
+        },
+        "name": "Iyotetsu attributes",
+        "service_provider": "IYOTETSU",
+        "cards": [
+          "IYOTETSU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0b00",
+        "parent": "01008b00",
         "name": "Shokoku attributes",
         "service_provider": "SHIKOKU",
         "cards": [
           "DESUCA",
+          "IYOTETSU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0b00",
+        "parent": "0100bf00",
+        "data": {
+          "0000": "^0ff0............................$"
+        },
+        "name": "DESUCA attributes",
+        "service_provider": "DESUCA",
+        "cards": [
+          "DESUCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0b00",
+        "parent": "0100bf00",
+        "data": {
+          "0000": "^05d3............................$"
+        },
+        "name": "Iyotetsu attributes",
+        "service_provider": "IYOTETSU",
+        "cards": [
           "IYOTETSU"
         ],
         "mediums": [
@@ -10566,7 +10626,7 @@
         "code": "00804b92",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "PASSCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "PASSCA"
         ],
@@ -10578,7 +10638,7 @@
         "code": "0080ff92",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "ECOMYCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "ECOMYCA"
         ],
@@ -10590,7 +10650,7 @@
         "code": "40803f88",
         "parent": "0080ff92",
         "name": null,
-        "service_provider": "ECOMYCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "ECOMYCA"
         ],
@@ -10602,7 +10662,7 @@
         "code": "40808a80",
         "parent": "00804b92",
         "name": null,
-        "service_provider": "PASSCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "PASSCA"
         ],
@@ -10614,7 +10674,7 @@
         "code": "4880",
         "parent": "40803f88",
         "name": null,
-        "service_provider": "ECOMYCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "ECOMYCA"
         ],
@@ -10626,7 +10686,7 @@
         "code": "4880",
         "parent": "40808a80",
         "name": null,
-        "service_provider": "PASSCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "PASSCA"
         ],
@@ -10638,7 +10698,7 @@
         "code": "4a80",
         "parent": "40803f88",
         "name": null,
-        "service_provider": "ECOMYCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "ECOMYCA"
         ],
@@ -10650,7 +10710,7 @@
         "code": "4a80",
         "parent": "40808a80",
         "name": null,
-        "service_provider": "PASSCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "PASSCA"
         ],
@@ -10661,6 +10721,9 @@
       {
         "code": "4b80",
         "parent": "40803f88",
+        "data": {
+          "0000": "^0367............................$"
+        },
         "name": "Ecomyca issuance information",
         "service_provider": "ECOMYCA",
         "cards": [
@@ -10672,7 +10735,22 @@
       },
       {
         "code": "4b80",
+        "parent": "40803f88",
+        "name": "Ecomyca issuance information",
+        "service_provider": "TOYAMA",
+        "cards": [
+          "ECOMYCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4b80",
         "parent": "40808a80",
+        "data": {
+          "0000": "^0d69............................$"
+        },
         "name": "Passca issuance information",
         "service_provider": "PASSCA",
         "cards": [
@@ -10683,10 +10761,22 @@
         ]
       },
       {
+        "code": "4b80",
+        "parent": "40808a80",
+        "name": "Passca issuance information",
+        "service_provider": "TOYAMA",
+        "cards": [
+          "PASSCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
         "code": "8880",
         "parent": "40803f88",
         "name": null,
-        "service_provider": "ECOMYCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "ECOMYCA"
         ],
@@ -10698,7 +10788,7 @@
         "code": "8880",
         "parent": "40808a80",
         "name": null,
-        "service_provider": "PASSCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "PASSCA"
         ],
@@ -10710,7 +10800,7 @@
         "code": "8a80",
         "parent": "40803f88",
         "name": null,
-        "service_provider": "ECOMYCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "ECOMYCA"
         ],
@@ -10722,7 +10812,7 @@
         "code": "8a80",
         "parent": "40808a80",
         "name": null,
-        "service_provider": "PASSCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "PASSCA"
         ],
@@ -10734,7 +10824,7 @@
         "code": "40884b88",
         "parent": "00804b92",
         "name": null,
-        "service_provider": "PASSCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "PASSCA"
         ],
@@ -10746,7 +10836,7 @@
         "code": "40887f89",
         "parent": "0080ff92",
         "name": null,
-        "service_provider": "ECOMYCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "ECOMYCA"
         ],
@@ -10758,7 +10848,7 @@
         "code": "4888",
         "parent": "40884b88",
         "name": null,
-        "service_provider": "PASSCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "PASSCA"
         ],
@@ -10770,7 +10860,7 @@
         "code": "4888",
         "parent": "40887f89",
         "name": null,
-        "service_provider": "ECOMYCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "ECOMYCA"
         ],
@@ -10782,7 +10872,7 @@
         "code": "4a88",
         "parent": "40884b88",
         "name": null,
-        "service_provider": "PASSCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "PASSCA"
         ],
@@ -10794,7 +10884,7 @@
         "code": "4a88",
         "parent": "40887f89",
         "name": null,
-        "service_provider": "ECOMYCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "ECOMYCA"
         ],
@@ -10805,8 +10895,8 @@
       {
         "code": "4b88",
         "parent": "40884b88",
-        "name": "Passca balance",
-        "service_provider": "PASSCA",
+        "name": "Toyama balance",
+        "service_provider": "TOYAMA",
         "cards": [
           "PASSCA"
         ],
@@ -10817,8 +10907,8 @@
       {
         "code": "4b88",
         "parent": "40887f89",
-        "name": "Ecomyca balance",
-        "service_provider": "ECOMYCA",
+        "name": "Toyama balance",
+        "service_provider": "TOYAMA",
         "cards": [
           "ECOMYCA"
         ],
@@ -10830,7 +10920,7 @@
         "code": "80898f89",
         "parent": "00804b92",
         "name": null,
-        "service_provider": "PASSCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "PASSCA"
         ],
@@ -10842,7 +10932,7 @@
         "code": "8089bf8a",
         "parent": "0080ff92",
         "name": null,
-        "service_provider": "ECOMYCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "ECOMYCA"
         ],
@@ -10854,7 +10944,7 @@
         "code": "8c89",
         "parent": "80898f89",
         "name": null,
-        "service_provider": "PASSCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "PASSCA"
         ],
@@ -10866,7 +10956,7 @@
         "code": "8c89",
         "parent": "8089bf8a",
         "name": null,
-        "service_provider": "ECOMYCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "ECOMYCA"
         ],
@@ -10878,7 +10968,7 @@
         "code": "8e89",
         "parent": "80898f89",
         "name": null,
-        "service_provider": "PASSCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "PASSCA"
         ],
@@ -10890,7 +10980,7 @@
         "code": "8e89",
         "parent": "8089bf8a",
         "name": null,
-        "service_provider": "ECOMYCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "ECOMYCA"
         ],
@@ -10901,8 +10991,8 @@
       {
         "code": "8f89",
         "parent": "80898f89",
-        "name": "Passca usage history",
-        "service_provider": "PASSCA",
+        "name": "Toyama usage history",
+        "service_provider": "TOYAMA",
         "cards": [
           "PASSCA"
         ],
@@ -10913,8 +11003,8 @@
       {
         "code": "8f89",
         "parent": "8089bf8a",
-        "name": "Ecomyca usage history",
-        "service_provider": "ECOMYCA",
+        "name": "Toyama usage history",
+        "service_provider": "TOYAMA",
         "cards": [
           "ECOMYCA"
         ],
@@ -10926,7 +11016,7 @@
         "code": "c08a3f92",
         "parent": "0080ff92",
         "name": null,
-        "service_provider": "ECOMYCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "ECOMYCA"
         ],
@@ -10938,7 +11028,7 @@
         "code": "c08aca8a",
         "parent": "00804b92",
         "name": null,
-        "service_provider": "PASSCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "PASSCA"
         ],
@@ -10950,7 +11040,7 @@
         "code": "c88a",
         "parent": "c08a3f92",
         "name": null,
-        "service_provider": "ECOMYCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "ECOMYCA"
         ],
@@ -10962,7 +11052,7 @@
         "code": "c88a",
         "parent": "c08aca8a",
         "name": null,
-        "service_provider": "PASSCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "PASSCA"
         ],
@@ -10974,7 +11064,7 @@
         "code": "ca8a",
         "parent": "c08a3f92",
         "name": null,
-        "service_provider": "ECOMYCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "ECOMYCA"
         ],
@@ -10986,7 +11076,7 @@
         "code": "ca8a",
         "parent": "c08aca8a",
         "name": null,
-        "service_provider": "PASSCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "PASSCA"
         ],
@@ -10998,7 +11088,7 @@
         "code": "40924b92",
         "parent": "00804b92",
         "name": null,
-        "service_provider": "PASSCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "PASSCA"
         ],
@@ -11010,7 +11100,7 @@
         "code": "4092ff92",
         "parent": "0080ff92",
         "name": null,
-        "service_provider": "ECOMYCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "ECOMYCA"
         ],
@@ -11022,7 +11112,7 @@
         "code": "4892",
         "parent": "40924b92",
         "name": null,
-        "service_provider": "PASSCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "PASSCA"
         ],
@@ -11034,7 +11124,7 @@
         "code": "4892",
         "parent": "4092ff92",
         "name": null,
-        "service_provider": "ECOMYCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "ECOMYCA"
         ],
@@ -11046,7 +11136,7 @@
         "code": "4a92",
         "parent": "40924b92",
         "name": null,
-        "service_provider": "PASSCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "PASSCA"
         ],
@@ -11058,7 +11148,7 @@
         "code": "4a92",
         "parent": "4092ff92",
         "name": null,
-        "service_provider": "ECOMYCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "ECOMYCA"
         ],
@@ -11070,7 +11160,7 @@
         "code": "4b92",
         "parent": "40924b92",
         "name": null,
-        "service_provider": "PASSCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "PASSCA"
         ],
@@ -11082,7 +11172,7 @@
         "code": "4b92",
         "parent": "4092ff92",
         "name": null,
-        "service_provider": "ECOMYCA",
+        "service_provider": "TOYAMA",
         "cards": [
           "ECOMYCA"
         ],
@@ -14255,7 +14345,8 @@
       "KONAMI",
       "MOBIRY_DAYS",
       "MTR_TICKET",
-      "SHIBATA_BUSDOKUPAY"
+      "NESICA",
+      "SHIBATA_BUSDOKOPAY"
     ],
     "nodes": [
       {
@@ -14274,7 +14365,8 @@
           "KONAMI",
           "MOBIRY_DAYS",
           "MTR_TICKET",
-          "SHIBATA_BUSDOKUPAY"
+          "NESICA",
+          "SHIBATA_BUSDOKOPAY"
         ],
         "mediums": [
           "CARD"
@@ -14296,28 +14388,227 @@
           "KONAMI",
           "MOBIRY_DAYS",
           "MTR_TICKET",
-          "SHIBATA_BUSDOKUPAY"
+          "NESICA",
+          "SHIBATA_BUSDOKOPAY"
         ],
         "mediums": [
           "CARD"
         ],
         "extra_blocks": {
-          "0E": "REG",
-          "80": "RC",
-          "81": "MAC",
-          "82": "ID",
-          "83": "D_ID",
-          "84": "SER_C",
-          "85": "SYS_C",
-          "86": "CKV",
-          "87": "CK",
-          "88": "MC",
-          "90": "WCNT",
-          "91": "MAC_A",
-          "92": "STATE",
-          "93": "EXKV",
-          "94": "EXK",
-          "A0": "CRC_CHECK"
+          "000E": "REG",
+          "0080": "RC",
+          "0081": "MAC",
+          "0082": "ID",
+          "0083": "D_ID",
+          "0084": "SER_C",
+          "0085": "SYS_C",
+          "0086": "CKV",
+          "0087": "CK",
+          "0088": "MC",
+          "0090": "WCNT",
+          "0091": "MAC_A",
+          "0092": "STATE",
+          "0093": "EXKV",
+          "0094": "EXK",
+          "00A0": "CRC_CHECK"
+        }
+      },
+      {
+        "code": "0b00",
+        "parent": "0000feff",
+        "data": {
+          "0082": "^................0068............$"
+        },
+        "name": "Konami E-Amusement",
+        "service_provider": "KONAMI",
+        "cards": [
+          "KONAMI"
+        ],
+        "mediums": [
+          "CARD"
+        ],
+        "extra_blocks": {
+          "000E": "REG",
+          "0080": "RC",
+          "0081": "MAC",
+          "0082": "ID",
+          "0083": "D_ID",
+          "0084": "SER_C",
+          "0085": "SYS_C",
+          "0086": "CKV",
+          "0087": "CK",
+          "0088": "MC",
+          "0090": "WCNT",
+          "0091": "MAC_A",
+          "0092": "STATE",
+          "0093": "EXKV",
+          "0094": "EXK",
+          "00A0": "CRC_CHECK"
+        }
+      },
+      {
+        "code": "0b00",
+        "parent": "0000feff",
+        "data": {
+          "0082": "^................0077............$"
+        },
+        "name": "EneKey",
+        "service_provider": "ENEKEY",
+        "cards": [
+          "ENEKEY"
+        ],
+        "mediums": [
+          "CARD"
+        ],
+        "extra_blocks": {
+          "000E": "REG",
+          "0080": "RC",
+          "0081": "MAC",
+          "0082": "ID",
+          "0083": "D_ID",
+          "0084": "SER_C",
+          "0085": "SYS_C",
+          "0086": "CKV",
+          "0087": "CK",
+          "0088": "MC",
+          "0090": "WCNT",
+          "0091": "MAC_A",
+          "0092": "STATE",
+          "0093": "EXKV",
+          "0094": "EXK",
+          "00A0": "CRC_CHECK"
+        }
+      },
+      {
+        "code": "0b00",
+        "parent": "0000feff",
+        "data": {
+          "0082": "^................0078............$"
+        },
+        "name": "Aime",
+        "service_provider": "AIME",
+        "cards": [
+          "AIME"
+        ],
+        "mediums": [
+          "CARD"
+        ],
+        "extra_blocks": {
+          "000E": "REG",
+          "0080": "RC",
+          "0081": "MAC",
+          "0082": "ID",
+          "0083": "D_ID",
+          "0084": "SER_C",
+          "0085": "SYS_C",
+          "0086": "CKV",
+          "0087": "CK",
+          "0088": "MC",
+          "0090": "WCNT",
+          "0091": "MAC_A",
+          "0092": "STATE",
+          "0093": "EXKV",
+          "0094": "EXK",
+          "00A0": "CRC_CHECK"
+        }
+      },
+      {
+        "code": "0b00",
+        "parent": "0000feff",
+        "data": {
+          "0082": "^................0079............$"
+        },
+        "name": "NESiCA",
+        "service_provider": "NESICA",
+        "cards": [
+          "NESICA"
+        ],
+        "mediums": [
+          "CARD"
+        ],
+        "extra_blocks": {
+          "000E": "REG",
+          "0080": "RC",
+          "0081": "MAC",
+          "0082": "ID",
+          "0083": "D_ID",
+          "0084": "SER_C",
+          "0085": "SYS_C",
+          "0086": "CKV",
+          "0087": "CK",
+          "0088": "MC",
+          "0090": "WCNT",
+          "0091": "MAC_A",
+          "0092": "STATE",
+          "0093": "EXKV",
+          "0094": "EXK",
+          "00A0": "CRC_CHECK"
+        }
+      },
+      {
+        "code": "0b00",
+        "parent": "0000feff",
+        "data": {
+          "0082": "^................002a............$"
+        },
+        "name": "Bandai Namco Passport",
+        "service_provider": "BANDAI",
+        "cards": [
+          "BANDAI"
+        ],
+        "mediums": [
+          "CARD"
+        ],
+        "extra_blocks": {
+          "000E": "REG",
+          "0080": "RC",
+          "0081": "MAC",
+          "0082": "ID",
+          "0083": "D_ID",
+          "0084": "SER_C",
+          "0085": "SYS_C",
+          "0086": "CKV",
+          "0087": "CK",
+          "0088": "MC",
+          "0090": "WCNT",
+          "0091": "MAC_A",
+          "0092": "STATE",
+          "0093": "EXKV",
+          "0094": "EXK",
+          "00A0": "CRC_CHECK"
+        }
+      },
+      {
+        "code": "0b00",
+        "parent": "0000feff",
+        "data": {
+          "0082": "^................0093............$"
+        },
+        "name": "Mobiry Days",
+        "service_provider": "MOBIRY_DAYS",
+        "cards": [
+          "MOBIRY_DAYS"
+        ],
+        "mediums": [
+          "CARD"
+        ],
+        "extra_blocks": {
+          "000E": "REG",
+          "0080": "RC",
+          "0081": "MAC",
+          "0082": "ID",
+          "0083": "D_ID",
+          "0084": "SER_C",
+          "0085": "SYS_C",
+          "0086": "CKV",
+          "0087": "CK",
+          "0088": "MC",
+          "0090": "WCNT",
+          "0091": "MAC_A",
+          "0092": "STATE",
+          "0093": "EXKV",
+          "0094": "EXK",
+          "00A0": "CRC_CHECK"
         }
       },
       {
@@ -14336,28 +14627,29 @@
           "KONAMI",
           "MOBIRY_DAYS",
           "MTR_TICKET",
-          "SHIBATA_BUSDOKUPAY"
+          "NESICA",
+          "SHIBATA_BUSDOKOPAY"
         ],
         "mediums": [
           "CARD"
         ],
         "extra_blocks": {
-          "0E": "REG",
-          "80": "RC",
-          "81": "MAC",
-          "82": "ID",
-          "83": "D_ID",
-          "84": "SER_C",
-          "85": "SYS_C",
-          "86": "CKV",
-          "87": "CK",
-          "88": "MC",
-          "90": "WCNT",
-          "91": "MAC_A",
-          "92": "STATE",
-          "93": "EXKV",
-          "94": "EXK",
-          "A0": "CRC_CHECK"
+          "000E": "REG",
+          "0080": "RC",
+          "0081": "MAC",
+          "0082": "ID",
+          "0083": "D_ID",
+          "0084": "SER_C",
+          "0085": "SYS_C",
+          "0086": "CKV",
+          "0087": "CK",
+          "0088": "MC",
+          "0090": "WCNT",
+          "0091": "MAC_A",
+          "0092": "STATE",
+          "0093": "EXKV",
+          "0094": "EXK",
+          "00A0": "CRC_CHECK"
         }
       }
     ]
@@ -14430,6 +14722,36 @@
         "cards": [
           "AIZU_NORUCA",
           "NORUCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4b80",
+        "parent": "4080bf80",
+        "data": {
+          "0000": "^0fc9............................$"
+        },
+        "name": "NorucA attributes",
+        "service_provider": "NORUCA",
+        "cards": [
+          "NORUCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4b80",
+        "parent": "4080bf80",
+        "data": {
+          "0000": "^0fca............................$"
+        },
+        "name": "Aizu NorucA attributes",
+        "service_provider": "AIZU_NORUCA",
+        "cards": [
+          "AIZU_NORUCA"
         ],
         "mediums": [
           "CARD"
@@ -16201,6 +16523,36 @@
         "service_provider": "ASAHIKAWA",
         "cards": [
           "ASACA",
+          "DOCARD"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4b00",
+        "parent": "4000bf00",
+        "data": {
+          "0000": "^0102............................$"
+        },
+        "name": "Asaca attributes",
+        "service_provider": "ASACA",
+        "cards": [
+          "ASACA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4b00",
+        "parent": "4000bf00",
+        "data": {
+          "0000": "^0103............................$"
+        },
+        "name": "DoCARD attributes",
+        "service_provider": "DOCARD",
+        "cards": [
           "DOCARD"
         ],
         "mediums": [
@@ -22847,13 +23199,13 @@
           "MOBILE"
         ],
         "extra_blocks": {
-          "00": "FKL_UID",
-          "01": "FKL_FF1",
-          "02": "FKL_FF2",
-          "03": "FKL_EXT",
-          "13": "IEL_ID",
-          "14": "MOVE_PERM",
-          "15": "IDM_PASS"
+          "0000": "FKL_UID",
+          "0001": "FKL_FF1",
+          "0002": "FKL_FF2",
+          "0003": "FKL_EXT",
+          "0013": "IEL_ID",
+          "0014": "MOVE_PERM",
+          "0015": "IDM_PASS"
         }
       },
       {
@@ -22927,9 +23279,9 @@
           "CARD"
         ],
         "extra_blocks": {
-          "00": "IEL_ID",
-          "08": "MOVE_PERM1",
-          "09": "MOVE_PERM2"
+          "0000": "IEL_ID",
+          "0008": "MOVE_PERM1",
+          "0009": "MOVE_PERM2"
         }
       },
       {

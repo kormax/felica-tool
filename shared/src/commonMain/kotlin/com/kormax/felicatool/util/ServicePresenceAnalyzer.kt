@@ -40,12 +40,14 @@ object ServicePresenceAnalyzer {
 
             systemContext.nodes.filterIsInstance<Service>().forEach { service ->
                 val parentCode = findContainingArea(service, systemContext)?.fullCode?.toHexString()
+                val blockData = systemContext.serviceBlockData[service]
                 val names =
                     NodeRegistry.getProvidersForNode(
                         systemCode,
                         service.code.toHexString(),
                         parentCode,
                         NodeDefinitionType.SERVICE,
+                        blockData = blockData,
                     )
                 if (names.isEmpty()) {
                     unknownServiceCount++

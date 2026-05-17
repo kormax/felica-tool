@@ -567,6 +567,7 @@ object ExportUtils {
                         node.fullCode.toHexString().uppercase(),
                         parentCode,
                         NodeDefinitionType.SERVICE,
+                        blockData = systemContext.serviceBlockData[node],
                     )
                 serviceName?.let { nodeJson.put("name", it) }
 

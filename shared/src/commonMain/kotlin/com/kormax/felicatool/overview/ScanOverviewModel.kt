@@ -244,6 +244,7 @@ object ScanOverviewModelBuilder {
 
     private fun buildSystem(systemContext: SystemScanContext): ScanOverviewSystem {
         val systemCode = systemContext.systemCode?.toHexString()?.uppercase() ?: "Unknown"
+        val distinctNodes = systemContext.nodes.distinct()
         val systemName =
             if (systemCode == "Unknown") {
                 null
@@ -252,8 +253,8 @@ object ScanOverviewModelBuilder {
             }
         val title =
             if (systemName != null) "System $systemCode - $systemName" else "System $systemCode"
-        val areas = systemContext.nodes.filterIsInstance<Area>().size
-        val services = systemContext.nodes.filterIsInstance<Service>().size
+        val areas = distinctNodes.filterIsInstance<Area>().size
+        val services = distinctNodes.filterIsInstance<Service>().size
         val hiddenNodes = systemContext.hiddenNodes.size
         val registryNodes = systemContext.registryPopulatedNodes.size
         val summary =
@@ -276,7 +277,7 @@ object ScanOverviewModelBuilder {
             title = title,
             summary = summary,
             providerIcons = providerIconsFor(systemProviderNames(systemCode)),
-            nodes = systemContext.nodes.map { buildNode(systemCode, systemContext, it) },
+            nodes = distinctNodes.map { buildNode(systemCode, systemContext, it) },
             nodeTree = buildNodeTree(systemCode, systemContext),
             serviceGroups =
                 ServiceGrouper.groupServices(systemContext).map { group ->
@@ -290,6 +291,8 @@ object ScanOverviewModelBuilder {
                     previousAreaHeaderId = areaHeader?.id
                     val parentCode = group.parentArea?.fullCode?.toHexString()
                     val primaryServiceCode = group.primaryService.code.toHexString()
+                    val primaryServiceBlockData =
+                        systemContext.serviceBlockData[group.primaryService]
                     val serviceName =
                         if (systemCode == "Unknown") {
                             null
@@ -299,6 +302,7 @@ object ScanOverviewModelBuilder {
                                 primaryServiceCode,
                                 parentCode,
                                 NodeDefinitionType.SERVICE,
+                                blockData = primaryServiceBlockData,
                             )
                         }
                     ScanOverviewServiceGroup(
@@ -331,6 +335,7 @@ object ScanOverviewModelBuilder {
                                     primaryServiceCode,
                                     parentCode,
                                     NodeDefinitionType.SERVICE,
+                                    blockData = primaryServiceBlockData,
                                 )
                             ),
                         areaHeader = emittedAreaHeader,
@@ -420,6 +425,7 @@ object ScanOverviewModelBuilder {
             }
             is Service -> {
                 val parentCode = findContainingArea(node, systemContext)?.fullCode?.toHexString()
+                val blockData = systemContext.serviceBlockData[node]
                 val nodeName =
                     if (systemCode == "Unknown") {
                         null
@@ -429,6 +435,7 @@ object ScanOverviewModelBuilder {
                             node.code.toHexString(),
                             parentCode,
                             NodeDefinitionType.SERVICE,
+                            blockData = blockData,
                         )
                     }
                 ScanOverviewNode(
@@ -451,6 +458,7 @@ object ScanOverviewModelBuilder {
                                 node.code.toHexString(),
                                 parentCode,
                                 NodeDefinitionType.SERVICE,
+                                blockData = blockData,
                             )
                         ),
                     chips = buildNodeChips(systemContext, node),
@@ -985,11 +993,12 @@ object ScanOverviewModelBuilder {
         nodeCode: String,
         parentCode: String?,
         type: NodeDefinitionType,
+        blockData: Map<Int, ByteArray>? = null,
     ): Set<String> {
         return if (systemCode == "Unknown") {
             emptySet()
         } else {
-            NodeRegistry.getProvidersForNode(systemCode, nodeCode, parentCode, type)
+            NodeRegistry.getProvidersForNode(systemCode, nodeCode, parentCode, type, blockData)
         }
     }
 

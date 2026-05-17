@@ -31,6 +31,7 @@ data class NodeDefinition(
     val type: NodeDefinitionType,
     val name: String? = null,
     val extraBlocks: Map<Int, String> = emptyMap(),
+    val blockDataPatterns: List<NodeBlockDataPattern> = emptyList(),
 )
 
 data class SystemDefinition(
@@ -38,6 +39,20 @@ data class SystemDefinition(
     val name: String?,
     val serviceProviders: Set<String>,
 )
+
+data class NodeBlockDataPattern(val blockNumber: Int, val pattern: String) {
+    private val regex = Regex(pattern, RegexOption.IGNORE_CASE)
+
+    fun matches(blockData: Map<Int, ByteArray>): Boolean {
+        val blockBytes = blockData[blockNumber] ?: return false
+        return regex.matches(blockBytes.toLowerHexString())
+    }
+
+    private fun ByteArray.toLowerHexString(): String =
+        joinToString(separator = "") { byte ->
+            (byte.toInt() and 0xFF).toString(16).padStart(2, '0')
+        }
+}
 
 enum class NodeDefinitionType {
     SYSTEM,

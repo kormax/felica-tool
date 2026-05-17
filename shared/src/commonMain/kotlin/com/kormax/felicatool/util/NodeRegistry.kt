@@ -55,6 +55,7 @@ object NodeRegistry : NodeMetadataProvider {
         nodeCode: String,
         parentCode: String?,
         type: NodeDefinitionType,
+        blockData: Map<Int, ByteArray>? = null,
     ): String? {
         val normalizedSystem = systemCode.uppercase()
         val normalizedCode = nodeCode.uppercase()
@@ -68,43 +69,14 @@ object NodeRegistry : NodeMetadataProvider {
         val matchingNodes = nodes.filter { definition ->
             definition.type == type && definition.code == normalizedCode
         }
-
         if (matchingNodes.isEmpty()) {
             return null
         }
 
-        if (normalizedParent == null) {
-            return matchingNodes.firstOrNull { it.name != null }?.name
-        }
-
-        val exactParentMatch = matchingNodes.find {
-            it.parent == normalizedParent && it.name != null
-        }
-        if (exactParentMatch != null) {
-            return exactParentMatch.name
-        }
-
-        val ancestorMatch = matchingNodes.find { definition ->
-            val definitionParent = definition.parent
-            definitionParent != null &&
-                definition.name != null &&
-                isAncestorOf(nodes, normalizedParent, definitionParent)
-        }
-        if (ancestorMatch != null) {
-            return ancestorMatch.name
-        }
-
-        val descendantMatch = matchingNodes.find { definition ->
-            val definitionParent = definition.parent
-            definitionParent != null &&
-                definition.name != null &&
-                isAncestorOf(nodes, definitionParent, normalizedParent)
-        }
-        if (descendantMatch != null) {
-            return descendantMatch.name
-        }
-
-        return matchingNodes.firstOrNull { it.name != null }?.name
+        return selectNameCandidates(nodes, matchingNodes, normalizedParent)
+            .applyBlockDataPatterns(type, blockData)
+            .firstOrNull { it.name != null }
+            ?.name
     }
 
     fun getSystemProviders(systemCode: String): Set<String> {
@@ -117,6 +89,7 @@ object NodeRegistry : NodeMetadataProvider {
         nodeCode: String,
         parentCode: String?,
         type: NodeDefinitionType,
+        blockData: Map<Int, ByteArray>? = null,
     ): Set<String> {
         val normalizedSystem = systemCode.uppercase()
         val normalizedCode = nodeCode.uppercase()
@@ -131,32 +104,10 @@ object NodeRegistry : NodeMetadataProvider {
             return emptySet()
         }
 
-        if (normalizedParent == null) {
-            return matchingNodes.flatMap { it.serviceProviders }.toSet()
-        }
-
-        val exactParentMatches = matchingNodes.filter { it.parent == normalizedParent }
-        if (exactParentMatches.isNotEmpty()) {
-            return exactParentMatches.flatMap { it.serviceProviders }.toSet()
-        }
-
-        val ancestorMatches = matchingNodes.filter { definition ->
-            val definitionParent = definition.parent
-            definitionParent != null && isAncestorOf(nodes, normalizedParent, definitionParent)
-        }
-        if (ancestorMatches.isNotEmpty()) {
-            return ancestorMatches.flatMap { it.serviceProviders }.toSet()
-        }
-
-        val descendantMatches = matchingNodes.filter { definition ->
-            val definitionParent = definition.parent
-            definitionParent != null && isAncestorOf(nodes, definitionParent, normalizedParent)
-        }
-        if (descendantMatches.isNotEmpty()) {
-            return descendantMatches.flatMap { it.serviceProviders }.toSet()
-        }
-
-        return matchingNodes.filter { it.parent == null }.flatMap { it.serviceProviders }.toSet()
+        return selectProviderCandidates(nodes, matchingNodes, normalizedParent)
+            .applyBlockDataPatterns(type, blockData)
+            .flatMap { it.serviceProviders }
+            .toSet()
     }
 
     override fun isReady(): Boolean = initialized
@@ -176,9 +127,114 @@ object NodeRegistry : NodeMetadataProvider {
         val normalizedCode = nodeCode.uppercase()
 
         val nodes = definitions[normalizedSystem] ?: return emptyMap()
-        val matchingNode = nodes.firstOrNull { definition -> definition.code == normalizedCode }
+        val extraBlocks = linkedMapOf<Int, String>()
+        nodes
+            .filter { definition ->
+                definition.type == NodeDefinitionType.SERVICE && definition.code == normalizedCode
+            }
+            .forEach { definition ->
+                definition.extraBlocks.forEach { (blockNumber, blockName) ->
+                    extraBlocks.putIfAbsent(blockNumber, blockName)
+                }
+            }
 
-        return matchingNode?.extraBlocks ?: emptyMap()
+        return extraBlocks
+    }
+
+    private fun selectNameCandidates(
+        nodes: List<NodeDefinition>,
+        matchingNodes: List<NodeDefinition>,
+        normalizedParent: String?,
+    ): List<NodeDefinition> {
+        if (normalizedParent == null) {
+            return matchingNodes
+        }
+
+        val exactParentMatches = matchingNodes.filter {
+            it.parent == normalizedParent && it.name != null
+        }
+        if (exactParentMatches.isNotEmpty()) {
+            return exactParentMatches
+        }
+
+        val ancestorMatches = matchingNodes.filter { definition ->
+            val definitionParent = definition.parent
+            definitionParent != null &&
+                definition.name != null &&
+                isAncestorOf(nodes, normalizedParent, definitionParent)
+        }
+        if (ancestorMatches.isNotEmpty()) {
+            return ancestorMatches
+        }
+
+        val descendantMatches = matchingNodes.filter { definition ->
+            val definitionParent = definition.parent
+            definitionParent != null &&
+                definition.name != null &&
+                isAncestorOf(nodes, definitionParent, normalizedParent)
+        }
+        if (descendantMatches.isNotEmpty()) {
+            return descendantMatches
+        }
+
+        return matchingNodes.filter { it.name != null }
+    }
+
+    private fun selectProviderCandidates(
+        nodes: List<NodeDefinition>,
+        matchingNodes: List<NodeDefinition>,
+        normalizedParent: String?,
+    ): List<NodeDefinition> {
+        if (normalizedParent == null) {
+            return matchingNodes
+        }
+
+        val exactParentMatches = matchingNodes.filter { it.parent == normalizedParent }
+        if (exactParentMatches.isNotEmpty()) {
+            return exactParentMatches
+        }
+
+        val ancestorMatches = matchingNodes.filter { definition ->
+            val definitionParent = definition.parent
+            definitionParent != null && isAncestorOf(nodes, normalizedParent, definitionParent)
+        }
+        if (ancestorMatches.isNotEmpty()) {
+            return ancestorMatches
+        }
+
+        val descendantMatches = matchingNodes.filter { definition ->
+            val definitionParent = definition.parent
+            definitionParent != null && isAncestorOf(nodes, definitionParent, normalizedParent)
+        }
+        if (descendantMatches.isNotEmpty()) {
+            return descendantMatches
+        }
+
+        return matchingNodes.filter { it.parent == null }
+    }
+
+    private fun List<NodeDefinition>.applyBlockDataPatterns(
+        type: NodeDefinitionType,
+        blockData: Map<Int, ByteArray>?,
+    ): List<NodeDefinition> {
+        if (type != NodeDefinitionType.SERVICE || isEmpty()) {
+            return this
+        }
+
+        val dataPatternDefinitions = filter { it.blockDataPatterns.isNotEmpty() }
+        if (dataPatternDefinitions.isEmpty()) {
+            return this
+        }
+
+        val genericDefinitions = filter { it.blockDataPatterns.isEmpty() }
+        if (blockData.isNullOrEmpty()) {
+            return genericDefinitions
+        }
+
+        val dataMatches = dataPatternDefinitions.filter { definition ->
+            definition.blockDataPatterns.all { pattern -> pattern.matches(blockData) }
+        }
+        return dataMatches.ifEmpty { genericDefinitions }
     }
 
     private fun isAncestorOf(
@@ -233,6 +289,7 @@ object NodeRegistry : NodeMetadataProvider {
                 val provider = nodeObject.optionalRegistryString("service_provider")
                 val providers = provider?.let { setOf(it) } ?: emptySet()
                 val extraBlocks = nodeObject.extraBlocks()
+                val blockDataPatterns = nodeObject.blockDataPatterns()
                 val type =
                     if (code.length > 4) NodeDefinitionType.AREA else NodeDefinitionType.SERVICE
 
@@ -244,6 +301,7 @@ object NodeRegistry : NodeMetadataProvider {
                         type = type,
                         name = name,
                         extraBlocks = extraBlocks,
+                        blockDataPatterns = blockDataPatterns,
                     )
             }
 
@@ -268,6 +326,19 @@ object NodeRegistry : NodeMetadataProvider {
                 }
             }
             .toMap()
+    }
+
+    private fun JsonObject.blockDataPatterns(): List<NodeBlockDataPattern> {
+        val dataObject = this["data"]?.jsonObject ?: return emptyList()
+        return dataObject.mapNotNull { (blockHex, patternElement) ->
+            val blockNumber = blockHex.toIntOrNull(16)
+            val pattern = patternElement.jsonPrimitive.contentOrNull?.trim()
+            if (blockNumber != null && !pattern.isNullOrBlank()) {
+                NodeBlockDataPattern(blockNumber, pattern)
+            } else {
+                null
+            }
+        }
     }
 
     private fun JsonObject.optionalRegistryString(key: String): String? {

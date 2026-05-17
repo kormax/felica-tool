@@ -81,7 +81,7 @@ object ServiceGrouper {
      * @return List of service groups, sorted by service number then type
      */
     fun groupServices(context: SystemScanContext): List<ServiceGroup> {
-        val services = context.nodes.filterIsInstance<Service>()
+        val services = context.nodes.filterIsInstance<Service>().distinct()
 
         val serviceToArea = services.associateWith { findContainingArea(it, context) }
 

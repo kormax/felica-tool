@@ -1349,7 +1349,13 @@ private fun resolveProviderIconResIds(
         if (node is System) {
             NodeRegistry.getSystemProviders(systemCode)
         } else {
-            NodeRegistry.getProvidersForNode(systemCode, nodeCode, parentCode, type)
+            NodeRegistry.getProvidersForNode(
+                systemCode,
+                nodeCode,
+                parentCode,
+                type,
+                blockData = if (node is Service) context.serviceBlockData[node] else null,
+            )
         }
     if (providers.isEmpty()) {
         return emptyList()
@@ -1419,7 +1425,13 @@ private fun getServiceNameFromNodeInfo(
     val serviceCode = service.code.toHexString().uppercase()
     val parentCode = parentArea?.fullCode?.toHexString()?.uppercase()
 
-    return NodeRegistry.getNodeName(systemCode, serviceCode, parentCode, NodeDefinitionType.SERVICE)
+    return NodeRegistry.getNodeName(
+        systemCode,
+        serviceCode,
+        parentCode,
+        NodeDefinitionType.SERVICE,
+        blockData = context.serviceBlockData[service],
+    )
 }
 
 private fun getNodeDisplayText(

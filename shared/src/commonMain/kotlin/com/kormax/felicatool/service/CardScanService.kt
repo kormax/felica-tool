@@ -2197,10 +2197,9 @@ class CardScanService(
                         nodes.add(node)
                     }
                 }
-                // Sort nodes by code (excluding System which will be prepended)
-                nodes.sortBy { it.number }
-                // Prepend System and root Area at the beginning
-                return listOf(System, Area.ROOT) + nodes
+                // Sort unique nodes by code (excluding System/root, which will be prepended).
+                val sortedNodes = nodes.distinct().sortedBy { it.number }
+                return normalizeDiscoveredNodes(sortedNodes)
             }
         }
 

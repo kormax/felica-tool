@@ -792,6 +792,7 @@ private fun resolveServiceGroupProviderIcons(
                 serviceCode,
                 parentCode,
                 NodeDefinitionType.SERVICE,
+                blockData = context.serviceBlockData[service],
             )
 
         val icons = providers.mapNotNull { ServiceIconMapper.iconFor(it) }
@@ -819,6 +820,7 @@ private fun getServiceGroupName(
                 serviceCode,
                 parentCode,
                 NodeDefinitionType.SERVICE,
+                blockData = context.serviceBlockData[service],
             )
         if (name != null) {
             return name
