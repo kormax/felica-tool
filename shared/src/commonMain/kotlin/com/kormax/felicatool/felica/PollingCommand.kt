@@ -17,10 +17,17 @@ class PollingCommand(
 
     /** Time Slot - specifies the time slot for anti-collision */
     val timeSlot: TimeSlot = TimeSlot.SLOT_1,
+
+    /** Non-standard bytes after the regular Polling command payload. */
+    val trailingData: ByteArray = ByteArray(0),
 ) : FelicaCommandWithoutIdm<PollingResponse>() {
 
     init {
         require(systemCode.size == 2) { "System code must be exactly 2 bytes" }
+        val frameLength = MIN_COMMAND_LENGTH + trailingData.size
+        require(frameLength <= MAX_FRAME_LENGTH) {
+            "Polling command frame length ($frameLength bytes) exceeds FeliCa frame length limit ($MAX_FRAME_LENGTH bytes)"
+        }
     }
 
     override val commandClass: CommandClass = Companion.COMMAND_CLASS
@@ -28,10 +35,11 @@ class PollingCommand(
     override fun responseFromByteArray(data: ByteArray) = PollingResponse.fromByteArray(data)
 
     override fun toByteArray(): ByteArray =
-        buildFelicaMessage(COMMAND_CODE, capacity = MIN_COMMAND_LENGTH) {
+        buildFelicaMessage(COMMAND_CODE, capacity = MIN_COMMAND_LENGTH + trailingData.size) {
             addBytes(systemCode)
             addByte(requestCode.value)
             addByte(timeSlot.value)
+            addBytes(trailingData)
         }
 
     companion object : CommandCompanion {
@@ -41,10 +49,16 @@ class PollingCommand(
         const val MIN_COMMAND_LENGTH: Int =
             FelicaCommandWithoutIdm.BASE_LENGTH +
                 4 // + system_code(2) + request_code(1) + time_slot(1)
+        const val MAX_FRAME_LENGTH: Int = FELICA_FRAME_MAX_LENGTH
 
         /** Parse a polling command from raw bytes */
         fun fromByteArray(data: ByteArray): PollingCommand =
-            parseFelicaCommandWithoutIdm(data, COMMAND_CODE, minLength = MIN_COMMAND_LENGTH) {
+            parseFelicaCommandWithoutIdm(
+                data,
+                COMMAND_CODE,
+                minLength = MIN_COMMAND_LENGTH,
+                maxLength = MAX_FRAME_LENGTH,
+            ) {
                 val systemCode = bytes(2)
 
                 val requestCodeValue = byte()
@@ -57,7 +71,9 @@ class PollingCommand(
                     TimeSlot.fromValue(timeSlotValue)
                         ?: throw IllegalArgumentException("Unknown time slot: $timeSlotValue")
 
-                PollingCommand(systemCode, requestCode, timeSlot)
+                val trailingData = bytes(remaining())
+
+                PollingCommand(systemCode, requestCode, timeSlot, trailingData)
             }
     }
 }

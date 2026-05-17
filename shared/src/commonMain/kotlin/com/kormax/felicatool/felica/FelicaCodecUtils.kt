@@ -2,6 +2,8 @@ package com.kormax.felicatool.felica
 
 import kotlin.math.max
 
+internal const val FELICA_FRAME_MAX_LENGTH = 255
+
 internal class ByteCursor(private val data: ByteArray) {
     var position: Int = 0
         private set

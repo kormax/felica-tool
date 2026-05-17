@@ -41,7 +41,39 @@ class PollingResponseTest {
         assertArrayEquals(IDM_F14011111111B660, response.idm)
         assertArrayEquals(PMM_01188B868FBECBFF, response.pmm)
         assertNull(response.requestData)
+        assertArrayEquals(ByteArray(0), response.trailingData)
         assertFalse(response.hasRequestData)
+    }
+
+    @Test
+    fun testPollingResponse_trailingData() {
+        val trailingData = "aa55".hexToByteArray()
+        val response =
+            PollingResponse(
+                IDM_F14011111111B660,
+                PMM_01188B868FBECBFF,
+                REQUEST_DATA_FE00,
+                trailingData,
+            )
+
+        assertArrayEquals(REQUEST_DATA_FE00, response.requestData)
+        assertArrayEquals(trailingData, response.trailingData)
+        assertArrayEquals(
+            "1601f14011111111b66001188b868fbecbfffe00aa55".hexToByteArray(),
+            response.toByteArray(),
+        )
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testPollingResponse_frameTooLong() {
+        PollingResponse(
+            IDM_F14011111111B660,
+            PMM_01188B868FBECBFF,
+            REQUEST_DATA_FE00,
+            ByteArray(
+                PollingResponse.MAX_FRAME_LENGTH - PollingResponse.LENGTH_WITH_REQUEST_DATA + 1
+            ),
+        )
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -77,6 +109,47 @@ class PollingResponseTest {
         assertArrayEquals(PMM_01188B868FBECBFF, response.pmm)
         assertNull(response.requestData)
         assertFalse(response.hasRequestData)
+    }
+
+    @Test
+    fun testFromByteArray_noRequestDataWithTrailingData() {
+        // 1301f14011111111b66001188b868fbecbffaa
+        val data = "1301f14011111111b66001188b868fbecbffaa".hexToByteArray()
+
+        val response = PollingResponse.fromByteArray(data)
+
+        assertArrayEquals(IDM_F14011111111B660, response.idm)
+        assertArrayEquals(PMM_01188B868FBECBFF, response.pmm)
+        assertNull(response.requestData)
+        assertArrayEquals("aa".hexToByteArray(), response.trailingData)
+        assertFalse(response.hasRequestData)
+    }
+
+    @Test
+    fun testFromByteArray_requestDataWithTrailingData() {
+        // 1501f14011111111b66001188b868fbecbfffe00aa
+        val data = "1501f14011111111b66001188b868fbecbfffe00aa".hexToByteArray()
+
+        val response = PollingResponse.fromByteArray(data)
+
+        assertArrayEquals(IDM_F14011111111B660, response.idm)
+        assertArrayEquals(PMM_01188B868FBECBFF, response.pmm)
+        assertArrayEquals(REQUEST_DATA_FE00, response.requestData)
+        assertArrayEquals("aa".hexToByteArray(), response.trailingData)
+        assertTrue(response.hasRequestData)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testFromByteArray_frameTooLong() {
+        val data =
+            ByteArray(PollingResponse.MAX_FRAME_LENGTH + 1).also {
+                it[0] = it.size.toByte()
+                it[1] = PollingResponse.RESPONSE_CODE.toByte()
+                IDM_F14011111111B660.copyInto(it, destinationOffset = 2)
+                PMM_01188B868FBECBFF.copyInto(it, destinationOffset = 10)
+            }
+
+        PollingResponse.fromByteArray(data)
     }
 
     @Test

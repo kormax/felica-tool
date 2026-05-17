@@ -46,10 +46,37 @@ class PollingCommandTest {
         assertEquals(TimeSlot.SLOT_1.value, bytes[5])
     }
 
+    @Test
+    fun testPollingCommand_trailingDataToByteArray() {
+        val trailingData = "55".hexToByteArray()
+        val command =
+            PollingCommand(SYSTEM_CODE_FE0F, RequestCode.NO_REQUEST, TimeSlot.SLOT_1, trailingData)
+        val bytes = command.toByteArray()
+
+        assertEquals(7, bytes.size)
+        assertEquals(7.toByte(), bytes[0])
+        assertEquals(PollingCommand.COMMAND_CODE.toByte(), bytes[1])
+        assertEquals(SYSTEM_CODE_FE0F[0], bytes[2])
+        assertEquals(SYSTEM_CODE_FE0F[1], bytes[3])
+        assertEquals(RequestCode.NO_REQUEST.value, bytes[4])
+        assertEquals(TimeSlot.SLOT_1.value, bytes[5])
+        assertEquals(trailingData[0], bytes[6])
+    }
+
     @Test(expected = IllegalArgumentException::class)
     fun testPollingCommand_invalidSystemCodeSize() {
         val invalidSystemCode = byteArrayOf(0x01.toByte()) // Too short
         PollingCommand(invalidSystemCode, RequestCode.NO_REQUEST, TimeSlot.SLOT_1)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testPollingCommand_frameTooLong() {
+        PollingCommand(
+            SYSTEM_CODE_FE0F,
+            RequestCode.NO_REQUEST,
+            TimeSlot.SLOT_1,
+            ByteArray(PollingCommand.MAX_FRAME_LENGTH - PollingCommand.MIN_COMMAND_LENGTH + 1),
+        )
     }
 
     @Test
@@ -62,6 +89,34 @@ class PollingCommandTest {
         assertArrayEquals(SYSTEM_CODE_FE0F, command.systemCode)
         assertEquals(RequestCode.NO_REQUEST, command.requestCode)
         assertEquals(TimeSlot.SLOT_1, command.timeSlot)
+    }
+
+    @Test
+    fun testFromByteArray_trailingData() {
+        // 0800fe0f0000aabb
+        val data = "0800fe0f0000aabb".hexToByteArray()
+
+        val command = PollingCommand.fromByteArray(data)
+
+        assertArrayEquals(SYSTEM_CODE_FE0F, command.systemCode)
+        assertEquals(RequestCode.NO_REQUEST, command.requestCode)
+        assertEquals(TimeSlot.SLOT_1, command.timeSlot)
+        assertArrayEquals("aabb".hexToByteArray(), command.trailingData)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testFromByteArray_frameTooLong() {
+        val data =
+            ByteArray(PollingCommand.MAX_FRAME_LENGTH + 1).also {
+                it[0] = it.size.toByte()
+                it[1] = PollingCommand.COMMAND_CODE.toByte()
+                it[2] = SYSTEM_CODE_FE0F[0]
+                it[3] = SYSTEM_CODE_FE0F[1]
+                it[4] = RequestCode.NO_REQUEST.value
+                it[5] = TimeSlot.SLOT_1.value
+            }
+
+        PollingCommand.fromByteArray(data)
     }
 
     @Test

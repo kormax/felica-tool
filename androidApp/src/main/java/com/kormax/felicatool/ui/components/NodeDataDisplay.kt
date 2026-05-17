@@ -447,6 +447,14 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                             "Polling (Communication Performance)",
                             context.pollingCommunicationPerformanceSupport,
                         )
+                        context.pollingCommandTrailingDataSupported?.let { supported ->
+                            InfoChip(
+                                label = "Polling with trailing data",
+                                value = if (supported) "supported" else "not supported",
+                                isSuccessful = supported,
+                                isWarning = !supported,
+                            )
+                        }
                         CommandSupportChip("Request Response", context.requestResponseSupport)
                         CommandSupportChip("Request System Code", context.requestSystemCodeSupport)
                         CommandSupportChip(

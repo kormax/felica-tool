@@ -188,6 +188,19 @@ object ScanOverviewModelBuilder {
             scanContext.primarySystemCode?.let {
                 add(ScanOverviewField("Primary System Code", it.toHexString()))
             }
+            scanContext.pollingCommandTrailingDataSupported?.let { supported ->
+                add(
+                    ScanOverviewField(
+                        "Polling - Trailing Data Supported",
+                        if (supported) "Supported" else "Not supported",
+                        if (supported) {
+                            ScanOverviewChipRole.SUCCESS
+                        } else {
+                            ScanOverviewChipRole.WARNING
+                        },
+                    )
+                )
+            }
             scanContext.platformInformation?.let { platformInformation ->
                 if (
                     platformInformation.success &&

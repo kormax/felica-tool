@@ -69,6 +69,14 @@ data class CardScanStep(
                 )
                 add(
                     CardScanStep(
+                        id = "polling_determine_trailing_data_supported",
+                        title = "Polling - Trailing Data Supported",
+                        description = "Check whether polling responds with trailing data bytes",
+                        icon = ScanStepIcon.SEARCH,
+                    )
+                )
+                add(
+                    CardScanStep(
                         id = "request_response",
                         title = "Request Response",
                         description = "Request response from the card",

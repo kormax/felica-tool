@@ -21,11 +21,24 @@ class PollingResponse(
      * - For No request (0x00): This field is null
      */
     val requestData: ByteArray? = null,
+
+    /** Non-standard bytes after the regular Polling response payload. */
+    val trailingData: ByteArray = ByteArray(0),
 ) : FelicaResponseWithIdm(idm) {
 
     init {
         require(pmm.size == 8) { "PMm must be exactly 8 bytes" }
         requestData?.let { require(it.size == 2) { "Request data must be exactly 2 bytes" } }
+        val standardLength =
+            if (requestData == null) {
+                MIN_LENGTH
+            } else {
+                LENGTH_WITH_REQUEST_DATA
+            }
+        val frameLength = standardLength + trailingData.size
+        require(frameLength <= MAX_FRAME_LENGTH) {
+            "Polling response frame length ($frameLength bytes) exceeds FeliCa frame length limit ($MAX_FRAME_LENGTH bytes)"
+        }
     }
 
     /**
@@ -62,22 +75,34 @@ class PollingResponse(
         get() = requestData != null
 
     override fun toByteArray(): ByteArray =
-        buildFelicaMessage(RESPONSE_CODE, idm, capacity = LENGTH_WITH_REQUEST_DATA) {
+        buildFelicaMessage(
+            RESPONSE_CODE,
+            idm,
+            capacity = LENGTH_WITH_REQUEST_DATA + trailingData.size,
+        ) {
             addBytes(pmm)
             requestData?.let { addBytes(it) }
+            addBytes(trailingData)
         }
 
     companion object {
         const val RESPONSE_CODE: Short = 0x01
         const val MIN_LENGTH = BASE_LENGTH + 8 // + PMm(8)
         const val LENGTH_WITH_REQUEST_DATA = MIN_LENGTH + 2 // + Request data(2)
+        const val MAX_FRAME_LENGTH: Int = FELICA_FRAME_MAX_LENGTH
 
         /** Parse a polling response from raw bytes */
         fun fromByteArray(data: ByteArray): PollingResponse =
-            parseFelicaResponseWithIdm(data, RESPONSE_CODE, minLength = MIN_LENGTH) { idm ->
+            parseFelicaResponseWithIdm(
+                data,
+                RESPONSE_CODE,
+                minLength = MIN_LENGTH,
+                maxLength = MAX_FRAME_LENGTH,
+            ) { idm ->
                 val pmm = bytes(8)
                 val requestData = if (remaining() >= 2) bytes(2) else null
-                PollingResponse(idm, pmm, requestData)
+                val trailingData = bytes(remaining())
+                PollingResponse(idm, pmm, requestData, trailingData)
             }
     }
 }

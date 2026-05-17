@@ -22,6 +22,7 @@ data class CardScanContext(
     val primarySystemCode: ByteArray? = null,
     val discoveredSystemCodes: List<ByteArray> = emptyList(),
     val communicationPerformance: CommunicationPerformance? = null,
+    val pollingCommandTrailingDataSupported: Boolean? = null,
     val specificationVersion: SpecificationVersion? = null,
     val containerIssueInformation: ContainerInformation? = null,
     val platformInformation: GetPlatformInformationResponse? = null,
@@ -169,6 +170,8 @@ class CardScanService(
         private const val AUTHENTICATION1_DES_UNAVAILABLE_FOR_NODE_LIST_HIERARCHY_VALIDATION =
             "Authenticate1 DES support is not confirmed; cannot check node-list hierarchy validation"
         private const val AUTHENTICATION1_DES_NODE_LIST_HIERARCHY_VALIDATION_ATTEMPTS = 3
+        private const val POLLING_TRAILING_DATA_PROBE_ATTEMPTS = 3
+        private val POLLING_TRAILING_DATA_PROBE_BYTES = byteArrayOf(0x00)
     }
 
     // Context to store discovered nodes across steps
@@ -1126,6 +1129,8 @@ class CardScanService(
                     "polling_system_code" -> executePollingSystemCode(target)
                     "polling_communication_performance" ->
                         executePollingCommunicationPerformance(target)
+                    "polling_determine_trailing_data_supported" ->
+                        executePollingDetermineTrailingDataSupported(target)
                     "request_code_list_determine_supported" -> executeRequestCodeList(target)
                     "search_service_code_determine_supported" -> executeSearchServiceCode(target)
                     "request_service_determine_supported" ->
@@ -1800,6 +1805,65 @@ class CardScanService(
         } else {
             throw RuntimeException("Polling: Communication Performance: Not available")
         }
+    }
+
+    private suspend fun executePollingDetermineTrailingDataSupported(target: FeliCaTarget): String {
+        val systemCode = target.systemCode ?: byteArrayOf(0xFF.toByte(), 0xFF.toByte())
+        val command =
+            PollingCommand(
+                systemCode = systemCode,
+                requestCode = RequestCode.NO_REQUEST,
+                timeSlot = TimeSlot.SLOT_1,
+                trailingData = POLLING_TRAILING_DATA_PROBE_BYTES,
+            )
+        val commandLength = command.toByteArray().size
+        val attemptResults = mutableListOf<String>()
+
+        for (attempt in 1..POLLING_TRAILING_DATA_PROBE_ATTEMPTS) {
+            try {
+                val response = target.transceive(command)
+                target.idm = response.idm
+                updateSystemIdmFromPolling(null, response.idm)
+                updateModeAfterSuccessfulPolling(null)
+                scanContext = scanContext.copy(pollingCommandTrailingDataSupported = true)
+
+                val responseIdmHex = response.idm.toHexString().uppercase()
+                val responsePmmHex = response.pmm.toHexString().uppercase()
+                attemptResults +=
+                    "$attempt. response received (IDM=$responseIdmHex, PMM=$responsePmmHex)"
+
+                return buildString {
+                        appendLine("Polling with trailing data: supported")
+                        appendLine("Command length: $commandLength bytes")
+                        appendLine(
+                            "Trailing data: ${POLLING_TRAILING_DATA_PROBE_BYTES.toHexString()}"
+                        )
+                        appendLine("Attempts:")
+                        attemptResults.forEach { appendLine("  $it") }
+                    }
+                    .trim()
+            } catch (e: Exception) {
+                if (e is TagRediscoveredException || e is AnotherTagDiscoveredException) {
+                    throw e
+                }
+                val error = e.message ?: e::class.simpleName ?: "Unknown error"
+                attemptResults += "$attempt. no response ($error)"
+                if (attempt < POLLING_TRAILING_DATA_PROBE_ATTEMPTS) {
+                    delay(50)
+                }
+            }
+        }
+
+        scanContext = scanContext.copy(pollingCommandTrailingDataSupported = false)
+
+        return buildString {
+                appendLine("Polling with trailing data: not supported")
+                appendLine("Command length: $commandLength bytes")
+                appendLine("Trailing data: ${POLLING_TRAILING_DATA_PROBE_BYTES.toHexString()}")
+                appendLine("Attempts:")
+                attemptResults.forEach { appendLine("  $it") }
+            }
+            .trim()
     }
 
     private suspend fun executeRequestCodeList(target: FeliCaTarget): String {

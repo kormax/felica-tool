@@ -363,6 +363,9 @@ object ExportUtils {
         }
 
         scanContext.echoMaxPayloadSize?.let { json.put("echo_max_payload_size", it) }
+        scanContext.pollingCommandTrailingDataSupported?.let {
+            json.put("polling_command_trailing_data_supported", it)
+        }
         json.put(
             "request_service_unknown_node_attributes_supported",
             scanContext.requestServiceUnknownNodeAttributesSupported,
