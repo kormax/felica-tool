@@ -48,21 +48,22 @@ abstract class GenerateServiceIconVectorDrawablesTask : DefaultTask() {
                 val height = svg.requiredAttribute("height").toDpSize()
                 val clipPaths = svg.collectClipPaths(svgFile.name)
 
-                val vectorXml =
-                    buildString {
-                        appendLine("""<vector xmlns:android="http://schemas.android.com/apk/res/android"""")
-                        appendLine("""    android:width="${width}dp"""")
-                        appendLine("""    android:height="${height}dp"""")
-                        appendLine("""    android:viewportWidth="${viewBox.width}"""")
-                        appendLine("""    android:viewportHeight="${viewBox.height}">""")
-                        svg.appendVectorChildren(
-                            builder = this,
-                            indent = "  ",
-                            clipPaths = clipPaths,
-                            sourceName = svgFile.name,
-                        )
-                        appendLine("</vector>")
-                    }
+                val vectorXml = buildString {
+                    appendLine(
+                        """<vector xmlns:android="http://schemas.android.com/apk/res/android""""
+                    )
+                    appendLine("""    android:width="${width}dp"""")
+                    appendLine("""    android:height="${height}dp"""")
+                    appendLine("""    android:viewportWidth="${viewBox.width}"""")
+                    appendLine("""    android:viewportHeight="${viewBox.height}">""")
+                    svg.appendVectorChildren(
+                        builder = this,
+                        indent = "  ",
+                        clipPaths = clipPaths,
+                        sourceName = svgFile.name,
+                    )
+                    appendLine("</vector>")
+                }
 
                 drawableDir.resolve(svgFile.nameWithoutExtension + ".xml").writeText(vectorXml)
             }
@@ -76,10 +77,7 @@ abstract class GenerateServiceIconVectorDrawablesTask : DefaultTask() {
         return ViewBox(width = parts[2].normalizeNumber(), height = parts[3].normalizeNumber())
     }
 
-    private fun String.toDpSize(): String =
-        removeSuffix("px")
-            .removeSuffix("dp")
-            .normalizeNumber()
+    private fun String.toDpSize(): String = removeSuffix("px").removeSuffix("dp").normalizeNumber()
 
     private fun String.normalizeNumber(): String =
         toDoubleOrNull()?.let { number ->
@@ -131,15 +129,19 @@ abstract class GenerateServiceIconVectorDrawablesTask : DefaultTask() {
         }
 
         builder.appendLine("${indent}<group>")
-        getAttribute("clip-path").takeIf { it.isNotBlank() }?.let { clipReference ->
-            val clipId = clipReference.removePrefix("url(#").removeSuffix(")")
-            val clipPathData =
-                requireNotNull(clipPaths[clipId]) {
-                    "Unknown clip path '$clipReference' in $sourceName"
-                }
-            builder.appendLine("${indent}  <clip-path")
-            builder.appendLine("""${indent}      android:pathData="${clipPathData.xmlEscaped()}"/>""")
-        }
+        getAttribute("clip-path")
+            .takeIf { it.isNotBlank() }
+            ?.let { clipReference ->
+                val clipId = clipReference.removePrefix("url(#").removeSuffix(")")
+                val clipPathData =
+                    requireNotNull(clipPaths[clipId]) {
+                        "Unknown clip path '$clipReference' in $sourceName"
+                    }
+                builder.appendLine("${indent}  <clip-path")
+                builder.appendLine(
+                    """${indent}      android:pathData="${clipPathData.xmlEscaped()}"/>"""
+                )
+            }
         appendVectorChildren(builder, "$indent  ", clipPaths, sourceName)
         builder.appendLine("${indent}</group>")
     }
@@ -160,28 +162,27 @@ abstract class GenerateServiceIconVectorDrawablesTask : DefaultTask() {
             "Unsupported path attributes $unsupportedAttributes"
         }
 
-        val attributes =
-            buildList {
-                add("android:pathData" to requiredAttribute("d"))
-                getAttribute("fill").takeIf { it.isNotBlank() && it != "none" }?.let {
-                    add("android:fillColor" to it)
-                }
-                getAttribute("fill-opacity").takeIf { it.isNotBlank() }?.let {
-                    add("android:fillAlpha" to it)
-                }
-                getAttribute("fill-rule").takeIf { it.isNotBlank() }?.let {
-                    add("android:fillType" to it.toAndroidFillType())
-                }
-                getAttribute("stroke").takeIf { it.isNotBlank() && it != "none" }?.let {
-                    add("android:strokeColor" to it)
-                }
-                getAttribute("stroke-width").takeIf { it.isNotBlank() }?.let {
-                    add("android:strokeWidth" to it.normalizeNumber())
-                }
-                getAttribute("stroke-linecap").takeIf { it.isNotBlank() }?.let {
-                    add("android:strokeLineCap" to it)
-                }
-            }
+        val attributes = buildList {
+            add("android:pathData" to requiredAttribute("d"))
+            getAttribute("fill")
+                .takeIf { it.isNotBlank() && it != "none" }
+                ?.let { add("android:fillColor" to it) }
+            getAttribute("fill-opacity")
+                .takeIf { it.isNotBlank() }
+                ?.let { add("android:fillAlpha" to it) }
+            getAttribute("fill-rule")
+                .takeIf { it.isNotBlank() }
+                ?.let { add("android:fillType" to it.toAndroidFillType()) }
+            getAttribute("stroke")
+                .takeIf { it.isNotBlank() && it != "none" }
+                ?.let { add("android:strokeColor" to it) }
+            getAttribute("stroke-width")
+                .takeIf { it.isNotBlank() }
+                ?.let { add("android:strokeWidth" to it.normalizeNumber()) }
+            getAttribute("stroke-linecap")
+                .takeIf { it.isNotBlank() }
+                ?.let { add("android:strokeLineCap" to it) }
+        }
 
         builder.appendLine("${indent}<path")
         attributes.forEachIndexed { index, (name, value) ->
@@ -212,10 +213,7 @@ abstract class GenerateServiceIconVectorDrawablesTask : DefaultTask() {
             .map { it as Element }
 
     private fun String.xmlEscaped(): String =
-        replace("&", "&amp;")
-            .replace("\"", "&quot;")
-            .replace("<", "&lt;")
-            .replace(">", "&gt;")
+        replace("&", "&amp;").replace("\"", "&quot;").replace("<", "&lt;").replace(">", "&gt;")
 }
 
 val generateServiceIconVectorDrawables =
@@ -245,8 +243,8 @@ android {
         applicationId = "com.kormax.felicatool"
         minSdk = 31
         targetSdk = 37
-        versionCode = 22
-        versionName = "0.22.0"
+        versionCode = 23
+        versionName = "0.23.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -271,11 +269,7 @@ android {
     }
 }
 
-kotlin {
-    compilerOptions {
-        freeCompilerArgs.add("-opt-in=kotlin.ExperimentalStdlibApi")
-    }
-}
+kotlin { compilerOptions { freeCompilerArgs.add("-opt-in=kotlin.ExperimentalStdlibApi") } }
 
 dependencies {
     implementation(libs.androidx.core.ktx)

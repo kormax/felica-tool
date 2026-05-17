@@ -12,9 +12,7 @@ data class CardScanResult(
     val terminalErrorMessage: String?,
 )
 
-class CardScanRunner(
-    nodeMetadataProvider: NodeMetadataProvider = EmptyNodeMetadataProvider
-) {
+class CardScanRunner(nodeMetadataProvider: NodeMetadataProvider = EmptyNodeMetadataProvider) {
     private val cardScanService = CardScanService(nodeMetadataProvider)
 
     fun getScanContext(): CardScanContext = cardScanService.getScanContext()

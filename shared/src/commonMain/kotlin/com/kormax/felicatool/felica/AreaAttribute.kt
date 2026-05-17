@@ -38,7 +38,9 @@ sealed class AreaAttribute(
             )
         }
 
-        private val knownByValue: Map<Int, AreaAttribute> by lazy { entries.associateBy { it.value } }
+        private val knownByValue: Map<Int, AreaAttribute> by lazy {
+            entries.associateBy { it.value }
+        }
 
         fun fromValue(value: Int): AreaAttribute = knownByValue[value] ?: Unknown(value)
     }

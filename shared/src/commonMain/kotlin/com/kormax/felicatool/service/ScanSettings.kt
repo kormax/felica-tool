@@ -19,6 +19,12 @@ data class ScanSettings(
      */
     val forceDiscoverAllBlocks: Boolean = false,
     /**
+     * When enabled, probes additional system-code prefixes using XXFF polling after the targeted
+     * manual system-code probes. This is intended for investigation and is OFF by default because
+     * it adds up to 255 extra polling attempts.
+     */
+    val bruteForceSystemCodePrefixes: Boolean = false,
+    /**
      * When enabled, tests write commands during scanning. This is OFF by default to prevent
      * accidental modifications to card data.
      */

@@ -69,8 +69,7 @@ object IcTypeRegistry {
 
     fun resolveIcType(icType: Byte, romType: Byte?): IcTypeResolution? {
         val ic = icType.toHexByte()
-        val exactDefinition =
-            romType?.let { fullCodeDefinitions[fullCodeKey(it.toHexByte(), ic)] }
+        val exactDefinition = romType?.let { fullCodeDefinitions[fullCodeKey(it.toHexByte(), ic)] }
         if (exactDefinition != null) {
             return IcTypeResolution(exactDefinition.name, IcTypeResolutionConfidence.EXACT)
         }
@@ -103,12 +102,7 @@ object IcTypeRegistry {
             val ic = definitionObject.optionalRegistryString("ic")?.normalizeCode() ?: continue
             val rom = definitionObject.optionalRegistryString("rom")?.normalizeCode()
             val name = definitionObject.optionalRegistryString("name") ?: continue
-            val definition =
-                IcCodeDefinition(
-                    ic = ic,
-                    rom = rom,
-                    name = name,
-                )
+            val definition = IcCodeDefinition(ic = ic, rom = rom, name = name)
 
             if (rom == null) {
                 icResult[ic] = definition
@@ -129,24 +123,15 @@ object IcTypeRegistry {
         trim().removePrefix("0x").removePrefix("0X").uppercase().padStart(2, '0')
 
     private fun JsonObject.optionalRegistryString(key: String): String? {
-        return this[key]
-            ?.jsonPrimitive
-            ?.contentOrNull
-            ?.trim()
-            ?.takeIf { it.isNotBlank() && !it.equals("null", ignoreCase = true) }
+        return this[key]?.jsonPrimitive?.contentOrNull?.trim()?.takeIf {
+            it.isNotBlank() && !it.equals("null", ignoreCase = true)
+        }
     }
 }
 
-private data class IcCodeDefinition(
-    val ic: String,
-    val rom: String?,
-    val name: String,
-)
+private data class IcCodeDefinition(val ic: String, val rom: String?, val name: String)
 
-data class IcTypeResolution(
-    val name: String,
-    val confidence: IcTypeResolutionConfidence,
-) {
+data class IcTypeResolution(val name: String, val confidence: IcTypeResolutionConfidence) {
     val isUncertain: Boolean
         get() = confidence == IcTypeResolutionConfidence.ROM_MISMATCH
 }

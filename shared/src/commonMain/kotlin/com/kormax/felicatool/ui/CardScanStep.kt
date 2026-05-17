@@ -85,6 +85,15 @@ data class CardScanStep(
                 )
                 add(
                     CardScanStep(
+                        id = "probe_system_codes_manually",
+                        title = "Probe System Codes Manually",
+                        description =
+                            "Probe known system codes not reported by Request System Code",
+                        icon = ScanStepIcon.SEARCH,
+                    )
+                )
+                add(
+                    CardScanStep(
                         id = "request_specification_version",
                         title = "Request Specification Version",
                         description = "Getting card OS version and supported option versions",

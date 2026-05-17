@@ -12,8 +12,8 @@ import com.kormax.felicatool.service.SystemScanContext
 import com.kormax.felicatool.util.IcTypeRegistry
 import com.kormax.felicatool.util.NodeDefinitionType
 import com.kormax.felicatool.util.NodeRegistry
-import com.kormax.felicatool.util.ServiceIconCatalog
 import com.kormax.felicatool.util.ServiceGrouper
+import com.kormax.felicatool.util.ServiceIconCatalog
 import com.kormax.felicatool.util.ServicePresenceAnalyzer
 
 data class ScanOverviewModel(
@@ -237,7 +237,8 @@ object ScanOverviewModelBuilder {
             } else {
                 NodeRegistry.getNodeName(systemCode, systemCode, NodeDefinitionType.SYSTEM)
             }
-        val title = if (systemName != null) "System $systemCode - $systemName" else "System $systemCode"
+        val title =
+            if (systemName != null) "System $systemCode - $systemName" else "System $systemCode"
         val areas = systemContext.nodes.filterIsInstance<Area>().size
         val services = systemContext.nodes.filterIsInstance<Service>().size
         val hiddenNodes = systemContext.hiddenNodes.size
@@ -270,8 +271,9 @@ object ScanOverviewModelBuilder {
                         group.parentArea
                             ?.let { areaHeaderGroupsByArea[it] }
                             ?.let { buildAreaHeader(systemCode, it) }
-                    val emittedAreaHeader =
-                        areaHeader?.takeIf { header -> header.id != previousAreaHeaderId }
+                    val emittedAreaHeader = areaHeader?.takeIf { header ->
+                        header.id != previousAreaHeaderId
+                    }
                     previousAreaHeaderId = areaHeader?.id
                     val parentCode = group.parentArea?.fullCode?.toHexString()
                     val primaryServiceCode = group.primaryService.code.toHexString()
@@ -294,14 +296,16 @@ object ScanOverviewModelBuilder {
                                 "Service #${group.number}"
                             },
                         subtitle = "",
-                        chips = listOf(ScanOverviewChip(group.type.name, ScanOverviewChipRole.INFO)),
+                        chips =
+                            listOf(ScanOverviewChip(group.type.name, ScanOverviewChipRole.INFO)),
                         serviceCodes = group.services.map { it.code.toHexString().uppercase() },
                         variants =
                             group.services.map { service ->
                                 ScanOverviewServiceVariant(
                                     code = service.code.toHexString().uppercase(),
                                     mode = serviceModeToken(service.attribute.mode.name),
-                                    authenticationRequired = service.attribute.authenticationRequired,
+                                    authenticationRequired =
+                                        service.attribute.authenticationRequired,
                                     pinRequired = service.attribute.pinRequired,
                                     hidden = service in systemContext.hiddenNodes,
                                     unknown = service.attribute::class.simpleName == "Unknown",
@@ -341,7 +345,11 @@ object ScanOverviewModelBuilder {
                     code = systemCode,
                     title =
                         if (systemCode != "Unknown") {
-                            NodeRegistry.getNodeName(systemCode, systemCode, NodeDefinitionType.SYSTEM)
+                            NodeRegistry.getNodeName(
+                                    systemCode,
+                                    systemCode,
+                                    NodeDefinitionType.SYSTEM,
+                                )
                                 ?.let { "System ${systemCode.lowercase()} - $it" }
                                 ?: "System ${systemCode.lowercase()}"
                         } else {
@@ -367,12 +375,14 @@ object ScanOverviewModelBuilder {
                             parentCode,
                             NodeDefinitionType.AREA,
                         )
-                }
+                    }
                 ScanOverviewNode(
                     code = node.fullCode.toHexString().uppercase(),
                     title =
                         buildString {
-                            append("Area ${node.fullCode.toHexString()} (${node.number}-${node.endNumber})")
+                            append(
+                                "Area ${node.fullCode.toHexString()} (${node.number}-${node.endNumber})"
+                            )
                             if (nodeName != null) {
                                 append(" - ")
                                 append(nodeName)
@@ -407,7 +417,7 @@ object ScanOverviewModelBuilder {
                             parentCode,
                             NodeDefinitionType.SERVICE,
                         )
-                }
+                    }
                 ScanOverviewNode(
                     code = node.code.toHexString().uppercase(),
                     title =
@@ -476,8 +486,15 @@ object ScanOverviewModelBuilder {
                         if (node.attribute.pinRequired) {
                             add(ScanOverviewChip("PIN", ScanOverviewChipRole.WARNING))
                         }
-                        add(ScanOverviewChip(node.attribute.type.name, ScanOverviewChipRole.DEFAULT))
-                        add(ScanOverviewChip(serviceModeToken(node.attribute.mode.name), ScanOverviewChipRole.DEFAULT))
+                        add(
+                            ScanOverviewChip(node.attribute.type.name, ScanOverviewChipRole.DEFAULT)
+                        )
+                        add(
+                            ScanOverviewChip(
+                                serviceModeToken(node.attribute.mode.name),
+                                ScanOverviewChipRole.DEFAULT,
+                            )
+                        )
                     }
                 }
                 is Area -> {
@@ -490,7 +507,9 @@ object ScanOverviewModelBuilder {
                     if (node.endAttribute is AreaAttribute.Unknown) {
                         add(ScanOverviewChip("EA?", ScanOverviewChipRole.WARNING))
                     }
-                    if (node.attribute !is AreaAttribute.Unknown && node.attribute.canCreateSubArea) {
+                    if (
+                        node.attribute !is AreaAttribute.Unknown && node.attribute.canCreateSubArea
+                    ) {
                         add(ScanOverviewChip("NESTABLE", ScanOverviewChipRole.HIGHLIGHT))
                     }
                 }
@@ -547,10 +566,12 @@ object ScanOverviewModelBuilder {
                 }
             }
 
-            val blockCount = systemContext.nodeBlockCounts[node]?.takeUnless { it.isInvalid }?.toInt()
+            val blockCount =
+                systemContext.nodeBlockCounts[node]?.takeUnless { it.isInvalid }?.toInt()
             val assignedCount =
                 systemContext.nodeAssignedBlockCounts[node]?.takeUnless { it.isInvalid }?.toInt()
-            val freeCount = systemContext.nodeFreeBlockCounts[node]?.takeUnless { it.isInvalid }?.toInt()
+            val freeCount =
+                systemContext.nodeFreeBlockCounts[node]?.takeUnless { it.isInvalid }?.toInt()
             if (blockCount != null || assignedCount != null || freeCount != null) {
                 val blockText =
                     if (assignedCount != null && freeCount != null) {
@@ -590,13 +611,28 @@ object ScanOverviewModelBuilder {
                 val hasDesKeys = systemContext.nodeDesKeyVersions.isNotEmpty()
                 val hasGenericKeys = systemContext.nodeKeyVersions.isNotEmpty()
                 if (hasGenericKeys && !hasAesKeys && !hasDesKeys) {
-                    add(ScanOverviewField("Key Versions", systemContext.nodeKeyVersions.size.toString()))
+                    add(
+                        ScanOverviewField(
+                            "Key Versions",
+                            systemContext.nodeKeyVersions.size.toString(),
+                        )
+                    )
                 } else {
                     if (hasAesKeys) {
-                        add(ScanOverviewField("AES Keys", systemContext.nodeAesKeyVersions.size.toString()))
+                        add(
+                            ScanOverviewField(
+                                "AES Keys",
+                                systemContext.nodeAesKeyVersions.size.toString(),
+                            )
+                        )
                     }
                     if (hasDesKeys) {
-                        add(ScanOverviewField("DES Keys", systemContext.nodeDesKeyVersions.size.toString()))
+                        add(
+                            ScanOverviewField(
+                                "DES Keys",
+                                systemContext.nodeDesKeyVersions.size.toString(),
+                            )
+                        )
                     }
                 }
             }
@@ -621,10 +657,13 @@ object ScanOverviewModelBuilder {
                             "$blockCount blocks ($totalBytes bytes)"
                         }
                     add(ScanOverviewField("Block Data", summary))
-                    blockData.entries.sortedBy { it.key }.forEach { (blockNumber, bytes) ->
-                        val blockNumberHex = blockNumber.toString(16).uppercase().padStart(4, '0')
-                        add(ScanOverviewField(blockNumberHex, bytes.toHexString()))
-                    }
+                    blockData.entries
+                        .sortedBy { it.key }
+                        .forEach { (blockNumber, bytes) ->
+                            val blockNumberHex =
+                                blockNumber.toString(16).uppercase().padStart(4, '0')
+                            add(ScanOverviewField(blockNumberHex, bytes.toHexString()))
+                        }
                 }
             }
         }
@@ -641,12 +680,14 @@ object ScanOverviewModelBuilder {
 
         areas.forEach { area ->
             val parent = findParentArea(area, systemContext)
-            nodesByParent.getOrPut(parent?.let { nodeTreeKey(it) } ?: SYSTEM_TREE_KEY) { mutableListOf() }
+            nodesByParent
+                .getOrPut(parent?.let { nodeTreeKey(it) } ?: SYSTEM_TREE_KEY) { mutableListOf() }
                 .add(area)
         }
         services.forEach { service ->
             val parent = findContainingArea(service, systemContext)
-            nodesByParent.getOrPut(parent?.let { nodeTreeKey(it) } ?: SYSTEM_TREE_KEY) { mutableListOf() }
+            nodesByParent
+                .getOrPut(parent?.let { nodeTreeKey(it) } ?: SYSTEM_TREE_KEY) { mutableListOf() }
                 .add(service)
         }
 
@@ -763,10 +804,7 @@ object ScanOverviewModelBuilder {
             .toMap()
     }
 
-    private fun findTopLevelAreaUnderRoot(
-        area: Area,
-        parentByArea: Map<Area, Area?>,
-    ): Area? {
+    private fun findTopLevelAreaUnderRoot(area: Area, parentByArea: Map<Area, Area?>): Area? {
         var current = area
         var parent = parentByArea[current]
 
@@ -789,10 +827,7 @@ object ScanOverviewModelBuilder {
             .minWithOrNull(compareBy<Area>({ it.endNumber - it.number }, { it.number }))
     }
 
-    private fun <T> resolveInAreaGroup(
-        headerGroup: AreaHeaderGroup,
-        resolver: (Area) -> T?,
-    ): T? {
+    private fun <T> resolveInAreaGroup(headerGroup: AreaHeaderGroup, resolver: (Area) -> T?): T? {
         resolver(headerGroup.preferredArea)?.let {
             return it
         }
@@ -807,7 +842,9 @@ object ScanOverviewModelBuilder {
         return null
     }
 
-    private fun buildCommandSupport(scanContext: CardScanContext): List<ScanOverviewCommandSection> {
+    private fun buildCommandSupport(
+        scanContext: CardScanContext
+    ): List<ScanOverviewCommandSection> {
         return listOf(
             ScanOverviewCommandSection(
                 title = "Basic Commands",
@@ -926,7 +963,8 @@ object ScanOverviewModelBuilder {
     }
 
     private fun systemProviderNames(systemCode: String): Set<String> {
-        return if (systemCode == "Unknown") emptySet() else NodeRegistry.getSystemProviders(systemCode)
+        return if (systemCode == "Unknown") emptySet()
+        else NodeRegistry.getSystemProviders(systemCode)
     }
 
     private fun nodeProviderNames(
@@ -957,16 +995,16 @@ object ScanOverviewModelBuilder {
 
     private val nodeTreeSorter =
         compareBy<Node>(
-                {
-                    when (it) {
-                        is System -> 0
-                        is Area -> 1
-                        else -> 2
-                    }
-                },
-                { it.number },
-                { it.fullCode.toHexString() },
-            )
+            {
+                when (it) {
+                    is System -> 0
+                    is Area -> 1
+                    else -> 2
+                }
+            },
+            { it.number },
+            { it.fullCode.toHexString() },
+        )
 
     private const val SYSTEM_TREE_KEY = "system"
 

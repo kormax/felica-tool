@@ -65,10 +65,9 @@ object NodeRegistry : NodeMetadataProvider {
         }
 
         val nodes = definitions[normalizedSystem] ?: return null
-        val matchingNodes =
-            nodes.filter { definition ->
-                definition.type == type && definition.code == normalizedCode
-            }
+        val matchingNodes = nodes.filter { definition ->
+            definition.type == type && definition.code == normalizedCode
+        }
 
         if (matchingNodes.isEmpty()) {
             return null
@@ -78,30 +77,29 @@ object NodeRegistry : NodeMetadataProvider {
             return matchingNodes.firstOrNull { it.name != null }?.name
         }
 
-        val exactParentMatch =
-            matchingNodes.find { it.parent == normalizedParent && it.name != null }
+        val exactParentMatch = matchingNodes.find {
+            it.parent == normalizedParent && it.name != null
+        }
         if (exactParentMatch != null) {
             return exactParentMatch.name
         }
 
-        val ancestorMatch =
-            matchingNodes.find { definition ->
-                val definitionParent = definition.parent
-                definitionParent != null &&
-                    definition.name != null &&
-                    isAncestorOf(nodes, normalizedParent, definitionParent)
-            }
+        val ancestorMatch = matchingNodes.find { definition ->
+            val definitionParent = definition.parent
+            definitionParent != null &&
+                definition.name != null &&
+                isAncestorOf(nodes, normalizedParent, definitionParent)
+        }
         if (ancestorMatch != null) {
             return ancestorMatch.name
         }
 
-        val descendantMatch =
-            matchingNodes.find { definition ->
-                val definitionParent = definition.parent
-                definitionParent != null &&
-                    definition.name != null &&
-                    isAncestorOf(nodes, definitionParent, normalizedParent)
-            }
+        val descendantMatch = matchingNodes.find { definition ->
+            val definitionParent = definition.parent
+            definitionParent != null &&
+                definition.name != null &&
+                isAncestorOf(nodes, definitionParent, normalizedParent)
+        }
         if (descendantMatch != null) {
             return descendantMatch.name
         }
@@ -125,10 +123,9 @@ object NodeRegistry : NodeMetadataProvider {
         val normalizedParent = parentCode?.uppercase()
 
         val nodes = definitions[normalizedSystem] ?: return emptySet()
-        val matchingNodes =
-            nodes.filter { definition ->
-                definition.type == type && definition.code == normalizedCode
-            }
+        val matchingNodes = nodes.filter { definition ->
+            definition.type == type && definition.code == normalizedCode
+        }
 
         if (matchingNodes.isEmpty()) {
             return emptySet()
@@ -143,20 +140,18 @@ object NodeRegistry : NodeMetadataProvider {
             return exactParentMatches.flatMap { it.serviceProviders }.toSet()
         }
 
-        val ancestorMatches =
-            matchingNodes.filter { definition ->
-                val definitionParent = definition.parent
-                definitionParent != null && isAncestorOf(nodes, normalizedParent, definitionParent)
-            }
+        val ancestorMatches = matchingNodes.filter { definition ->
+            val definitionParent = definition.parent
+            definitionParent != null && isAncestorOf(nodes, normalizedParent, definitionParent)
+        }
         if (ancestorMatches.isNotEmpty()) {
             return ancestorMatches.flatMap { it.serviceProviders }.toSet()
         }
 
-        val descendantMatches =
-            matchingNodes.filter { definition ->
-                val definitionParent = definition.parent
-                definitionParent != null && isAncestorOf(nodes, definitionParent, normalizedParent)
-            }
+        val descendantMatches = matchingNodes.filter { definition ->
+            val definitionParent = definition.parent
+            definitionParent != null && isAncestorOf(nodes, definitionParent, normalizedParent)
+        }
         if (descendantMatches.isNotEmpty()) {
             return descendantMatches.flatMap { it.serviceProviders }.toSet()
         }
@@ -262,22 +257,22 @@ object NodeRegistry : NodeMetadataProvider {
 
     private fun JsonObject.extraBlocks(): Map<Int, String> {
         val extraBlocksObject = this["extra_blocks"]?.jsonObject ?: return emptyMap()
-        return extraBlocksObject.mapNotNull { (blockHex, blockNameElement) ->
-            val blockNumber = blockHex.toIntOrNull(16)
-            val blockName = blockNameElement.jsonPrimitive.contentOrNull?.trim()
-            if (blockNumber != null && !blockName.isNullOrBlank()) {
-                blockNumber to blockName
-            } else {
-                null
+        return extraBlocksObject
+            .mapNotNull { (blockHex, blockNameElement) ->
+                val blockNumber = blockHex.toIntOrNull(16)
+                val blockName = blockNameElement.jsonPrimitive.contentOrNull?.trim()
+                if (blockNumber != null && !blockName.isNullOrBlank()) {
+                    blockNumber to blockName
+                } else {
+                    null
+                }
             }
-        }.toMap()
+            .toMap()
     }
 
     private fun JsonObject.optionalRegistryString(key: String): String? {
-        return this[key]
-            ?.jsonPrimitive
-            ?.contentOrNull
-            ?.trim()
-            ?.takeIf { it.isNotBlank() && !it.equals("null", ignoreCase = true) }
+        return this[key]?.jsonPrimitive?.contentOrNull?.trim()?.takeIf {
+            it.isNotBlank() && !it.equals("null", ignoreCase = true)
+        }
     }
 }

@@ -157,9 +157,10 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch(Dispatchers.IO) {
             runCatching {
-                NodeRegistry.ensureReady()
-                IcTypeRegistry.ensureReady()
-            }.onFailure { Log.w(TAG, "Failed to preload shared metadata", it) }
+                    NodeRegistry.ensureReady()
+                    IcTypeRegistry.ensureReady()
+                }
+                .onFailure { Log.w(TAG, "Failed to preload shared metadata", it) }
         }
 
         isBackgroundReadingEnabled = readerPreferences.getBoolean(KEY_BACKGROUND_READING, false)
@@ -606,9 +607,7 @@ class MainActivity : ComponentActivity() {
                 )
             }
 
-        withContext(Dispatchers.Main) {
-            steps = result.steps
-        }
+        withContext(Dispatchers.Main) { steps = result.steps }
 
         val terminalErrorMessage = result.terminalErrorMessage
         if (terminalErrorMessage != null) {
@@ -737,6 +736,27 @@ private fun MainScreen(
                                     onCheckedChange = {
                                         onScanSettingsChange(
                                             scanSettings.copy(forceDiscoverAllBlocks = it)
+                                        )
+                                    },
+                                )
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Brute-force system codes") },
+                            onClick = {
+                                onScanSettingsChange(
+                                    scanSettings.copy(
+                                        bruteForceSystemCodePrefixes =
+                                            !scanSettings.bruteForceSystemCodePrefixes
+                                    )
+                                )
+                            },
+                            trailingIcon = {
+                                Checkbox(
+                                    checked = scanSettings.bruteForceSystemCodePrefixes,
+                                    onCheckedChange = {
+                                        onScanSettingsChange(
+                                            scanSettings.copy(bruteForceSystemCodePrefixes = it)
                                         )
                                     },
                                 )

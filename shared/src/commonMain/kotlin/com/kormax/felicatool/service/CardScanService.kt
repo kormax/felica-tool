@@ -121,6 +121,23 @@ class CardScanService(
         val details: List<String>,
     )
 
+    private data class ManualSystemProbeTarget(val systemCode: ByteArray, val label: String)
+
+    private data class ManualSystemProbeResult(
+        val target: ManualSystemProbeTarget,
+        val found: Boolean,
+        val contextAdded: Boolean,
+        val idm: ByteArray? = null,
+        val error: String? = null,
+    )
+
+    private data class WildcardSystemProbeResult(
+        val probeSystemCode: ByteArray,
+        val discoveredSystemCode: ByteArray,
+        val contextAdded: Boolean,
+        val idm: ByteArray,
+    )
+
     companion object {
         const val CARD_LOST_MESSAGE = "Card lost during scan - scan terminated"
         private const val PRESENCE_CHECK_ATTEMPTS = 3
@@ -134,6 +151,15 @@ class CardScanService(
             "No system context found with readable services"
         private val FELICA_LITE_SYSTEM_CODE = byteArrayOf(0x88.toByte(), 0xB4.toByte())
         private val NDEF_SYSTEM_CODE = byteArrayOf(0x12.toByte(), 0xFC.toByte())
+        private val SECURE_ID_SYSTEM_CODE = byteArrayOf(0x95.toByte(), 0x7A.toByte())
+        private val MANUAL_SYSTEM_PROBE_TARGETS =
+            listOf(
+                ManualSystemProbeTarget(NDEF_SYSTEM_CODE, "NDEF"),
+                ManualSystemProbeTarget(FELICA_LITE_SYSTEM_CODE, "FeliCa Lite"),
+                ManualSystemProbeTarget(SECURE_ID_SYSTEM_CODE, "Secure ID"),
+            )
+        private const val WILDCARD_SYSTEM_PROBE_FIRST_PREFIX = 0x00
+        private const val WILDCARD_SYSTEM_PROBE_LAST_PREFIX = 0xFE
         private val PROTECTED_READ_TEST_SERVICE_CODES = setOf("0B00", "0900")
         private const val PROTECTED_READ_TEST_BLOCK_NUMBER = 0x0092
         private const val REQUEST_SERVICE_UNAVAILABLE_FOR_UNKNOWN_ATTRIBUTE_PROBE =
@@ -302,6 +328,56 @@ class CardScanService(
             this == null || other == null -> false
             else -> this.contentEquals(other)
         }
+
+    private fun Iterable<ByteArray>.containsBytes(bytes: ByteArray): Boolean = any {
+        it.contentEquals(bytes)
+    }
+
+    private fun Iterable<ByteArray>.toUniqueByteArrays(): List<ByteArray> {
+        val unique = mutableListOf<ByteArray>()
+        forEach { bytes ->
+            if (!unique.containsBytes(bytes)) {
+                unique += bytes
+            }
+        }
+        return unique
+    }
+
+    private fun addOrUpdateSystemContext(systemCode: ByteArray, idm: ByteArray): Boolean {
+        var existingMatched = false
+        var idmUpdated = false
+        val updatedContexts =
+            scanContext.systemScanContexts.map { context ->
+                if (context.systemCode.sameBytes(systemCode)) {
+                    existingMatched = true
+                    if (context.idm?.contentEquals(idm) != true) {
+                        idmUpdated = true
+                        context.copy(idm = idm)
+                    } else {
+                        context
+                    }
+                } else {
+                    context
+                }
+            }
+
+        scanContext =
+            if (existingMatched) {
+                if (idmUpdated) {
+                    scanContext.copy(systemScanContexts = updatedContexts)
+                } else {
+                    scanContext
+                }
+            } else {
+                scanContext.copy(
+                    systemScanContexts =
+                        scanContext.systemScanContexts +
+                            SystemScanContext(systemCode = systemCode, idm = idm)
+                )
+            }
+
+        return !existingMatched
+    }
 
     private fun setSystemMode(systemCode: ByteArray?, mode: Mode) {
         var matched = false
@@ -1044,6 +1120,7 @@ class CardScanService(
                     "polling" -> executeInitialInfo(target)
                     "request_response" -> executeRequestResponse(target)
                     "request_system_code" -> executeRequestSystemCode(target)
+                    "probe_system_codes_manually" -> executeProbeSystemCodesManually(target)
                     "request_specification_version" -> executeRequestSpecificationVersion(target)
                     "get_system_status" -> executeGetSystemStatus(target)
                     "polling_system_code" -> executePollingSystemCode(target)
@@ -1172,24 +1249,7 @@ class CardScanService(
         discoveredSystemCodes: List<ByteArray>,
         target: FeliCaTarget,
     ): List<SystemScanContext> {
-        // Collect all system codes (discovered + inferred)
-        val allSystemCodes = mutableSetOf<ByteArray>()
-        allSystemCodes.addAll(discoveredSystemCodes)
-
-        // Check for special system codes 12FC and 88B4
-        val hasSystemCode12FC = discoveredSystemCodes.any {
-            it.contentEquals(byteArrayOf(0x12.toByte(), 0xFC.toByte()))
-        }
-        val hasSystemCode88B4 = discoveredSystemCodes.any {
-            it.contentEquals(byteArrayOf(0x88.toByte(), 0xB4.toByte()))
-        }
-
-        // Add the complementary system code if one of the special codes is found
-        if (hasSystemCode12FC && !hasSystemCode88B4) {
-            allSystemCodes.add(byteArrayOf(0x88.toByte(), 0xB4.toByte()))
-        } else if (hasSystemCode88B4 && !hasSystemCode12FC) {
-            allSystemCodes.add(byteArrayOf(0x12.toByte(), 0xFC.toByte()))
-        }
+        val allSystemCodes = discoveredSystemCodes.toUniqueByteArrays()
 
         // Create or update system contexts for all system codes
         val updatedSystemContexts = mutableListOf<SystemScanContext>()
@@ -1233,6 +1293,188 @@ class CardScanService(
         return updatedSystemContexts
     }
 
+    private suspend fun executeProbeSystemCodesManually(target: FeliCaTarget): String {
+        val requestSystemCodeSucceeded =
+            scanContext.requestSystemCodeSupport == CommandSupport.SUPPORTED
+        val reportedSystemCodes =
+            if (requestSystemCodeSucceeded) {
+                scanContext.discoveredSystemCodes
+            } else {
+                emptyList()
+            }
+
+        val targetsToProbe =
+            if (requestSystemCodeSucceeded) {
+                MANUAL_SYSTEM_PROBE_TARGETS.filterNot { probeTarget ->
+                    reportedSystemCodes.containsBytes(probeTarget.systemCode)
+                }
+            } else {
+                MANUAL_SYSTEM_PROBE_TARGETS
+            }
+        val skippedTargets = MANUAL_SYSTEM_PROBE_TARGETS.filter { probeTarget ->
+            probeTarget !in targetsToProbe
+        }
+
+        val results = mutableListOf<ManualSystemProbeResult>()
+
+        for (probeTarget in targetsToProbe) {
+            try {
+                pollSystemCode(target, probeTarget.systemCode)
+                val contextAdded = addOrUpdateSystemContext(probeTarget.systemCode, target.idm)
+
+                results +=
+                    ManualSystemProbeResult(
+                        target = probeTarget,
+                        found = true,
+                        contextAdded = contextAdded,
+                        idm = target.idm,
+                    )
+            } catch (e: Exception) {
+                results +=
+                    ManualSystemProbeResult(
+                        target = probeTarget,
+                        found = false,
+                        contextAdded = false,
+                        error = e.message ?: e::class.simpleName ?: "Unknown error",
+                    )
+            }
+        }
+
+        val wildcardResults = mutableListOf<WildcardSystemProbeResult>()
+        var wildcardSkipped = 0
+        var wildcardNoResponse = 0
+
+        if (scanSettings.bruteForceSystemCodePrefixes) {
+            for (prefix in WILDCARD_SYSTEM_PROBE_FIRST_PREFIX..WILDCARD_SYSTEM_PROBE_LAST_PREFIX) {
+                val probeSystemCode = byteArrayOf(prefix.toByte(), 0xFF.toByte())
+                val knownSystemCodes =
+                    reportedSystemCodes.toUniqueByteArrays() +
+                        scanContext.systemScanContexts.mapNotNull { context -> context.systemCode }
+
+                if (
+                    knownSystemCodes.any { knownCode ->
+                        knownCode.isNotEmpty() &&
+                            probeSystemCode.isNotEmpty() &&
+                            knownCode[0] == probeSystemCode[0]
+                    }
+                ) {
+                    wildcardSkipped++
+                    continue
+                }
+
+                try {
+                    val pollingResponse =
+                        target.transceive(
+                            PollingCommand(
+                                systemCode = probeSystemCode,
+                                requestCode = RequestCode.SYSTEM_CODE_REQUEST,
+                                timeSlot = TimeSlot.SLOT_1,
+                            )
+                        )
+                    target.idm = pollingResponse.idm
+
+                    val discoveredSystemCode =
+                        if (pollingResponse.hasRequestData) {
+                            pollingResponse.systemCode
+                        } else {
+                            probeSystemCode
+                        }
+
+                    val contextAdded =
+                        addOrUpdateSystemContext(discoveredSystemCode, pollingResponse.idm)
+                    wildcardResults +=
+                        WildcardSystemProbeResult(
+                            probeSystemCode = probeSystemCode,
+                            discoveredSystemCode = discoveredSystemCode,
+                            contextAdded = contextAdded,
+                            idm = pollingResponse.idm,
+                        )
+                } catch (e: Exception) {
+                    wildcardNoResponse++
+                }
+            }
+        }
+
+        val foundCount = results.count { it.found }
+        val addedCount = results.count { it.contextAdded }
+        val wildcardAddedCount = wildcardResults.count { it.contextAdded }
+        return buildString {
+                appendLine("Probe System Codes Manually Results:")
+
+                if (skippedTargets.isNotEmpty()) {
+                    appendLine("Skipped reported candidate(s):")
+                    skippedTargets.forEach { probeTarget ->
+                        appendLine(
+                            "  - ${probeTarget.systemCode.toHexString().uppercase()} (${probeTarget.label})"
+                        )
+                    }
+                    appendLine()
+                }
+
+                if (results.isEmpty()) {
+                    appendLine("No manual probes needed.")
+                } else {
+                    appendLine("Probed candidate(s):")
+                    results.forEach { result ->
+                        val systemCodeHex = result.target.systemCode.toHexString().uppercase()
+                        val status =
+                            if (result.found) {
+                                val idmHex = result.idm?.toHexString()?.uppercase() ?: "unknown"
+                                val contextStatus =
+                                    if (result.contextAdded) {
+                                        "added system context"
+                                    } else {
+                                        "system context already present"
+                                    }
+                                "found (IDM $idmHex; $contextStatus)"
+                            } else {
+                                "not found (${result.error})"
+                            }
+                        appendLine("  - $systemCodeHex (${result.target.label}): $status")
+                    }
+                }
+
+                if (scanSettings.bruteForceSystemCodePrefixes) {
+                    appendLine()
+                    appendLine("Wildcard suffix brute force:")
+                    appendLine(
+                        "  Range: ${
+                            WILDCARD_SYSTEM_PROBE_FIRST_PREFIX.toString(16).uppercase().padStart(2, '0')
+                        }FF-${
+                            WILDCARD_SYSTEM_PROBE_LAST_PREFIX.toString(16).uppercase().padStart(2, '0')
+                        }FF"
+                    )
+                    appendLine("  Skipped known prefixes: $wildcardSkipped")
+                    appendLine("  No response: $wildcardNoResponse")
+                    if (wildcardResults.isNotEmpty()) {
+                        appendLine("  Found:")
+                        wildcardResults.forEach { result ->
+                            val probeSystemCodeHex =
+                                result.probeSystemCode.toHexString().uppercase()
+                            val discoveredSystemCodeHex =
+                                result.discoveredSystemCode.toHexString().uppercase()
+                            val contextStatus =
+                                if (result.contextAdded) {
+                                    "added system context"
+                                } else {
+                                    "system context already present"
+                                }
+                            appendLine(
+                                "    - $probeSystemCodeHex -> $discoveredSystemCodeHex " +
+                                    "(IDM ${result.idm.toHexString().uppercase()}; $contextStatus)"
+                            )
+                        }
+                    }
+                }
+
+                appendLine()
+                appendLine(
+                    "Found ${foundCount + wildcardResults.size} system(s); added ${addedCount + wildcardAddedCount} new system context(s)."
+                )
+            }
+            .trim()
+    }
+
     private suspend fun executeInitialInfo(target: FeliCaTarget): String {
         IcTypeRegistry.ensureReady()
 
@@ -1242,7 +1484,11 @@ class CardScanService(
 
         // Store card information in context
         scanContext =
-            scanContext.copy(primaryIdm = target.idm, pmm = pmm, primarySystemCode = target.systemCode)
+            scanContext.copy(
+                primaryIdm = target.idm,
+                pmm = pmm,
+                primarySystemCode = target.systemCode,
+            )
 
         return buildString {
                 appendLine("IDM: $idmHex")
@@ -1310,12 +1556,6 @@ class CardScanService(
                 systemScanContexts = updatedSystemContexts,
             )
 
-        // Calculate which codes were added for display
-        val allSystemCodes = updatedSystemContexts.map { it.systemCode }.filterNotNull()
-        val addedCodes = allSystemCodes.filter { additionalCode ->
-            !requestSystemCodeResponse.systemCodes.any { it.contentEquals(additionalCode) }
-        }
-
         return if (requestSystemCodeResponse.systemCodes.isNotEmpty()) {
             buildString {
                     appendLine(
@@ -1324,16 +1564,6 @@ class CardScanService(
                     requestSystemCodeResponse.systemCodes.forEachIndexed { index, systemCode ->
                         val systemCodeHex = systemCode.toHexString().uppercase()
                         appendLine("  ${index + 1}. $systemCodeHex")
-                    }
-
-                    // Add information about added system codes
-                    if (addedCodes.isNotEmpty()) {
-                        appendLine()
-                        appendLine("Additional System Codes (inferred):")
-                        addedCodes.forEachIndexed { index, systemCode ->
-                            val systemCodeHex = systemCode.toHexString().uppercase()
-                            appendLine("  ${index + 1}. $systemCodeHex")
-                        }
                     }
                 }
                 .trim()
@@ -2366,12 +2596,12 @@ class CardScanService(
                             "${systemContext.systemCode?.toHexString() ?: "unknown"} - $nodeType $nodeCodeHex$encryptionInfo: $aesStatus, $desStatus"
                         )
 
-                        aesKeyVersion?.takeUnless { it.isMissing }?.let { keyVersion ->
-                            nodeAesKeyVersionsMap[node] = keyVersion
-                        }
-                        desKeyVersion?.takeUnless { it.isMissing }?.let { keyVersion ->
-                            nodeDesKeyVersionsMap[node] = keyVersion
-                        }
+                        aesKeyVersion
+                            ?.takeUnless { it.isMissing }
+                            ?.let { keyVersion -> nodeAesKeyVersionsMap[node] = keyVersion }
+                        desKeyVersion
+                            ?.takeUnless { it.isMissing }
+                            ?.let { keyVersion -> nodeDesKeyVersionsMap[node] = keyVersion }
                     }
                 } else {
                     keyVersionResults.add(
@@ -2862,7 +3092,9 @@ class CardScanService(
                 val printableBytes =
                     containerInformation.mobilePhoneModelInformation.filter { it in 32..126 }
                 if (printableBytes.size >= 3) { // At least 3 printable characters
-                    printableBytes.joinToString(separator = "") { byte -> byte.toInt().toChar().toString() }
+                    printableBytes.joinToString(separator = "") { byte ->
+                        byte.toInt().toChar().toString()
+                    }
                 } else {
                     modelInfoHex
                 }
@@ -3182,11 +3414,17 @@ class CardScanService(
                     ErrorLocationIndication.FLAG
                 }
                 statusFlag1.toInt() and 0xFF == 0x04 -> {
-                    ScanLog.d("CardScanService", "Determined BITMASK error indication (status1=0x03)")
+                    ScanLog.d(
+                        "CardScanService",
+                        "Determined BITMASK error indication (status1=0x03)",
+                    )
                     ErrorLocationIndication.BITMASK
                 }
                 statusFlag1.toInt() and 0xFF == 0x03 -> {
-                    ScanLog.d("CardScanService", "Determined NUMBER error indication (status1=0x01)")
+                    ScanLog.d(
+                        "CardScanService",
+                        "Determined NUMBER error indication (status1=0x01)",
+                    )
                     ErrorLocationIndication.INDEX
                 }
                 else -> {
@@ -3548,7 +3786,10 @@ class CardScanService(
                     ErrorLocationIndication.FLAG
                 }
                 statusFlag1.toInt() and 0xFF == 0x04 -> {
-                    ScanLog.d("CardScanService", "Determined BITMASK error indication (status1=0x04)")
+                    ScanLog.d(
+                        "CardScanService",
+                        "Determined BITMASK error indication (status1=0x04)",
+                    )
                     ErrorLocationIndication.BITMASK
                 }
                 statusFlag1.toInt() and 0xFF == 0x03 -> {

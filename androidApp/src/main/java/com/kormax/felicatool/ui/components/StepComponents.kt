@@ -41,11 +41,7 @@ import kotlinx.coroutines.flow.filterNotNull
 
 private const val ActiveStepPreferredViewportFraction = 0.66f
 
-private data class StepListScrollTarget(
-    val key: String,
-    val index: Int,
-    val scrollOffsetPx: Int,
-)
+private data class StepListScrollTarget(val key: String, val index: Int, val scrollOffsetPx: Int)
 
 @Composable
 fun StepCard(
@@ -227,16 +223,15 @@ fun StepsList(
 ) {
     val visibleSteps = steps.filterNot { step -> step.id == "scan_overview" }
     val listState = rememberLazyListState()
-    val activeStepIndex =
-        visibleSteps.indexOfFirst { step -> step.status == StepStatus.IN_PROGRESS }
+    val activeStepIndex = visibleSteps.indexOfFirst { step ->
+        step.status == StepStatus.IN_PROGRESS
+    }
     val activeStepId = visibleSteps.getOrNull(activeStepIndex)?.id
 
     BoxWithConstraints(modifier = modifier) {
         val density = LocalDensity.current
         val preferredActiveStepOffsetPx =
-            with(density) {
-                (maxHeight.toPx() * ActiveStepPreferredViewportFraction).roundToInt()
-            }
+            with(density) { (maxHeight.toPx() * ActiveStepPreferredViewportFraction).roundToInt() }
         val scrollTarget =
             when {
                 activeStepId != null ->

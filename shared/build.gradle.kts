@@ -12,18 +12,12 @@ kotlin {
         minSdk = 31
         withHostTestBuilder {}
 
-        androidResources {
-            enable = true
-        }
+        androidResources { enable = true }
 
-        compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
-        }
+        compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21) }
     }
 
-    compilerOptions {
-        freeCompilerArgs.add("-opt-in=kotlin.ExperimentalStdlibApi")
-    }
+    compilerOptions { freeCompilerArgs.add("-opt-in=kotlin.ExperimentalStdlibApi") }
 
     sourceSets {
         commonMain.dependencies {
