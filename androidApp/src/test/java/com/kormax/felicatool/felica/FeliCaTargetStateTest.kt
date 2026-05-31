@@ -1,9 +1,12 @@
 package com.kormax.felicatool.felica
 
+import com.kormax.felicatool.nfc.NfcReaderSession
 import kotlin.time.Duration
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertArrayEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class FeliCaTargetStateTest {
@@ -82,9 +85,31 @@ class FeliCaTargetStateTest {
         assertNull(target.currentSystemCode)
     }
 
+    @Test(expected = com.kormax.felicatool.nfc.TagUnavailableException::class)
+    fun droppedTargetRejectsIo() = runBlocking {
+        val target = FakeFeliCaTarget(response = TestResponse().toByteArray())
+
+        assertTrue(target.isAvailable)
+        target.drop()
+        assertFalse(target.isAvailable)
+
+        target.transceive(TestCommand(target.currentIdm))
+        Unit
+    }
+
     private class FakeFeliCaTarget(response: ByteArray = TestResponse().toByteArray()) :
         FeliCaTarget {
         private val responses = mutableListOf(response)
+        private var dropped = false
+
+        override val readerSession: NfcReaderSession =
+            object : NfcReaderSession {
+                override suspend fun discoverFeliCaTarget(timeout: Duration): FeliCaTarget {
+                    throw UnsupportedOperationException("Fake target does not support discovery")
+                }
+
+                override fun close() = Unit
+            }
 
         override val initialIdm: ByteArray = INITIAL_IDM.copyOf()
         override val initialSystemCode: ByteArray? = SYSTEM_CODE_FE0F.copyOf()
@@ -99,6 +124,12 @@ class FeliCaTargetStateTest {
             }
 
         override val pmm: Pmm = PMM
+        override val isAvailable: Boolean
+            get() = !dropped
+
+        override suspend fun drop() {
+            dropped = true
+        }
 
         override suspend fun transceive(data: ByteArray, timeout: Duration?): ByteArray =
             responses.removeAt(0)

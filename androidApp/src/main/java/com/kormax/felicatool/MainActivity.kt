@@ -41,12 +41,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import com.kormax.felicatool.felica.FeliCaTarget
+import com.kormax.felicatool.felica.PollingCommand
+import com.kormax.felicatool.felica.RequestCode
+import com.kormax.felicatool.felica.TimeSlot
 import com.kormax.felicatool.nfc.ActivitySuspendedException
 import com.kormax.felicatool.nfc.AndroidNfcReader
 import com.kormax.felicatool.nfc.NfcReader
 import com.kormax.felicatool.nfc.NfcReaderSession
-import com.kormax.felicatool.nfc.NfcTag
-import com.kormax.felicatool.nfc.NfcTagTechnology
+import com.kormax.felicatool.service.CardScanResult
 import com.kormax.felicatool.service.CardScanRunner
 import com.kormax.felicatool.service.ScanSettings
 import com.kormax.felicatool.ui.CardScanStep
@@ -57,6 +59,7 @@ import com.kormax.felicatool.ui.theme.FeliCaToolTheme
 import com.kormax.felicatool.util.IcTypeRegistry
 import com.kormax.felicatool.util.NodeRegistry
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
@@ -73,6 +76,8 @@ import kotlinx.coroutines.withTimeoutOrNull
 private const val MANUAL_READER_SESSION_TIMEOUT_SECONDS = 60
 private const val AUTOMATIC_READER_RETRY_DELAY_SECONDS = 2
 private const val AUTOMATIC_READER_START_DELAY_SECONDS = 2
+private const val TAG_REMOVAL_DISCOVERY_TIMEOUT_MILLIS = 500
+private const val TAG_REMOVAL_PRESENCE_CHECK_DELAY_MILLIS = 500L
 private const val READER_PREFERENCES_NAME = "reader_settings"
 private const val KEY_BACKGROUND_READING = "background_reading"
 private const val TAG = "MainActivity"
@@ -87,6 +92,7 @@ private data class ReaderControlState(
     val isAutomaticReadingAvailable: Boolean = true,
     val isReaderActive: Boolean = false,
     val isReaderDiscovering: Boolean = false,
+    val isWaitingForRemoval: Boolean = false,
     val isScanAvailable: Boolean = true,
     val issueMessage: String? = null,
     val manualSessionSecondsRemaining: Int? = null,
@@ -104,6 +110,7 @@ class MainActivity : ComponentActivity() {
     private var isCardPresent by mutableStateOf(false)
     private var isReaderActive by mutableStateOf(false)
     private var isReaderDiscovering by mutableStateOf(false)
+    private var isWaitingForRemoval by mutableStateOf(false)
     private var isNfcReady by mutableStateOf(false)
     private var statusMessage by mutableStateOf("Ready")
     private var readerIssueMessage by mutableStateOf<String?>(null)
@@ -187,6 +194,7 @@ class MainActivity : ComponentActivity() {
                                 isAutomaticReadingAvailable = isBackgroundReadingAvailable(),
                                 isReaderActive = isReaderActive,
                                 isReaderDiscovering = isReaderDiscovering,
+                                isWaitingForRemoval = isWaitingForRemoval,
                                 isScanAvailable = isNfcReady,
                                 issueMessage = readerIssueMessage,
                                 manualSessionSecondsRemaining = manualReaderSessionSecondsRemaining,
@@ -353,6 +361,7 @@ class MainActivity : ComponentActivity() {
                 activeReaderSession = null
                 isReaderActive = false
                 isReaderDiscovering = false
+                isWaitingForRemoval = false
                 manualReaderSessionSecondsRemaining = null
                 automaticReaderRestartSecondsRemaining = null
                 readerJob = null
@@ -375,6 +384,7 @@ class MainActivity : ComponentActivity() {
                 activeReaderSession = null
                 isReaderActive = false
                 isReaderDiscovering = false
+                isWaitingForRemoval = false
                 manualReaderSessionSecondsRemaining = null
                 automaticReaderRestartSecondsRemaining = null
                 readerJob = null
@@ -385,6 +395,7 @@ class MainActivity : ComponentActivity() {
     private fun stopReaderSession(status: String? = null, afterStopped: (() -> Unit)? = null) {
         readerIssueMessage = null
         isReaderDiscovering = false
+        isWaitingForRemoval = false
         manualReaderSessionSecondsRemaining = null
         automaticReaderRestartSecondsRemaining = null
         activeReaderSession?.close()
@@ -439,14 +450,8 @@ class MainActivity : ComponentActivity() {
 
         try {
             withTimeout(MANUAL_READER_SESSION_TIMEOUT_SECONDS.seconds) {
-                val tag = discoverFeliCaTag(session = session, timeout = Duration.INFINITE)
-                try {
-                    when (tag) {
-                        is NfcTag.FeliCa -> scanFeliCaTarget(tag.target)
-                    }
-                } finally {
-                    tag.close()
-                }
+                val target = discoverFeliCaTarget(session = session, timeout = Duration.INFINITE)
+                scanFeliCaTarget(target)
             }
         } catch (_: TimeoutCancellationException) {
             setReaderIssue("Reader session timed out")
@@ -495,18 +500,10 @@ class MainActivity : ComponentActivity() {
             activeReaderSession = session
 
             try {
-                val tag = discoverFeliCaTag(session = session, timeout = Duration.INFINITE)
-                try {
-                    when (tag) {
-                        is NfcTag.FeliCa -> {
-                            val scanCompleted = scanFeliCaTarget(tag.target)
-                            if (scanCompleted) {
-                                waitForFeliCaTagRemoval(tag.target)
-                            }
-                        }
-                    }
-                } finally {
-                    tag.close()
+                val target = discoverFeliCaTarget(session = session, timeout = Duration.INFINITE)
+                val scanResult = scanFeliCaTarget(target)
+                if (scanResult.completed) {
+                    waitForFeliCaTagRemoval(session)
                 }
             } catch (e: ActivitySuspendedException) {
                 setReaderIssue(e.message ?: "Reader session suspended")
@@ -529,13 +526,13 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private suspend fun discoverFeliCaTag(session: NfcReaderSession, timeout: Duration): NfcTag {
+    private suspend fun discoverFeliCaTarget(
+        session: NfcReaderSession,
+        timeout: Duration,
+    ): FeliCaTarget {
         isReaderDiscovering = true
         return try {
-            session.discoverTagTechnologies(
-                primary = listOf(NfcTagTechnology.FeliCa),
-                timeout = timeout,
-            )
+            session.discoverFeliCaTarget(timeout = timeout)
         } finally {
             isReaderDiscovering = false
         }
@@ -579,19 +576,65 @@ class MainActivity : ComponentActivity() {
         isCardPresent = false
     }
 
-    private suspend fun waitForFeliCaTagRemoval(target: FeliCaTarget) {
+    private suspend fun waitForFeliCaTagRemoval(readerSession: NfcReaderSession) {
         statusMessage = "Remove card to continue"
+        isWaitingForRemoval = true
 
-        while (shouldRunAutomaticReader()) {
-            val isPresent = withContext(Dispatchers.IO) { cardScanRunner.isCardPresent(target) }
-            if (!isPresent) {
-                return
+        try {
+            var currentTarget =
+                try {
+                    discoverFeliCaTarget(
+                        session = readerSession,
+                        timeout = TAG_REMOVAL_DISCOVERY_TIMEOUT_MILLIS.milliseconds,
+                    )
+                } catch (_: TimeoutCancellationException) {
+                    isCardPresent = false
+                    return
+                }
+
+            while (shouldRunAutomaticReader()) {
+                val activeTarget = currentTarget
+                if (!activeTarget.isAvailable) {
+                    currentTarget =
+                        try {
+                            discoverFeliCaTarget(
+                                session = readerSession,
+                                timeout = TAG_REMOVAL_DISCOVERY_TIMEOUT_MILLIS.milliseconds,
+                            )
+                        } catch (_: TimeoutCancellationException) {
+                            isCardPresent = false
+                            return
+                        }
+                    continue
+                }
+
+                try {
+                    withContext(Dispatchers.IO) {
+                        activeTarget.transceive(
+                            PollingCommand(
+                                systemCode =
+                                    activeTarget.systemCode
+                                        ?: byteArrayOf(0xFF.toByte(), 0xFF.toByte()),
+                                requestCode = RequestCode.NO_REQUEST,
+                                timeSlot = TimeSlot.SLOT_1,
+                            )
+                        )
+                    }
+                    delay(TAG_REMOVAL_PRESENCE_CHECK_DELAY_MILLIS)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: ActivitySuspendedException) {
+                    throw e
+                } catch (_: Exception) {
+                    withContext(Dispatchers.IO) { activeTarget.drop() }
+                }
             }
-            delay(500)
+        } finally {
+            isWaitingForRemoval = false
         }
     }
 
-    private suspend fun scanFeliCaTarget(target: FeliCaTarget): Boolean {
+    private suspend fun scanFeliCaTarget(target: FeliCaTarget): CardScanResult {
         val currentScanSettings = scanSettings
         statusMessage = "FeliCa card detected. Processing steps..."
         isCardPresent = true
@@ -618,7 +661,7 @@ class MainActivity : ComponentActivity() {
             statusMessage = "Card scanning completed!"
         }
 
-        return result.completed
+        return result
     }
 }
 
@@ -917,6 +960,7 @@ private fun ReaderBottomBar(
     val buttonText =
         when {
             isAutomatic && state.isReaderDiscovering -> "Looking for tags"
+            isAutomatic && state.isWaitingForRemoval -> "Waiting for removal"
             isAutomatic && restartSeconds != null -> "Reading starting in $restartSeconds sec"
             isAutomatic && state.isReaderActive -> "Reading active"
             isAutomatic -> "Reading stopped"

@@ -11,6 +11,7 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import com.kormax.felicatool.felica.AndroidFeliCaTarget
+import com.kormax.felicatool.felica.FeliCaTarget
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.time.Duration
@@ -83,26 +84,32 @@ private class AndroidNfcReaderSession(
 
     private var closed = false
     private var suspendedException: ActivitySuspendedException? = null
-    private var pendingDiscovery: CancellableContinuation<NfcTag>? = null
+    private var pendingDiscovery: CancellableContinuation<FeliCaTarget>? = null
     private var pendingTag: Tag? = null
     private var currentNfcF: NfcF? = null
-    private var currentTagId: ByteArray? = null
     private var currentTarget: AndroidFeliCaTarget? = null
 
     init {
         activity.lifecycle.addObserver(this)
     }
 
-    override suspend fun discoverTagTechnologies(
-        primary: List<NfcTagTechnology>,
-        timeout: Duration,
-    ): NfcTag {
-        val requestedTechnologies = primary.ifEmpty { listOf(NfcTagTechnology.FeliCa) }
-        require(requestedTechnologies.all { it == NfcTagTechnology.FeliCa }) {
-            "Android NFC reader currently supports FeliCa discovery only"
-        }
+    override suspend fun discoverFeliCaTarget(timeout: Duration): FeliCaTarget {
+        val discovery: suspend () -> FeliCaTarget = {
+            while (true) {
+                val targetToDrop =
+                    synchronized(lock) {
+                        ensureActiveLocked()
+                        currentTarget.also {
+                            if (it != null) {
+                                currentTarget = null
+                                currentNfcF = null
+                            }
+                        }
+                    } ?: break
 
-        val discovery: suspend () -> NfcTag = {
+                targetToDrop.drop()
+            }
+
             val queuedTag =
                 synchronized(lock) {
                     ensureActiveLocked()
@@ -166,7 +173,20 @@ private class AndroidNfcReaderSession(
             val flags = NfcAdapter.FLAG_READER_NFC_F or NfcAdapter.FLAG_READER_NO_PLATFORM_SOUNDS
             val options =
                 Bundle().apply { putInt(NfcAdapter.EXTRA_READER_PRESENCE_CHECK_DELAY, 30000) }
-            adapter.enableReaderMode(activity, ::handleTag, flags, options)
+            adapter.enableReaderMode(
+                activity,
+                object : NfcAdapter.ReaderCallback {
+                    override fun onTagDiscovered(tag: Tag) {
+                        handleTag(tag)
+                    }
+
+                    override fun onTagLost(tag: Tag) {
+                        handleTagLost(tag)
+                    }
+                },
+                flags,
+                options,
+            )
         }
     }
 
@@ -181,41 +201,70 @@ private class AndroidNfcReaderSession(
 
     private fun handleTag(tag: Tag) {
         Log.i(TAG, "Discovered tag: $tag")
-        var rediscoveredTarget: AndroidFeliCaTarget? = null
-        var anotherTagTarget: AndroidFeliCaTarget? = null
-        val discovery: CancellableContinuation<NfcTag>?
+        val discovery: CancellableContinuation<FeliCaTarget>?
+        val shouldHandleTag: Boolean
+        val replacedTarget: AndroidFeliCaTarget?
 
         synchronized(lock) {
             if (closed) {
                 return
             }
 
-            discovery = pendingDiscovery.also { pendingDiscovery = null }
-            if (discovery == null) {
-                val tagId = currentTagId
-                val target = currentTarget
-                if (tagId != null && target != null && tag.id.contentEquals(tagId)) {
-                    rediscoveredTarget = target
-                } else if (target != null) {
-                    anotherTagTarget = target
+            replacedTarget =
+                if (currentTarget != null) {
+                    currentTarget.also {
+                        currentTarget = null
+                        currentNfcF = null
+                    }
                 } else {
-                    pendingTag = tag
+                    null
                 }
+            shouldHandleTag = currentTarget == null
+            discovery =
+                if (shouldHandleTag) {
+                    pendingDiscovery.also { pendingDiscovery = null }
+                } else {
+                    null
+                }
+            if (shouldHandleTag && discovery == null) {
+                pendingTag = tag
             }
+        }
+
+        if (!shouldHandleTag) {
+            Log.i(TAG, "Ignoring tag callback while another NFC tag is active")
+            return
+        }
+
+        if (replacedTarget != null) {
+            Log.i(TAG, "Marking previous NFC tag unavailable after rediscovery")
+            replacedTarget.markUnavailable(TagLostException())
         }
 
         if (discovery != null) {
             resumeDiscoveryWithTag(tag, discovery)
-        } else {
-            rediscoveredTarget?.let { replaceRediscoveredTag(tag, it) }
-            anotherTagTarget?.let {
-                it.reportAnotherTagDiscovered()
-                Log.w(TAG, "Another tag discovered while a tag is already active")
-            }
         }
     }
 
-    private fun resumeDiscoveryWithTag(tag: Tag, discovery: CancellableContinuation<NfcTag>) {
+    private fun handleTagLost(tag: Tag) {
+        Log.i(TAG, "Lost tag: $tag")
+        val target =
+            synchronized(lock) {
+                if (closed) {
+                    return
+                }
+
+                pendingTag = null
+                currentTarget.also {
+                    currentTarget = null
+                    currentNfcF = null
+                }
+            }
+
+        target?.markUnavailable(TagLostException())
+    }
+
+    private fun resumeDiscoveryWithTag(tag: Tag, discovery: CancellableContinuation<FeliCaTarget>) {
         val nfcF = NfcF.get(tag)
         if (nfcF == null) {
             discovery.resumeWithException(
@@ -228,43 +277,38 @@ private class AndroidNfcReaderSession(
             try {
                 ensureActive()
                 nfcF.connect()
-                synchronized(lock) {
-                    currentNfcF = nfcF
-                    currentTagId = tag.id.copyOf()
-                }
+                synchronized(lock) { currentNfcF = nfcF }
 
-                val target = AndroidFeliCaTarget.create(nfcF, tag.id) { ensureActive() }
+                val target =
+                    AndroidFeliCaTarget.create(
+                        adapter = adapter,
+                        nfcF = nfcF,
+                        readerSession = this@AndroidNfcReaderSession,
+                        tagId = tag.id,
+                        ensureSessionAvailable = { ensureActive() },
+                    )
                 synchronized(lock) {
                     if (closed || currentNfcF !== nfcF) {
                         throw CancellationException("NFC reader session is closed")
                     }
                     currentTarget = target
                 }
-                val nfcTag =
-                    NfcTag.FeliCa(target) {
-                        synchronized(lock) {
-                            if (currentTarget === target) {
-                                currentNfcF = null
-                                currentTagId = null
-                                currentTarget = null
-                            }
-                        }
-                        target.closeNativeTag()
-                    }
-
                 if (discovery.isActive) {
-                    discovery.resume(nfcTag)
+                    discovery.resume(target)
                 } else {
-                    nfcTag.close()
+                    synchronized(lock) {
+                        if (currentTarget === target) {
+                            currentNfcF = null
+                            currentTarget = null
+                        }
+                    }
+                    target.markUnavailable(TagLostException())
                 }
             } catch (e: Exception) {
-                runCatching { nfcF.close() }
-
                 val sessionException =
                     synchronized(lock) {
                         if (currentNfcF === nfcF) {
                             currentNfcF = null
-                            currentTagId = null
                             currentTarget = null
                         }
                         suspendedException
@@ -277,53 +321,9 @@ private class AndroidNfcReaderSession(
         }
     }
 
-    private fun replaceRediscoveredTag(tag: Tag, target: AndroidFeliCaTarget) {
-        val replacementNfcF = NfcF.get(tag)
-        if (replacementNfcF == null) {
-            Log.w(TAG, "Rediscovered tag does not support FeliCa")
-            return
-        }
-
-        scope.launch {
-            try {
-                ensureActive()
-                replacementNfcF.connect()
-                val previousNfcF =
-                    synchronized(lock) {
-                        ensureActiveLocked()
-                        val tagId = currentTagId
-                        if (
-                            currentTarget !== target ||
-                                tagId == null ||
-                                !tag.id.contentEquals(tagId)
-                        ) {
-                            return@synchronized null
-                        }
-
-                        currentNfcF = replacementNfcF
-                        target.replaceNativeTag(replacementNfcF)
-                    }
-
-                if (previousNfcF == null) {
-                    replacementNfcF.close()
-                    return@launch
-                }
-
-                runCatching { previousNfcF.close() }
-                Log.i(TAG, "Replaced active native tag after rediscovery")
-            } catch (e: Exception) {
-                runCatching { replacementNfcF.close() }
-                val sessionException = synchronized(lock) { suspendedException }
-                if (sessionException == null) {
-                    Log.w(TAG, "Unable to replace rediscovered tag", e)
-                }
-            }
-        }
-    }
-
     private fun closeWithException(exception: Throwable) {
-        val discovery: CancellableContinuation<NfcTag>?
-        val nfcF: NfcF?
+        val discovery: CancellableContinuation<FeliCaTarget>?
+        val target: AndroidFeliCaTarget?
 
         synchronized(lock) {
             if (closed) {
@@ -337,15 +337,16 @@ private class AndroidNfcReaderSession(
             discovery = pendingDiscovery
             pendingDiscovery = null
             pendingTag = null
-            currentTagId = null
+            target = currentTarget
             currentTarget = null
-            nfcF = currentNfcF
             currentNfcF = null
         }
 
         activity.lifecycle.removeObserver(this)
         disableReaderMode()
-        runCatching { nfcF?.close() }
+        if (target != null) {
+            target.markUnavailable(TagLostException())
+        }
 
         if (discovery?.isActive == true) {
             discovery.resumeWithException(exception)

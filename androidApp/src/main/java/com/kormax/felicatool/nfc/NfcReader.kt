@@ -1,6 +1,5 @@
 package com.kormax.felicatool.nfc
 
-import com.kormax.felicatool.felica.FeliCaTarget
 import kotlin.time.Duration
 
 data class NfcReaderCapabilities(
@@ -16,35 +15,12 @@ data class NfcReaderCapabilities(
     val activeSessionDisplaysSystemModel: Boolean = false,
 )
 
-enum class NfcTagTechnology {
-    FeliCa
-}
-
 interface NfcReader {
     val capabilities: NfcReaderCapabilities
     val isAvailable: Boolean
     val isEnabled: Boolean
 
     fun startReaderSession(): NfcReaderSession
-}
-
-interface NfcReaderSession : AutoCloseable {
-    suspend fun discoverTagTechnologies(
-        primary: List<NfcTagTechnology> = emptyList(),
-        timeout: Duration = Duration.INFINITE,
-    ): NfcTag
-
-    override fun close()
-}
-
-sealed interface NfcTag : AutoCloseable {
-    override fun close()
-
-    class FeliCa(val target: FeliCaTarget, private val onClose: () -> Unit) : NfcTag {
-        override fun close() {
-            onClose()
-        }
-    }
 }
 
 class ActivitySuspendedException :

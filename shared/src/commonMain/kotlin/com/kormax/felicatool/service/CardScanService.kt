@@ -1,9 +1,7 @@
 package com.kormax.felicatool.service
 
 import com.kormax.felicatool.felica.*
-import com.kormax.felicatool.nfc.AnotherTagDiscoveredException
-import com.kormax.felicatool.nfc.TagLostException
-import com.kormax.felicatool.nfc.TagRediscoveredException
+import com.kormax.felicatool.nfc.TagUnavailableException
 import com.kormax.felicatool.service.logging.CommunicationLogEntry
 import com.kormax.felicatool.service.logging.CommunicationLoggedFeliCaTarget
 import com.kormax.felicatool.ui.CardScanStep
@@ -12,11 +10,36 @@ import com.kormax.felicatool.util.EmptyNodeMetadataProvider
 import com.kormax.felicatool.util.IcTypeRegistry
 import com.kormax.felicatool.util.NodeDefinitionType
 import com.kormax.felicatool.util.NodeMetadataProvider
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.DurationUnit
 import kotlin.time.TimeSource
 import kotlin.time.toDuration
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
+
+private suspend fun FeliCaTarget.dropAndRediscover(timeout: Duration): FeliCaTarget {
+    val initialIdm = initialIdm.copyOf()
+    val rediscoveredTarget =
+        try {
+            drop()
+            readerSession.discoverFeliCaTarget(timeout = timeout)
+        } catch (e: TimeoutCancellationException) {
+            throw TagUnavailableException("card was not rediscovered", e)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            val details = e.message ?: e::class.simpleName ?: "Unknown error"
+            throw TagUnavailableException("rediscovery failed: $details", e)
+        }
+
+    if (!rediscoveredTarget.initialIdm.contentEquals(initialIdm)) {
+        throw TagUnavailableException("rediscovered a different card")
+    }
+
+    return rediscoveredTarget
+}
 
 /** Context class to store discovered card data across multiple scan steps */
 data class CardScanContext(
@@ -145,10 +168,12 @@ class CardScanService(
 
     companion object {
         const val CARD_LOST_MESSAGE = "Card lost during scan - scan terminated"
-        private const val PRESENCE_CHECK_ATTEMPTS = 3
+        private const val PRESENCE_CHECK_ATTEMPTS = 5
         private const val PRESENCE_CHECK_RETRY_DELAY_STEP_MS = 50L
+        private const val PRESENCE_CHECK_REDISCOVERY_TIMEOUT_MILLIS = 600
         private const val RETRY_ATTEMPTS = 3
         private const val RETRY_DELAY_STEP_MS = 10L
+        private const val FIELD_RESET_REDISCOVERY_TIMEOUT_MILLIS = 600
         private const val NO_SERVICES_AVAILABLE = "No services available"
         private const val NO_SERVICES_WITHOUT_AUTHENTICATION =
             "No services found that don't require authentication"
@@ -514,7 +539,6 @@ class CardScanService(
         target: FeliCaTarget,
         authenticatedSystemCode: ByteArray?,
         authenticatedSystemIdm: ByteArray?,
-        allowAlternateSystemPollingFallback: Boolean = true,
     ): AuthenticationStateResetResult {
         if (authenticatedSystemIdm == null) {
             return AuthenticationStateResetResult(
@@ -529,7 +553,7 @@ class CardScanService(
                 if (resetModeResponse.isStatusSuccessful) {
                     setSystemMode(authenticatedSystemCode, Mode.Mode0)
                     AuthenticationStateResetResult(
-                        message = "Reset Mode executed - card reset to Mode0",
+                        message = "State reset to Mode 0 by executing Reset Mode command",
                         modeSetToMode0 = true,
                     )
                 } else {
@@ -547,50 +571,71 @@ class CardScanService(
             }
         }
 
-        if (!allowAlternateSystemPollingFallback) {
-            return AuthenticationStateResetResult(
-                message = "Reset Mode not executed (not confirmed as supported)",
-                modeSetToMode0 = false,
-            )
-        }
+        var fieldResetFailurePrefix =
+            "Reset Mode support is not confirmed; field-drop reset to Mode 0"
+        var fieldResetSuccessMessage =
+            "State reset to Mode 0 by dropping reader field and rediscovering the card"
 
-        val alternativeSystemCode =
-            scanContext.systemScanContexts
-                .firstOrNull { context -> !context.systemCode.sameBytes(authenticatedSystemCode) }
-                ?.systemCode
+        if (scanContext.resetModeSupport == CommandSupport.UNSUPPORTED) {
+            fieldResetFailurePrefix = "Reset Mode is unsupported; field-drop reset to Mode 0"
+        } else {
+            val alternativeSystemCode =
+                scanContext.systemScanContexts
+                    .firstOrNull { context ->
+                        !context.systemCode.sameBytes(authenticatedSystemCode)
+                    }
+                    ?.systemCode
 
-        if (alternativeSystemCode == null) {
-            return AuthenticationStateResetResult(
-                message =
-                    "State reset unavailable: Reset Mode support is not confirmed and no alternate system is available for polling reset",
-                modeSetToMode0 = false,
-            )
+            if (alternativeSystemCode != null) {
+                try {
+                    pollSystemCode(target, alternativeSystemCode)
+                    val returnPollingResult =
+                        try {
+                            if (authenticatedSystemCode != null) {
+                                pollSystemCode(target, authenticatedSystemCode)
+                                "re-polled back to selected system (${authenticatedSystemCode.toHexString().uppercase()})"
+                            } else {
+                                "selected system code is unavailable for re-poll"
+                            }
+                        } catch (e: Exception) {
+                            val details = e.message ?: e::class.simpleName ?: "Unknown error"
+                            "failed to re-poll selected system ($details)"
+                        }
+
+                    return AuthenticationStateResetResult(
+                        message =
+                            "State reset to Mode 0 by polling another system (${alternativeSystemCode.toHexString().uppercase()}); $returnPollingResult",
+                        modeSetToMode0 = true,
+                    )
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    val details = e.message ?: e::class.simpleName ?: "Unknown error"
+                    fieldResetFailurePrefix =
+                        "State reset via alternate-system polling failed ($details); field-drop reset to Mode 0"
+                    fieldResetSuccessMessage =
+                        "State reset to Mode 0 by dropping reader field after alternate-system polling failed ($details)"
+                }
+            } else {
+                fieldResetFailurePrefix =
+                    "Reset Mode support is not confirmed and no alternate system is available for polling reset; field-drop reset to Mode 0"
+            }
         }
 
         return try {
-            pollSystemCode(target, alternativeSystemCode)
-            val returnPollingResult =
-                try {
-                    if (authenticatedSystemCode != null) {
-                        pollSystemCode(target, authenticatedSystemCode)
-                        "re-polled back to selected system (${authenticatedSystemCode.toHexString().uppercase()})"
-                    } else {
-                        "selected system code is unavailable for re-poll"
-                    }
-                } catch (e: Exception) {
-                    val details = e.message ?: e::class.simpleName ?: "Unknown error"
-                    "failed to re-poll selected system ($details)"
-                }
-
+            val rediscoveredTarget =
+                target.dropAndRediscover(FIELD_RESET_REDISCOVERY_TIMEOUT_MILLIS.milliseconds)
+            (target as? CommunicationLoggedFeliCaTarget)?.replaceTarget(rediscoveredTarget)
+            resetAllSystemModesToMode0()
             AuthenticationStateResetResult(
-                message =
-                    "State reset by polling another system (${alternativeSystemCode.toHexString().uppercase()}); $returnPollingResult",
+                message = fieldResetSuccessMessage,
                 modeSetToMode0 = true,
             )
-        } catch (e: Exception) {
-            val details = e.message ?: e::class.simpleName ?: "Unknown error"
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: TagUnavailableException) {
             AuthenticationStateResetResult(
-                message = "State reset via alternate-system polling failed ($details)",
+                message = "$fieldResetFailurePrefix failed (${e.message})",
                 modeSetToMode0 = false,
             )
         }
@@ -961,107 +1006,85 @@ class CardScanService(
     private suspend fun ensureCardPresence(
         target: FeliCaTarget,
         stepId: String,
-        logFailures: Boolean = true,
-    ) {
-        if (getCommandSupport("request_response") == CommandSupport.SUPPORTED) {
-            try {
-                val response = target.transceive(RequestResponseCommand(target.idm))
-                return
-            } catch (e: Exception) {
-                if (e is TagRediscoveredException || e is AnotherTagDiscoveredException) {
-                    throw e
-                }
-                if (logFailures) {
-                    ScanLog.w(
-                        "CardScanService",
-                        "Request Response presence check failed for step $stepId",
-                        e,
-                    )
-                }
-            }
-        }
-
-        if (scanContext.requestServiceSupport == CommandSupport.SUPPORTED) {
-            // Some cards, such as IC 0x24 on Octopus, may stop responding to RequestResponse in
-            // Mode1, while RequestService (and Authentication1) still respond.
-            try {
-                val probeService = Service(0, ServiceAttribute.RandomRoWithoutKey)
-                val response =
-                    target.transceive(RequestServiceCommand(target.idm, arrayOf(probeService.code)))
-                return
-            } catch (e: Exception) {
-                if (e is TagRediscoveredException || e is AnotherTagDiscoveredException) {
-                    throw e
-                }
-                if (logFailures) {
-                    ScanLog.w(
-                        "CardScanService",
-                        "Request Service presence check failed for step $stepId",
-                        e,
-                    )
-                }
-            }
-        }
-
-        pollSystemCode(target)
-    }
-
-    suspend fun isCardPresent(target: FeliCaTarget): Boolean =
-        checkCardPresence(target, stepId = "tag_removal_wait", logFailures = false) == null
-
-    private suspend fun checkCardPresence(
-        target: FeliCaTarget,
-        stepId: String,
-        logFailures: Boolean,
+        maxAttempts: Int = PRESENCE_CHECK_ATTEMPTS,
     ): Exception? {
         var lastException: Exception? = null
-        var maxAttempts = PRESENCE_CHECK_ATTEMPTS
-        var rediscoveryGraceAttempts = 1
 
         // Try a few times before treating brief presence-check failures as card loss.
         var attempt = 1
         while (attempt <= maxAttempts) {
+            if (!target.isAvailable) {
+                return try {
+                    val rediscoveredTarget =
+                        target.dropAndRediscover(
+                            PRESENCE_CHECK_REDISCOVERY_TIMEOUT_MILLIS.milliseconds
+                        )
+                    ScanLog.w("CardScanService", "Card rediscovered")
+                    (target as? CommunicationLoggedFeliCaTarget)?.replaceTarget(rediscoveredTarget)
+                    null
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    ScanLog.w(
+                        "CardScanService",
+                        "Card rediscovery failed during presence check for step $stepId",
+                        e,
+                    )
+                    e
+                }
+            }
+
             try {
-                ensureCardPresence(target, stepId, logFailures)
-                return null
-            } catch (e: Exception) {
-                if (e is TagRediscoveredException) {
-                    if (rediscoveryGraceAttempts > 0) {
-                        maxAttempts++
-                        rediscoveryGraceAttempts--
-                    }
-                    if (logFailures) {
-                        ScanLog.i(
+                if (scanContext.requestResponseSupport == CommandSupport.SUPPORTED) {
+                    try {
+                        target.transceive(RequestResponseCommand(target.idm))
+                        return null
+                    } catch (e: Exception) {
+                        when (e) {
+                            is CancellationException,
+                            is TagUnavailableException -> throw e
+                        }
+                        ScanLog.w(
                             "CardScanService",
-                            "Tag rediscovered during presence check for step $stepId; extending presence check attempts",
+                            "Request Response presence check failed for step $stepId",
+                            e,
                         )
                     }
                 }
 
-                val tagLostForGood =
-                    when {
-                        e is TagRediscoveredException -> false
-                        e is TagLostException -> false
-                        else -> true
-                    }
-                lastException = e
-                if (tagLostForGood) {
-                    if (logFailures) {
+                if (scanContext.requestServiceSupport == CommandSupport.SUPPORTED) {
+                    // Some cards, such as IC 0x24 on Octopus, may stop responding to
+                    // RequestResponse in Mode1, while RequestService still responds.
+                    try {
+                        val probeService = Service(0, ServiceAttribute.RandomRoWithoutKey)
+                        target.transceive(
+                            RequestServiceCommand(target.idm, arrayOf(probeService.code))
+                        )
+                        return null
+                    } catch (e: Exception) {
+                        when (e) {
+                            is CancellationException,
+                            is TagUnavailableException -> throw e
+                        }
                         ScanLog.w(
                             "CardScanService",
-                            "Card lost during presence check for step $stepId",
+                            "Request Service presence check failed for step $stepId",
                             e,
                         )
                     }
-                    break
                 }
-                if (logFailures) {
-                    ScanLog.w(
-                        "CardScanService",
-                        "Card presence check attempt $attempt failed for step $stepId",
-                        e,
-                    )
-                }
+
+                pollSystemCode(target)
+                return null
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                lastException = e
+                ScanLog.w(
+                    "CardScanService",
+                    "Card presence check attempt $attempt failed for step $stepId",
+                    e,
+                )
                 delay(PRESENCE_CHECK_RETRY_DELAY_STEP_MS * attempt)
             }
             attempt++
@@ -1091,9 +1114,7 @@ class CardScanService(
                 )
             } catch (e: CancellationException) {
                 throw e
-            } catch (e: TagRediscoveredException) {
-                throw e
-            } catch (e: AnotherTagDiscoveredException) {
+            } catch (e: TagUnavailableException) {
                 throw e
             } catch (e: Exception) {
                 lastException = e
@@ -1122,7 +1143,7 @@ class CardScanService(
 
         // Check card presence before executing any command (except initial_info)
         if (step.id != "polling") {
-            val presenceFailure = checkCardPresence(target, step.id, logFailures = true)
+            val presenceFailure = ensureCardPresence(target, step.id)
 
             if (presenceFailure != null) {
                 ScanLog.e(
@@ -1880,7 +1901,7 @@ class CardScanService(
                     }
                     .trim()
             } catch (e: Exception) {
-                if (e is TagRediscoveredException || e is AnotherTagDiscoveredException) {
+                if (e is TagUnavailableException) {
                     throw e
                 }
                 val error = e.message ?: e::class.simpleName ?: "Unknown error"
@@ -2454,7 +2475,7 @@ class CardScanService(
 
         if (preferredTarget == null) {
             throw PrerequisiteException(
-                "Authenticate1 DES node-list hierarchy validation requires Mode0 on the selected system (current: ${targetForErrorMessage.systemContext.mode})."
+                "Authenticate1 DES node-list hierarchy validation requires Mode 0 on the selected system (current: ${targetForErrorMessage.systemContext.mode})."
             )
         }
 
@@ -3254,7 +3275,7 @@ class CardScanService(
         return buildString {
                 appendLine("Status Flags: ${formatStatus(resetModeResponse, prefix = "")}")
 
-                // appendLine("Note: Reset Mode command resets the card's mode to Mode0.")
+                // appendLine("Note: Reset Mode command resets the card's mode to Mode 0.")
                 // appendLine("This command is supported by AES and AES/DES cards.")
             }
             .trim()

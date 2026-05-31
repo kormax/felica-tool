@@ -17,8 +17,6 @@ class CardScanRunner(nodeMetadataProvider: NodeMetadataProvider = EmptyNodeMetad
 
     fun getScanContext(): CardScanContext = cardScanService.getScanContext()
 
-    suspend fun isCardPresent(target: FeliCaTarget): Boolean = cardScanService.isCardPresent(target)
-
     suspend fun scan(
         target: FeliCaTarget,
         scanSettings: ScanSettings = ScanSettings(),

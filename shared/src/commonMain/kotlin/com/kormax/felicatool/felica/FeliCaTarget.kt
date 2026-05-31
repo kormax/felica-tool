@@ -1,5 +1,7 @@
 package com.kormax.felicatool.felica
 
+import com.kormax.felicatool.nfc.NfcReaderSession
+import com.kormax.felicatool.nfc.TagUnavailableException
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
@@ -9,6 +11,9 @@ import kotlin.time.toDuration
  * different implementations (Android NFC, test mocks, etc.)
  */
 interface FeliCaTarget {
+    /** Reader session that created this target. */
+    val readerSession: NfcReaderSession
+
     /** IDM observed when the target was first acquired by the reader session. */
     val initialIdm: ByteArray
 
@@ -34,6 +39,12 @@ interface FeliCaTarget {
     /** Current platform-selected system code, when known. */
     val systemCode: ByteArray?
         get() = currentSystemCode
+
+    /** Whether this target can still perform I/O. */
+    val isAvailable: Boolean
+
+    /** Drops this target from the active reader field and makes it unavailable for future I/O. */
+    suspend fun drop()
 
     /**
      * Raw transceive operation - sends raw bytes and receives raw bytes
@@ -69,6 +80,9 @@ interface FeliCaTarget {
         command: FelicaCommand<T>,
         timeout: Duration? = null,
     ): T {
+        if (!isAvailable) {
+            throw TagUnavailableException()
+        }
         val commandBytes = command.toByteArray()
         val inferredTimeout = timeout ?: inferTimeout(command)
         val responseBytes = transceive(commandBytes, inferredTimeout)
