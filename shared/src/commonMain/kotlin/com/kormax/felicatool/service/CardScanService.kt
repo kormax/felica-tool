@@ -506,7 +506,6 @@ class CardScanService(
                 timeSlot = TimeSlot.SLOT_1,
             )
         val pollingResponse = target.transceive(pollingCommand)
-        target.idm = pollingResponse.idm
         updateSystemIdmFromPolling(systemCode, pollingResponse.idm)
         updateModeAfterSuccessfulPolling(systemCode)
     }
@@ -967,7 +966,6 @@ class CardScanService(
         if (getCommandSupport("request_response") == CommandSupport.SUPPORTED) {
             try {
                 val response = target.transceive(RequestResponseCommand(target.idm))
-                target.idm = response.idm
                 return
             } catch (e: Exception) {
                 if (e is TagRediscoveredException || e is AnotherTagDiscoveredException) {
@@ -990,7 +988,6 @@ class CardScanService(
                 val probeService = Service(0, ServiceAttribute.RandomRoWithoutKey)
                 val response =
                     target.transceive(RequestServiceCommand(target.idm, arrayOf(probeService.code)))
-                target.idm = response.idm
                 return
             } catch (e: Exception) {
                 if (e is TagRediscoveredException || e is AnotherTagDiscoveredException) {
@@ -1419,7 +1416,6 @@ class CardScanService(
                                 timeSlot = TimeSlot.SLOT_1,
                             )
                         )
-                    target.idm = pollingResponse.idm
 
                     val discoveredSystemCode =
                         if (pollingResponse.hasRequestData) {
@@ -1864,7 +1860,6 @@ class CardScanService(
         for (attempt in 1..POLLING_TRAILING_DATA_PROBE_ATTEMPTS) {
             try {
                 val response = target.transceive(command)
-                target.idm = response.idm
                 updateSystemIdmFromPolling(null, response.idm)
                 updateModeAfterSuccessfulPolling(null)
                 scanContext = scanContext.copy(pollingCommandTrailingDataSupported = true)

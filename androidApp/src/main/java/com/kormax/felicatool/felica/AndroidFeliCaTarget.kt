@@ -11,9 +11,11 @@ import kotlin.time.Duration
 /** Android implementation of FeliCaTarget using NfcF technology */
 class AndroidFeliCaTarget(
     private var nfcF: NfcF,
-    override var idm: ByteArray,
+    override val initialIdm: ByteArray,
     override val pmm: Pmm,
-    override val systemCode: ByteArray? = null,
+    override val initialSystemCode: ByteArray? = null,
+    override var currentIdm: ByteArray = initialIdm,
+    override var currentSystemCode: ByteArray? = initialSystemCode,
     private val ensureSessionActive: () -> Unit = {},
 ) : FeliCaTarget {
     private val lock = Any()
@@ -23,37 +25,57 @@ class AndroidFeliCaTarget(
         private const val TAG = "AndroidFeliCaTarget"
 
         /**
-         * Creates an AndroidFeliCaTarget from an NfcF instance and tag ID The PMM is obtained by
-         * performing a polling command
+         * Creates an AndroidFeliCaTarget from an NfcF instance and tag ID. Android discovery
+         * metadata is used when available; polling is used as a fallback when PMM is unavailable.
          */
         suspend fun create(
             nfcF: NfcF,
             tagId: ByteArray,
             ensureSessionActive: () -> Unit = {},
         ): AndroidFeliCaTarget {
-            // Create a temporary target for polling
-            val tempPmm = Pmm(ByteArray(8)) // Temporary PMM for polling
-            val tempTarget =
-                AndroidFeliCaTarget(nfcF, tagId, tempPmm, nfcF.systemCode, ensureSessionActive)
+            val discoveredSystemCode = nfcF.getSystemCode()?.takeIf { it.size == 2 }?.copyOf()
+            val discoveredPmm =
+                nfcF.getManufacturer()?.takeIf { it.size == 8 }?.let { Pmm(it.copyOf()) }
+            if (discoveredPmm != null) {
+                return AndroidFeliCaTarget(
+                    nfcF = nfcF,
+                    initialIdm = tagId,
+                    pmm = discoveredPmm,
+                    initialSystemCode = discoveredSystemCode,
+                    ensureSessionActive = ensureSessionActive,
+                )
+            }
 
             // Perform polling to get PMM
             val pollingCommand = PollingCommand(requestCode = RequestCode.NO_REQUEST)
-            val pollingResponse = tempTarget.transceive(pollingCommand)
+            val pollingResponse =
+                PollingResponse.fromByteArray(nfcF.transceive(pollingCommand.toByteArray()))
 
             // Create the final target with proper PMM
             val actualPmm = Pmm(pollingResponse.pmm)
             return AndroidFeliCaTarget(
                 nfcF = nfcF,
-                idm = pollingResponse.idm,
+                initialIdm = tagId,
                 pmm = actualPmm,
-                systemCode = nfcF.systemCode,
+                initialSystemCode = discoveredSystemCode,
+                currentIdm = pollingResponse.idm,
+                currentSystemCode = null,
                 ensureSessionActive = ensureSessionActive,
             )
         }
     }
 
     init {
-        require(idm.size == 8) { "IDM must be exactly 8 bytes, got ${idm.size}" }
+        require(initialIdm.size == 8) { "IDM must be exactly 8 bytes, got ${initialIdm.size}" }
+        require(currentIdm.size == 8) {
+            "Current IDM must be exactly 8 bytes, got ${currentIdm.size}"
+        }
+        initialSystemCode?.let {
+            require(it.size == 2) { "Initial system code must be exactly 2 bytes, got ${it.size}" }
+        }
+        currentSystemCode?.let {
+            require(it.size == 2) { "Current system code must be exactly 2 bytes, got ${it.size}" }
+        }
     }
 
     internal fun replaceNativeTag(nfcF: NfcF): NfcF =

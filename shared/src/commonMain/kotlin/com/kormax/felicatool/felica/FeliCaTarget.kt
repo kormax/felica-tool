@@ -9,15 +9,31 @@ import kotlin.time.toDuration
  * different implementations (Android NFC, test mocks, etc.)
  */
 interface FeliCaTarget {
-    /** The card's IDM (8 bytes) - unique identifier */
+    /** IDM observed when the target was first acquired by the reader session. */
+    val initialIdm: ByteArray
+
+    /** System code observed when the target was first acquired by the reader session, if known. */
+    val initialSystemCode: ByteArray?
+
+    /** IDM for the system the target is currently expected to address. */
+    var currentIdm: ByteArray
+
+    /** System code for the system the target is currently expected to address, if known. */
+    var currentSystemCode: ByteArray?
+
+    /** The card's current IDM (8 bytes) - unique identifier. */
     var idm: ByteArray
+        get() = currentIdm
+        set(value) {
+            currentIdm = value
+        }
 
     /** The card's PMM (8 bytes) - Product Manufacturing Model */
     val pmm: Pmm
 
-    /** Platform-selected system code, when the reader exposes one. */
+    /** Current platform-selected system code, when known. */
     val systemCode: ByteArray?
-        get() = null
+        get() = currentSystemCode
 
     /**
      * Raw transceive operation - sends raw bytes and receives raw bytes
@@ -56,6 +72,32 @@ interface FeliCaTarget {
         val commandBytes = command.toByteArray()
         val inferredTimeout = timeout ?: inferTimeout(command)
         val responseBytes = transceive(commandBytes, inferredTimeout)
-        return command.responseFromByteArray(responseBytes)
+        val response = command.responseFromByteArray(responseBytes)
+        updateCurrentTargetState(command, response)
+        return response
+    }
+
+    private fun updateCurrentTargetState(command: FelicaCommand<*>, response: FelicaResponse) {
+        when {
+            command is PollingCommand && response is PollingResponse -> {
+                currentIdm = response.idm.copyOf()
+                currentSystemCode =
+                    if (
+                        command.requestCode == RequestCode.SYSTEM_CODE_REQUEST &&
+                            response.hasRequestData
+                    ) {
+                        response.systemCode.copyOf()
+                    } else {
+                        null
+                    }
+            }
+            command is FelicaCommandWithIdm<*> -> {
+                val commandIdm = command.idm.copyOf()
+                if (!currentIdm.contentEquals(commandIdm)) {
+                    currentSystemCode = null
+                }
+                currentIdm = commandIdm
+            }
+        }
     }
 }
