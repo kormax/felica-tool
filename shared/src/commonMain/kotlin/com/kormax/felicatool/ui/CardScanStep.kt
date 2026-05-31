@@ -376,7 +376,7 @@ data class CardScanStep(
                 )
                 add(
                     CardScanStep(
-                        id = "authentication1_des",
+                        id = "authentication1_des_determine_supported",
                         title = "Authenticate1 DES",
                         description = "Attempt DES authentication with discovered nodes",
                         icon = ScanStepIcon.LOCK,

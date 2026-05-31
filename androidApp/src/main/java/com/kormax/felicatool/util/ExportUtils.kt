@@ -404,7 +404,7 @@ object ExportUtils {
                 "get_area_information" to scanContext.getAreaInformationSupport,
                 "get_container_property" to scanContext.getContainerPropertySupport,
                 "set_parameter" to scanContext.setParameterSupport,
-                "authentication1_des" to scanContext.authentication1DesSupport,
+                "authentication1_des_determine_supported" to scanContext.authentication1DesSupport,
                 "authentication1_aes" to scanContext.authentication1AesSupport,
                 "get_container_issue_information" to
                     scanContext.getContainerIssueInformationSupport,

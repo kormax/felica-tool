@@ -172,6 +172,7 @@ class CardScanService(
         private const val PRESENCE_CHECK_RETRY_DELAY_STEP_MS = 50L
         private const val PRESENCE_CHECK_REDISCOVERY_TIMEOUT_MILLIS = 600
         private const val RETRY_ATTEMPTS = 3
+        private const val ATTEMPTS_DETERMINE_SUPPORTED = 5
         private const val RETRY_DELAY_STEP_MS = 10L
         private const val FIELD_RESET_REDISCOVERY_TIMEOUT_MILLIS = 600
         private const val NO_SERVICES_AVAILABLE = "No services available"
@@ -226,6 +227,13 @@ class CardScanService(
 
     /** Updates the scan context with command support status */
     private fun updateCommandSupport(commandId: String, support: CommandSupport) {
+        if (
+            support == CommandSupport.UNSUPPORTED &&
+                getCommandSupport(commandId) == CommandSupport.SUPPORTED
+        ) {
+            return
+        }
+
         scanContext =
             when (commandId) {
                 "polling" -> scanContext.copy(pollingSupport = support)
@@ -283,7 +291,8 @@ class CardScanService(
                 "write_without_encryption_determine_max_blocks" ->
                     scanContext.copy(writeBlocksWithoutEncryptionSupport = support)
                 "get_area_information" -> scanContext.copy(getAreaInformationSupport = support)
-                "authentication1_des" -> scanContext.copy(authentication1DesSupport = support)
+                "authentication1_des_determine_supported" ->
+                    scanContext.copy(authentication1DesSupport = support)
                 "authentication1_aes" -> scanContext.copy(authentication1AesSupport = support)
                 "internal_authenticate_and_read" ->
                     scanContext.copy(internalAuthenticateAndReadSupport = support)
@@ -342,7 +351,7 @@ class CardScanService(
                 scanContext.writeBlocksWithoutEncryptionSupport
             "get_area_information" -> scanContext.getAreaInformationSupport
             "get_container_property" -> scanContext.getContainerPropertySupport
-            "authentication1_des" -> scanContext.authentication1DesSupport
+            "authentication1_des_determine_supported" -> scanContext.authentication1DesSupport
             "authentication1_aes" -> scanContext.authentication1AesSupport
             "internal_authenticate_and_read" -> scanContext.internalAuthenticateAndReadSupport
             else -> CommandSupport.UNKNOWN
@@ -959,9 +968,13 @@ class CardScanService(
 
         val response =
             executeWithRetries(
-                target,
+                target = target,
+                commandLabel = "ReadWithoutEncryptionCommand",
+                systemCode = testTarget.systemContext.systemCode,
+                maxAttempts = ATTEMPTS_DETERMINE_SUPPORTED,
+            ) { activeTarget, _ ->
                 ReadWithoutEncryptionCommand(
-                    idm = target.idm,
+                    idm = activeTarget.idm,
                     serviceCodes = arrayOf(testTarget.service.code),
                     blockListElements =
                         arrayOf(
@@ -970,9 +983,8 @@ class CardScanService(
                                 blockNumber = testTarget.blockNumber,
                             )
                         ),
-                ),
-                systemCode = testTarget.systemContext.systemCode,
-            )
+                )
+            }
         markReadWithoutEncryptionSupported()
 
         val systemCodeHex = testTarget.systemContext.systemCode?.toHexString() ?: "unknown"
@@ -1007,21 +1019,21 @@ class CardScanService(
         target: FeliCaTarget,
         stepId: String,
         maxAttempts: Int = PRESENCE_CHECK_ATTEMPTS,
-    ): Exception? {
+    ) {
         var lastException: Exception? = null
 
         // Try a few times before treating brief presence-check failures as card loss.
         var attempt = 1
         while (attempt <= maxAttempts) {
             if (!target.isAvailable) {
-                return try {
+                try {
                     val rediscoveredTarget =
                         target.dropAndRediscover(
                             PRESENCE_CHECK_REDISCOVERY_TIMEOUT_MILLIS.milliseconds
                         )
                     ScanLog.w("CardScanService", "Card rediscovered")
                     (target as? CommunicationLoggedFeliCaTarget)?.replaceTarget(rediscoveredTarget)
-                    null
+                    return
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
@@ -1030,7 +1042,7 @@ class CardScanService(
                         "Card rediscovery failed during presence check for step $stepId",
                         e,
                     )
-                    e
+                    throw TagUnavailableException(CARD_LOST_MESSAGE, e)
                 }
             }
 
@@ -1038,7 +1050,7 @@ class CardScanService(
                 if (scanContext.requestResponseSupport == CommandSupport.SUPPORTED) {
                     try {
                         target.transceive(RequestResponseCommand(target.idm))
-                        return null
+                        return
                     } catch (e: Exception) {
                         when (e) {
                             is CancellationException,
@@ -1060,7 +1072,7 @@ class CardScanService(
                         target.transceive(
                             RequestServiceCommand(target.idm, arrayOf(probeService.code))
                         )
-                        return null
+                        return
                     } catch (e: Exception) {
                         when (e) {
                             is CancellationException,
@@ -1075,7 +1087,7 @@ class CardScanService(
                 }
 
                 pollSystemCode(target)
-                return null
+                return
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -1090,7 +1102,7 @@ class CardScanService(
             attempt++
         }
 
-        return lastException
+        throw TagUnavailableException(CARD_LOST_MESSAGE, lastException)
     }
 
     private suspend fun <T : FelicaResponse> executeWithRetries(
@@ -1099,22 +1111,61 @@ class CardScanService(
         systemCode: ByteArray? = null,
         maxAttempts: Int = RETRY_ATTEMPTS,
         retryDelayStepMs: Long = RETRY_DELAY_STEP_MS,
+    ): T =
+        executeWithRetries(
+            target = target,
+            commandLabel = command::class.simpleName ?: "FeliCa command",
+            systemCode = systemCode,
+            maxAttempts = maxAttempts,
+            retryDelayStepMs = retryDelayStepMs,
+        ) { _, _ ->
+            command
+        }
+
+    private suspend fun <T : FelicaResponse> executeWithRetries(
+        target: FeliCaTarget,
+        commandLabel: String,
+        systemCode: ByteArray? = null,
+        maxAttempts: Int = RETRY_ATTEMPTS,
+        retryDelayStepMs: Long = RETRY_DELAY_STEP_MS,
+        createCommand: (FeliCaTarget, Int) -> FelicaCommand<T>,
     ): T {
-        val commandLabel = command::class.simpleName ?: "FeliCa command"
         var lastException: Exception? = null
+        var activeTarget = target
 
         for (attempt in 1..maxAttempts) {
             try {
-                systemCode?.let { pollSystemCode(target, it) }
+                if (!activeTarget.isAvailable) {
+                    val rediscoveredTarget =
+                        try {
+                            activeTarget.dropAndRediscover(
+                                PRESENCE_CHECK_REDISCOVERY_TIMEOUT_MILLIS.milliseconds
+                            )
+                        } catch (e: CancellationException) {
+                            throw e
+                        } catch (e: Exception) {
+                            throw TagUnavailableException(CARD_LOST_MESSAGE, e)
+                        }
+
+                    ScanLog.w("CardScanService", "Card rediscovered")
+                    (target as? CommunicationLoggedFeliCaTarget)?.replaceTarget(rediscoveredTarget)
+                    activeTarget =
+                        if (target is CommunicationLoggedFeliCaTarget) {
+                            target
+                        } else {
+                            rediscoveredTarget
+                        }
+                }
+
+                systemCode?.let { pollSystemCode(activeTarget, it) }
                 val retryTimeoutExtension =
                     (retryDelayStepMs * (attempt - 1)).toDuration(DurationUnit.MILLISECONDS)
-                return target.transceive(
+                val command = createCommand(activeTarget, attempt)
+                return activeTarget.transceive(
                     command,
-                    target.inferTimeout(command) + retryTimeoutExtension,
+                    activeTarget.inferTimeout(command) + retryTimeoutExtension,
                 )
             } catch (e: CancellationException) {
-                throw e
-            } catch (e: TagUnavailableException) {
                 throw e
             } catch (e: Exception) {
                 lastException = e
@@ -1124,6 +1175,10 @@ class CardScanService(
 
                 ScanLog.w("CardScanService", "$commandLabel attempt $attempt failed; retrying", e)
             }
+        }
+
+        if (!activeTarget.isAvailable) {
+            throw TagUnavailableException(CARD_LOST_MESSAGE, lastException)
         }
 
         throw lastException ?: RuntimeException("$commandLabel failed without an exception")
@@ -1140,24 +1195,6 @@ class CardScanService(
         }
 
         nodeMetadataProvider.ensureReady()
-
-        // Check card presence before executing any command (except initial_info)
-        if (step.id != "polling") {
-            val presenceFailure = ensureCardPresence(target, step.id)
-
-            if (presenceFailure != null) {
-                ScanLog.e(
-                    "CardScanService",
-                    "Card presence check failed for step ${step.id}",
-                    presenceFailure,
-                )
-                return step.copy(
-                    status = StepStatus.ERROR,
-                    errorMessage = CARD_LOST_MESSAGE,
-                    duration = kotlin.time.Duration.ZERO,
-                )
-            }
-        }
 
         // Check if command is already known to be unsupported
         val commandSupport = getCommandSupport(step.id)
@@ -1193,7 +1230,8 @@ class CardScanService(
                     "polling_determine_trailing_data_supported" ->
                         executePollingDetermineTrailingDataSupported(target)
                     "request_code_list_determine_supported" -> executeRequestCodeList(target)
-                    "search_service_code_determine_supported" -> executeSearchServiceCode(target)
+                    "search_service_code_determine_supported" ->
+                        executeSearchServiceCodeDetermineSupported(target)
                     "request_service_determine_supported" ->
                         executeRequestServiceDetermineSupported(target)
                     "request_service_v2_determine_supported" ->
@@ -1236,7 +1274,8 @@ class CardScanService(
                         executeWriteWithoutEncryptionDetermineMaxBlocks(target)
                     "authentication1_des_node_list_hierarchy_validation" ->
                         executeAuthentication1DesNodeListHierarchyValidation(target)
-                    "authentication1_des" -> executeAuthentication1Des(target)
+                    "authentication1_des_determine_supported" ->
+                        executeAuthentication1DesDetermineSupported(target)
                     "authentication1_aes" -> executeAuthentication1Aes(target)
                     "scan_overview" -> {
                         // Copy logs from target into scan context at overview step
@@ -1278,6 +1317,16 @@ class CardScanService(
             return step.copy(
                 status = StepStatus.ERROR,
                 errorMessage = e.message ?: "Prerequisite not met",
+                duration = duration,
+            )
+        } catch (e: TagUnavailableException) {
+            ScanLog.e("CardScanService", "Card unavailable for step ${step.id}", e)
+
+            val duration = startTime.elapsedNow()
+
+            return step.copy(
+                status = StepStatus.ERROR,
+                errorMessage = CARD_LOST_MESSAGE,
                 duration = duration,
             )
         } catch (e: Exception) {
@@ -1360,6 +1409,8 @@ class CardScanService(
     }
 
     private suspend fun executeProbeSystemCodesManually(target: FeliCaTarget): String {
+        ensureCardPresence(target, "probe_system_codes_manually")
+
         val requestSystemCodeSucceeded =
             scanContext.requestSystemCodeSupport == CommandSupport.SUPPORTED
         val reportedSystemCodes =
@@ -1637,6 +1688,8 @@ class CardScanService(
     }
 
     private suspend fun executeRequestSpecificationVersion(target: FeliCaTarget): String {
+        ensureCardPresence(target, "request_specification_version")
+
         val requestSpecVersionCommand = RequestSpecificationVersionCommand(target.idm)
         val requestSpecVersionResponse = target.transceive(requestSpecVersionCommand)
 
@@ -1707,6 +1760,7 @@ class CardScanService(
                 "No systems have been discovered. Please run system discovery first."
             )
         }
+        ensureCardPresence(target, "get_system_status")
 
         var errors = 0
         val results = mutableListOf<String>()
@@ -1786,6 +1840,8 @@ class CardScanService(
     }
 
     private suspend fun executePollingSystemCode(target: FeliCaTarget): String {
+        ensureCardPresence(target, "polling_system_code")
+
         val systemCodeCommand =
             PollingCommand(
                 systemCode = target.systemCode ?: byteArrayOf(0xFF.toByte(), 0xFF.toByte()),
@@ -1831,6 +1887,8 @@ class CardScanService(
     }
 
     private suspend fun executePollingCommunicationPerformance(target: FeliCaTarget): String {
+        ensureCardPresence(target, "polling_communication_performance")
+
         val commPerfCommand =
             PollingCommand(
                 systemCode = target.systemCode ?: byteArrayOf(0xFF.toByte(), 0xFF.toByte()),
@@ -1867,6 +1925,8 @@ class CardScanService(
     }
 
     private suspend fun executePollingDetermineTrailingDataSupported(target: FeliCaTarget): String {
+        ensureCardPresence(target, "polling_determine_trailing_data_supported")
+
         val systemCode = target.systemCode ?: byteArrayOf(0xFF.toByte(), 0xFF.toByte())
         val command =
             PollingCommand(
@@ -1876,40 +1936,39 @@ class CardScanService(
                 trailingData = POLLING_TRAILING_DATA_PROBE_BYTES,
             )
         val commandLength = command.toByteArray().size
-        val attemptResults = mutableListOf<String>()
 
-        for (attempt in 1..POLLING_TRAILING_DATA_PROBE_ATTEMPTS) {
+        val response =
             try {
-                val response = target.transceive(command)
-                updateSystemIdmFromPolling(null, response.idm)
-                updateModeAfterSuccessfulPolling(null)
-                scanContext = scanContext.copy(pollingCommandTrailingDataSupported = true)
-
-                val responseIdmHex = response.idm.toHexString().uppercase()
-                val responsePmmHex = response.pmm.toHexString().uppercase()
-                attemptResults +=
-                    "$attempt. response received (IDM=$responseIdmHex, PMM=$responsePmmHex)"
-
-                return buildString {
-                        appendLine("Polling with trailing data: supported")
-                        appendLine("Command length: $commandLength bytes")
-                        appendLine(
-                            "Trailing data: ${POLLING_TRAILING_DATA_PROBE_BYTES.toHexString()}"
-                        )
-                        appendLine("Attempts:")
-                        attemptResults.forEach { appendLine("  $it") }
-                    }
-                    .trim()
+                executeWithRetries(
+                    target = target,
+                    command = command,
+                    maxAttempts = POLLING_TRAILING_DATA_PROBE_ATTEMPTS,
+                    retryDelayStepMs = 50,
+                )
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: TagUnavailableException) {
+                throw e
             } catch (e: Exception) {
-                if (e is TagUnavailableException) {
-                    throw e
-                }
-                val error = e.message ?: e::class.simpleName ?: "Unknown error"
-                attemptResults += "$attempt. no response ($error)"
-                if (attempt < POLLING_TRAILING_DATA_PROBE_ATTEMPTS) {
-                    delay(50)
-                }
+                null
             }
+
+        if (response != null) {
+            updateSystemIdmFromPolling(null, response.idm)
+            updateModeAfterSuccessfulPolling(null)
+            scanContext = scanContext.copy(pollingCommandTrailingDataSupported = true)
+
+            val responseIdmHex = response.idm.toHexString().uppercase()
+            val responsePmmHex = response.pmm.toHexString().uppercase()
+
+            return buildString {
+                    appendLine("Polling with trailing data: supported")
+                    appendLine("Command length: $commandLength bytes")
+                    appendLine("Trailing data: ${POLLING_TRAILING_DATA_PROBE_BYTES.toHexString()}")
+                    appendLine("Response IDM: $responseIdmHex")
+                    appendLine("Response PMM: $responsePmmHex")
+                }
+                .trim()
         }
 
         scanContext = scanContext.copy(pollingCommandTrailingDataSupported = false)
@@ -1918,8 +1977,7 @@ class CardScanService(
                 appendLine("Polling with trailing data: not supported")
                 appendLine("Command length: $commandLength bytes")
                 appendLine("Trailing data: ${POLLING_TRAILING_DATA_PROBE_BYTES.toHexString()}")
-                appendLine("Attempts:")
-                attemptResults.forEach { appendLine("  $it") }
+                appendLine("No response after $POLLING_TRAILING_DATA_PROBE_ATTEMPTS attempts")
             }
             .trim()
     }
@@ -1955,7 +2013,7 @@ class CardScanService(
             .trim()
     }
 
-    private suspend fun executeSearchServiceCode(target: FeliCaTarget): String {
+    private suspend fun executeSearchServiceCodeDetermineSupported(target: FeliCaTarget): String {
         val systemContext = scanContext.systemScanContexts.firstOrNull()
 
         val index = 0
@@ -1964,6 +2022,7 @@ class CardScanService(
                 target,
                 SearchServiceCodeCommand(target.idm, index),
                 systemCode = systemContext?.systemCode,
+                maxAttempts = ATTEMPTS_DETERMINE_SUPPORTED,
             )
         val systemCodeHex = systemCodeLabel(systemContext?.systemCode)
         val node = searchServiceCodeResponse.node
@@ -2030,6 +2089,10 @@ class CardScanService(
                 details.add(
                     "System ${contextIndex + 1} ($systemCodeHex): Request Code List found ${areas.size} area(s), ${services.size} service(s) in $requestCount request(s); $stopReason"
                 )
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: TagUnavailableException) {
+                throw e
             } catch (e: Exception) {
                 ScanLog.w(
                     "CardScanService",
@@ -2061,15 +2124,19 @@ class CardScanService(
             val systemCodeHex = systemCodeLabel(systemContext.systemCode)
 
             try {
-                pollSystemCode(target, systemContext.systemCode)
-
                 val nodes = mutableListOf<Node>()
                 var requestCount = 0
                 var stopReason = "completed"
 
                 for (index in 0x0000..SearchServiceCodeCommand.MAX_ITERATOR_INDEX) {
-                    val searchServiceCodeCommand = SearchServiceCodeCommand(target.idm, index)
-                    val parsedSearchResponse = target.transceive(searchServiceCodeCommand)
+                    val parsedSearchResponse =
+                        executeWithRetries(
+                            target = target,
+                            commandLabel = "SearchServiceCodeCommand",
+                            systemCode = systemContext.systemCode,
+                        ) { activeTarget, _ ->
+                            SearchServiceCodeCommand(activeTarget.idm, index)
+                        }
                     requestCount++
 
                     val node = parsedSearchResponse.node
@@ -2094,6 +2161,10 @@ class CardScanService(
                 details.add(
                     "System ${contextIndex + 1} ($systemCodeHex): Search Service Code found $areaCount area(s), $serviceCount service(s) in $requestCount request(s); $stopReason"
                 )
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: TagUnavailableException) {
+                throw e
             } catch (e: Exception) {
                 ScanLog.w(
                     "CardScanService",
@@ -2119,6 +2190,9 @@ class CardScanService(
             scanContext.requestCodeListSupport == CommandSupport.SUPPORTED
         val searchServiceCodeSupported =
             scanContext.searchServiceCodeSupport == CommandSupport.SUPPORTED
+        if (requestCodeListSupported || searchServiceCodeSupported) {
+            ensureCardPresence(target, "discover_nodes")
+        }
         val details = mutableListOf<String>()
 
         val discoveryResult =
@@ -2160,13 +2234,17 @@ class CardScanService(
                 }
             }
 
-        val forceFallback = !requestCodeListSupported && !searchServiceCodeSupported
+        val fallbackAllowed = !requestCodeListSupported && !searchServiceCodeSupported
         val (finalSystemContexts, fallbackSystems) =
-            applyKnownNodeFallbacks(
-                discoveryResult.systemContexts,
-                force = forceFallback,
-                details = details,
-            )
+            if (fallbackAllowed) {
+                applyKnownNodeFallbacks(
+                    discoveryResult.systemContexts,
+                    force = true,
+                    details = details,
+                )
+            } else {
+                discoveryResult.systemContexts to 0
+            }
 
         scanContext = scanContext.copy(systemScanContexts = finalSystemContexts)
 
@@ -2273,28 +2351,49 @@ class CardScanService(
 
     private suspend fun executeRequestServiceDetermineSupported(target: FeliCaTarget): String {
         val systemContext = scanContext.systemScanContexts.firstOrNull()
+        var requestedNodeCodes: Array<ByteArray> = emptyArray()
 
         val requestServiceResponse =
             executeWithRetries(
-                target,
-                RequestServiceCommand(target.idm, arrayOf(System.code)),
+                target = target,
+                commandLabel = "RequestServiceCommand",
                 systemCode = systemContext?.systemCode,
-            )
-        val keyVersion = requestServiceResponse.keyVersions.first()
+                maxAttempts = ATTEMPTS_DETERMINE_SUPPORTED,
+            ) { activeTarget, attempt ->
+                requestedNodeCodes =
+                    when (attempt) {
+                        // Heuristics
+                        // For some reason, the special Octopus variant (IC 24) succeeds more if
+                        // we try different values when re-attempting the command
+                        1 -> arrayOf(System.code)
+                        2 -> arrayOf(Area.ROOT.code)
+                        else -> arrayOf(System.code, Area.ROOT.code)
+                    }
+                RequestServiceCommand(activeTarget.idm, requestedNodeCodes)
+            }
 
         return buildString {
                 appendLine("Request Service command is supported (response received)")
                 appendLine("System: ${systemCodeLabel(systemContext?.systemCode)}")
-                appendLine("Node: ${System.code.toHexString().uppercase()} (System)")
-                appendLine(
-                    "System Key Version: ${
+                appendLine("Nodes:")
+                requestedNodeCodes.zip(requestServiceResponse.keyVersions).forEach {
+                    (nodeCode, keyVersion) ->
+                    val nodeLabel =
+                        when {
+                            nodeCode.contentEquals(System.code) -> "System"
+                            nodeCode.contentEquals(Area.ROOT.code) -> "Root Area"
+                            else -> "Node"
+                        }
+                    appendLine(
+                        "  ${nodeCode.toHexString().uppercase()} ($nodeLabel): ${
                         if (keyVersion.isMissing) {
                             "Not found"
                         } else {
                             keyVersion.toInt().toString()
                         }
                     }"
-                )
+                    )
+                }
             }
             .trim()
     }
@@ -2313,6 +2412,7 @@ class CardScanService(
                 "No nodes found. Request service key versions require at least one area to be discovered."
             )
         }
+        ensureCardPresence(target, "get_node_key_versions")
 
         // Get key versions in batches (max 32 nodes per request)
         val maxNodesPerRequest = 32
@@ -2333,7 +2433,8 @@ class CardScanService(
             systemNodes.chunked(maxNodesPerRequest).forEachIndexed { batchIndex, nodeBatch ->
                 val nodeCodes = nodeBatch.map { it.code }.toTypedArray()
                 val requestServiceCommand = RequestServiceCommand(target.idm, nodeCodes)
-                val requestServiceResponse = target.transceive(requestServiceCommand)
+                val requestServiceResponse =
+                    executeWithRetries(target = target, command = requestServiceCommand)
 
                 // Collect key version results for this batch
                 nodeBatch.forEachIndexed { index, node ->
@@ -2401,6 +2502,7 @@ class CardScanService(
         if (scanContext.requestServiceSupport != CommandSupport.SUPPORTED) {
             throw PrerequisiteException(REQUEST_SERVICE_UNAVAILABLE_FOR_UNKNOWN_ATTRIBUTE_PROBE)
         }
+        ensureCardPresence(target, "request_service_determine_unknown_node_attributes_supported")
 
         val systemContext = scanContext.systemScanContexts.firstOrNull()
         val unknownAttributeValue = resolveUnknownNodeAttributeValue()
@@ -2412,29 +2514,25 @@ class CardScanService(
                 ((unknownAttributeNodeCodeValue shr 8) and 0xFF).toByte(),
             )
 
-        val attemptResults = mutableListOf<String>()
-        var responseReceived = false
-
-        for (attempt in 1..REQUEST_SERVICE_UNKNOWN_ATTRIBUTE_PROBE_ATTEMPTS) {
+        val response =
             try {
-                pollSystemCode(target, systemContext?.systemCode)
-                val response =
-                    target.transceive(
-                        RequestServiceCommand(target.idm, arrayOf(unknownAttributeNodeCode))
-                    )
-                val keyVersionHex =
-                    response.keyVersions.first().toByteArray().toHexString().uppercase()
-                attemptResults += "$attempt. response received (key_version=$keyVersionHex)"
-                responseReceived = true
-                break
-            } catch (e: Exception) {
-                val error = e.message ?: e::class.simpleName ?: "Unknown error"
-                attemptResults += "$attempt. no response ($error)"
-                if (attempt < REQUEST_SERVICE_UNKNOWN_ATTRIBUTE_PROBE_ATTEMPTS) {
-                    delay(50)
+                executeWithRetries(
+                    target = target,
+                    commandLabel = "RequestServiceCommand",
+                    systemCode = systemContext?.systemCode,
+                    maxAttempts = REQUEST_SERVICE_UNKNOWN_ATTRIBUTE_PROBE_ATTEMPTS,
+                    retryDelayStepMs = 50,
+                ) { activeTarget, _ ->
+                    RequestServiceCommand(activeTarget.idm, arrayOf(unknownAttributeNodeCode))
                 }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: TagUnavailableException) {
+                throw e
+            } catch (e: Exception) {
+                null
             }
-        }
+        val responseReceived = response != null
 
         scanContext =
             scanContext.copy(requestServiceUnknownNodeAttributesSupported = responseReceived)
@@ -2448,9 +2546,16 @@ class CardScanService(
                 appendLine(
                     "System: ${systemContext?.systemCode?.toHexString()?.uppercase() ?: "wildcard"}"
                 )
-                appendLine("Attempts:")
-                attemptResults.forEach { appendLine("  $it") }
                 appendLine("Supported = $responseReceived")
+                if (response != null) {
+                    val keyVersionHex =
+                        response.keyVersions.first().toByteArray().toHexString().uppercase()
+                    appendLine("Key version: $keyVersionHex")
+                } else {
+                    appendLine(
+                        "No response after $REQUEST_SERVICE_UNKNOWN_ATTRIBUTE_PROBE_ATTEMPTS attempts"
+                    )
+                }
             }
             .trim()
     }
@@ -2485,53 +2590,50 @@ class CardScanService(
                 "No node found under an area under root area; cannot check Authenticate1 DES node-list hierarchy validation."
             )
         }
+        ensureCardPresence(target, "authentication1_des_node_list_hierarchy_validation")
 
         val challenge1A = ByteArray(8) { 0x00.toByte() }
         val areasToAuth = listOf(preferredTarget.rootArea)
         // Area0 may appear in both lists: this is allowed because key updates can target areas.
         val nodesToAuth = listOf<Node>(preferredTarget.rootArea, nonImmediateNode)
 
-        val attemptResults = mutableListOf<String>()
-        var responseReceived = false
         var selectedSystemIdmUsed: ByteArray? = null
-        var responseChallenge1BHex: String? = null
-        var responseChallenge2AHex: String? = null
 
-        for (attempt in 1..AUTHENTICATION1_DES_NODE_LIST_HIERARCHY_VALIDATION_ATTEMPTS) {
+        val response =
             try {
-                pollSystemCode(target, preferredTarget.systemContext.systemCode)
-                val currentSystemContext =
-                    scanContext.systemScanContexts.firstOrNull { context ->
-                        context.systemCode.sameBytes(preferredTarget.systemContext.systemCode)
-                    }
-                val selectedSystemIdm = currentSystemContext?.idm ?: target.idm
-                selectedSystemIdmUsed = selectedSystemIdm
+                executeWithRetries(
+                    target = target,
+                    commandLabel = "Authentication1DesCommand",
+                    systemCode = preferredTarget.systemContext.systemCode,
+                    maxAttempts = AUTHENTICATION1_DES_NODE_LIST_HIERARCHY_VALIDATION_ATTEMPTS,
+                    retryDelayStepMs = 50,
+                ) { activeTarget, _ ->
+                    val currentSystemContext =
+                        scanContext.systemScanContexts.firstOrNull { context ->
+                            context.systemCode.sameBytes(preferredTarget.systemContext.systemCode)
+                        }
+                    val selectedSystemIdm = currentSystemContext?.idm ?: activeTarget.idm
+                    selectedSystemIdmUsed = selectedSystemIdm
 
-                val response =
-                    target.transceive(
-                        Authentication1DesCommand(
-                            idm = selectedSystemIdm,
-                            areaNodes = areasToAuth,
-                            nodes = nodesToAuth,
-                            challenge1A = challenge1A,
-                        )
+                    Authentication1DesCommand(
+                        idm = selectedSystemIdm,
+                        areaNodes = areasToAuth,
+                        nodes = nodesToAuth,
+                        challenge1A = challenge1A,
                     )
-
-                responseChallenge1BHex = response.challenge1B.toHexString().uppercase()
-                responseChallenge2AHex = response.challenge2A.toHexString().uppercase()
-                responseReceived = true
-                setSystemMode(preferredTarget.systemContext.systemCode, Mode.Mode1.Des)
-                attemptResults +=
-                    "$attempt. response received (challenge1B=$responseChallenge1BHex, challenge2A=$responseChallenge2AHex)"
-                break
-            } catch (e: Exception) {
-                val error = e.message ?: e::class.simpleName ?: "Unknown error"
-                attemptResults += "$attempt. no response ($error)"
-                if (attempt < AUTHENTICATION1_DES_NODE_LIST_HIERARCHY_VALIDATION_ATTEMPTS) {
-                    delay(50)
                 }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: TagUnavailableException) {
+                throw e
+            } catch (e: Exception) {
+                null
             }
+
+        if (response != null) {
+            setSystemMode(preferredTarget.systemContext.systemCode, Mode.Mode1.Des)
         }
+        val responseReceived = response != null
 
         val resetStateResult =
             if (responseReceived) {
@@ -2566,8 +2668,14 @@ class CardScanService(
                 appendLine("  1. ${describeNodeForAuthenticationCheck(preferredTarget.rootArea)}")
                 appendLine("  2. ${describeNodeForAuthenticationCheck(nonImmediateNode)}")
                 appendLine("Challenge1A: ${challenge1A.toHexString().uppercase()}")
-                appendLine("Attempts:")
-                attemptResults.forEach { appendLine("  $it") }
+                if (response != null) {
+                    appendLine("Challenge1B: ${response.challenge1B.toHexString().uppercase()}")
+                    appendLine("Challenge2A: ${response.challenge2A.toHexString().uppercase()}")
+                } else {
+                    appendLine(
+                        "No response after $AUTHENTICATION1_DES_NODE_LIST_HIERARCHY_VALIDATION_ATTEMPTS attempts"
+                    )
+                }
                 appendLine("Validation behavior: $validationBehavior")
                 resetStateResult?.let {
                     appendLine()
@@ -2585,6 +2693,7 @@ class CardScanService(
                 target,
                 RequestServiceV2Command(target.idm, arrayOf(System.code)),
                 systemCode = systemContext?.systemCode,
+                maxAttempts = ATTEMPTS_DETERMINE_SUPPORTED,
             )
         val aesKeyVersion = requestServiceV2Response.aesKeyVersions.firstOrNull()
         val desKeyVersion = requestServiceV2Response.desKeyVersions.firstOrNull()
@@ -2649,6 +2758,7 @@ class CardScanService(
                 "No nodes found. Request service key versions require at least one area to be discovered."
             )
         }
+        ensureCardPresence(target, "get_node_key_versions")
 
         // Get key versions in batches (max 32 nodes per request)
         val maxNodesPerRequest = 32
@@ -2672,7 +2782,8 @@ class CardScanService(
             nodes.chunked(maxNodesPerRequest).forEachIndexed { batchIndex, nodeBatch ->
                 val nodeCodes = nodeBatch.map { it.code }.toTypedArray()
                 val requestServiceV2Command = RequestServiceV2Command(target.idm, nodeCodes)
-                val requestServiceV2Response = target.transceive(requestServiceV2Command)
+                val requestServiceV2Response =
+                    executeWithRetries(target = target, command = requestServiceV2Command)
 
                 if (requestServiceV2Response.isStatusSuccessful) {
                     // Store encryption identifier from first successful response
@@ -2805,6 +2916,7 @@ class CardScanService(
                 "Force discover requires RequestService or RequestServiceV2 to be supported"
             )
         }
+        ensureCardPresence(target, "force_discover_nodes")
 
         val useV2 = requestServiceV2Supported
         val results = mutableListOf<String>()
@@ -2973,6 +3085,7 @@ class CardScanService(
                 "No areas discovered. Get Area Information requires discovered areas from Discover Nodes step."
             )
         }
+        ensureCardPresence(target, "get_area_information")
 
         val results = mutableListOf<String>()
         val maxAreasPerRequest = 10 // Process areas in smaller batches to avoid overwhelming output
@@ -3090,6 +3203,8 @@ class CardScanService(
     }
 
     private suspend fun executeGetContainerProperty(target: FeliCaTarget): String {
+        ensureCardPresence(target, "get_container_property")
+
         val results = mutableListOf<String>()
         val containerPropertyValues =
             mutableMapOf<GetContainerPropertyCommand.Property, ByteArray>()
@@ -3139,6 +3254,8 @@ class CardScanService(
     }
 
     private suspend fun executeSetParameter(target: FeliCaTarget): String {
+        ensureCardPresence(target, "set_parameter")
+
         // Test different parameter combinations
         val results = mutableListOf<String>()
 
@@ -3208,6 +3325,8 @@ class CardScanService(
     }
 
     private suspend fun executeGetContainerIssueInformation(target: FeliCaTarget): String {
+        ensureCardPresence(target, "get_container_issue_information")
+
         val getContainerIssueInformationCommand = GetContainerIssueInformationCommand(target.idm)
         val getContainerIssueInformationResponse =
             target.transceive(getContainerIssueInformationCommand)
@@ -3243,6 +3362,8 @@ class CardScanService(
     }
 
     private suspend fun executeGetPlatformInformation(target: FeliCaTarget): String {
+        ensureCardPresence(target, "get_platform_information")
+
         val getPlatformInformationCommand = GetPlatformInformationCommand(target.idm)
         val getPlatformInformationResponse = target.transceive(getPlatformInformationCommand)
 
@@ -3266,6 +3387,8 @@ class CardScanService(
     }
 
     private suspend fun executeResetMode(target: FeliCaTarget): String {
+        ensureCardPresence(target, "reset_mode")
+
         val resetModeCommand = ResetModeCommand(target.idm)
         val resetModeResponse = target.transceive(resetModeCommand)
         if (resetModeResponse.isStatusSuccessful) {
@@ -3282,6 +3405,8 @@ class CardScanService(
     }
 
     private suspend fun executeGetContainerId(target: FeliCaTarget): String {
+        ensureCardPresence(target, "get_container_id")
+
         val getContainerIdCommand = GetContainerIdCommand()
         val getContainerIdResponse = target.transceive(getContainerIdCommand)
 
@@ -3295,6 +3420,8 @@ class CardScanService(
     }
 
     private suspend fun executeEcho(target: FeliCaTarget): String {
+        ensureCardPresence(target, "echo")
+
         data class EchoAttemptResult(val length: Int, val success: Boolean, val error: String?)
 
         suspend fun attemptEcho(length: Int): EchoAttemptResult {
@@ -3402,6 +3529,7 @@ class CardScanService(
                     "Internal Authenticate and Read requires at least one service with MAC enabled."
             )
         }
+        ensureCardPresence(target, "internal_authenticate_and_read")
 
         val systemCodeHex = bestSystemContext.systemCode?.toHexString() ?: "unknown"
         val serviceCodeHex = bestMacService.code.toHexString()
@@ -3490,8 +3618,6 @@ class CardScanService(
     ): String {
         val testTarget = findReadWithoutEncryptionTestTarget()
 
-        // Switch to the best system for testing
-        pollSystemCode(target, testTarget.systemContext.systemCode)
         val testService = testTarget.service
         val testBlockNumber = testTarget.blockNumber
 
@@ -3504,14 +3630,18 @@ class CardScanService(
                 BlockListElement(serviceCodeListOrder = 0, blockNumber = 127),
             )
 
-        val readCommand =
-            ReadWithoutEncryptionCommand(
-                idm = target.idm,
-                serviceCodes = arrayOf(testService.code),
-                blockListElements = blocksToRead.toTypedArray(),
-            )
-
-        val response = target.transceive(readCommand)
+        val response =
+            executeWithRetries(
+                target = target,
+                commandLabel = "ReadWithoutEncryptionCommand",
+                systemCode = testTarget.systemContext.systemCode,
+            ) { activeTarget, _ ->
+                ReadWithoutEncryptionCommand(
+                    idm = activeTarget.idm,
+                    serviceCodes = arrayOf(testService.code),
+                    blockListElements = blocksToRead.toTypedArray(),
+                )
+            }
         val statusFlag1 = response.statusFlag1
         val statusFlag2 = response.statusFlag2
         val fallbackType = ErrorLocationIndication.FLAG
@@ -3596,8 +3726,6 @@ class CardScanService(
     ): String {
         val testTarget = findReadWithoutEncryptionTestTarget()
 
-        // Switch to the best system for testing
-        pollSystemCode(target, testTarget.systemContext.systemCode)
         val testService = testTarget.service
         val testBlockNumber = testTarget.blockNumber
 
@@ -3622,15 +3750,18 @@ class CardScanService(
                     )
                 }
 
-            // Create the read command with the repeated service and corresponding block elements
-            val readCommand =
-                ReadWithoutEncryptionCommand(
-                    idm = target.idm,
-                    serviceCodes = serviceCodes,
-                    blockListElements = blockListElements,
-                )
-
-            val response = target.transceive(readCommand)
+            val response =
+                executeWithRetries(
+                    target = target,
+                    commandLabel = "ReadWithoutEncryptionCommand",
+                    systemCode = testTarget.systemContext.systemCode,
+                ) { activeTarget, _ ->
+                    ReadWithoutEncryptionCommand(
+                        idm = activeTarget.idm,
+                        serviceCodes = serviceCodes,
+                        blockListElements = blockListElements,
+                    )
+                }
             if (response.isStatusSuccessful) {
                 // Command succeeded, we found the maximum
                 ScanLog.d(
@@ -3692,9 +3823,6 @@ class CardScanService(
         target: FeliCaTarget
     ): String {
         val testTarget = findReadWithoutEncryptionTestTarget()
-
-        pollSystemCode(target, testTarget.systemContext.systemCode)
-
         val requestedCount =
             minOf(
                 ReadWithoutEncryptionCommand.MAX_SERVICE_CODES,
@@ -3710,14 +3838,18 @@ class CardScanService(
                 BlockListElement(serviceCodeListOrder = index, blockNumber = testBlockNumber)
             }
 
-        val readCommand =
-            ReadWithoutEncryptionCommand(
-                idm = target.idm,
-                serviceCodes = serviceCodes,
-                blockListElements = blockListElements,
-            )
-
-        val response = target.transceive(readCommand)
+        val response =
+            executeWithRetries(
+                target = target,
+                commandLabel = "ReadWithoutEncryptionCommand",
+                systemCode = testTarget.systemContext.systemCode,
+            ) { activeTarget, _ ->
+                ReadWithoutEncryptionCommand(
+                    idm = activeTarget.idm,
+                    serviceCodes = serviceCodes,
+                    blockListElements = blockListElements,
+                )
+            }
         val statusFlag1 = response.statusFlag1
         val statusFlag2 = response.statusFlag2
 
@@ -3787,24 +3919,25 @@ class CardScanService(
         var fallbackStatus2: Byte? = null
 
         while (maxBlocks > 0) {
-            pollSystemCode(target, testTarget.systemContext.systemCode)
-
             // Create block list elements for blocks 0 through (maxBlocks-1)
             val blockListElements =
                 Array(maxBlocks) { blockIndex ->
                     BlockListElement(serviceCodeListOrder = 0, blockNumber = testBlockNumber)
                 }
 
-            // Create the read command with single service and multiple blocks
-            val readCommand =
-                ReadWithoutEncryptionCommand(
-                    idm = target.idm,
-                    serviceCodes = arrayOf(testService.code),
-                    blockListElements = blockListElements,
-                )
-
             try {
-                val response = target.transceive(readCommand)
+                val response =
+                    executeWithRetries(
+                        target = target,
+                        commandLabel = "ReadWithoutEncryptionCommand",
+                        systemCode = testTarget.systemContext.systemCode,
+                    ) { activeTarget, _ ->
+                        ReadWithoutEncryptionCommand(
+                            idm = activeTarget.idm,
+                            serviceCodes = arrayOf(testService.code),
+                            blockListElements = blockListElements,
+                        )
+                    }
                 if (response.isStatusSuccessful) {
                     // Command succeeded, we found the maximum
                     ScanLog.d(
@@ -3831,9 +3964,13 @@ class CardScanService(
                     "CardScanService",
                     "ReadWithoutEncryption failed with $maxBlocks blocks, ${formatStatus(response)}",
                 )
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: TagUnavailableException) {
+                throw e
             } catch (e: Exception) {
                 // Card may not respond if command is too large (e.g., FeliCa Lite)
-                // Poll to check if card is still present, then continue with smaller size
+                // Retry helper checks card availability before continuing with a smaller size.
                 ScanLog.d(
                     "CardScanService",
                     "ReadWithoutEncryption got no response with $maxBlocks blocks: ${e.message}",
@@ -3869,7 +4006,7 @@ class CardScanService(
     ): String {
         // Find a writable service and its blocks
         val serviceInfo = findWritableServiceAndEmptyBlock()
-        pollSystemCode(target, serviceInfo.systemCode)
+        ensureCardPresence(target, "write_without_encryption_determine_error_indication")
 
         val writableService = serviceInfo.service
         val emptyBlockNumber = serviceInfo.availableBlocks.keys.minOrNull()!!
@@ -3893,15 +4030,19 @@ class CardScanService(
         // Use the same data for the valid blocks (safe - no actual change), dummy for invalid block
         val blockData = arrayOf(emptyBlockData, emptyBlockData, emptyBlockData)
 
-        val writeCommand =
-            WriteWithoutEncryptionCommand(
-                idm = target.idm,
-                serviceCodes = arrayOf(writableService.code),
-                blockListElements = blocksToWrite.toTypedArray(),
-                blockData = blockData,
-            )
-
-        val response = target.transceive(writeCommand)
+        val response =
+            executeWithRetries(
+                target = target,
+                commandLabel = "WriteWithoutEncryptionCommand",
+                systemCode = serviceInfo.systemCode,
+            ) { activeTarget, _ ->
+                WriteWithoutEncryptionCommand(
+                    idm = activeTarget.idm,
+                    serviceCodes = arrayOf(writableService.code),
+                    blockListElements = blocksToWrite.toTypedArray(),
+                    blockData = blockData,
+                )
+            }
         val statusFlag1 = response.statusFlag1
         val statusFlag2 = response.statusFlag2
 
@@ -3958,7 +4099,7 @@ class CardScanService(
     ): String {
         // Find a writable service and its blocks
         val serviceInfo = findWritableServiceAndEmptyBlock()
-        pollSystemCode(target, serviceInfo.systemCode)
+        ensureCardPresence(target, "write_without_encryption_determine_max_blocks")
 
         val writableService = serviceInfo.service
         val emptyBlockNumber = serviceInfo.availableBlocks.keys.minOrNull()!!
@@ -3976,17 +4117,20 @@ class CardScanService(
             // Use the same data as the empty block (safe - no actual change)
             val blockData = Array(maxBlocks) { emptyBlockData.copyOf() }
 
-            // Create the write command with single service and multiple blocks
-            val writeCommand =
-                WriteWithoutEncryptionCommand(
-                    idm = target.idm,
-                    serviceCodes = arrayOf(writableService.code),
-                    blockListElements = blockListElements,
-                    blockData = blockData,
-                )
-
             try {
-                val response = target.transceive(writeCommand)
+                val response =
+                    executeWithRetries(
+                        target = target,
+                        commandLabel = "WriteWithoutEncryptionCommand",
+                        systemCode = serviceInfo.systemCode,
+                    ) { activeTarget, _ ->
+                        WriteWithoutEncryptionCommand(
+                            idm = activeTarget.idm,
+                            serviceCodes = arrayOf(writableService.code),
+                            blockListElements = blockListElements,
+                            blockData = blockData,
+                        )
+                    }
                 if (response.isStatusSuccessful) {
                     // Command succeeded, we found the maximum
                     ScanLog.d(
@@ -4007,14 +4151,17 @@ class CardScanService(
                     "CardScanService",
                     "WriteWithoutEncryption failed with $maxBlocks blocks, ${formatStatus(response)}",
                 )
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: TagUnavailableException) {
+                throw e
             } catch (e: Exception) {
                 // Card may not respond if command is too large (e.g., FeliCa Lite)
-                // Poll to check if card is still present, then continue with smaller size
+                // Retry helper checks card availability before continuing with a smaller size.
                 ScanLog.d(
                     "CardScanService",
                     "WriteWithoutEncryption got no response with $maxBlocks blocks: ${e.message}",
                 )
-                pollSystemCode(target, serviceInfo.systemCode)
             }
             maxBlocks--
         }
@@ -4203,6 +4350,7 @@ class CardScanService(
         if (allServicesWithoutAuth.isEmpty()) {
             throw PrerequisiteException(NO_SERVICES_WITHOUT_AUTHENTICATION)
         }
+        ensureCardPresence(target, "read_blocks_without_encryption")
 
         // Process each system context separately
         val updatedSystemContexts = mutableListOf<SystemScanContext>()
@@ -4354,6 +4502,8 @@ class CardScanService(
      * iterating through all possible block numbers (0x0000 to 0xFFFF).
      */
     private suspend fun executeForceDiscoverBlocks(target: FeliCaTarget): Pair<String, String> {
+        ensureCardPresence(target, "force_discover_blocks")
+
         val contextResults = mutableListOf<String>()
         val updatedSystemContexts = mutableListOf<SystemScanContext>()
         var totalNewBlocksFound = 0
@@ -4512,6 +4662,7 @@ class CardScanService(
                 "No nodes discovered. Get Node Property (Value-Limited Service) requires discovered nodes from Discover Nodes step."
             )
         }
+        ensureCardPresence(target, "get_node_property_value_limited_service")
 
         var errors = 0
         val results = mutableListOf<String>()
@@ -4659,6 +4810,7 @@ class CardScanService(
                 "No nodes discovered. Get Node Property (MAC Communication) requires discovered nodes from Discover Nodes step."
             )
         }
+        ensureCardPresence(target, "get_node_property_mac_communication")
 
         var errors = 0
         val results = mutableListOf<String>()
@@ -4790,6 +4942,7 @@ class CardScanService(
                 "No nodes discovered. Request Block Information requires discovered nodes from Discover Nodes step."
             )
         }
+        ensureCardPresence(target, "request_block_information")
 
         // Request block information in batches (max 32 services per request as per FeliCa spec)
         val maxServicesPerRequest = 32
@@ -4882,6 +5035,7 @@ class CardScanService(
                 "No nodes discovered. Request Block Information Ex requires discovered nodes from Discover Nodes step."
             )
         }
+        ensureCardPresence(target, "request_block_information_ex")
 
         // Request block information in batches (max 32 services per request as per FeliCa spec)
         val maxServicesPerRequest = 16
@@ -4983,27 +5137,20 @@ class CardScanService(
         return collapsedResult to expandedResult
     }
 
-    private suspend fun executeAuthentication1Des(target: FeliCaTarget): String {
+    private suspend fun executeAuthentication1DesDetermineSupported(target: FeliCaTarget): String {
         val testTarget = findBestAuthentication1DesTarget()
         if (testTarget == null) {
             throw RuntimeException(
                 "No suitable system found for DES authentication (root area with valid DES key is required)."
             )
         }
+        ensureCardPresence(target, "authentication1_des_determine_supported")
 
         val systemCodeHex = testTarget.systemContext.systemCode?.toHexString() ?: "unknown"
         ScanLog.d(
             "CardScanService",
             "Selected system $systemCodeHex for DES authentication using root area ${testTarget.rootArea.code.toHexString()} in area and node lists (node count: ${testTarget.systemContext.nodes.size})",
         )
-
-        // Poll the selected system before authentication
-        pollSystemCode(target, testTarget.systemContext.systemCode)
-        val selectedSystemContext =
-            scanContext.systemScanContexts.firstOrNull { context ->
-                context.systemCode.sameBytes(testTarget.systemContext.systemCode)
-            }
-        val selectedSystemIdm = selectedSystemContext?.idm ?: target.idm
 
         // Generate a random challenge1A (8 bytes)
         val challenge1A = ByteArray(8) { 0x00.toByte() }
@@ -5012,22 +5159,36 @@ class CardScanService(
         // Area0 may appear in both lists: this is allowed because key updates can target areas.
         val nodesToAuth = listOf<Node>(testTarget.rootArea)
 
-        val authenticateCommand =
-            Authentication1DesCommand(
-                idm = selectedSystemIdm,
-                areaNodes = areasToAuth,
-                nodes = nodesToAuth,
-                challenge1A = challenge1A,
-            )
+        var selectedSystemIdmUsed: ByteArray? = null
+        val authenticateResponse =
+            executeWithRetries(
+                target = target,
+                commandLabel = "Authentication1DesCommand",
+                systemCode = testTarget.systemContext.systemCode,
+                maxAttempts = ATTEMPTS_DETERMINE_SUPPORTED,
+                retryDelayStepMs = 50,
+            ) { activeTarget, _ ->
+                val selectedSystemContext =
+                    scanContext.systemScanContexts.firstOrNull { context ->
+                        context.systemCode.sameBytes(testTarget.systemContext.systemCode)
+                    }
+                val selectedSystemIdm = selectedSystemContext?.idm ?: activeTarget.idm
+                selectedSystemIdmUsed = selectedSystemIdm
 
-        val authenticateResponse = target.transceive(authenticateCommand)
+                Authentication1DesCommand(
+                    idm = selectedSystemIdm,
+                    areaNodes = areasToAuth,
+                    nodes = nodesToAuth,
+                    challenge1A = challenge1A,
+                )
+            }
         setSystemMode(testTarget.systemContext.systemCode, Mode.Mode1.Des)
 
         val resetResult =
             resetAuthenticationState(
                 target = target,
                 authenticatedSystemCode = testTarget.systemContext.systemCode,
-                authenticatedSystemIdm = selectedSystemIdm,
+                authenticatedSystemIdm = selectedSystemIdmUsed,
             )
         val resetModeResult = resetResult.message
 
@@ -5138,6 +5299,7 @@ class CardScanService(
                 "No system found with AES-compatible nodes. AES authentication requires nodes with AES key versions."
             )
         }
+        ensureCardPresence(target, "authentication1_aes")
 
         val systemCodeHex = bestSystemContext.systemCode?.toHexString() ?: "unknown"
         ScanLog.d(
