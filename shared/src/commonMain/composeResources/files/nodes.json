@@ -14336,13 +14336,13 @@
     "service_provider": "FELICA_LITE",
     "cards": [
       "AIME",
-      "BANDAI",
+      "BANDAI_NAMCO_PASSPORT",
       "DHAKA_SINGLE",
       "ENEKEY",
       "FELICA_LITE",
       "HCMC_SINGLE",
       "KARTU_SINGLE_TRIP",
-      "KONAMI",
+      "KONAMI_E_AMUSEMENT",
       "MOBIRY_DAYS",
       "MTR_TICKET",
       "NESICA",
@@ -14356,13 +14356,13 @@
         "service_provider": "FELICA_LITE",
         "cards": [
           "AIME",
-          "BANDAI",
+          "BANDAI_NAMCO_PASSPORT",
           "DHAKA_SINGLE",
           "ENEKEY",
           "FELICA_LITE",
           "HCMC_SINGLE",
           "KARTU_SINGLE_TRIP",
-          "KONAMI",
+          "KONAMI_E_AMUSEMENT",
           "MOBIRY_DAYS",
           "MTR_TICKET",
           "NESICA",
@@ -14379,13 +14379,13 @@
         "service_provider": "FELICA_LITE",
         "cards": [
           "AIME",
-          "BANDAI",
+          "BANDAI_NAMCO_PASSPORT",
           "DHAKA_SINGLE",
           "ENEKEY",
           "FELICA_LITE",
           "HCMC_SINGLE",
           "KARTU_SINGLE_TRIP",
-          "KONAMI",
+          "KONAMI_E_AMUSEMENT",
           "MOBIRY_DAYS",
           "MTR_TICKET",
           "NESICA",
@@ -14420,9 +14420,9 @@
           "0082": "^................0068............$"
         },
         "name": "Konami E-Amusement",
-        "service_provider": "KONAMI",
+        "service_provider": "KONAMI_E_AMUSEMENT",
         "cards": [
-          "KONAMI"
+          "KONAMI_E_AMUSEMENT"
         ],
         "mediums": [
           "CARD"
@@ -14552,9 +14552,9 @@
           "0082": "^................002a............$"
         },
         "name": "Bandai Namco Passport",
-        "service_provider": "BANDAI",
+        "service_provider": "BANDAI_NAMCO_PASSPORT",
         "cards": [
-          "BANDAI"
+          "BANDAI_NAMCO_PASSPORT"
         ],
         "mediums": [
           "CARD"
@@ -14618,13 +14618,13 @@
         "service_provider": "FELICA_LITE",
         "cards": [
           "AIME",
-          "BANDAI",
+          "BANDAI_NAMCO_PASSPORT",
           "DHAKA_SINGLE",
           "ENEKEY",
           "FELICA_LITE",
           "HCMC_SINGLE",
           "KARTU_SINGLE_TRIP",
-          "KONAMI",
+          "KONAMI_E_AMUSEMENT",
           "MOBIRY_DAYS",
           "MTR_TICKET",
           "NESICA",

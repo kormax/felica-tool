@@ -189,7 +189,7 @@ class CardScanService(
             listOf(
                 ManualSystemProbeTarget(NDEF_SYSTEM_CODE, "NDEF"),
                 ManualSystemProbeTarget(FELICA_LITE_SYSTEM_CODE, "FeliCa Lite"),
-                ManualSystemProbeTarget(SECURE_ID_SYSTEM_CODE, "Secure ID"),
+                ManualSystemProbeTarget(SECURE_ID_SYSTEM_CODE, "FeliCa Secure ID"),
             )
         private const val WILDCARD_SYSTEM_PROBE_FIRST_PREFIX = 0x00
         private const val WILDCARD_SYSTEM_PROBE_LAST_PREFIX = 0xFE
