@@ -25,7 +25,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.kormax.felicatool.service.CardScanRunner
+import com.kormax.felicatool.service.CardScanService
 import com.kormax.felicatool.service.SystemScanContext
 import com.kormax.felicatool.ui.components.CardInformationSection
 import com.kormax.felicatool.ui.components.GroupedServicesSection
@@ -39,7 +39,7 @@ import com.kormax.felicatool.util.ServiceIconMapper
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScanResultsOverview(
-    cardScanRunner: CardScanRunner,
+    cardScanService: CardScanService,
     onBackPressed: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -90,7 +90,7 @@ fun ScanResultsOverview(
                                 showExportMenu = false
                                 ExportUtils.exportFlatList(
                                     context,
-                                    cardScanRunner.getScanContext(),
+                                    cardScanService.getScanContext(),
                                     privacyMode,
                                 )
                             },
@@ -101,7 +101,7 @@ fun ScanResultsOverview(
                                 showExportMenu = false
                                 ExportUtils.exportCommunicationLog(
                                     context,
-                                    cardScanRunner.getScanContext().communicationLog,
+                                    cardScanService.getScanContext().communicationLog,
                                     privacyMode,
                                 )
                             },
@@ -119,7 +119,7 @@ fun ScanResultsOverview(
         },
     ) { innerPadding ->
         // Node data display
-        val scanContext = cardScanRunner.getScanContext()
+        val scanContext = cardScanService.getScanContext()
         val contentModifier = Modifier.padding(innerPadding)
 
         LazyColumn(

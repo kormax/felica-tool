@@ -49,7 +49,7 @@ import com.kormax.felicatool.nfc.AndroidNfcReader
 import com.kormax.felicatool.nfc.NfcReader
 import com.kormax.felicatool.nfc.NfcReaderSession
 import com.kormax.felicatool.service.CardScanResult
-import com.kormax.felicatool.service.CardScanRunner
+import com.kormax.felicatool.service.CardScanService
 import com.kormax.felicatool.service.ScanSettings
 import com.kormax.felicatool.ui.CardScanStep
 import com.kormax.felicatool.ui.ScanResultsOverview
@@ -104,7 +104,7 @@ class MainActivity : ComponentActivity() {
     private var activeReaderSession: NfcReaderSession? = null
     private var readerJob: Job? = null
     private var automaticReaderStartNowSignal: CompletableDeferred<Unit>? = null
-    private val cardScanRunner = CardScanRunner(NodeRegistry)
+    private val cardScanService = CardScanService(NodeRegistry)
 
     private var steps by mutableStateOf(emptyList<CardScanStep>())
     private var isCardPresent by mutableStateOf(false)
@@ -215,7 +215,7 @@ class MainActivity : ComponentActivity() {
                     // Scan results overview - overlays on top when visible
                     if (showComprehensiveData) {
                         ScanResultsOverview(
-                            cardScanRunner = cardScanRunner,
+                            cardScanService = cardScanService,
                             onBackPressed = {
                                 showComprehensiveData = false
                                 if (isBackgroundReadingEnabled) {
@@ -641,7 +641,7 @@ class MainActivity : ComponentActivity() {
 
         val result =
             withContext(Dispatchers.IO) {
-                cardScanRunner.scan(
+                cardScanService.scan(
                     target = target,
                     scanSettings = currentScanSettings,
                     onStepsChanged = { updatedSteps ->

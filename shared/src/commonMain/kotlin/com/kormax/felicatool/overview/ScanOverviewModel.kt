@@ -9,6 +9,8 @@ import com.kormax.felicatool.felica.System
 import com.kormax.felicatool.service.CardScanContext
 import com.kormax.felicatool.service.CommandSupport
 import com.kormax.felicatool.service.SystemScanContext
+import com.kormax.felicatool.service.byteToHex
+import com.kormax.felicatool.service.formatBlockNumberHex
 import com.kormax.felicatool.util.IcTypeRegistry
 import com.kormax.felicatool.util.NodeDefinitionType
 import com.kormax.felicatool.util.NodeRegistry
@@ -168,7 +170,7 @@ object ScanOverviewModelBuilder {
                 add(
                     ScanOverviewField(
                         "IC",
-                        "0x${pmm.icType.toUByte().toString(16).uppercase().padStart(2, '0')}",
+                        "0x${byteToHex(pmm.icType)}",
                     )
                 )
                 IcTypeRegistry.resolveIcType(pmm.icType, pmm.romType)?.let { resolution ->
@@ -681,8 +683,7 @@ object ScanOverviewModelBuilder {
                     blockData.entries
                         .sortedBy { it.key }
                         .forEach { (blockNumber, bytes) ->
-                            val blockNumberHex =
-                                blockNumber.toString(16).uppercase().padStart(4, '0')
+                            val blockNumberHex = formatBlockNumberHex(blockNumber)
                             add(ScanOverviewField(blockNumberHex, bytes.toHexString()))
                         }
                 }

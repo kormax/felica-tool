@@ -1,37 +1,195 @@
-package com.kormax.felicatool.service
+package com.kormax.felicatool.service.steps
 
-import com.kormax.felicatool.felica.BlockListElement
-import com.kormax.felicatool.felica.ErrorLocationIndication
-import com.kormax.felicatool.felica.FeliCaTarget
-import com.kormax.felicatool.felica.ReadWithoutEncryptionCommand
-import com.kormax.felicatool.felica.Service
+import com.kormax.felicatool.felica.*
+import com.kormax.felicatool.service.*
+import com.kormax.felicatool.ui.ScanStepIcon
 
-/** Utility class for reading blocks from FeliCa services that don't require encryption */
-class BlockReader(
-    private val target: FeliCaTarget,
-    private val errorLocationIndication: ErrorLocationIndication = ErrorLocationIndication.INDEX,
-    private val maxBlocksPerRequest: Int = 15,
-    private val maxServicesPerRequest: Int = 16,
-    private val extraBlocksByServiceCode: Map<String, Map<Int, String>> = emptyMap(),
-    /**
-     * Extra blocks to read for each service, keyed by service code hex string, value is map of
-     * block number to name
-     */
-) {
+internal object ReadBlocksWithoutEncryptionStep :
+    ReadWithoutEncryptionScanStep(
+        id = "read_blocks_without_encryption",
+        title = "Read Blocks Without Encryption",
+        description = "Reading block data from services that don't require authentication",
+        icon = ScanStepIcon.SEARCH,
+    ) {
+    override suspend fun ScanSession.perform(): StepOutput {
+        val allDiscoveredNodes = scanContext.systemScanContexts.flatMap { it.nodes }
+        val allServices = allDiscoveredNodes.filterIsInstance<Service>()
 
-    companion object {
-        private const val TAG = "BlockReader"
-        private const val STATUS_FLAG2_SUCCESS = 0x00.toByte()
-        private const val STATUS_FLAG2_OK_MEMORY_WARNING = 0x71.toByte()
-        private const val ILLEGAL_NUMBER_OF_SERVICE = 0xA1.toByte()
-        private const val ILLEGAL_NUMBER_OF_BLOCK = 0xA2.toByte()
-        private const val ILLEGAL_BLOCK_NUMBER = 0xA8.toByte()
-        private const val ILLEGAL_BLOCK_LIST_SERVICE_ORDER = 0xA3.toByte()
-        private const val BLOCK_WITH_AUTHENTICATION_READ_BEFORE_AUTHENTICATION_COMPLETE =
-            0xB1.toByte()
-        private const val BLOCK_SIZE = 16 // Each block is 16 bytes
-        private const val MAX_CONSECUTIVE_FAILURES = 32
+        if (allServices.isEmpty()) {
+            throw StepPreconditionNotMet("No services available for block reading")
+        }
+
+        // Filter services that don't require authentication across all system contexts
+        val allServicesWithoutAuth = allServices.filter { !it.attribute.authenticationRequired }
+
+        if (allServicesWithoutAuth.isEmpty()) {
+            throw StepPreconditionNotMet("No services found that don't require authentication")
+        }
+        ensureCardPresence(target)
+
+        // Process each system context separately
+        val updatedSystemContexts = mutableListOf<SystemScanContext>()
+        val contextResults = mutableListOf<String>()
+        var totalBlocksRead = 0
+        var totalServicesProcessed = 0
+        var maxBlocksPerRequest = 0
+        var maxServicesPerRequest = 0
+
+        for ((contextIndex, systemContext) in scanContext.systemScanContexts.withIndex()) {
+            // Perform system-specific polling before executing commands
+            pollSystemCode(target, systemContext.systemCode)
+
+            val services = systemContext.nodes.filterIsInstance<Service>()
+            val servicesWithoutAuth = services.filter { !it.attribute.authenticationRequired }
+            val systemCodeHex = systemContext.systemCode?.toHexString() ?: "unknown"
+
+            if (servicesWithoutAuth.isEmpty()) {
+                contextResults.add(
+                    "System Context ${contextIndex + 1} ($systemCodeHex): No services without authentication found"
+                )
+                updatedSystemContexts.add(systemContext)
+                continue
+            }
+
+            // Use the utility function to read blocks with appropriate error indication mode
+            // Look up extra blocks for each service from the node registry
+            val extraBlocksByServiceCode = mutableMapOf<String, Map<Int, String>>()
+            val systemCodeHexForLookup = systemContext.systemCode?.toHexString()?.uppercase()
+            if (systemCodeHexForLookup != null) {
+                for (service in servicesWithoutAuth) {
+                    val serviceCodeHex = service.code.toHexString().uppercase()
+                    val extraBlocks =
+                        nodeMetadataProvider.getExtraBlocks(
+                            systemCodeHexForLookup,
+                            serviceCodeHex,
+                        )
+                    if (extraBlocks.isNotEmpty()) {
+                        extraBlocksByServiceCode[service.code.toHexString().uppercase()] =
+                            extraBlocks
+                    }
+                }
+            }
+
+            val readErrorLocationIndication =
+                scanContext.readWithoutEncryptionErrorLocationIndication
+            val configuredMaxBlocksPerRequest =
+                scanContext.readWithoutEncryptionMaxBlocksPerRequest ?: 15
+            val configuredMaxServicesPerRequest =
+                scanContext.readWithoutEncryptionMaxServicesPerRequest ?: 16
+            val blockDataByService =
+                readBlocksFromServices(
+                    services = servicesWithoutAuth,
+                    errorLocationIndication = readErrorLocationIndication,
+                    maxBlocksPerRequest = configuredMaxBlocksPerRequest,
+                    maxServicesPerRequest = configuredMaxServicesPerRequest,
+                )
+            val extraBlockDataByService =
+                readExtraBlocksFromServices(
+                    services = servicesWithoutAuth,
+                    extraBlocksByServiceCode = extraBlocksByServiceCode,
+                )
+
+            // Store block data in context for this system context, merging regular and extra
+            // blocks
+            val serviceBlockDataMap = mutableMapOf<Node, Map<Int, ByteArray>>()
+            blockDataByService.forEach { (service, blockData) ->
+                val mergedBlockData = blockData.toMutableMap()
+                // Merge extra blocks if available for this service
+                extraBlockDataByService[service]?.let { extraBlocks ->
+                    mergedBlockData.putAll(extraBlocks)
+                }
+                serviceBlockDataMap[service] = mergedBlockData
+            }
+            // Also add services that only have extra blocks (no regular blocks)
+            extraBlockDataByService.forEach { (service, extraBlocks) ->
+                if (!serviceBlockDataMap.containsKey(service)) {
+                    serviceBlockDataMap[service] = extraBlocks
+                }
+            }
+
+            // Update system context with block data
+            val updatedSystemContext = systemContext.copy(serviceBlockData = serviceBlockDataMap)
+            updatedSystemContexts.add(updatedSystemContext)
+
+            // Update totals (using merged data)
+            val contextBlocksRead = serviceBlockDataMap.values.sumOf { it.size }
+            totalBlocksRead += contextBlocksRead
+            totalServicesProcessed += serviceBlockDataMap.size
+
+            // Build context-specific results
+            val contextResult = buildString {
+                appendLine("System Context ${contextIndex + 1} ($systemCodeHex):")
+                appendLine("  Blocks read: $contextBlocksRead")
+                appendLine("  Services processed: ${serviceBlockDataMap.size}")
+                appendLine()
+
+                serviceBlockDataMap.forEach { (node, blockData) ->
+                    val service = node as? Service ?: return@forEach
+                    val blockCount = blockData.size
+                    val regularBlocks = blockData.keys.filter { it < 0x80 }.size
+                    val extraBlocks = blockData.keys.filter { it >= 0x80 }.size
+                    appendLine(
+                        "  Service ${service.code.toHexString()}: $blockCount blocks ($regularBlocks regular, $extraBlocks extra)"
+                    )
+                    if (blockData.isNotEmpty()) {
+                        // Show first few block numbers and their data
+                        val previewBlocks = blockData.entries.sortedBy { it.key }.take(4)
+                        previewBlocks.forEach { (blockNum, data) ->
+                            appendLine(
+                                "    Block 0x${formatBlockNumberHex(blockNum)}: ${data.toHexString()}"
+                            )
+                        }
+                        if (blockData.size > 4) {
+                            appendLine("    ... (${blockData.size - 4} more blocks)")
+                        }
+                    }
+                    appendLine()
+                }
+            }
+            contextResults.add(contextResult)
+        }
+
+        // Update scan context with all system contexts and global limits
+        scanContext = scanContext.copy(systemScanContexts = updatedSystemContexts)
+
+        // Format results
+        val collapsedResult =
+            "Read $totalBlocksRead blocks from $totalServicesProcessed services across ${updatedSystemContexts.size} system(s)"
+
+        val expandedResult =
+            buildString {
+                    appendLine("Block Reading Results:")
+                    appendLine("Processed ${scanContext.systemScanContexts.size} system(s)")
+                    appendLine("Total blocks read: $totalBlocksRead")
+                    appendLine("Total services processed: $totalServicesProcessed")
+                    appendLine("Max blocks per request: $maxBlocksPerRequest")
+                    appendLine("Max services per request: $maxServicesPerRequest")
+                    appendLine()
+
+                    contextResults.forEach { result -> appendLine(result) }
+
+                    appendLine(
+                        "Note: Only services that don't require authentication are processed."
+                    )
+                    appendLine(
+                        "Block data is stored per system context for comprehensive analysis."
+                    )
+                }
+                .trim()
+
+        return StepOutput(result = expandedResult, collapsedResult = collapsedResult)
     }
+
+    private const val TAG = "ReadBlocksWithoutEncryptionStep"
+    private const val STATUS_FLAG2_SUCCESS = 0x00.toByte()
+    private const val STATUS_FLAG2_OK_MEMORY_WARNING = 0x71.toByte()
+    private const val ILLEGAL_NUMBER_OF_SERVICE = 0xA1.toByte()
+    private const val ILLEGAL_NUMBER_OF_BLOCK = 0xA2.toByte()
+    private const val ILLEGAL_BLOCK_NUMBER = 0xA8.toByte()
+    private const val ILLEGAL_BLOCK_LIST_SERVICE_ORDER = 0xA3.toByte()
+    private const val BLOCK_WITH_AUTHENTICATION_READ_BEFORE_AUTHENTICATION_COMPLETE = 0xB1.toByte()
+    private const val BLOCK_SIZE = 16 // Each block is 16 bytes
+    private const val MAX_CONSECUTIVE_FAILURES = 32
 
     private fun isReadStatusFlag2Successful(statusFlag2: Byte): Boolean =
         statusFlag2 == STATUS_FLAG2_SUCCESS || statusFlag2 == STATUS_FLAG2_OK_MEMORY_WARNING
@@ -41,7 +199,12 @@ class BlockReader(
      *
      * @return Map of Service to Map of block number to block data (16 bytes each)
      */
-    suspend fun readBlocksFromServices(services: List<Service>): Map<Service, Map<Int, ByteArray>> {
+    private suspend fun ScanSession.readBlocksFromServices(
+        services: List<Service>,
+        errorLocationIndication: ErrorLocationIndication,
+        maxBlocksPerRequest: Int,
+        maxServicesPerRequest: Int,
+    ): Map<Service, Map<Int, ByteArray>> {
         val blockDataByService = mutableMapOf<Service, MutableMap<Int, ByteArray>>()
         val blockCountByService = mutableMapOf<Service, Int>()
 
@@ -156,9 +319,7 @@ class BlockReader(
 
                 ScanLog.d(
                     TAG,
-                    "Read response status: 0x${
-                        statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')
-                    } 0x${statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}",
+                    "Read response status: 0x${byteToHex(statusFlag1)} 0x${byteToHex(statusFlag2)}",
                 )
 
                 if (statusFlag2 == ILLEGAL_BLOCK_LIST_SERVICE_ORDER) {
@@ -209,9 +370,7 @@ class BlockReader(
                             val errorBitmask = statusFlag1.toInt() and 0xFF
                             ScanLog.d(
                                 TAG,
-                                "BITMASK mode: Error bitmask = 0x${
-                                    errorBitmask.toString(16).uppercase().padStart(2, '0')
-                                }",
+                                "BITMASK mode: Error bitmask = 0x${byteToHex(errorBitmask)}",
                             )
                             // Find the highest invalid block index from the bitmask
                             var highestInvalidIndex = -1
@@ -281,9 +440,7 @@ class BlockReader(
                             val errorBitmask = statusFlag1.toInt() and 0xFF
                             ScanLog.d(
                                 TAG,
-                                "BITMASK mode: Error bitmask = 0x${
-                                    errorBitmask.toString(16).uppercase().padStart(2, '0')
-                                }",
+                                "BITMASK mode: Error bitmask = 0x${byteToHex(errorBitmask)}",
                             )
 
                             // Process each bit in the bitmask
@@ -291,7 +448,8 @@ class BlockReader(
                                 if ((errorBitmask and (1 shl bitIndex)) == 0) {
                                     continue
                                 }
-                                // This bit is set, indicating an error with the corresponding block
+                                // This bit is set, indicating an error with the corresponding
+                                // block
                                 if (bitIndex >= blocksToRead.size) {
                                     throw RuntimeException(
                                         "Got ErrorLocationIndication.BITMASK, but bit index is out of bounds: $bitIndex"
@@ -322,7 +480,8 @@ class BlockReader(
 
                 if (statusFlag2 == BLOCK_WITH_AUTHENTICATION_READ_BEFORE_AUTHENTICATION_COMPLETE) {
                     consecutiveFailures++
-                    // The block exists but requires authentication — skip it by storing an empty
+                    // The block exists but requires authentication — skip it by storing an
+                    // empty
                     // sentinel so the sequential block counter advances past it
                     when (errorLocationIndication) {
                         ErrorLocationIndication.FLAG -> {
@@ -363,7 +522,7 @@ class BlockReader(
                             val errorBitmask = statusFlag1.toInt() and 0xFF
                             ScanLog.d(
                                 TAG,
-                                "BITMASK mode: Auth error bitmask = 0x${errorBitmask.toString(16).uppercase().padStart(2, '0')}",
+                                "BITMASK mode: Auth error bitmask = 0x${byteToHex(errorBitmask)}",
                             )
                             for (bitIndex in 0 until 8) {
                                 if ((errorBitmask and (1 shl bitIndex)) == 0) continue
@@ -389,7 +548,7 @@ class BlockReader(
                         maxBlocks = 1
                         ScanLog.w(
                             TAG,
-                            "Unhandled read response status 0x${statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')} 0x${statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')}: reducing max blocks per request to 1 and retrying",
+                            "Unhandled read response status 0x${byteToHex(statusFlag1)} 0x${byteToHex(statusFlag2)}: reducing max blocks per request to 1 and retrying",
                         )
                         continue
                     }
@@ -406,7 +565,7 @@ class BlockReader(
                     blockCountByService[failedService] = failedBlockElement.blockNumber
                     ScanLog.w(
                         TAG,
-                        "Unhandled read response status 0x${statusFlag1.toUByte().toString(16).uppercase().padStart(2, '0')} 0x${statusFlag2.toUByte().toString(16).uppercase().padStart(2, '0')} with max blocks already at 1: marking service $failedService as checked up to block ${failedBlockElement.blockNumber}",
+                        "Unhandled read response status 0x${byteToHex(statusFlag1)} 0x${byteToHex(statusFlag2)} with max blocks already at 1: marking service $failedService as checked up to block ${failedBlockElement.blockNumber}",
                     )
                     continue
                 }
@@ -443,8 +602,9 @@ class BlockReader(
         return blockDataByService
     }
 
-    suspend fun readExtraBlocksFromServices(
-        services: List<Service>
+    private suspend fun ScanSession.readExtraBlocksFromServices(
+        services: List<Service>,
+        extraBlocksByServiceCode: Map<String, Map<Int, String>>,
     ): Map<Service, Map<Int, ByteArray>> {
         val blockDataByService = mutableMapOf<Service, MutableMap<Int, ByteArray>>()
 
@@ -492,7 +652,7 @@ class BlockReader(
                     } else {
                         ScanLog.d(
                             TAG,
-                            "Failed to read extra block 0x${blockNumber.toString(16).uppercase()} ($blockName) for service $service: status=${response.statusFlag1.toUByte().toString(16)},${response.statusFlag2.toUByte().toString(16)}",
+                            "Failed to read extra block 0x${formatBlockNumberHex(blockNumber)} ($blockName) for service $service: status=${byteToHex(response.statusFlag1)},${byteToHex(response.statusFlag2)}",
                         )
                     }
                 } catch (e: Exception) {
