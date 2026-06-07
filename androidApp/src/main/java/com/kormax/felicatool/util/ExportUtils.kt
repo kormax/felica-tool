@@ -63,25 +63,25 @@ object ExportUtils {
         ) {
             result = maskResponseBlockHex(result)
         }
-        // Mask platform information data (bytes 13+, keep first 8 bytes of platform data)
-        if (message is GetPlatformInformationResponse) {
-            result = maskPlatformInfoHex(result)
+        // Mask product information data (bytes 13+, keep first 8 bytes of product data)
+        if (message is RequestProductInformationResponse) {
+            result = maskProductInfoHex(result)
         }
         return result
     }
 
     /**
-     * Masks platform info in a GetPlatformInformation response hex string. Keeps header (up to
-     * byte 13) and first 8 bytes of platform data, masks the rest.
+     * Masks product info in a RequestProductInformation response hex string. Keeps header (up to
+     * byte 13) and first 8 bytes of product data, masks the rest.
      */
-    private fun maskPlatformInfoHex(hex: String): String {
-        // Byte 12 (hex chars 24-25) is the data length, platform data starts at byte 13 (hex char
+    private fun maskProductInfoHex(hex: String): String {
+        // Byte 12 (hex chars 24-25) is the data length, product data starts at byte 13 (hex char
         // 26)
-        val platformDataStart = 26
-        if (hex.length <= platformDataStart) return hex
-        val platformDataHex = hex.substring(platformDataStart)
-        val masked = maskPlatformInfo(platformDataHex)
-        return hex.substring(0, platformDataStart) + masked
+        val productDataStart = 26
+        if (hex.length <= productDataStart) return hex
+        val productDataHex = hex.substring(productDataStart)
+        val masked = maskProductInfo(productDataHex)
+        return hex.substring(0, productDataStart) + masked
     }
 
     /**
@@ -110,8 +110,8 @@ object ExportUtils {
         return sb.toString()
     }
 
-    /** Masks platform info hex string, keeping first 8 bytes visible */
-    private fun maskPlatformInfo(hex: String): String {
+    /** Masks product info hex string, keeping first 8 bytes visible */
+    private fun maskProductInfo(hex: String): String {
         if (hex.length <= 16) return hex
         val prefix = hex.substring(0, 16) // first 8 bytes
         val remainingBytes = (hex.length - 16) / 2
@@ -301,9 +301,9 @@ object ExportUtils {
             json.put("specification_version", specJson)
         }
 
-        scanContext.platformInformation?.let { platformInformationResponse ->
-            val hex = platformInformationResponse.platformInformationData.toHexString()
-            json.put("platform_information", if (privacy) maskPlatformInfo(hex) else hex)
+        scanContext.productInformation?.let { productInformationResponse ->
+            val hex = productInformationResponse.productInformationData.toHexString()
+            json.put("product_information", if (privacy) maskProductInfo(hex) else hex)
         }
 
         // Container issue information
@@ -389,7 +389,7 @@ object ExportUtils {
                 "reset_mode" to scanContext.resetModeSupport,
                 "request_system_code" to scanContext.requestSystemCodeSupport,
                 "request_specification_version" to scanContext.requestSpecificationVersionSupport,
-                "get_platform_information" to scanContext.getPlatformInformationSupport,
+                "request_product_information" to scanContext.requestProductInformationSupport,
                 "get_system_status" to scanContext.getSystemStatusSupport,
                 "request_code_list" to scanContext.requestCodeListSupport,
                 "search_service_code" to scanContext.searchServiceCodeSupport,

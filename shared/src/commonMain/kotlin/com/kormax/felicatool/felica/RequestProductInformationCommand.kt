@@ -1,18 +1,15 @@
 package com.kormax.felicatool.felica
 
-/**
- * Get Platform Information command for FeliCa cards This command retrieves information about the
- * secure element
- */
-class GetPlatformInformationCommand(
+/** Request Product Information command for FeliCa cards. */
+class RequestProductInformationCommand(
     /** Card IDM (8 bytes) */
     idm: ByteArray
-) : FelicaCommandWithIdm<GetPlatformInformationResponse>(idm) {
+) : FelicaCommandWithIdm<RequestProductInformationResponse>(idm) {
 
     override val commandClass: CommandClass = Companion.COMMAND_CLASS
 
     override fun responseFromByteArray(data: ByteArray) =
-        GetPlatformInformationResponse.fromByteArray(data)
+        RequestProductInformationResponse.fromByteArray(data)
 
     override fun toByteArray(): ByteArray = buildFelicaMessage(COMMAND_CODE, idm, COMMAND_LENGTH) {}
 
@@ -22,10 +19,10 @@ class GetPlatformInformationCommand(
 
         const val COMMAND_LENGTH: Int = BASE_LENGTH // Length(1) + CommandCode(1) + IDM(8)
 
-        /** Parse a GetPlatformInformation command from raw bytes */
-        fun fromByteArray(data: ByteArray): GetPlatformInformationCommand =
+        /** Parse a RequestProductInformation command from raw bytes */
+        fun fromByteArray(data: ByteArray): RequestProductInformationCommand =
             parseFelicaCommandWithIdm(data, COMMAND_CODE, minLength = COMMAND_LENGTH) { idm ->
-                GetPlatformInformationCommand(idm)
+                RequestProductInformationCommand(idm)
             }
     }
 }

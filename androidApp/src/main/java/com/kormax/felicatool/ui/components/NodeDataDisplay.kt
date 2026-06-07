@@ -210,15 +210,12 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                     CompactInfoRow(label = "Primary System Code", value = systemCode.toHexString())
                 }
 
-                // Platform Info
-                context.platformInformation?.let { secureElementInfo ->
-                    if (
-                        secureElementInfo.success &&
-                            secureElementInfo.platformInformationData.isNotEmpty()
-                    ) {
+                // Product Info
+                context.productInformation?.let { productInfo ->
+                    if (productInfo.success && productInfo.productInformationData.isNotEmpty()) {
                         CompactInfoRow(
-                            label = "Platform Information",
-                            value = secureElementInfo.platformInformationData.toHexString(),
+                            label = "Product Information",
+                            value = productInfo.productInformationData.toHexString(),
                         )
                     }
                 }
@@ -462,8 +459,8 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                             context.requestSpecificationVersionSupport,
                         )
                         CommandSupportChip(
-                            "Get Platform Info",
-                            context.getPlatformInformationSupport,
+                            "Request Product Info",
+                            context.requestProductInformationSupport,
                         )
                         CommandSupportChip("Reset Mode", context.resetModeSupport)
                     }

@@ -15,7 +15,6 @@ import com.kormax.felicatool.service.steps.GetContainerPropertyStep
 import com.kormax.felicatool.service.steps.GetNodeKeyVersionsStep
 import com.kormax.felicatool.service.steps.GetNodePropertyMacCommunicationStep
 import com.kormax.felicatool.service.steps.GetNodePropertyValueLimitedServiceStep
-import com.kormax.felicatool.service.steps.GetPlatformInformationStep
 import com.kormax.felicatool.service.steps.GetSystemStatusStep
 import com.kormax.felicatool.service.steps.InitialInfoStep
 import com.kormax.felicatool.service.steps.InternalAuthenticateAndReadStep
@@ -32,6 +31,7 @@ import com.kormax.felicatool.service.steps.ReadWithoutEncryptionDetermineSupport
 import com.kormax.felicatool.service.steps.RequestBlockInformationExStep
 import com.kormax.felicatool.service.steps.RequestBlockInformationStep
 import com.kormax.felicatool.service.steps.RequestCodeListDetermineSupportedStep
+import com.kormax.felicatool.service.steps.RequestProductInformationStep
 import com.kormax.felicatool.service.steps.RequestResponseStep
 import com.kormax.felicatool.service.steps.RequestServiceDetermineSupportedStep
 import com.kormax.felicatool.service.steps.RequestServiceUnknownNodeAttributesStep
@@ -57,7 +57,7 @@ internal object ScanStepRegistry {
             RequestSystemCodeStep,
             ProbeSystemCodesManuallyStep,
             RequestSpecificationVersionStep,
-            GetPlatformInformationStep,
+            RequestProductInformationStep,
             GetSystemStatusStep,
             RequestCodeListDetermineSupportedStep,
             SearchServiceCodeDetermineSupportedStep,

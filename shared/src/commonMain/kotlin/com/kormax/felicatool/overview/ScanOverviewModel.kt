@@ -203,15 +203,15 @@ object ScanOverviewModelBuilder {
                     )
                 )
             }
-            scanContext.platformInformation?.let { platformInformation ->
+            scanContext.productInformation?.let { productInformation ->
                 if (
-                    platformInformation.success &&
-                        platformInformation.platformInformationData.isNotEmpty()
+                    productInformation.success &&
+                        productInformation.productInformationData.isNotEmpty()
                 ) {
                     add(
                         ScanOverviewField(
-                            "Platform Information",
-                            platformInformation.platformInformationData.toHexString(),
+                            "Product Information",
+                            productInformation.productInformationData.toHexString(),
                         )
                     )
                 }
@@ -894,8 +894,8 @@ object ScanOverviewModelBuilder {
                             scanContext.requestSpecificationVersionSupport,
                         ),
                         ScanOverviewCommandSupport(
-                            "Get Platform Info",
-                            scanContext.getPlatformInformationSupport,
+                            "Request Product Info",
+                            scanContext.requestProductInformationSupport,
                         ),
                         ScanOverviewCommandSupport("Reset Mode", scanContext.resetModeSupport),
                     ),

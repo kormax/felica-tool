@@ -7,12 +7,12 @@ import com.kormax.felicatool.felica.CountInformation
 import com.kormax.felicatool.felica.EncryptionIdentifier
 import com.kormax.felicatool.felica.ErrorLocationIndication
 import com.kormax.felicatool.felica.GetContainerPropertyCommand
-import com.kormax.felicatool.felica.GetPlatformInformationResponse
 import com.kormax.felicatool.felica.IllegalNumberErrorPreference
 import com.kormax.felicatool.felica.KeyVersion
 import com.kormax.felicatool.felica.MacCommunicationProperty
 import com.kormax.felicatool.felica.Node
 import com.kormax.felicatool.felica.Pmm
+import com.kormax.felicatool.felica.RequestProductInformationResponse
 import com.kormax.felicatool.felica.SpecificationVersion
 import com.kormax.felicatool.felica.ValueLimitedPurseServiceProperty
 import com.kormax.felicatool.service.logging.CommunicationLogEntry
@@ -29,7 +29,7 @@ data class CardScanContext(
     val pollingCommandTrailingDataSupported: Boolean? = null,
     val specificationVersion: SpecificationVersion? = null,
     val containerIssueInformation: ContainerInformation? = null,
-    val platformInformation: GetPlatformInformationResponse? = null,
+    val productInformation: RequestProductInformationResponse? = null,
     val containerIdm: ByteArray? = null,
     val readWithoutEncryptionErrorLocationIndication: ErrorLocationIndication =
         ErrorLocationIndication.INDEX,
@@ -56,7 +56,7 @@ data class CardScanContext(
     val requestServiceV2Support: CommandSupport = CommandSupport.UNKNOWN,
     val setParameterSupport: CommandSupport = CommandSupport.UNKNOWN,
     val getContainerIssueInformationSupport: CommandSupport = CommandSupport.UNKNOWN,
-    val getPlatformInformationSupport: CommandSupport = CommandSupport.UNKNOWN,
+    val requestProductInformationSupport: CommandSupport = CommandSupport.UNKNOWN,
     val getContainerIdSupport: CommandSupport = CommandSupport.UNKNOWN,
     val echoSupport: CommandSupport = CommandSupport.UNKNOWN,
     val resetModeSupport: CommandSupport = CommandSupport.UNKNOWN,
