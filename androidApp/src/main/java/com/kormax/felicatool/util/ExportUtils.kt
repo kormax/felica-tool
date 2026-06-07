@@ -292,11 +292,14 @@ object ExportUtils {
             spec.extendedOverlapOptionVersion?.let { extended ->
                 specJson.put("extended_overlap_option_version", extended.toString())
             }
+            spec.valueLimitedPurseServiceOptionVersion?.let { valueLimited ->
+                specJson.put("value_limited_purse_service_option_version", valueLimited.toString())
+            }
             spec.communicationWithMacOptionVersion?.let { aes ->
                 specJson.put("communication_with_mac_option_version", aes.toString())
             }
-            spec.valueLimitedPurseServiceOptionVersion?.let { valueLimited ->
-                specJson.put("value_limited_purse_service_option_version", valueLimited.toString())
+            spec.randomIdOptionVersion?.let { randomId ->
+                specJson.put("random_id_option_version", randomId.toString())
             }
             json.put("specification_version", specJson)
         }

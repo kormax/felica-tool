@@ -85,6 +85,14 @@ internal object RequestSpecificationVersionStep :
                                     "Communication with MAC Option Version: ${communicationWithMacVersion.major}.${communicationWithMacVersion.minor}"
                                 )
                             }
+
+                        requestSpecVersionResponse.specificationVersion
+                            ?.randomIdOptionVersion
+                            ?.let { randomIdVersion ->
+                                appendLine(
+                                    "Random ID Option Version: ${randomIdVersion.major}.${randomIdVersion.minor}"
+                                )
+                            }
                     } else {
                         appendLine("Failed to retrieve specification version information")
                     }

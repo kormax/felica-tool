@@ -26,6 +26,7 @@ class RequestSpecificationVersionResponseTest {
         val extendedOverlapVersion = OptionVersion(1, 0, 0) // 1.0.0 in BCD
         val valueLimitedPurseVersion = OptionVersion(3, 0, 0) // 3.0.0 in BCD
         val communicationWithMacVersion = OptionVersion(4, 0, 0) // 4.0.0 in BCD
+        val randomIdVersion = OptionVersion(6, 0, 0) // 6.0.0 in BCD
 
         val specificationVersion =
             SpecificationVersion(
@@ -36,6 +37,7 @@ class RequestSpecificationVersionResponseTest {
                 extendedOverlapOptionVersion = extendedOverlapVersion,
                 valueLimitedPurseServiceOptionVersion = valueLimitedPurseVersion,
                 communicationWithMacOptionVersion = communicationWithMacVersion,
+                randomIdOptionVersion = randomIdVersion,
             )
 
         val response =
@@ -63,6 +65,7 @@ class RequestSpecificationVersionResponseTest {
             communicationWithMacVersion,
             response.specificationVersion?.communicationWithMacOptionVersion,
         )
+        assertEquals(randomIdVersion, response.specificationVersion?.randomIdOptionVersion)
         assertTrue(response.isStatusSuccessful)
     }
 
@@ -90,6 +93,7 @@ class RequestSpecificationVersionResponseTest {
         val extendedOverlapVersion = OptionVersion(1, 0, 0) // 1.0.0
         val valueLimitedPurseVersion = OptionVersion(3, 0, 0) // 3.0.0
         val communicationWithMacVersion = OptionVersion(4, 0, 0) // 4.0.0
+        val randomIdVersion = OptionVersion(6, 0, 0) // 6.0.0
 
         val specificationVersion =
             SpecificationVersion(
@@ -100,6 +104,7 @@ class RequestSpecificationVersionResponseTest {
                 extendedOverlapOptionVersion = extendedOverlapVersion,
                 valueLimitedPurseServiceOptionVersion = valueLimitedPurseVersion,
                 communicationWithMacOptionVersion = communicationWithMacVersion,
+                randomIdOptionVersion = randomIdVersion,
             )
 
         val response =
@@ -113,8 +118,8 @@ class RequestSpecificationVersionResponseTest {
         val bytes = response.toByteArray()
 
         // Check total size: length(1) + response_code(1) + idm(8) + status1(1) + status2(1) +
-        // version_data(14) = 26
-        assertEquals(26, bytes.size)
+        // version_data(16) = 28
+        assertEquals(28, bytes.size)
 
         // Check response code
         assertEquals(RequestSpecificationVersionResponse.RESPONSE_CODE.toByte(), bytes[1])
@@ -136,7 +141,7 @@ class RequestSpecificationVersionResponseTest {
         assertEquals(basicVersion.toByteArray()[1], bytes[14])
 
         // Check number of options
-        assertEquals(5.toByte(), bytes[15])
+        assertEquals(6.toByte(), bytes[15])
 
         // Check DES option version
         assertEquals(desVersion.toByteArray()[0], bytes[16])
@@ -157,6 +162,10 @@ class RequestSpecificationVersionResponseTest {
         // Check Communication with MAC option version
         assertEquals(communicationWithMacVersion.toByteArray()[0], bytes[24])
         assertEquals(communicationWithMacVersion.toByteArray()[1], bytes[25])
+
+        // Check Random ID option version
+        assertEquals(randomIdVersion.toByteArray()[0], bytes[26])
+        assertEquals(randomIdVersion.toByteArray()[1], bytes[27])
     }
 
     @Test
@@ -167,23 +176,25 @@ class RequestSpecificationVersionResponseTest {
         val extendedOverlapVersion = OptionVersion(1, 0, 0)
         val valueLimitedPurseVersion = OptionVersion(3, 0, 0)
         val communicationWithMacVersion = OptionVersion(4, 0, 0)
+        val randomIdVersion = OptionVersion(6, 0, 0)
 
         val data =
             byteArrayOf(
-                26, // length
+                28, // length
                 RequestSpecificationVersionResponse.RESPONSE_CODE.toByte(), // response code
                 *testIdm, // IDM
                 0x00, // status flag 1
                 0x00, // status flag 2
                 0x00, // format version
                 *basicVersion.toByteArray(), // basic version
-                0x05, // number of options
+                0x06, // number of options
                 *desVersion.toByteArray(), // DES option
                 0x00,
                 0x00, // reserved (special option)
                 *extendedOverlapVersion.toByteArray(), // Extended Overlap option
                 *valueLimitedPurseVersion.toByteArray(), // Value-Limited Purse Service option
                 *communicationWithMacVersion.toByteArray(), // Communication with MAC option
+                *randomIdVersion.toByteArray(), // Random ID option
             )
 
         val response = RequestSpecificationVersionResponse.fromByteArray(data)
@@ -209,6 +220,7 @@ class RequestSpecificationVersionResponseTest {
             communicationWithMacVersion,
             response.specificationVersion?.communicationWithMacOptionVersion,
         )
+        assertEquals(randomIdVersion, response.specificationVersion?.randomIdOptionVersion)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -237,6 +249,7 @@ class RequestSpecificationVersionResponseTest {
         val extendedOverlapVersion = OptionVersion(1, 0, 0)
         val valueLimitedPurseVersion = OptionVersion(3, 0, 0)
         val communicationWithMacVersion = OptionVersion(4, 0, 0)
+        val randomIdVersion = OptionVersion(6, 0, 0)
 
         val specificationVersion =
             SpecificationVersion(
@@ -247,6 +260,7 @@ class RequestSpecificationVersionResponseTest {
                 extendedOverlapOptionVersion = extendedOverlapVersion,
                 valueLimitedPurseServiceOptionVersion = valueLimitedPurseVersion,
                 communicationWithMacOptionVersion = communicationWithMacVersion,
+                randomIdOptionVersion = randomIdVersion,
             )
 
         val original =
@@ -285,6 +299,10 @@ class RequestSpecificationVersionResponseTest {
         assertEquals(
             original.specificationVersion?.communicationWithMacOptionVersion,
             parsed.specificationVersion?.communicationWithMacOptionVersion,
+        )
+        assertEquals(
+            original.specificationVersion?.randomIdOptionVersion,
+            parsed.specificationVersion?.randomIdOptionVersion,
         )
     }
 }

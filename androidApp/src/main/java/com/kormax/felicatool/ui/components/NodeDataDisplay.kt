@@ -386,6 +386,12 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                                 value = "${version.major}.${version.minor}",
                             )
                         }
+                        specVersion.randomIdOptionVersion?.let { version ->
+                            InfoChip(
+                                label = "Random ID",
+                                value = "${version.major}.${version.minor}",
+                            )
+                        }
                     }
                 }
 

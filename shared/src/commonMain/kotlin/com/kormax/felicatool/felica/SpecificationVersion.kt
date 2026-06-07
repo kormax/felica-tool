@@ -25,6 +25,9 @@ data class SpecificationVersion(
 
     /** Communication with MAC option version (2 bytes, Little Endian, BCD notation) */
     val communicationWithMacOptionVersion: OptionVersion? = null,
+
+    /** Random ID option version (2 bytes, Little Endian, BCD notation) */
+    val randomIdOptionVersion: OptionVersion? = null,
 ) {
     init {
         require(formatVersion == 0x00.toByte()) { "Format version must be 00h" }
@@ -61,27 +64,30 @@ data class SpecificationVersion(
             var extendedOverlapOptionVersion: OptionVersion? = null
             var valueLimitedPurseServiceOptionVersion: OptionVersion? = null
             var communicationWithMacOptionVersion: OptionVersion? = null
+            var randomIdOptionVersion: OptionVersion? = null
 
             for (i in 0 until numberOfOptions) {
-                if (currentOffset + 2 <= data.size) {
-                    val optionBytes = data.sliceArray(currentOffset until currentOffset + 2)
-                    val optionVersion = OptionVersion.fromByteArray(optionBytes)
-
-                    // Assign all option versions (0.0.0 is valid)
-                    when (i) {
-                        0 -> desOptionVersion = optionVersion // DES option
-                        1 -> specialOptionVersion = optionVersion // Special option
-                        2 -> extendedOverlapOptionVersion = optionVersion // Extended Overlap option
-                        3 ->
-                            valueLimitedPurseServiceOptionVersion =
-                                optionVersion // Value-Limited Purse Service option
-                        4 ->
-                            communicationWithMacOptionVersion =
-                                optionVersion // Communication with MAC option
-                    // Additional options can be added here if needed
-                    }
-                    currentOffset += 2
+                if (currentOffset + 2 > data.size) {
+                    break
                 }
+
+                val optionBytes = data.sliceArray(currentOffset until currentOffset + 2)
+                val optionVersion = OptionVersion.fromByteArray(optionBytes)
+
+                // Assign all option versions (0.0.0 is valid)
+                when (i) {
+                    0 -> desOptionVersion = optionVersion // DES option
+                    1 -> specialOptionVersion = optionVersion // Special option
+                    2 -> extendedOverlapOptionVersion = optionVersion // Extended Overlap option
+                    3 ->
+                        valueLimitedPurseServiceOptionVersion =
+                            optionVersion // Value-Limited Purse Service option
+                    4 ->
+                        communicationWithMacOptionVersion =
+                            optionVersion // Communication with MAC option
+                    5 -> randomIdOptionVersion = optionVersion // Random ID option
+                }
+                currentOffset += 2
             }
 
             return SpecificationVersion(
@@ -92,6 +98,7 @@ data class SpecificationVersion(
                 extendedOverlapOptionVersion,
                 valueLimitedPurseServiceOptionVersion,
                 communicationWithMacOptionVersion,
+                randomIdOptionVersion,
             )
         }
     }
@@ -106,13 +113,13 @@ data class SpecificationVersion(
         // Basic Version (2 bytes, Little Endian)
         data.addAll(basicVersion.toByteArray().toList())
 
-        // Always 5 option slots in FeliCa specification
-        val optionCount = 5
+        // Always 6 option slots in FeliCa specification
+        val optionCount = 6
 
-        // Number of options (1 byte) - always 5
+        // Number of options (1 byte) - always 6
         data.add(optionCount.toByte())
 
-        // Option Version List (2 bytes each, Little Endian) - all 5 slots
+        // Option Version List (2 bytes each, Little Endian) - all 6 slots
         // DES option
         desOptionVersion?.let { data.addAll(it.toByteArray().toList()) }
             ?: data.addAll(byteArrayOf(0x00, 0x00).toList())
@@ -127,6 +134,9 @@ data class SpecificationVersion(
             ?: data.addAll(byteArrayOf(0x00, 0x00).toList())
         // Communication with MAC option
         communicationWithMacOptionVersion?.let { data.addAll(it.toByteArray().toList()) }
+            ?: data.addAll(byteArrayOf(0x00, 0x00).toList())
+        // Random ID option
+        randomIdOptionVersion?.let { data.addAll(it.toByteArray().toList()) }
             ?: data.addAll(byteArrayOf(0x00, 0x00).toList())
 
         return data.toByteArray()
