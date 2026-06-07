@@ -255,6 +255,8 @@ object ExportUtils {
         json.put("metadata", metadataJson)
 
         // Primary attributes from CardScanContext
+        scanContext.scanDurationMillis?.let { json.put("scan_duration_ms", it) }
+
         scanContext.primaryIdm?.let {
             val hex = it.toHexString().lowercase()
             json.put("primary_idm", if (privacy) maskIdm(hex) else hex)

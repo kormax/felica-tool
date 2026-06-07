@@ -7,12 +7,14 @@ import com.kormax.felicatool.ui.CardScanStep
 import com.kormax.felicatool.ui.StepStatus
 import com.kormax.felicatool.util.EmptyNodeMetadataProvider
 import com.kormax.felicatool.util.NodeMetadataProvider
+import kotlin.time.Duration
 import kotlin.time.TimeSource
 
 data class CardScanResult(
     val steps: List<CardScanStep>,
     val completed: Boolean,
     val terminalErrorMessage: String?,
+    val duration: Duration,
 )
 
 class CardScanService(
@@ -34,6 +36,7 @@ class CardScanService(
         scanContext = CardScanContext()
         var workingSteps = CardScanStep.createInitialSteps(scanSettings)
         var terminalErrorMessage: String? = null
+        val scanStartTime = TimeSource.Monotonic.markNow()
 
         onStepsChanged(workingSteps)
 
@@ -75,11 +78,14 @@ class CardScanService(
                 break
             }
         }
+        val scanDuration = scanStartTime.elapsedNow()
+        scanContext = scanContext.copy(scanDurationMillis = scanDuration.inWholeMilliseconds)
 
         return CardScanResult(
             steps = workingSteps,
             completed = terminalErrorMessage == null,
             terminalErrorMessage = terminalErrorMessage,
+            duration = scanDuration,
         )
     }
 

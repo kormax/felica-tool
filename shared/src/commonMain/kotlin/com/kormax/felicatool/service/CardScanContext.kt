@@ -20,6 +20,7 @@ import com.kormax.felicatool.service.logging.CommunicationLogEntry
 /** Context class to store discovered card data across multiple scan steps. */
 data class CardScanContext(
     val systemScanContexts: List<SystemScanContext> = emptyList(),
+    val scanDurationMillis: Long? = null,
     val primaryIdm: ByteArray? = null,
     val pmm: Pmm? = null,
     val primarySystemCode: ByteArray? = null,

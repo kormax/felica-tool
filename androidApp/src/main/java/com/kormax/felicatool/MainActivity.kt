@@ -113,6 +113,7 @@ class MainActivity : ComponentActivity() {
     private var isWaitingForRemoval by mutableStateOf(false)
     private var isNfcReady by mutableStateOf(false)
     private var statusMessage by mutableStateOf("Ready")
+    private var scanDuration by mutableStateOf<Duration?>(null)
     private var readerIssueMessage by mutableStateOf<String?>(null)
     private var manualReaderSessionSecondsRemaining by mutableStateOf<Int?>(null)
     private var automaticReaderRestartSecondsRemaining by mutableStateOf<Int?>(null)
@@ -187,6 +188,7 @@ class MainActivity : ComponentActivity() {
                         steps = steps,
                         isCardPresent = isCardPresent,
                         statusMessage = statusMessage,
+                        scanDuration = scanDuration,
                         onToggleCollapse = ::toggleStepCollapse,
                         readerControlState =
                             ReaderControlState(
@@ -352,6 +354,7 @@ class MainActivity : ComponentActivity() {
         }
 
         steps = emptyList()
+        scanDuration = null
         isCardPresent = false
 
         readerJob = lifecycleScope.launch {
@@ -637,6 +640,7 @@ class MainActivity : ComponentActivity() {
     private suspend fun scanFeliCaTarget(target: FeliCaTarget): CardScanResult {
         val currentScanSettings = scanSettings
         statusMessage = "FeliCa card detected. Processing steps..."
+        scanDuration = null
         isCardPresent = true
 
         val result =
@@ -650,7 +654,10 @@ class MainActivity : ComponentActivity() {
                 )
             }
 
-        withContext(Dispatchers.Main) { steps = result.steps }
+        withContext(Dispatchers.Main) {
+            steps = result.steps
+            scanDuration = result.duration
+        }
 
         val terminalErrorMessage = result.terminalErrorMessage
         if (terminalErrorMessage != null) {
@@ -671,6 +678,7 @@ private fun MainScreen(
     steps: List<CardScanStep>,
     isCardPresent: Boolean,
     statusMessage: String,
+    scanDuration: Duration? = null,
     onToggleCollapse: (String) -> Unit = {},
     readerControlState: ReaderControlState = ReaderControlState(),
     isBackgroundReadingEnabled: Boolean = false,
@@ -840,6 +848,7 @@ private fun MainScreen(
             steps = steps,
             isCardPresent = isCardPresent,
             statusMessage = statusMessage,
+            scanDuration = scanDuration,
             onToggleCollapse = onToggleCollapse,
             readerControlState = readerControlState,
             onStartScan = onStartScan,
@@ -855,6 +864,7 @@ private fun FeliCaReaderScreen(
     steps: List<CardScanStep>,
     isCardPresent: Boolean,
     statusMessage: String,
+    scanDuration: Duration? = null,
     onToggleCollapse: (String) -> Unit = {},
     readerControlState: ReaderControlState = ReaderControlState(),
     onStartScan: () -> Unit = {},
@@ -929,6 +939,7 @@ private fun FeliCaReaderScreen(
             ReaderBottomBar(
                 state = readerControlState,
                 statusMessage = statusMessage,
+                scanDuration = if (isScanCompleted) scanDuration else null,
                 isCardPresent = isCardPresent,
                 onStartScan = onStartScan,
                 onStopScan = onStopScan,
@@ -943,6 +954,7 @@ private fun FeliCaReaderScreen(
 private fun ReaderBottomBar(
     state: ReaderControlState,
     statusMessage: String,
+    scanDuration: Duration?,
     isCardPresent: Boolean,
     onStartScan: () -> Unit,
     onStopScan: () -> Unit,
@@ -957,6 +969,12 @@ private fun ReaderBottomBar(
         canStartAutomaticNow ||
             (!isAutomatic && (state.isReaderActive || state.isScanAvailable || hasIssue))
     val showSpinner = state.isReaderActive || state.isReaderDiscovering
+    val statusText =
+        if (scanDuration != null) {
+            "$statusMessage\nScan time: ${scanDuration.inWholeMilliseconds} ms"
+        } else {
+            statusMessage
+        }
     val buttonText =
         when {
             isAutomatic && state.isReaderDiscovering -> "Looking for tags"
@@ -1005,7 +1023,7 @@ private fun ReaderBottomBar(
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        text = statusMessage,
+                        text = statusText,
                         style = MaterialTheme.typography.bodyMedium,
                         color =
                             when {
@@ -1072,6 +1090,7 @@ private fun FeliCaReaderPreview() {
             steps = sampleSteps,
             isCardPresent = true,
             statusMessage = "Processing card data...",
+            scanDuration = 1234.milliseconds,
         )
     }
 }
