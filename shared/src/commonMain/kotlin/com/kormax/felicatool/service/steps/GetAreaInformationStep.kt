@@ -54,7 +54,12 @@ internal object GetAreaInformationStep :
                 areaBatch.forEach { area ->
                     totalTested++
                     val getAreaInformationCommand = GetAreaInformationCommand(target.idm, area)
-                    val getAreaInformationResponse = target.transceive(getAreaInformationCommand)
+                    val getAreaInformationResponse =
+                        transceiveWithRetries(
+                            target = target,
+                            command = getAreaInformationCommand,
+                            systemCode = systemContext.systemCode,
+                        )
 
                     if (getAreaInformationResponse.isStatusSuccessful) {
                         totalSuccessful++

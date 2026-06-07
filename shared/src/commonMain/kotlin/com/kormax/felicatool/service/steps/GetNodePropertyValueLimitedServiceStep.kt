@@ -66,7 +66,12 @@ internal object GetNodePropertyValueLimitedServiceStep :
                         NodePropertyType.VALUE_LIMITED_PURSE_SERVICE,
                         nodeBatch,
                     )
-                val valueLimitedPurseResponse = target.transceive(valueLimitedPurseCommand)
+                val valueLimitedPurseResponse =
+                    transceiveWithRetries(
+                        target = target,
+                        command = valueLimitedPurseCommand,
+                        systemCode = systemContext.systemCode,
+                    )
 
                 if (valueLimitedPurseResponse.isStatusSuccessful) {
                     nodeBatch.zip(valueLimitedPurseResponse.nodeProperties).forEach {

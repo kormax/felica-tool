@@ -18,7 +18,6 @@ internal object WriteWithoutEncryptionDetermineSupportedStep :
         val response =
             transceiveWithRetries(
                 target = target,
-                commandLabel = "WriteWithoutEncryptionCommand",
                 systemCode = probeTarget.systemCode,
             ) { activeTarget, _ ->
                 WriteWithoutEncryptionCommand(

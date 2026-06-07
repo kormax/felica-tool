@@ -23,7 +23,12 @@ internal object RequestProductInformationStep :
         ensureCardPresence(target)
 
         val requestProductInformationCommand = RequestProductInformationCommand(target.idm)
-        val requestProductInformationResponse = target.transceive(requestProductInformationCommand)
+        val requestProductInformationResponse =
+            transceiveWithRetries(
+                target = target,
+                command = requestProductInformationCommand,
+                systemCode = byteArrayOf(0xFF.toByte(), 0xFF.toByte()),
+            )
 
         // Store product information in context
         scanContext = scanContext.copy(productInformation = requestProductInformationResponse)

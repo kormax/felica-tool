@@ -26,7 +26,6 @@ internal object RequestServiceDetermineSupportedStep :
         val requestServiceResponse =
             transceiveWithRetries(
                 target = target,
-                commandLabel = "RequestServiceCommand",
                 systemCode = systemContext?.systemCode,
                 maxAttempts = ATTEMPTS_DETERMINE_SUPPORTED,
             ) { activeTarget, attempt ->

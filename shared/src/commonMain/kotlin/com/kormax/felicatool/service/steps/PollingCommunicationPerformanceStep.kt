@@ -28,7 +28,7 @@ internal object PollingCommunicationPerformanceStep :
                 systemCode = target.systemCode ?: byteArrayOf(0xFF.toByte(), 0xFF.toByte()),
                 requestCode = RequestCode.COMMUNICATION_PERFORMANCE_REQUEST,
             )
-        val parsedCommPerfResponse = target.transceive(commPerfCommand)
+        val parsedCommPerfResponse = transceiveWithRetries(target, commPerfCommand)
 
         // Store communication performance in context
         if (parsedCommPerfResponse.hasRequestData) {

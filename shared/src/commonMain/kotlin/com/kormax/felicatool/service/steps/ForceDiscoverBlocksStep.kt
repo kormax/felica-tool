@@ -80,7 +80,12 @@ internal object ForceDiscoverBlocksStep :
                                 serviceCodes = arrayOf(service.code),
                                 blockListElements = arrayOf(blockElement),
                             )
-                        val response = target.transceive(command)
+                        val response =
+                            transceiveWithRetries(
+                                target = target,
+                                command = command,
+                                systemCode = systemContext.systemCode,
+                            )
 
                         if (
                             response.statusFlag1 == 0x00.toByte() && response.blockData.isNotEmpty()

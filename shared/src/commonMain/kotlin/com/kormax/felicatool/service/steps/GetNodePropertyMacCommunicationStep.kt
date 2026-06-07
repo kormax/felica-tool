@@ -66,7 +66,12 @@ internal object GetNodePropertyMacCommunicationStep :
                         NodePropertyType.MAC_COMMUNICATION,
                         nodeBatch,
                     )
-                val macCommunicationResponse = target.transceive(macCommunicationCommand)
+                val macCommunicationResponse =
+                    transceiveWithRetries(
+                        target = target,
+                        command = macCommunicationCommand,
+                        systemCode = systemContext.systemCode,
+                    )
 
                 if (macCommunicationResponse.isStatusSuccessful) {
                     nodeBatch.zip(macCommunicationResponse.nodeProperties).forEach {

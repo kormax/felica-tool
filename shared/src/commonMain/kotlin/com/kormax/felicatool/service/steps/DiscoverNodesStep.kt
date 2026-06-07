@@ -174,7 +174,12 @@ internal object DiscoverNodesStep :
                 for (index in 1..RequestCodeListCommand.MAX_ITERATOR_INDEX) {
                     val requestCodeListCommand =
                         RequestCodeListCommand(target.idm, Area.ROOT, index)
-                    val requestCodeListResponse = target.transceive(requestCodeListCommand)
+                    val requestCodeListResponse =
+                        transceiveWithRetries(
+                            target = target,
+                            command = requestCodeListCommand,
+                            systemCode = systemContext.systemCode,
+                        )
                     requestCount++
 
                     if (!requestCodeListResponse.isStatusSuccessful) {
@@ -258,7 +263,6 @@ internal object DiscoverNodesStep :
                     val parsedSearchResponse =
                         transceiveWithRetries(
                             target = target,
-                            commandLabel = "SearchServiceCodeCommand",
                             systemCode = systemContext.systemCode,
                         ) { activeTarget, _ ->
                             SearchServiceCodeCommand(activeTarget.idm, index)

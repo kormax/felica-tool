@@ -22,7 +22,6 @@ internal object ReadWithoutEncryptionDetermineSupportedStep :
         val response =
             transceiveWithRetries(
                 target = target,
-                commandLabel = "ReadWithoutEncryptionCommand",
                 systemCode = systemCode,
                 maxAttempts = ATTEMPTS_DETERMINE_SUPPORTED,
             ) { activeTarget, _ ->

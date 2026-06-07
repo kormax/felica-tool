@@ -79,6 +79,7 @@ internal object ReadBlocksWithoutEncryptionStep :
             val blockDataByService =
                 readBlocksFromServices(
                     services = servicesWithoutAuth,
+                    systemCode = systemContext.systemCode,
                     errorLocationIndication = readErrorLocationIndication,
                     maxBlocksPerRequest = configuredMaxBlocksPerRequest,
                     maxServicesPerRequest = configuredMaxServicesPerRequest,
@@ -86,6 +87,7 @@ internal object ReadBlocksWithoutEncryptionStep :
             val extraBlockDataByService =
                 readExtraBlocksFromServices(
                     services = servicesWithoutAuth,
+                    systemCode = systemContext.systemCode,
                     extraBlocksByServiceCode = extraBlocksByServiceCode,
                 )
 
@@ -201,6 +203,7 @@ internal object ReadBlocksWithoutEncryptionStep :
      */
     private suspend fun ScanSession.readBlocksFromServices(
         services: List<Service>,
+        systemCode: ByteArray?,
         errorLocationIndication: ErrorLocationIndication,
         maxBlocksPerRequest: Int,
         maxServicesPerRequest: Int,
@@ -307,11 +310,16 @@ internal object ReadBlocksWithoutEncryptionStep :
                 val readCommand =
                     ReadWithoutEncryptionCommand(
                         idm = target.idm,
-                        serviceCodes = servicesToRead.map { it -> it.code }.toTypedArray(),
+                        serviceCodes = servicesToRead.map { it.code }.toTypedArray(),
                         blockListElements = blocksToRead.toTypedArray(),
                     )
 
-                val response = target.transceive(readCommand)
+                val response =
+                    transceiveWithRetries(
+                        target = target,
+                        command = readCommand,
+                        systemCode = systemCode,
+                    )
 
                 // Check status flags
                 val statusFlag1 = response.statusFlag1
@@ -604,6 +612,7 @@ internal object ReadBlocksWithoutEncryptionStep :
 
     private suspend fun ScanSession.readExtraBlocksFromServices(
         services: List<Service>,
+        systemCode: ByteArray?,
         extraBlocksByServiceCode: Map<String, Map<Int, String>>,
     ): Map<Service, Map<Int, ByteArray>> {
         val blockDataByService = mutableMapOf<Service, MutableMap<Int, ByteArray>>()
@@ -637,7 +646,12 @@ internal object ReadBlocksWithoutEncryptionStep :
                             blockListElements = arrayOf(blockElement),
                         )
 
-                    val response = target.transceive(readCommand)
+                    val response =
+                        transceiveWithRetries(
+                            target = target,
+                            command = readCommand,
+                            systemCode = systemCode,
+                        )
 
                     if (
                         isReadStatusFlag2Successful(response.statusFlag2) &&

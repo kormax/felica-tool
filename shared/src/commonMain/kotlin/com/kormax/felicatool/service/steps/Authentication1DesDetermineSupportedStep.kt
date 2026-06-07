@@ -45,7 +45,6 @@ internal object Authentication1DesDetermineSupportedStep :
         val authenticateResponse =
             transceiveWithRetries(
                 target = target,
-                commandLabel = "Authentication1DesCommand",
                 systemCode = testTarget.systemContext.systemCode,
                 maxAttempts = ATTEMPTS_DETERMINE_SUPPORTED,
                 retryDelayStepMs = 50,

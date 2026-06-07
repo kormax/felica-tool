@@ -69,7 +69,7 @@ internal object EchoDetermineMaxPayloadSizeStep :
         val payload = ByteArray(length) { index -> (index and 0xFF).toByte() }
         val command = EchoCommand(payload)
         return try {
-            val response = target.transceive(command)
+            val response = transceiveWithRetries(target, command)
             if (response.data.contentEquals(payload)) {
                 EchoAttemptResult(length, success = true, error = null)
             } else {

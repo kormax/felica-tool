@@ -104,14 +104,14 @@ internal object ProbeSystemCodesManuallyStep :
                 }
 
                 try {
-                    val pollingResponse =
-                        target.transceive(
-                            PollingCommand(
-                                systemCode = probeSystemCode,
-                                requestCode = RequestCode.SYSTEM_CODE_REQUEST,
-                                timeSlot = TimeSlot.SLOT_1,
-                            )
+                    val pollingCommand =
+                        PollingCommand(
+                            systemCode = probeSystemCode,
+                            requestCode = RequestCode.SYSTEM_CODE_REQUEST,
+                            timeSlot = TimeSlot.SLOT_1,
                         )
+                    val pollingResponse =
+                        transceiveWithRetries(target = target, command = pollingCommand)
 
                     val discoveredSystemCode =
                         if (pollingResponse.hasRequestData) {

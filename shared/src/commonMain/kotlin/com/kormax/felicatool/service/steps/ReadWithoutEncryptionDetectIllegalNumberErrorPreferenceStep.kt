@@ -23,7 +23,6 @@ internal object ReadWithoutEncryptionDetectIllegalNumberErrorPreferenceStep :
         val response =
             transceiveWithRetries(
                 target = target,
-                commandLabel = "ReadWithoutEncryptionCommand",
                 systemCode = testTarget.systemContext.systemCode,
             ) { activeTarget, _ ->
                 ReadWithoutEncryptionCommand(

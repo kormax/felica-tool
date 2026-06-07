@@ -328,7 +328,6 @@ internal constructor(
     ): T =
         transceiveWithRetries(
             target = target,
-            commandLabel = command::class.simpleName ?: "FeliCa command",
             systemCode = systemCode,
             maxAttempts = maxAttempts,
             retryDelayStepMs = retryDelayStepMs,
@@ -338,13 +337,13 @@ internal constructor(
 
     suspend fun <T : FelicaResponse> transceiveWithRetries(
         target: FeliCaTarget,
-        commandLabel: String,
         systemCode: ByteArray? = null,
         maxAttempts: Int = RETRY_ATTEMPTS,
         retryDelayStepMs: Long = RETRY_DELAY_STEP_MS,
         createCommand: (FeliCaTarget, Int) -> FelicaCommand<T>,
     ): T {
         var lastException: Exception? = null
+        var lastCommandLabel = "FeliCa command"
         var activeTarget = target
 
         for (attempt in 1..maxAttempts) {
@@ -372,10 +371,23 @@ internal constructor(
                         }
                 }
 
-                systemCode?.let { pollSystemCode(activeTarget, it) }
+                if (systemCode != null) {
+                    // First attempt can trust a matching cached system code; retries poll again to
+                    // confirm the card is still present and selected after a failed exchange.
+                    val isWildcardSystemCode =
+                        systemCode.size == 2 && systemCode.all { it == 0xFF.toByte() }
+                    val shouldPollSystemCode =
+                        attempt > 1 ||
+                            (!isWildcardSystemCode &&
+                                !activeTarget.currentSystemCode.sameBytes(systemCode))
+                    if (shouldPollSystemCode) {
+                        pollSystemCode(activeTarget, systemCode)
+                    }
+                }
                 val retryTimeoutExtension =
                     (retryDelayStepMs * (attempt - 1)).toDuration(DurationUnit.MILLISECONDS)
                 val command = createCommand(activeTarget, attempt)
+                lastCommandLabel = command::class.simpleName ?: "FeliCa command"
                 return activeTarget.transceive(
                     command,
                     activeTarget.inferTimeout(command) + retryTimeoutExtension,
@@ -388,7 +400,11 @@ internal constructor(
                     break
                 }
 
-                ScanLog.w("CardScanService", "$commandLabel attempt $attempt failed; retrying", e)
+                ScanLog.w(
+                    "CardScanService",
+                    "$lastCommandLabel attempt $attempt failed; retrying",
+                    e,
+                )
             }
         }
 
@@ -396,7 +412,7 @@ internal constructor(
             throw TagUnavailableException(CardScanService.CARD_LOST_MESSAGE, lastException)
         }
 
-        throw lastException ?: RuntimeException("$commandLabel failed without an exception")
+        throw lastException ?: RuntimeException("$lastCommandLabel failed without an exception")
     }
 
     suspend fun handleDiscoveredSystemCodes(

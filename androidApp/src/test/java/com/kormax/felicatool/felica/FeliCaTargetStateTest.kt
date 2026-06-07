@@ -24,7 +24,7 @@ class FeliCaTargetStateTest {
     }
 
     @Test
-    fun pollingWithoutSystemCodeRequestUpdatesCurrentIdmAndClearsCurrentSystemCode() = runBlocking {
+    fun pollingWithConcreteSystemCodeUpdatesCurrentIdmAndCurrentSystemCode() = runBlocking {
         val responseIdm = "1122334455667788".hexToByteArray()
         val target =
             FakeFeliCaTarget(
@@ -32,6 +32,20 @@ class FeliCaTargetStateTest {
             )
 
         target.transceive(PollingCommand(systemCode = SYSTEM_CODE_FE00))
+
+        assertArrayEquals(responseIdm, target.currentIdm)
+        assertArrayEquals(SYSTEM_CODE_FE00, target.currentSystemCode)
+    }
+
+    @Test
+    fun pollingWithWildcardSystemCodeUpdatesCurrentIdmAndClearsCurrentSystemCode() = runBlocking {
+        val responseIdm = "1122334455667788".hexToByteArray()
+        val target =
+            FakeFeliCaTarget(
+                response = PollingResponse(responseIdm, PMM.toByteArray()).toByteArray()
+            )
+
+        target.transceive(PollingCommand(systemCode = SYSTEM_CODE_FEFF))
 
         assertArrayEquals(responseIdm, target.currentIdm)
         assertNull(target.currentSystemCode)
@@ -149,6 +163,7 @@ class FeliCaTargetStateTest {
         val INITIAL_IDM = "0102030405060708".hexToByteArray()
         val SYSTEM_CODE_FE0F = "FE0F".hexToByteArray()
         val SYSTEM_CODE_FE00 = "FE00".hexToByteArray()
+        val SYSTEM_CODE_FEFF = "FEFF".hexToByteArray()
         val PMM = Pmm("1112131415161718".hexToByteArray())
     }
 }

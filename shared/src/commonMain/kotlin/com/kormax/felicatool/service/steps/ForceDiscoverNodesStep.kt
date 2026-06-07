@@ -98,8 +98,13 @@ internal object ForceDiscoverNodesStep :
 
                     val slots: List<SlotResult> =
                         if (useV2) {
+                            val command = RequestServiceV2Command(target.idm, nodeCodes)
                             val response =
-                                target.transceive(RequestServiceV2Command(target.idm, nodeCodes))
+                                transceiveWithRetries(
+                                    target = target,
+                                    command = command,
+                                    systemCode = systemContext.systemCode,
+                                )
                             if (!response.isStatusSuccessful) return@forEach
                             batch.indices.map { i ->
                                 val aes = response.aesKeyVersions[i]
@@ -110,8 +115,13 @@ internal object ForceDiscoverNodesStep :
                                 }
                             }
                         } else {
+                            val command = RequestServiceCommand(target.idm, nodeCodes)
                             val response =
-                                target.transceive(RequestServiceCommand(target.idm, nodeCodes))
+                                transceiveWithRetries(
+                                    target = target,
+                                    command = command,
+                                    systemCode = systemContext.systemCode,
+                                )
                             batch.indices.map { i ->
                                 val kv = response.keyVersions[i]
                                 SlotResult(kv, "Key") { node -> newNodeKeyVersions[node] = kv }

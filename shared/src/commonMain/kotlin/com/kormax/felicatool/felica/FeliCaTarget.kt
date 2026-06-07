@@ -96,13 +96,12 @@ interface FeliCaTarget {
             command is PollingCommand && response is PollingResponse -> {
                 currentIdm = response.idm.copyOf()
                 currentSystemCode =
-                    if (
+                    when {
                         command.requestCode == RequestCode.SYSTEM_CODE_REQUEST &&
-                            response.hasRequestData
-                    ) {
-                        response.systemCode.copyOf()
-                    } else {
-                        null
+                            response.hasRequestData -> response.systemCode.copyOf()
+                        command.systemCode.none { it == 0xFF.toByte() } ->
+                            command.systemCode.copyOf()
+                        else -> null
                     }
             }
             command is FelicaCommandWithIdm<*> -> {

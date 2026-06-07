@@ -23,7 +23,12 @@ internal object RequestSpecificationVersionStep :
         ensureCardPresence(target)
 
         val requestSpecVersionCommand = RequestSpecificationVersionCommand(target.idm)
-        val requestSpecVersionResponse = target.transceive(requestSpecVersionCommand)
+        val requestSpecVersionResponse =
+            transceiveWithRetries(
+                target = target,
+                command = requestSpecVersionCommand,
+                systemCode = byteArrayOf(0xFF.toByte(), 0xFF.toByte()),
+            )
 
         // Store specification version in context
         scanContext =

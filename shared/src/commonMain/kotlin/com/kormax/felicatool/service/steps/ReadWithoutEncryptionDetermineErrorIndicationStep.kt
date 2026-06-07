@@ -18,7 +18,6 @@ internal object ReadWithoutEncryptionDetermineErrorIndicationStep :
         val response =
             transceiveWithRetries(
                 target = target,
-                commandLabel = "ReadWithoutEncryptionCommand",
                 systemCode = testTarget.systemContext.systemCode,
             ) { activeTarget, _ ->
                 ReadWithoutEncryptionCommand(

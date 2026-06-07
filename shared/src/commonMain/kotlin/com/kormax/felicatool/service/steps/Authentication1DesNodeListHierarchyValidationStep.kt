@@ -81,7 +81,6 @@ internal object Authentication1DesNodeListHierarchyValidationStep :
             try {
                 transceiveWithRetries(
                     target = target,
-                    commandLabel = "Authentication1DesCommand",
                     systemCode = preferredTarget.systemContext.systemCode,
                     maxAttempts = AUTHENTICATION1_DES_NODE_LIST_HIERARCHY_VALIDATION_ATTEMPTS,
                     retryDelayStepMs = 50,

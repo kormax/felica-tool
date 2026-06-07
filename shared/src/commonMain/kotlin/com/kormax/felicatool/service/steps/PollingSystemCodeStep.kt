@@ -27,7 +27,7 @@ internal object PollingSystemCodeStep :
                 systemCode = target.systemCode ?: byteArrayOf(0xFF.toByte(), 0xFF.toByte()),
                 requestCode = RequestCode.SYSTEM_CODE_REQUEST,
             )
-        val parsedSystemCodeResponse = target.transceive(systemCodeCommand)
+        val parsedSystemCodeResponse = transceiveWithRetries(target, systemCodeCommand)
 
         // Store system code in context
         if (parsedSystemCodeResponse.hasRequestData) {

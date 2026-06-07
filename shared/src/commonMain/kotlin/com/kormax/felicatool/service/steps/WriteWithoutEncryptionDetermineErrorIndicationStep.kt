@@ -24,7 +24,6 @@ internal object WriteWithoutEncryptionDetermineErrorIndicationStep :
         val response =
             transceiveWithRetries(
                 target = target,
-                commandLabel = "WriteWithoutEncryptionCommand",
                 systemCode = probeTarget.systemCode,
             ) { activeTarget, _ ->
                 WriteWithoutEncryptionCommand(

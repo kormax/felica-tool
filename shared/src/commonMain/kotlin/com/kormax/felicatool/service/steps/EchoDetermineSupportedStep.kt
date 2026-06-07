@@ -15,7 +15,7 @@ internal object EchoDetermineSupportedStep :
         ensureCardPresence(target)
 
         val payload = ByteArray(0)
-        val response = target.transceive(EchoCommand(payload))
+        val response = transceiveWithRetries(target, EchoCommand(payload))
         if (!response.data.contentEquals(payload)) {
             throw RuntimeException(
                 "Echo mismatch (${response.data.size} bytes returned): ${response.data.toHexString()}"

@@ -40,7 +40,12 @@ internal object GetSystemStatusStep :
 
             try {
                 val getSystemStatusCommand = GetSystemStatusCommand(target.idm)
-                val getSystemStatusResponse = target.transceive(getSystemStatusCommand)
+                val getSystemStatusResponse =
+                    transceiveWithRetries(
+                        target = target,
+                        command = getSystemStatusCommand,
+                        systemCode = systemContext.systemCode,
+                    )
 
                 // Store system status as ByteArray in context
                 val systemStatusData =

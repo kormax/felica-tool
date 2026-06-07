@@ -47,7 +47,6 @@ internal object RequestServiceUnknownNodeAttributesStep :
             try {
                 transceiveWithRetries(
                     target = target,
-                    commandLabel = "RequestServiceCommand",
                     systemCode = systemContext?.systemCode,
                     maxAttempts = REQUEST_SERVICE_UNKNOWN_ATTRIBUTE_PROBE_ATTEMPTS,
                     retryDelayStepMs = 50,

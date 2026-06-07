@@ -27,7 +27,6 @@ internal object ReadWithoutEncryptionDetermineMaxServicesStep :
             val response =
                 transceiveWithRetries(
                     target = target,
-                    commandLabel = "ReadWithoutEncryptionCommand",
                     systemCode = testTarget.systemContext.systemCode,
                 ) { activeTarget, _ ->
                     ReadWithoutEncryptionCommand(
