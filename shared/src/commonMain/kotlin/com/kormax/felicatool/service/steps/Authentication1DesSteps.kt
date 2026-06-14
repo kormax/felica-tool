@@ -4,14 +4,34 @@ import com.kormax.felicatool.felica.*
 import com.kormax.felicatool.nfc.TransceiveTimeoutException
 import com.kormax.felicatool.service.*
 import com.kormax.felicatool.ui.ScanStepIcon
-import kotlin.time.Duration.Companion.milliseconds
 
-private const val AUTHENTICATION1_DES_NODE_LIST_HIERARCHY_VALIDATION_ATTEMPTS = 3
+private const val AUTHENTICATION1_DES_BEHAVIOR_ATTEMPTS = 3
 
 private data class Authentication1DesTestTarget(
     val systemContext: SystemScanContext,
     val rootArea: Area,
 )
+
+private data class Authentication1DesServiceTestTarget(
+    val systemContext: SystemScanContext,
+    val rootArea: Area,
+    val service: Service,
+)
+
+internal data class Authentication1DesCodeEntry(
+    val label: String,
+    val code: ByteArray,
+)
+
+internal data class Authentication1DesBehaviorCommandTarget(
+    val systemContext: SystemScanContext,
+    val areaEntries: List<Authentication1DesCodeEntry>,
+    val nodeEntries: List<Authentication1DesCodeEntry>,
+)
+
+private fun SystemScanContext.hasAuthentication1DesKey(node: Node): Boolean =
+    nodeDesKeyVersions.containsKey(node) ||
+        (!nodeAesKeyVersions.containsKey(node) && nodeKeyVersions.containsKey(node))
 
 private fun CardScanContext.findBestAuthentication1DesTarget(): Authentication1DesTestTarget? {
     var bestTarget: Authentication1DesTestTarget? = null
@@ -20,11 +40,7 @@ private fun CardScanContext.findBestAuthentication1DesTarget(): Authentication1D
     for (systemContext in systemScanContexts) {
         val rootArea =
             systemContext.nodes.filterIsInstance<Area>().firstOrNull { it.isRoot } ?: Area.ROOT
-        val hasValidDesKeyOnRootArea =
-            systemContext.nodeDesKeyVersions.containsKey(rootArea) ||
-                (!systemContext.nodeAesKeyVersions.containsKey(rootArea) &&
-                    systemContext.nodeKeyVersions.containsKey(rootArea))
-        if (!hasValidDesKeyOnRootArea) {
+        if (!systemContext.hasAuthentication1DesKey(rootArea)) {
             continue
         }
 
@@ -38,6 +54,83 @@ private fun CardScanContext.findBestAuthentication1DesTarget(): Authentication1D
 
     return bestTarget
 }
+
+private fun CardScanContext.findBestAuthentication1DesServiceTarget():
+    Authentication1DesServiceTestTarget? {
+    val candidates = mutableListOf<Authentication1DesServiceTestTarget>()
+
+    systemScanContexts.forEach { systemContext ->
+        val rootArea =
+            systemContext.nodes.filterIsInstance<Area>().firstOrNull { it.isRoot } ?: Area.ROOT
+        if (!systemContext.hasAuthentication1DesKey(rootArea)) {
+            return@forEach
+        }
+
+        systemContext.nodes.filterIsInstance<Service>().forEach { service ->
+            candidates +=
+                Authentication1DesServiceTestTarget(
+                    systemContext = systemContext,
+                    rootArea = rootArea,
+                    service = service,
+                )
+        }
+    }
+
+    return candidates.minWithOrNull(
+        compareBy<Authentication1DesServiceTestTarget>(
+            { if (it.systemContext.hasAuthentication1DesKey(it.service)) 0 else 1 },
+            { it.service.number },
+        )
+    )
+}
+
+private fun ScanSession.requireAuthentication1DesSupported(featureName: String) {
+    if (scanContext.commands.authentication1Des.supported != CommandSupport.SUPPORTED) {
+        throw StepSkipped("Authenticate1 DES support is not confirmed; cannot check $featureName")
+    }
+}
+
+private fun ScanSession.requireMode0ForAuthentication1DesBehavior(featureName: String): Mode {
+    val modeBeforeCheck = currentMode
+    if (modeBeforeCheck != Mode.Mode0) {
+        throw StepPreconditionNotMet(
+            "Authenticate1 DES $featureName requires Mode 0 (current: $modeBeforeCheck)."
+        )
+    }
+    return modeBeforeCheck
+}
+
+private suspend fun ScanSession.executeAuthentication1DesBehaviorCommand(
+    systemContext: SystemScanContext,
+    areaCodes: Array<ByteArray>,
+    nodeCodes: Array<ByteArray>,
+    challenge1A: ByteArray,
+): Authentication1DesResponse? =
+    try {
+        executeCommand(
+            withSelectedSystemCode = systemContext.systemCode,
+            withResetToMode0 = true,
+            attempts = AUTHENTICATION1_DES_BEHAVIOR_ATTEMPTS,
+        ) {
+            Authentication1DesCommand(
+                idm = idm,
+                areaCodes = areaCodes.map { it.copyOf() }.toTypedArray(),
+                nodeCodes = nodeCodes.map { it.copyOf() }.toTypedArray(),
+                challenge1A = challenge1A,
+            )
+        }
+    } catch (e: TransceiveTimeoutException) {
+        null
+    }
+
+private fun authentication1DesBehaviorSupport(
+    response: Authentication1DesResponse?
+): CommandSupport =
+    if (response != null) {
+        CommandSupport.SUPPORTED
+    } else {
+        CommandSupport.UNSUPPORTED
+    }
 
 internal object Authentication1DesDetermineSupportedStep :
     CommandSupportScanStep(
@@ -195,34 +288,26 @@ internal object Authentication1DesDetermineTrailingDataSupportedStep :
         )
 }
 
-internal object Authentication1DesNodeListHierarchyValidationStep :
+internal object Authentication1DesIncompleteAreaPathForNodeSupportedStep :
     ScanStep(
-        id = "authentication1_des_node_list_hierarchy_validation",
-        title = "Authenticate1 DES: Node List Hierarchy Validation",
+        id = "authentication1_des_determine_incomplete_area_path_for_node_supported",
+        title = "Authenticate1 DES: Incomplete Area Path For Node Supported",
         description =
-            "Check Authenticate1 DES validation behavior for nodes that aren't immediate children of specified areas",
+            "Check whether Authenticate1 DES accepts nodes whose full area authentication path is not provided",
         icon = ScanStepIcon.LOCK,
     ) {
     override suspend fun ScanSession.perform(): StepOutput {
-        if (scanContext.commands.authentication1Des.supported != CommandSupport.SUPPORTED) {
-            throw StepSkipped(
-                "Authenticate1 DES support is not confirmed; cannot check node-list hierarchy validation"
-            )
-        }
+        requireAuthentication1DesSupported("incomplete area path for node support")
 
         val preferredTarget = scanContext.findBestAuthentication1DesTarget()
         if (preferredTarget == null) {
             throw StepSkipped(
-                "No suitable system found for Authenticate1 DES node-list hierarchy validation (root area with valid DES key is required)."
+                "No suitable system found for Authenticate1 DES incomplete area path for node support (root area with valid DES key is required)."
             )
         }
 
-        val modeBeforeCheck = currentMode
-        if (modeBeforeCheck != Mode.Mode0) {
-            throw StepPreconditionNotMet(
-                "Authenticate1 DES node-list hierarchy validation requires Mode 0 (current: $modeBeforeCheck)."
-            )
-        }
+        val modeBeforeCheck =
+            requireMode0ForAuthentication1DesBehavior("incomplete area path for node support")
 
         val nonRootAreas =
             preferredTarget.systemContext.nodes.filterIsInstance<Area>().filter { area ->
@@ -252,7 +337,7 @@ internal object Authentication1DesNodeListHierarchyValidationStep :
         val nonImmediateNode = serviceUnderNonRootArea ?: nestedAreaUnderNonRootArea
         if (nonImmediateNode == null) {
             throw StepSkipped(
-                "No node found under an area under root area; cannot check Authenticate1 DES node-list hierarchy validation."
+                "No node found under an area under root area; cannot check Authenticate1 DES incomplete area path for node support."
             )
         }
         val challenge1A = ByteArray(8) { 0x00.toByte() }
@@ -261,40 +346,26 @@ internal object Authentication1DesNodeListHierarchyValidationStep :
         val nodesToAuth = listOf<Node>(preferredTarget.rootArea, nonImmediateNode)
 
         val response =
-            try {
-                executeCommand(
-                    withSelectedSystemCode = preferredTarget.systemContext.systemCode,
-                    withResetToMode0 = true,
-                    attempts = AUTHENTICATION1_DES_NODE_LIST_HIERARCHY_VALIDATION_ATTEMPTS,
-                    retryDelay = 50.milliseconds,
-                ) {
-                    Authentication1DesCommand(
-                        idm = idm,
-                        areaNodes = areasToAuth,
-                        nodes = nodesToAuth,
-                        challenge1A = challenge1A,
-                    )
-                }
-            } catch (e: TransceiveTimeoutException) {
-                null
-            }
+            executeAuthentication1DesBehaviorCommand(
+                systemContext = preferredTarget.systemContext,
+                areaCodes = areasToAuth.map { it.code }.toTypedArray(),
+                nodeCodes = nodesToAuth.map { it.code }.toTypedArray(),
+                challenge1A = challenge1A,
+            )
 
-        val validationBehavior =
-            if (response != null) {
-                Authentication1DesNodeListHierarchyValidation.LENIENT
-            } else {
-                Authentication1DesNodeListHierarchyValidation.STRICT
-            }
+        val incompleteAreaPathForNodeSupported = authentication1DesBehaviorSupport(response)
         scanContext = scanContext.withCommands {
             copy(
                 authentication1Des =
-                    authentication1Des.copy(nodeListHierarchyValidation = validationBehavior)
+                    authentication1Des.copy(
+                        incompleteAreaPathForNodeSupported = incompleteAreaPathForNodeSupported
+                    )
             )
         }
 
         return StepOutput(
             buildString {
-                    appendLine("Authenticate1 DES node-list validation check:")
+                    appendLine("Authenticate1 DES incomplete area path for node support check:")
                     appendLine(
                         "System: ${preferredTarget.systemContext.systemCode?.toHexString()?.uppercase() ?: "unknown"}"
                     )
@@ -310,12 +381,118 @@ internal object Authentication1DesNodeListHierarchyValidationStep :
                         appendLine("Challenge2A: ${response.challenge2A.toHexString().uppercase()}")
                     } else {
                         appendLine(
-                            "No response after $AUTHENTICATION1_DES_NODE_LIST_HIERARCHY_VALIDATION_ATTEMPTS attempts"
+                            "No response after $AUTHENTICATION1_DES_BEHAVIOR_ATTEMPTS attempts"
                         )
                     }
-                    appendLine("Validation behavior: $validationBehavior")
+                    appendLine("Result: ${incompleteAreaPathForNodeSupported.toOutputLabel()}")
                 }
                 .trim()
         )
     }
+}
+
+internal abstract class Authentication1DesAreaListBehaviorStep(
+    id: String,
+    title: String,
+    description: String,
+    private val featureName: String,
+    private val supportLabel: String,
+) :
+    ScanStep(
+        id = id,
+        title = title,
+        description = description,
+        icon = ScanStepIcon.LOCK,
+    ) {
+    protected abstract fun ScanSession.resolveTarget(): Authentication1DesBehaviorCommandTarget
+
+    protected abstract fun CommandCapabilities.writeSupport(
+        support: CommandSupport
+    ): CommandCapabilities
+
+    final override suspend fun ScanSession.perform(): StepOutput {
+        requireAuthentication1DesSupported(featureName)
+        val modeBeforeCheck = requireMode0ForAuthentication1DesBehavior(featureName)
+        val testTarget = resolveTarget()
+        val challenge1A = ByteArray(8) { 0x00.toByte() }
+
+        val response =
+            executeAuthentication1DesBehaviorCommand(
+                systemContext = testTarget.systemContext,
+                areaCodes = testTarget.areaEntries.map { it.code }.toTypedArray(),
+                nodeCodes = testTarget.nodeEntries.map { it.code }.toTypedArray(),
+                challenge1A = challenge1A,
+            )
+
+        val support = authentication1DesBehaviorSupport(response)
+        scanContext = scanContext.withCommands { writeSupport(support) }
+
+        return StepOutput(
+            buildString {
+                    appendLine("$featureName check:")
+                    appendLine(
+                        "System: ${testTarget.systemContext.systemCode?.toHexString()?.uppercase() ?: "unknown"}"
+                    )
+                    appendLine("Mode before check: $modeBeforeCheck")
+                    appendLine("Area list:")
+                    testTarget.areaEntries.forEachIndexed { index, entry ->
+                        appendLine("  ${index + 1}. ${entry.label}")
+                    }
+                    appendLine("Node list:")
+                    testTarget.nodeEntries.forEachIndexed { index, entry ->
+                        appendLine("  ${index + 1}. ${entry.label}")
+                    }
+                    appendLine("Challenge1A: ${challenge1A.toHexString().uppercase()}")
+                    if (response != null) {
+                        appendLine("Challenge1B: ${response.challenge1B.toHexString().uppercase()}")
+                        appendLine("Challenge2A: ${response.challenge2A.toHexString().uppercase()}")
+                    } else {
+                        appendLine(
+                            "No response after $AUTHENTICATION1_DES_BEHAVIOR_ATTEMPTS attempts"
+                        )
+                    }
+                    appendLine("$supportLabel: ${support.toOutputLabel()}")
+                }
+                .trim()
+        )
+    }
+}
+
+internal object Authentication1DesServiceInAreaPathSupportedStep :
+    Authentication1DesAreaListBehaviorStep(
+        id = "authentication1_des_determine_service_in_area_path_supported",
+        title = "Authenticate1 DES: Service In Area Path Supported",
+        description =
+            "Check whether Authenticate1 DES accepts a service code in the area path while targeting root area",
+        featureName = "Authenticate1 DES service in area path support",
+        supportLabel = "Service in area path",
+    ) {
+    override fun ScanSession.resolveTarget(): Authentication1DesBehaviorCommandTarget {
+        val target =
+            scanContext.findBestAuthentication1DesServiceTarget()
+                ?: throw StepSkipped(
+                    "No service found; cannot check Authenticate1 DES service in area path support."
+                )
+        return Authentication1DesBehaviorCommandTarget(
+            systemContext = target.systemContext,
+            areaEntries =
+                listOf(
+                    Authentication1DesCodeEntry(
+                        describeNode(target.rootArea),
+                        target.rootArea.code,
+                    ),
+                    Authentication1DesCodeEntry(describeNode(target.service), target.service.code),
+                ),
+            nodeEntries =
+                listOf(
+                    Authentication1DesCodeEntry(
+                        describeNode(target.rootArea),
+                        target.rootArea.code,
+                    )
+                ),
+        )
+    }
+
+    override fun CommandCapabilities.writeSupport(support: CommandSupport): CommandCapabilities =
+        copy(authentication1Des = authentication1Des.copy(serviceInAreaPathSupported = support))
 }

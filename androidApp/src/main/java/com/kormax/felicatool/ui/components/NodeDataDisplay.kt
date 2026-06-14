@@ -661,11 +661,13 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                             trailingDataSupport =
                                 context.commands.authentication1Des.trailingDataSupported,
                         )
-                        InfoChip(
-                            label = "Auth1 DES Node List Validation",
-                            value =
-                                context.commands.authentication1Des.nodeListHierarchyValidation
-                                    .name,
+                        CommandSupportChip(
+                            "Auth1 DES Incomplete Area Path For Node",
+                            context.commands.authentication1Des.incompleteAreaPathForNodeSupported,
+                        )
+                        CommandSupportChip(
+                            "Auth1 DES Service In Area Path",
+                            context.commands.authentication1Des.serviceInAreaPathSupported,
                         )
                         CommandSupportChip(
                             "Authenticate1 AES",

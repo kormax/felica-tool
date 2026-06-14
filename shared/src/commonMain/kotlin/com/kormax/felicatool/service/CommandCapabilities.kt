@@ -1,6 +1,5 @@
 package com.kormax.felicatool.service
 
-import com.kormax.felicatool.felica.Authentication1DesNodeListHierarchyValidation
 import com.kormax.felicatool.felica.ErrorLocationIndication
 import com.kormax.felicatool.felica.IllegalNumberErrorPreference
 
@@ -104,6 +103,6 @@ data class GetNodePropertyCommandCapability(
 data class Authentication1DesCommandCapability(
     override val supported: CommandSupport = CommandSupport.UNKNOWN,
     override val trailingDataSupported: CommandSupport = CommandSupport.UNKNOWN,
-    val nodeListHierarchyValidation: Authentication1DesNodeListHierarchyValidation =
-        Authentication1DesNodeListHierarchyValidation.UNKNOWN,
+    val incompleteAreaPathForNodeSupported: CommandSupport = CommandSupport.UNKNOWN,
+    val serviceInAreaPathSupported: CommandSupport = CommandSupport.UNKNOWN,
 ) : CommandCapability

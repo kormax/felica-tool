@@ -502,10 +502,14 @@ object ExportUtils {
             "authentication1_des",
             scanContext.commands.authentication1Des,
         ) {
-            val validation = scanContext.commands.authentication1Des.nodeListHierarchyValidation
-            if (validation != Authentication1DesNodeListHierarchyValidation.UNKNOWN) {
-                put("node_list_hierarchy_validation", validation.name)
-            }
+            putBooleanIfKnown(
+                "incomplete_area_path_for_node_supported",
+                scanContext.commands.authentication1Des.incompleteAreaPathForNodeSupported,
+            )
+            putBooleanIfKnown(
+                "service_in_area_path_supported",
+                scanContext.commands.authentication1Des.serviceInAreaPathSupported,
+            )
         }
         commandsJson.putAvailableCommand(
             "authentication1_aes",

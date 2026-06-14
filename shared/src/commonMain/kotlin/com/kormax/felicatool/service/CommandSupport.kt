@@ -6,3 +6,10 @@ enum class CommandSupport {
     SUPPORTED,
     UNSUPPORTED,
 }
+
+internal fun CommandSupport.toOutputLabel(): String =
+    when (this) {
+        CommandSupport.UNKNOWN -> "unknown"
+        CommandSupport.SUPPORTED -> "supported"
+        CommandSupport.UNSUPPORTED -> "not supported"
+    }

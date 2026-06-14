@@ -4,7 +4,8 @@ import com.kormax.felicatool.service.steps.Authentication1AesDetermineTrailingDa
 import com.kormax.felicatool.service.steps.Authentication1AesStep
 import com.kormax.felicatool.service.steps.Authentication1DesDetermineSupportedStep
 import com.kormax.felicatool.service.steps.Authentication1DesDetermineTrailingDataSupportedStep
-import com.kormax.felicatool.service.steps.Authentication1DesNodeListHierarchyValidationStep
+import com.kormax.felicatool.service.steps.Authentication1DesIncompleteAreaPathForNodeSupportedStep
+import com.kormax.felicatool.service.steps.Authentication1DesServiceInAreaPathSupportedStep
 import com.kormax.felicatool.service.steps.DiscoverNodesStep
 import com.kormax.felicatool.service.steps.EchoDetermineMaxPayloadSizeStep
 import com.kormax.felicatool.service.steps.EchoDetermineSupportedStep
@@ -146,7 +147,8 @@ internal object ScanStepRegistry {
             InternalAuthenticateAndReadDetermineTrailingDataSupportedStep,
             Authentication1DesDetermineSupportedStep,
             Authentication1DesDetermineTrailingDataSupportedStep,
-            Authentication1DesNodeListHierarchyValidationStep,
+            Authentication1DesIncompleteAreaPathForNodeSupportedStep,
+            Authentication1DesServiceInAreaPathSupportedStep,
             Authentication1AesStep,
             Authentication1AesDetermineTrailingDataSupportedStep,
             ScanOverviewStep,
