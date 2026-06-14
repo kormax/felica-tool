@@ -69,7 +69,7 @@ class Authentication1AesCommand(
 
     companion object : CommandCompanion {
         override val COMMAND_CODE: Short = 0x40
-        override val COMMAND_CLASS: CommandClass = CommandClass.VARIABLE_RESPONSE_TIME
+        override val COMMAND_CLASS: CommandClass = CommandClass.MUTUAL_AUTH
 
         const val MIN_LENGTH: Int =
             BASE_LENGTH +

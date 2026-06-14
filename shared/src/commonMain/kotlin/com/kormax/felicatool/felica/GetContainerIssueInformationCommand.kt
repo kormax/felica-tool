@@ -29,7 +29,7 @@ class GetContainerIssueInformationCommand(
 
     companion object : CommandCompanion {
         override val COMMAND_CODE: Short = 0x22
-        override val COMMAND_CLASS: CommandClass = CommandClass.OTHER
+        override val COMMAND_CLASS: CommandClass = CommandClass.FIXED_RESPONSE_TIME
 
         const val COMMAND_LENGTH: Int =
             BASE_LENGTH + 2 // Length(1) + CommandCode(1) + IDM(8) + Reserved(2)

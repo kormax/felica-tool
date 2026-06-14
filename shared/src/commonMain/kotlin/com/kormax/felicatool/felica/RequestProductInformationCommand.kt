@@ -15,7 +15,7 @@ class RequestProductInformationCommand(
 
     companion object : CommandCompanion {
         override val COMMAND_CODE: Short = 0x3A
-        override val COMMAND_CLASS: CommandClass = CommandClass.OTHER
+        override val COMMAND_CLASS: CommandClass = CommandClass.FIXED_RESPONSE_TIME
 
         const val COMMAND_LENGTH: Int = BASE_LENGTH // Length(1) + CommandCode(1) + IDM(8)
 

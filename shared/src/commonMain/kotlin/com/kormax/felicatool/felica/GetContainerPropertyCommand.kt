@@ -33,7 +33,7 @@ class GetContainerPropertyCommand(
 
     companion object : CommandCompanion {
         override val COMMAND_CODE: Short = 0x2E
-        override val COMMAND_CLASS: CommandClass = CommandClass.OTHER
+        override val COMMAND_CLASS: CommandClass = CommandClass.FIXED_RESPONSE_TIME
 
         const val COMMAND_LENGTH: Int = FelicaCommandWithoutIdm.BASE_LENGTH + 2 // + index(2)
 

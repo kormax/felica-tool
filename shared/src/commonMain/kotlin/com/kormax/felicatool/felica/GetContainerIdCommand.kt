@@ -26,7 +26,7 @@ class GetContainerIdCommand(
 
     companion object : CommandCompanion {
         override val COMMAND_CODE: Short = 0x70
-        override val COMMAND_CLASS: CommandClass = CommandClass.OTHER
+        override val COMMAND_CLASS: CommandClass = CommandClass.FIXED_RESPONSE_TIME
 
         const val COMMAND_LENGTH: Int =
             FelicaCommandWithoutIdm.BASE_LENGTH + 2 // length(1) + command_code(1) + reserved(2)

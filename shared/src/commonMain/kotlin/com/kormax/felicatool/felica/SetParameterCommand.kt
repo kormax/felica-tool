@@ -45,7 +45,7 @@ class SetParameterCommand(
 
     companion object : CommandCompanion {
         override val COMMAND_CODE: Short = 0x20
-        override val COMMAND_CLASS: CommandClass = CommandClass.OTHER
+        override val COMMAND_CLASS: CommandClass = CommandClass.FIXED_RESPONSE_TIME
 
         private const val RESERVED: Byte = 0x0
         const val COMMAND_LENGTH: Int =
