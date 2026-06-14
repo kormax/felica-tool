@@ -80,6 +80,8 @@ private const val TAG_REMOVAL_DISCOVERY_TIMEOUT_MILLIS = 500
 private const val TAG_REMOVAL_PRESENCE_CHECK_DELAY_MILLIS = 500L
 private const val READER_PREFERENCES_NAME = "reader_settings"
 private const val KEY_BACKGROUND_READING = "background_reading"
+private const val KEY_TEST_TRAILING_DATA_COMMANDS = "test_trailing_data_commands"
+private const val KEY_TEST_WRITE_COMMANDS = "test_write_commands"
 private const val TAG = "MainActivity"
 private val ReaderActionButtonMinHeight = 48.dp
 private val ScanOverviewButtonBottomInset = 16.dp
@@ -172,6 +174,12 @@ class MainActivity : ComponentActivity() {
         }
 
         isBackgroundReadingEnabled = readerPreferences.getBoolean(KEY_BACKGROUND_READING, false)
+        scanSettings =
+            scanSettings.copy(
+                testTrailingDataCommands =
+                    readerPreferences.getBoolean(KEY_TEST_TRAILING_DATA_COMMANDS, false),
+                testWriteCommands = readerPreferences.getBoolean(KEY_TEST_WRITE_COMMANDS, false),
+            )
         val reader = AndroidNfcReader(this)
         reader.disableBackgroundDiscovery()
         nfcReader = reader
@@ -206,7 +214,7 @@ class MainActivity : ComponentActivity() {
                         isBackgroundReadingEnabled = isBackgroundReadingEnabled,
                         onBackgroundReadingChange = ::updateBackgroundReadingEnabled,
                         scanSettings = scanSettings,
-                        onScanSettingsChange = { scanSettings = it },
+                        onScanSettingsChange = ::updateScanSettings,
                         onStartScan = ::startManualReaderSession,
                         onStopScan = { stopReaderSession(status = "Ready") },
                         onStartAutomaticReaderNow = {
@@ -346,6 +354,15 @@ class MainActivity : ComponentActivity() {
         } else {
             stopReaderSession(status = "Ready")
         }
+    }
+
+    private fun updateScanSettings(settings: ScanSettings) {
+        scanSettings = settings
+        readerPreferences
+            .edit()
+            .putBoolean(KEY_TEST_TRAILING_DATA_COMMANDS, settings.testTrailingDataCommands)
+            .putBoolean(KEY_TEST_WRITE_COMMANDS, settings.testWriteCommands)
+            .apply()
     }
 
     private fun startManualReaderSession() {
@@ -755,6 +772,48 @@ private fun MainScreen(
                         onDismissRequest = { showScanSettingsMenu = false },
                     ) {
                         DropdownMenuItem(
+                            text = { Text("Test trailing data") },
+                            onClick = {
+                                onScanSettingsChange(
+                                    scanSettings.copy(
+                                        testTrailingDataCommands =
+                                            !scanSettings.testTrailingDataCommands
+                                    )
+                                )
+                            },
+                            trailingIcon = {
+                                Checkbox(
+                                    checked = scanSettings.testTrailingDataCommands,
+                                    onCheckedChange = {
+                                        onScanSettingsChange(
+                                            scanSettings.copy(testTrailingDataCommands = it)
+                                        )
+                                    },
+                                )
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Test write commands") },
+                            onClick = {
+                                onScanSettingsChange(
+                                    scanSettings.copy(
+                                        testWriteCommands = !scanSettings.testWriteCommands
+                                    )
+                                )
+                            },
+                            trailingIcon = {
+                                Checkbox(
+                                    checked = scanSettings.testWriteCommands,
+                                    onCheckedChange = {
+                                        onScanSettingsChange(
+                                            scanSettings.copy(testWriteCommands = it)
+                                        )
+                                    },
+                                )
+                            },
+                        )
+                        HorizontalDivider()
+                        DropdownMenuItem(
                             text = { Text("Force discover all nodes") },
                             onClick = {
                                 onScanSettingsChange(
@@ -811,26 +870,6 @@ private fun MainScreen(
                                     onCheckedChange = {
                                         onScanSettingsChange(
                                             scanSettings.copy(bruteForceSystemCodePrefixes = it)
-                                        )
-                                    },
-                                )
-                            },
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Test write commands") },
-                            onClick = {
-                                onScanSettingsChange(
-                                    scanSettings.copy(
-                                        testWriteCommands = !scanSettings.testWriteCommands
-                                    )
-                                )
-                            },
-                            trailingIcon = {
-                                Checkbox(
-                                    checked = scanSettings.testWriteCommands,
-                                    onCheckedChange = {
-                                        onScanSettingsChange(
-                                            scanSettings.copy(testWriteCommands = it)
                                         )
                                     },
                                 )

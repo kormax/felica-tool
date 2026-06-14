@@ -12,10 +12,12 @@ class GetAreaInformationCommand(
 
     /** The 2-byte node code (area code) to request information for */
     val nodeCode: ByteArray,
-) : FelicaCommandWithIdm<GetAreaInformationResponse>(idm) {
+    trailingData: ByteArray = ByteArray(0),
+) : FelicaCommandWithIdm<GetAreaInformationResponse>(idm, trailingData) {
 
     init {
         require(nodeCode.size == 2) { "Node code must be exactly 2 bytes" }
+        requireFrameLength(COMMAND_LENGTH)
     }
 
     /**
@@ -24,7 +26,11 @@ class GetAreaInformationCommand(
      * @param idm The 8-byte IDM of the target card
      * @param node Node object to request area information for
      */
-    constructor(idm: ByteArray, node: Node) : this(idm, node.code)
+    constructor(
+        idm: ByteArray,
+        node: Node,
+        trailingData: ByteArray = ByteArray(0),
+    ) : this(idm, node.code, trailingData)
 
     override val commandClass: CommandClass = Companion.COMMAND_CLASS
 
@@ -32,7 +38,9 @@ class GetAreaInformationCommand(
         GetAreaInformationResponse.fromByteArray(data)
 
     override fun toByteArray(): ByteArray =
-        buildFelicaMessage(COMMAND_CODE, idm, capacity = COMMAND_LENGTH) { addBytes(nodeCode) }
+        buildFelicaCommandMessage(COMMAND_CODE, idm, capacity = COMMAND_LENGTH) {
+            addBytes(nodeCode)
+        }
 
     companion object : CommandCompanion {
         override val COMMAND_CODE: Short = 0x24
@@ -43,7 +51,7 @@ class GetAreaInformationCommand(
         /** Parse a Get Area Information command from raw bytes */
         fun fromByteArray(data: ByteArray): GetAreaInformationCommand =
             parseFelicaCommandWithIdm(data, COMMAND_CODE, minLength = COMMAND_LENGTH) { idm ->
-                GetAreaInformationCommand(idm, bytes(2))
+                GetAreaInformationCommand(idm, bytes(2), bytes(remaining()))
             }
     }
 }

@@ -9,15 +9,21 @@ package com.kormax.felicatool.felica
  */
 class RequestSystemCodeCommand(
     /** The 8-byte IDM of the target card (obtained from polling) */
-    idm: ByteArray
-) : FelicaCommandWithIdm<RequestSystemCodeResponse>(idm) {
+    idm: ByteArray,
+    trailingData: ByteArray = ByteArray(0),
+) : FelicaCommandWithIdm<RequestSystemCodeResponse>(idm, trailingData) {
+
+    init {
+        requireFrameLength(MIN_LENGTH)
+    }
 
     override val commandClass: CommandClass = Companion.COMMAND_CLASS
 
     override fun responseFromByteArray(data: ByteArray) =
         RequestSystemCodeResponse.fromByteArray(data)
 
-    override fun toByteArray(): ByteArray = buildFelicaMessage(COMMAND_CODE, idm) {}
+    override fun toByteArray(): ByteArray =
+        buildFelicaCommandMessage(COMMAND_CODE, idm, capacity = MIN_LENGTH) {}
 
     companion object : CommandCompanion {
         override val COMMAND_CODE: Short = 0x0C
@@ -28,7 +34,7 @@ class RequestSystemCodeCommand(
         /** Parse a Request System Code command from raw bytes */
         fun fromByteArray(data: ByteArray): RequestSystemCodeCommand =
             parseFelicaCommandWithIdm(data, COMMAND_CODE, minLength = MIN_LENGTH) { idm ->
-                RequestSystemCodeCommand(idm)
+                RequestSystemCodeCommand(idm, bytes(remaining()))
             }
     }
 }

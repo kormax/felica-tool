@@ -16,12 +16,14 @@ class GetNodePropertyCommand(
 
     /** Array of Node Codes to query. Each code is 2 bytes in Little Endian format. */
     val nodeCodes: Array<ByteArray>,
-) : FelicaCommandWithIdm<GetNodePropertyResponse>(idm) {
+    trailingData: ByteArray = ByteArray(0),
+) : FelicaCommandWithIdm<GetNodePropertyResponse>(idm, trailingData) {
 
     init {
         require(nodeCodes.isNotEmpty()) { "At least one node code must be specified" }
         require(nodeCodes.size <= MAX_NODES) { "Maximum 16 node codes can be requested at once" }
         require(nodeCodes.all { it.size == 2 }) { "Each node code must be exactly 2 bytes" }
+        requireFrameLength(BASE_LENGTH + 2 + (nodeCodes.size * 2))
     }
 
     override val commandClass: CommandClass = Companion.COMMAND_CLASS
@@ -38,13 +40,18 @@ class GetNodePropertyCommand(
         idm: ByteArray,
         nodePropertyType: NodePropertyType,
         nodes: List<Node>,
-    ) : this(idm, nodePropertyType, nodes.map { it.code }.toTypedArray())
+        trailingData: ByteArray = ByteArray(0),
+    ) : this(idm, nodePropertyType, nodes.map { it.code }.toTypedArray(), trailingData)
 
     override fun responseFromByteArray(data: ByteArray) =
         GetNodePropertyResponse.fromByteArray(data)
 
     override fun toByteArray(): ByteArray =
-        buildFelicaMessage(COMMAND_CODE, idm, capacity = BASE_LENGTH + 2 + (nodeCodes.size * 2)) {
+        buildFelicaCommandMessage(
+            COMMAND_CODE,
+            idm,
+            capacity = BASE_LENGTH + 2 + (nodeCodes.size * 2),
+        ) {
             addByte(nodePropertyType.value.toByte())
             addByte(nodeCodes.size)
             nodeCodes.forEach { addBytes(it) }
@@ -78,7 +85,7 @@ class GetNodePropertyCommand(
 
                 val nodeCodes = Array(numberOfNodes) { bytes(2) }
 
-                GetNodePropertyCommand(idm, nodePropertyType, nodeCodes)
+                GetNodePropertyCommand(idm, nodePropertyType, nodeCodes, bytes(remaining()))
             }
     }
 }

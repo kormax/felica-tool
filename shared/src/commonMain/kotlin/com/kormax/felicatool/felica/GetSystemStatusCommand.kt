@@ -12,10 +12,12 @@ class GetSystemStatusCommand(
 
     /** Reserved bytes (2 bytes) - should be set to 0x0000 */
     val reserved: ByteArray = byteArrayOf(0x00, 0x00),
-) : FelicaCommandWithIdm<GetSystemStatusResponse>(idm) {
+    trailingData: ByteArray = ByteArray(0),
+) : FelicaCommandWithIdm<GetSystemStatusResponse>(idm, trailingData) {
 
     init {
         require(reserved.size == 2) { "Reserved bytes must be exactly 2 bytes" }
+        requireFrameLength(MIN_LENGTH)
     }
 
     override val commandClass: CommandClass = Companion.COMMAND_CLASS
@@ -24,7 +26,7 @@ class GetSystemStatusCommand(
         GetSystemStatusResponse.fromByteArray(data)
 
     override fun toByteArray(): ByteArray =
-        buildFelicaMessage(COMMAND_CODE, idm, capacity = MIN_LENGTH) { addBytes(reserved) }
+        buildFelicaCommandMessage(COMMAND_CODE, idm, capacity = MIN_LENGTH) { addBytes(reserved) }
 
     companion object : CommandCompanion {
         override val COMMAND_CODE: Short = 0x38
@@ -35,7 +37,7 @@ class GetSystemStatusCommand(
         /** Parse a Get System Status command from raw bytes */
         fun fromByteArray(data: ByteArray): GetSystemStatusCommand =
             parseFelicaCommandWithIdm(data, COMMAND_CODE, minLength = MIN_LENGTH) { idm ->
-                GetSystemStatusCommand(idm, bytes(2))
+                GetSystemStatusCommand(idm, bytes(2), bytes(remaining()))
             }
     }
 }

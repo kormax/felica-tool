@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
@@ -441,34 +442,43 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                         modifier = Modifier.padding(bottom = 8.dp),
                     ) {
-                        CommandSupportChip("Polling", context.pollingSupport)
+                        CommandSupportChip(
+                            "Polling",
+                            context.commands.polling.supported,
+                            trailingDataSupport = context.commands.polling.trailingDataSupported,
+                        )
                         CommandSupportChip(
                             "Polling (System Code)",
-                            context.pollingSystemCodeSupport,
+                            context.commands.polling.systemCodeSupported,
                         )
                         CommandSupportChip(
                             "Polling (Communication Performance)",
-                            context.pollingCommunicationPerformanceSupport,
+                            context.commands.polling.communicationPerformanceSupported,
                         )
-                        context.pollingCommandTrailingDataSupported?.let { supported ->
-                            InfoChip(
-                                label = "Polling with trailing data",
-                                value = if (supported) "supported" else "not supported",
-                                isSuccessful = supported,
-                                isWarning = !supported,
-                            )
-                        }
-                        CommandSupportChip("Request Response", context.requestResponseSupport)
-                        CommandSupportChip("Request System Code", context.requestSystemCodeSupport)
+                        CommandSupportChip(
+                            "Request Response",
+                            context.commands.requestResponse.supported,
+                            trailingDataSupport =
+                                context.commands.requestResponse.trailingDataSupported,
+                        )
+                        CommandSupportChip(
+                            "Request System Code",
+                            context.commands.requestSystemCode.supported,
+                            trailingDataSupport =
+                                context.commands.requestSystemCode.trailingDataSupported,
+                        )
                         CommandSupportChip(
                             "Request Specification",
-                            context.requestSpecificationVersionSupport,
+                            context.commands.requestSpecificationVersion.supported,
+                            trailingDataSupport =
+                                context.commands.requestSpecificationVersion.trailingDataSupported,
                         )
                         CommandSupportChip(
                             "Request Product Info",
-                            context.requestProductInformationSupport,
+                            context.commands.requestProductInformation.supported,
+                            trailingDataSupport =
+                                context.commands.requestProductInformation.trailingDataSupported,
                         )
-                        CommandSupportChip("Reset Mode", context.resetModeSupport)
                     }
 
                     Text(
@@ -482,8 +492,16 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                         modifier = Modifier.padding(bottom = 8.dp),
                     ) {
-                        CommandSupportChip("Search Service Code", context.searchServiceCodeSupport)
-                        CommandSupportChip("Request Code List", context.requestCodeListSupport)
+                        CommandSupportChip(
+                            "Search Service Code",
+                            context.commands.searchServiceCode.supported,
+                            context.commands.searchServiceCode.trailingDataSupported,
+                        )
+                        CommandSupportChip(
+                            "Request Code List",
+                            context.commands.requestCodeList.supported,
+                            context.commands.requestCodeList.trailingDataSupported,
+                        )
                     }
 
                     Text(
@@ -497,29 +515,47 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                         modifier = Modifier.padding(bottom = 8.dp),
                     ) {
-                        CommandSupportChip("Request Service", context.requestServiceSupport)
-                        CommandSupportChip("Request Service V2", context.requestServiceV2Support)
-                        context.requestServiceUnknownNodeAttributesSupported?.let { supported ->
-                            InfoChip(
-                                label = "Request Service Unknown Attr",
-                                value = if (supported) "true" else "false",
-                            )
-                        }
+                        CommandSupportChip(
+                            "Request Service",
+                            context.commands.requestService.supported,
+                            context.commands.requestService.trailingDataSupported,
+                        )
+                        CommandSupportChip(
+                            "Request Service V2",
+                            context.commands.requestServiceV2.supported,
+                            context.commands.requestServiceV2.trailingDataSupported,
+                        )
+                        context.commands.requestService.unknownNodeAttributesSupported
+                            .takeIf { it != CommandSupport.UNKNOWN }
+                            ?.let { supported ->
+                                val isSupported = supported == CommandSupport.SUPPORTED
+                                InfoChip(
+                                    label = "Request Service Unknown Attr",
+                                    value = if (isSupported) "true" else "false",
+                                )
+                            }
                         CommandSupportChip(
                             "Request Block Info",
-                            context.requestBlockInformationSupport,
+                            context.commands.requestBlockInformation.supported,
+                            context.commands.requestBlockInformation.trailingDataSupported,
                         )
                         CommandSupportChip(
                             "Request Block Info Ex",
-                            context.requestBlockInformationExSupport,
+                            context.commands.requestBlockInformationEx.supported,
+                            context.commands.requestBlockInformationEx.trailingDataSupported,
+                        )
+                        CommandSupportChip(
+                            "Get Node Property",
+                            context.commands.getNodeProperty.supported,
+                            context.commands.getNodeProperty.trailingDataSupported,
                         )
                         CommandSupportChip(
                             "Get Node Property (MAC Communication)",
-                            context.getNodePropertyMacCommunicationSupport,
+                            context.commands.getNodeProperty.macCommunicationSupported,
                         )
                         CommandSupportChip(
                             "Get Node Property (Value Limited Service)",
-                            context.getNodePropertyValueLimitedServiceSupport,
+                            context.commands.getNodeProperty.valueLimitedServiceSupported,
                         )
                     }
 
@@ -537,26 +573,31 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                     ) {
                         CommandSupportChip(
                             "Read Without Encryption",
-                            context.readBlocksWithoutEncryptionSupport,
+                            context.commands.readWithoutEncryption.supported,
+                            context.commands.readWithoutEncryption.trailingDataSupported,
                         )
 
-                        context.readWithoutEncryptionMaxBlocksPerRequest?.let { maxBlocks ->
+                        context.commands.readWithoutEncryption.maxBlocksPerRequest?.let { maxBlocks
+                            ->
                             InfoChip(label = "Read Max Blocks", value = maxBlocks.toString())
                         }
-                        context.readWithoutEncryptionMaxServicesPerRequest?.let { maxServices ->
+                        context.commands.readWithoutEncryption.maxServicesPerRequest?.let {
+                            maxServices ->
                             InfoChip(label = "Read Max Services", value = maxServices.toString())
                         }
                         InfoChip(
                             label = "Read Error Mode",
                             value =
-                                when (context.readWithoutEncryptionErrorLocationIndication) {
+                                when (
+                                    context.commands.readWithoutEncryption.errorLocationIndication
+                                ) {
                                     ErrorLocationIndication.FLAG -> "Flag"
                                     ErrorLocationIndication.INDEX -> "Index"
                                     ErrorLocationIndication.BITMASK -> "Bitmask"
                                 },
                         )
-                        context.readWithoutEncryptionIllegalNumberErrorPreference?.let { preference
-                            ->
+                        context.commands.readWithoutEncryption.illegalNumberErrorPreference?.let {
+                            preference ->
                             InfoChip(
                                 label = "Limit Error Preference",
                                 value =
@@ -569,13 +610,16 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                         }
                         CommandSupportChip(
                             "Write Without Encryption",
-                            context.writeBlocksWithoutEncryptionSupport,
+                            context.commands.writeWithoutEncryption.supported,
+                            trailingDataSupport =
+                                context.commands.writeWithoutEncryption.trailingDataSupported,
                         )
-                        context.writeWithoutEncryptionMaxBlocksPerRequest?.let { maxBlocks ->
+                        context.commands.writeWithoutEncryption.maxBlocksPerRequest?.let { maxBlocks
+                            ->
                             InfoChip(label = "Write Max Blocks", value = maxBlocks.toString())
                         }
-                        context.writeWithoutEncryptionErrorLocationIndication?.let { errorIndication
-                            ->
+                        context.commands.writeWithoutEncryption.errorLocationIndication?.let {
+                            errorIndication ->
                             InfoChip(
                                 label = "Write Error Mode",
                                 value =
@@ -588,7 +632,9 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                         }
                         CommandSupportChip(
                             "Internal Authenticate and Read",
-                            context.internalAuthenticateAndReadSupport,
+                            context.commands.internalAuthenticateAndRead.supported,
+                            trailingDataSupport =
+                                context.commands.internalAuthenticateAndRead.trailingDataSupported,
                         )
                     }
 
@@ -604,12 +650,29 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                         modifier = Modifier.padding(bottom = 8.dp),
                     ) {
-                        CommandSupportChip("Authenticate1 DES", context.authentication1DesSupport)
+                        CommandSupportChip(
+                            "Reset Mode",
+                            context.commands.resetMode.supported,
+                            trailingDataSupport = context.commands.resetMode.trailingDataSupported,
+                        )
+                        CommandSupportChip(
+                            "Authenticate1 DES",
+                            context.commands.authentication1Des.supported,
+                            trailingDataSupport =
+                                context.commands.authentication1Des.trailingDataSupported,
+                        )
                         InfoChip(
                             label = "Auth1 DES Node List Validation",
-                            value = context.authentication1DesNodeListHierarchyValidation.name,
+                            value =
+                                context.commands.authentication1Des.nodeListHierarchyValidation
+                                    .name,
                         )
-                        CommandSupportChip("Authenticate1 AES", context.authentication1AesSupport)
+                        CommandSupportChip(
+                            "Authenticate1 AES",
+                            context.commands.authentication1Aes.supported,
+                            trailingDataSupport =
+                                context.commands.authentication1Aes.trailingDataSupported,
+                        )
                     }
 
                     // Container Commands
@@ -626,12 +689,21 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                     ) {
                         CommandSupportChip(
                             "Get Container Issue Info",
-                            context.getContainerIssueInformationSupport,
+                            context.commands.getContainerIssueInformation.supported,
+                            trailingDataSupport =
+                                context.commands.getContainerIssueInformation.trailingDataSupported,
                         )
-                        CommandSupportChip("Get Container ID", context.getContainerIdSupport)
+                        CommandSupportChip(
+                            "Get Container ID",
+                            context.commands.getContainerId.supported,
+                            trailingDataSupport =
+                                context.commands.getContainerId.trailingDataSupported,
+                        )
                         CommandSupportChip(
                             "Get Container Property",
-                            context.getContainerPropertySupport,
+                            context.commands.getContainerProperty.supported,
+                            trailingDataSupport =
+                                context.commands.getContainerProperty.trailingDataSupported,
                         )
                     }
 
@@ -647,14 +719,20 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                         modifier = Modifier.padding(bottom = 8.dp),
                     ) {
-                        CommandSupportChip("Get System Status", context.getSystemStatusSupport)
+                        CommandSupportChip(
+                            "Get System Status",
+                            context.commands.getSystemStatus.supported,
+                            context.commands.getSystemStatus.trailingDataSupported,
+                        )
                         CommandSupportChip(
                             "Get Area Information",
-                            context.getAreaInformationSupport,
+                            context.commands.getAreaInformation.supported,
+                            trailingDataSupport =
+                                context.commands.getAreaInformation.trailingDataSupported,
                         )
-                        CommandSupportChip("Set Parameter", context.setParameterSupport)
-                        CommandSupportChip("Echo", context.echoSupport)
-                        context.echoMaxPayloadSize?.let { maxPayload ->
+                        CommandSupportChip("Set Parameter", context.commands.setParameter.supported)
+                        CommandSupportChip("Echo", context.commands.echo.supported)
+                        context.commands.echo.maxPayloadSize?.let { maxPayload ->
                             InfoChip(label = "Echo Max Size", value = "$maxPayload bytes")
                         }
                     }
@@ -668,6 +746,7 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
 private fun CommandSupportChip(
     label: String,
     support: CommandSupport,
+    trailingDataSupport: CommandSupport = CommandSupport.UNKNOWN,
     modifier: Modifier = Modifier,
 ) {
     val (displayText, isSuccessful, isWarning) =
@@ -676,9 +755,41 @@ private fun CommandSupportChip(
             CommandSupport.UNSUPPORTED -> Triple("✗ $label", false, true)
             CommandSupport.UNKNOWN -> Triple("? $label", false, false)
         }
+    val showTrailingDataUnsupported = trailingDataSupport == CommandSupport.UNSUPPORTED
 
+    Row(modifier = modifier) {
+        CommandSupportChipSurface(
+            text = displayText,
+            isSuccessful = isSuccessful,
+            isWarning = isWarning,
+            shape =
+                if (showTrailingDataUnsupported) {
+                    RoundedCornerShape(
+                        topStart = 4.dp,
+                        topEnd = 0.dp,
+                        bottomEnd = 0.dp,
+                        bottomStart = 4.dp,
+                    )
+                } else {
+                    RoundedCornerShape(4.dp)
+                },
+        )
+        if (showTrailingDataUnsupported) {
+            TrailingDataUnsupportedChip()
+        }
+    }
+}
+
+@Composable
+private fun CommandSupportChipSurface(
+    text: String,
+    isSuccessful: Boolean,
+    isWarning: Boolean,
+    shape: Shape,
+    modifier: Modifier = Modifier,
+) {
     Surface(
-        shape = RoundedCornerShape(4.dp),
+        shape = shape,
         color =
             when {
                 isSuccessful -> MaterialTheme.colorScheme.secondaryContainer
@@ -688,7 +799,7 @@ private fun CommandSupportChip(
         modifier = modifier,
     ) {
         Text(
-            text = displayText,
+            text = text,
             style = MaterialTheme.typography.labelSmall,
             color =
                 when {
@@ -696,6 +807,28 @@ private fun CommandSupportChip(
                     isWarning -> MaterialTheme.colorScheme.onErrorContainer
                     else -> MaterialTheme.colorScheme.onSurfaceVariant
                 },
+            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+        )
+    }
+}
+
+@Composable
+private fun TrailingDataUnsupportedChip(modifier: Modifier = Modifier) {
+    Surface(
+        shape =
+            RoundedCornerShape(
+                topStart = 0.dp,
+                topEnd = 4.dp,
+                bottomEnd = 4.dp,
+                bottomStart = 0.dp,
+            ),
+        color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.7f),
+        modifier = modifier,
+    ) {
+        Text(
+            text = "✗ trailing",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onErrorContainer,
             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
         )
     }

@@ -16,6 +16,7 @@ class RequestResponseCommandTest {
         val command = RequestResponseCommand(idm)
 
         assertArrayEquals(idm, command.idm)
+        assertArrayEquals(ByteArray(0), command.trailingData)
     }
 
     @Test
@@ -37,10 +38,36 @@ class RequestResponseCommandTest {
         }
     }
 
+    @Test
+    fun testRequestResponseCommand_trailingDataToByteArray() {
+        val idm = IDM.hexToByteArray()
+        val trailingData = "55".hexToByteArray()
+        val command = RequestResponseCommand(idm, trailingData)
+        val bytes = command.toByteArray()
+
+        assertEquals(11, bytes.size)
+        assertEquals(11.toByte(), bytes[0])
+        assertEquals(RequestResponseCommand.COMMAND_CODE.toByte(), bytes[1])
+        for (i in 0..7) {
+            assertEquals(idm[i], bytes[2 + i])
+        }
+        assertEquals(trailingData[0], bytes[10])
+    }
+
     @Test(expected = IllegalArgumentException::class)
     fun testRequestResponseCommand_invalidIdmSize() {
         val invalidIdm = byteArrayOf(0x01.toByte()) // Too short
         RequestResponseCommand(invalidIdm)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testRequestResponseCommand_frameTooLong() {
+        RequestResponseCommand(
+            IDM.hexToByteArray(),
+            ByteArray(
+                RequestResponseCommand.MAX_FRAME_LENGTH - RequestResponseCommand.MIN_LENGTH + 1
+            ),
+        )
     }
 
     @Test
@@ -51,6 +78,18 @@ class RequestResponseCommandTest {
         val command = RequestResponseCommand.fromByteArray(data)
 
         assertArrayEquals(IDM.hexToByteArray(), command.idm)
+        assertArrayEquals(ByteArray(0), command.trailingData)
+    }
+
+    @Test
+    fun testFromByteArray_trailingData() {
+        val trailingData = "aabb".hexToByteArray()
+        val data = "0c04${IDM}aabb".hexToByteArray()
+
+        val command = RequestResponseCommand.fromByteArray(data)
+
+        assertArrayEquals(IDM.hexToByteArray(), command.idm)
+        assertArrayEquals(trailingData, command.trailingData)
     }
 
     @Test(expected = IllegalArgumentException::class)

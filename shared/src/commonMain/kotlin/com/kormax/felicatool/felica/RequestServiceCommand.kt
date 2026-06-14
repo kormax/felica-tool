@@ -17,12 +17,14 @@ class RequestServiceCommand(
      * Endian format. For System Key Version, use 0xFFFF.
      */
     val nodeCodes: Array<ByteArray>,
-) : FelicaCommandWithIdm<RequestServiceResponse>(idm) {
+    trailingData: ByteArray = ByteArray(0),
+) : FelicaCommandWithIdm<RequestServiceResponse>(idm, trailingData) {
 
     init {
         require(nodeCodes.isNotEmpty()) { "At least one node code must be specified" }
         require(nodeCodes.size <= MAX_NODES) { "Maximum 32 node codes can be requested at once" }
         require(nodeCodes.all { it.size == 2 }) { "Each node code must be exactly 2 bytes" }
+        requireFrameLength(BASE_LENGTH + 1 + (nodeCodes.size * 2))
     }
 
     /**
@@ -31,7 +33,11 @@ class RequestServiceCommand(
      * @param idm The 8-byte IDM of the target card
      * @param nodes List of Node objects (Area, Service, or System) to query
      */
-    constructor(idm: ByteArray, nodes: List<Node>) : this(idm, nodes.map { it.code }.toTypedArray())
+    constructor(
+        idm: ByteArray,
+        nodes: List<Node>,
+        trailingData: ByteArray = ByteArray(0),
+    ) : this(idm, nodes.map { it.code }.toTypedArray(), trailingData)
 
     override val commandClass: CommandClass = Companion.COMMAND_CLASS
     override val timeoutUnits: Int = nodeCodes.size
@@ -39,7 +45,11 @@ class RequestServiceCommand(
     override fun responseFromByteArray(data: ByteArray) = RequestServiceResponse.fromByteArray(data)
 
     override fun toByteArray(): ByteArray =
-        buildFelicaMessage(COMMAND_CODE, idm, capacity = BASE_LENGTH + 1 + (nodeCodes.size * 2)) {
+        buildFelicaCommandMessage(
+            COMMAND_CODE,
+            idm,
+            capacity = BASE_LENGTH + 1 + (nodeCodes.size * 2),
+        ) {
             addByte(nodeCodes.size)
             nodeCodes.forEach { addBytes(it) }
         }
@@ -63,7 +73,7 @@ class RequestServiceCommand(
                 }
 
                 val nodeCodes = Array(numberOfNodes) { bytes(2) }
-                RequestServiceCommand(idm, nodeCodes)
+                RequestServiceCommand(idm, nodeCodes, bytes(remaining()))
             }
     }
 }

@@ -33,7 +33,8 @@ class InternalAuthenticateAndReadCommand(
 
     /** Reserved byte. Should be 0x00 for standard usage. */
     val reserved: Byte = 0x00,
-) : FelicaCommandWithIdm<InternalAuthenticateAndReadResponse>(idm) {
+    trailingData: ByteArray = ByteArray(0),
+) : FelicaCommandWithIdm<InternalAuthenticateAndReadResponse>(idm, trailingData) {
 
     init {
         require(serviceCodes.isNotEmpty()) { "At least one service code must be specified" }
@@ -47,9 +48,18 @@ class InternalAuthenticateAndReadCommand(
         require(blockListElements.size <= MAX_BLOCKS) {
             "Maximum $MAX_BLOCKS blocks can be requested at once"
         }
-        require(challenge.size >= MIN_CHALLENGE_LENGTH) {
-            "Challenge must be at least $MIN_CHALLENGE_LENGTH bytes, got ${challenge.size}"
+        require(challenge.size == CHALLENGE_LENGTH) {
+            "Challenge must be exactly $CHALLENGE_LENGTH bytes, got ${challenge.size}"
         }
+        requireFrameLength(
+            BASE_LENGTH +
+                1 + // Reserved byte
+                1 + // NumServices
+                (serviceCodes.size * 2) +
+                1 + // NumBlocks
+                blockListElements.sumOf { it.toByteArray().size } +
+                CHALLENGE_LENGTH
+        )
 
         // Unlike ReadWithoutEncryption, there are no constraints upon
         // ordering or duplication of service codes or block list elements.
@@ -69,7 +79,7 @@ class InternalAuthenticateAndReadCommand(
         InternalAuthenticateAndReadResponse.fromByteArray(data)
 
     override fun toByteArray(): ByteArray =
-        buildFelicaMessage(
+        buildFelicaCommandMessage(
             COMMAND_CODE,
             idm,
             capacity =
@@ -79,7 +89,7 @@ class InternalAuthenticateAndReadCommand(
                     (serviceCodes.size * 2) +
                     1 + // NumBlocks
                     blockListElements.sumOf { it.toByteArray().size } +
-                    challenge.size,
+                    CHALLENGE_LENGTH,
         ) {
             addByte(reserved)
             addByte(serviceCodes.size)
@@ -100,11 +110,12 @@ class InternalAuthenticateAndReadCommand(
                 2 + // Min 1 service (2 bytes)
                 1 + // NumBlocks
                 2 + // Min 1 block (2 bytes)
-                16 // Min challenge (16 bytes)
+                16 // Challenge (16 bytes)
 
         const val MAX_SERVICE_CODES = 16 // FeliCa specification limit
         const val MAX_BLOCKS = 13 // Protocol limit for this command
-        const val MIN_CHALLENGE_LENGTH = 16 // Minimum challenge size
+        const val CHALLENGE_LENGTH = 16
+        const val MIN_CHALLENGE_LENGTH = CHALLENGE_LENGTH
 
         /** Parse an Internal Authenticate and Read command from raw bytes */
         fun fromByteArray(data: ByteArray): InternalAuthenticateAndReadCommand =
@@ -115,7 +126,7 @@ class InternalAuthenticateAndReadCommand(
                 require(numberOfServices in 1..MAX_SERVICE_CODES) {
                     "Number of service codes must be between 1 and $MAX_SERVICE_CODES, got $numberOfServices"
                 }
-                require(remaining() >= (numberOfServices * 2) + 1 + 2 + MIN_CHALLENGE_LENGTH) {
+                require(remaining() >= (numberOfServices * 2) + 1 + 2 + CHALLENGE_LENGTH) {
                     "Data size insufficient for $numberOfServices service codes, blocks, and challenge"
                 }
 
@@ -135,10 +146,8 @@ class InternalAuthenticateAndReadCommand(
                     blockListElements.add(BlockListElement.fromByteArray(byteArrayOf(first) + rest))
                 }
 
-                val challenge = bytes(remaining())
-                require(challenge.size >= MIN_CHALLENGE_LENGTH) {
-                    "Challenge must be at least $MIN_CHALLENGE_LENGTH bytes, got ${challenge.size}"
-                }
+                val challenge = bytes(CHALLENGE_LENGTH)
+                val trailingData = bytes(remaining())
 
                 InternalAuthenticateAndReadCommand(
                     idm,
@@ -146,6 +155,7 @@ class InternalAuthenticateAndReadCommand(
                     blockListElements.toTypedArray(),
                     challenge,
                     reserved,
+                    trailingData,
                 )
             }
     }

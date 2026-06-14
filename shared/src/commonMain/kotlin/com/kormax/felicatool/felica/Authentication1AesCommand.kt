@@ -20,7 +20,8 @@ class Authentication1AesCommand(
 
     /** Flag byte (default 0x00) */
     val flag: Byte = 0x00,
-) : FelicaCommandWithIdm<Authentication1AesResponse>(idm) {
+    trailingData: ByteArray = ByteArray(0),
+) : FelicaCommandWithIdm<Authentication1AesResponse>(idm, trailingData) {
 
     init {
         require(nodeCodes.isNotEmpty()) { "At least one node code must be specified" }
@@ -31,6 +32,7 @@ class Authentication1AesCommand(
         require(challenge1A.size == 16) {
             "Challenge1A must be exactly 16 bytes, got ${challenge1A.size}"
         }
+        requireFrameLength(BASE_LENGTH + 2 + (nodeCodes.size * 2) + 16)
     }
 
     /**
@@ -47,7 +49,8 @@ class Authentication1AesCommand(
         nodes: List<Node>,
         challenge1A: ByteArray,
         flag: Byte = 0x00,
-    ) : this(idm, nodes.map { it.code }.toTypedArray(), challenge1A, flag)
+        trailingData: ByteArray = ByteArray(0),
+    ) : this(idm, nodes.map { it.code }.toTypedArray(), challenge1A, flag, trailingData)
 
     override val commandClass: CommandClass = Companion.COMMAND_CLASS
     override val timeoutUnits: Int = nodeCodes.size
@@ -56,7 +59,7 @@ class Authentication1AesCommand(
         Authentication1AesResponse.fromByteArray(data)
 
     override fun toByteArray(): ByteArray =
-        buildFelicaMessage(
+        buildFelicaCommandMessage(
             COMMAND_CODE,
             idm,
             capacity = BASE_LENGTH + 2 + (nodeCodes.size * 2) + challenge1A.size,
@@ -95,7 +98,7 @@ class Authentication1AesCommand(
                 val nodeCodes = Array(numberOfNodes) { bytes(2) }
                 val challenge1A = bytes(16)
 
-                Authentication1AesCommand(idm, nodeCodes, challenge1A, flag)
+                Authentication1AesCommand(idm, nodeCodes, challenge1A, flag, bytes(remaining()))
             }
     }
 }

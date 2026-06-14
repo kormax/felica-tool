@@ -3,15 +3,21 @@ package com.kormax.felicatool.felica
 /** Request Product Information command for FeliCa cards. */
 class RequestProductInformationCommand(
     /** Card IDM (8 bytes) */
-    idm: ByteArray
-) : FelicaCommandWithIdm<RequestProductInformationResponse>(idm) {
+    idm: ByteArray,
+    trailingData: ByteArray = ByteArray(0),
+) : FelicaCommandWithIdm<RequestProductInformationResponse>(idm, trailingData) {
+
+    init {
+        requireFrameLength(COMMAND_LENGTH)
+    }
 
     override val commandClass: CommandClass = Companion.COMMAND_CLASS
 
     override fun responseFromByteArray(data: ByteArray) =
         RequestProductInformationResponse.fromByteArray(data)
 
-    override fun toByteArray(): ByteArray = buildFelicaMessage(COMMAND_CODE, idm, COMMAND_LENGTH) {}
+    override fun toByteArray(): ByteArray =
+        buildFelicaCommandMessage(COMMAND_CODE, idm, capacity = COMMAND_LENGTH) {}
 
     companion object : CommandCompanion {
         override val COMMAND_CODE: Short = 0x3A
@@ -22,7 +28,7 @@ class RequestProductInformationCommand(
         /** Parse a RequestProductInformation command from raw bytes */
         fun fromByteArray(data: ByteArray): RequestProductInformationCommand =
             parseFelicaCommandWithIdm(data, COMMAND_CODE, minLength = COMMAND_LENGTH) { idm ->
-                RequestProductInformationCommand(idm)
+                RequestProductInformationCommand(idm, bytes(remaining()))
             }
     }
 }

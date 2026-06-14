@@ -18,12 +18,14 @@ internal abstract class WriteWithoutEncryptionScanStep(
         icon = icon,
     ) {
     final override fun readSupport(context: CardScanContext): CommandSupport =
-        context.writeBlocksWithoutEncryptionSupport
+        context.commands.writeWithoutEncryption.supported
 
     final override fun writeSupport(
         context: CardScanContext,
         support: CommandSupport,
-    ): CardScanContext = context.copy(writeBlocksWithoutEncryptionSupport = support)
+    ): CardScanContext = context.withCommands {
+        copy(writeWithoutEncryption = writeWithoutEncryption.copy(supported = support))
+    }
 
     final override fun isEnabled(settings: ScanSettings): Boolean = settings.testWriteCommands
 }

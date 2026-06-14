@@ -18,7 +18,8 @@ class SetParameterCommand(
 
     /** Reserved bytes D6-D7 (2 bytes, must be all 0x00) */
     val reservedD6D7D: ByteArray = ByteArray(2),
-) : FelicaCommandWithIdm<SetParameterResponse>(idm) {
+    trailingData: ByteArray = ByteArray(0),
+) : FelicaCommandWithIdm<SetParameterResponse>(idm, trailingData) {
 
     init {
         require(reservedD0D1D2D3.size == 4) { "Reserved D0-D3 must be exactly 4 bytes" }
@@ -29,6 +30,7 @@ class SetParameterCommand(
         require(reservedD6D7D.all { it == 0x00.toByte() }) {
             "Reserved D6-D7 must be all 0x00, got: ${reservedD6D7D.toHexString()}"
         }
+        requireFrameLength(COMMAND_LENGTH)
     }
 
     override val commandClass: CommandClass = Companion.COMMAND_CLASS
@@ -36,7 +38,7 @@ class SetParameterCommand(
     override fun responseFromByteArray(data: ByteArray) = SetParameterResponse.fromByteArray(data)
 
     override fun toByteArray(): ByteArray =
-        buildFelicaMessage(COMMAND_CODE, idm, capacity = COMMAND_LENGTH) {
+        buildFelicaCommandMessage(COMMAND_CODE, idm, capacity = COMMAND_LENGTH) {
             addBytes(reservedD0D1D2D3)
             addByte(encryptionType.value)
             addByte(packetType.value)
@@ -70,7 +72,14 @@ class SetParameterCommand(
                     "Reserved bytes D6-D7 must be 0x00, got: ${reservedD6D7.toHexString()}"
                 }
 
-                SetParameterCommand(idm, encryptionType, packetType, reservedD0D1D2D3, reservedD6D7)
+                SetParameterCommand(
+                    idm,
+                    encryptionType,
+                    packetType,
+                    reservedD0D1D2D3,
+                    reservedD6D7,
+                    bytes(remaining()),
+                )
             }
     }
 

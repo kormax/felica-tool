@@ -100,53 +100,68 @@ internal constructor(
 
         var lastException: Exception? = null
         var lastCommandLabel = "FeliCa command"
-        var lastCommandIdm: ByteArray? = null
         var commandWasSent = false
 
         for (attempt in 1..attempts) {
             var attemptCommandLabel = "system activation"
-            val failure: Exception =
-                try {
-                    ensureActiveTargetAvailable()
+            var attemptCommandWasSent = false
+            var attemptCommandIdm: ByteArray? = null
+            var response: T? = null
+            var failure: Exception? = null
 
-                    if (selectedSystemCode != null && shouldSelectSystemCode(selectedSystemCode)) {
-                        selectSystemCode(selectedSystemCode)
-                    }
+            try {
+                ensureActiveTargetAvailable()
 
-                    val scope =
-                        CommandExecutionScope(
-                            idm = resolveCurrentIdm(selectedSystemCode),
-                            systemCode = selectedSystemCode?.copyOf(),
-                            attempt = attempt,
-                        )
-                    val command = scope.createCommand()
-                    lastCommandLabel = command::class.simpleName ?: "FeliCa command"
-                    attemptCommandLabel = lastCommandLabel
-                    lastCommandIdm = (command as? FelicaCommandWithIdm<*>)?.idm?.copyOf()
-
-                    commandWasSent = true
-
-                    val response = transceive(command, selectedSystemCode = selectedSystemCode)
-
-                    if (withResetToMode0) {
-                        resetToMode0OrThrow(
-                            authenticatedSystemCode = selectedSystemCode,
-                            authenticatedSystemIdm = lastCommandIdm,
-                        )
-                    }
-
-                    return response
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: NfcTargetUnavailableException) {
-                    throw e
-                } catch (e: TransceiveTimeoutException) {
-                    e
-                } catch (e: TransceiveErrorException) {
-                    e
+                if (selectedSystemCode != null && shouldSelectSystemCode(selectedSystemCode)) {
+                    selectSystemCode(selectedSystemCode)
                 }
 
-            lastException = failure
+                val scope =
+                    CommandExecutionScope(
+                        idm = resolveCurrentIdm(selectedSystemCode),
+                        systemCode = selectedSystemCode?.copyOf(),
+                        attempt = attempt,
+                    )
+                val command = scope.createCommand()
+                lastCommandLabel = command::class.simpleName ?: "FeliCa command"
+                attemptCommandLabel = lastCommandLabel
+                attemptCommandIdm = (command as? FelicaCommandWithIdm<*>)?.idm?.copyOf()
+
+                commandWasSent = true
+                attemptCommandWasSent = true
+
+                response = transceive(command, selectedSystemCode = selectedSystemCode)
+            } catch (e: CancellationException) {
+                attemptCommandWasSent = false
+                throw e
+            } catch (e: NfcTargetUnavailableException) {
+                attemptCommandWasSent = false
+                throw e
+            } catch (e: Exception) {
+                failure = e
+            } finally {
+                if (withResetToMode0 && attemptCommandWasSent) {
+                    resetToMode0OrThrow(
+                        authenticatedSystemCode = selectedSystemCode,
+                        authenticatedSystemIdm = attemptCommandIdm,
+                    )
+                }
+            }
+
+            response?.let {
+                return it
+            }
+
+            val attemptFailure =
+                failure ?: RuntimeException("$attemptCommandLabel failed without an exception")
+            if (
+                attemptFailure !is TransceiveTimeoutException &&
+                    attemptFailure !is TransceiveErrorException
+            ) {
+                throw attemptFailure
+            }
+
+            lastException = attemptFailure
             if (attempt >= attempts) {
                 break
             }
@@ -162,7 +177,7 @@ internal constructor(
             ScanLog.w(
                 "CardScanService",
                 "$attemptCommandLabel attempt $attempt failed; retrying",
-                failure,
+                attemptFailure,
             )
             delay(delayDuration)
         }
@@ -170,17 +185,15 @@ internal constructor(
         val cause =
             lastException ?: RuntimeException("$lastCommandLabel failed without an exception")
         if (withPresenceChecking) {
-            if (withResetToMode0 && commandWasSent) {
-                resetToMode0OrThrow(
-                    authenticatedSystemCode = selectedSystemCode,
-                    authenticatedSystemIdm = lastCommandIdm,
-                )
-            } else {
+            if (!withResetToMode0 || !commandWasSent) {
                 confirmCardPresence(withSelectedSystemCode = selectedSystemCode)
             }
         }
 
         if (cause is TransceiveErrorException) {
+            throw cause
+        }
+        if (cause !is TransceiveTimeoutException) {
             throw cause
         }
 
@@ -299,7 +312,7 @@ internal constructor(
     ) {
         if (
             authenticatedSystemIdm != null &&
-                scanContext.resetModeSupport == CommandSupport.SUPPORTED
+                scanContext.commands.resetMode.supported == CommandSupport.SUPPORTED
         ) {
             try {
                 val resetModeCommand = ResetModeCommand(authenticatedSystemIdm)
@@ -364,11 +377,11 @@ internal constructor(
                 ensureActiveTargetAvailable()
 
                 if (
-                    scanContext.requestResponseSupport == CommandSupport.SUPPORTED &&
-                        activeTarget.pmm.icType != 0x24.toByte()
+                    scanContext.commands.requestResponse.supported == CommandSupport.SUPPORTED &&
+                        // On devices with ST chips, IC 24 seems to struggle with request response
+                        pmm.icType != 0x24.toByte()
                 ) {
-                    val command = RequestResponseCommand(activeTarget.idm)
-                    transceive(command)
+                    transceive(RequestResponseCommand(activeTarget.idm))
                     return
                 }
 
@@ -377,11 +390,9 @@ internal constructor(
                     return
                 }
 
-                if (scanContext.requestServiceSupport == CommandSupport.SUPPORTED) {
+                if (scanContext.commands.requestService.supported == CommandSupport.SUPPORTED) {
                     val probeService = Service(0, ServiceAttribute.RandomRoWithoutKey)
-                    val command =
-                        RequestServiceCommand(activeTarget.idm, arrayOf(probeService.code))
-                    transceive(command)
+                    transceive(RequestServiceCommand(activeTarget.idm, arrayOf(probeService.code)))
                     return
                 }
 

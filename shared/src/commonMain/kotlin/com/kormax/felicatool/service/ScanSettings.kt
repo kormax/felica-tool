@@ -25,6 +25,11 @@ data class ScanSettings(
      */
     val bruteForceSystemCodePrefixes: Boolean = false,
     /**
+     * When enabled, probes whether commands still respond when non-standard trailing data bytes are
+     * appended to their regular payloads. This is OFF by default to reduce scan time.
+     */
+    val testTrailingDataCommands: Boolean = false,
+    /**
      * When enabled, tests write commands during scanning. This is OFF by default to prevent
      * accidental modifications to card data.
      */

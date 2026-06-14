@@ -10,6 +10,7 @@ import android.provider.MediaStore
 import com.kormax.felicatool.BuildConfig
 import com.kormax.felicatool.felica.*
 import com.kormax.felicatool.service.CardScanContext
+import com.kormax.felicatool.service.CommandCapability
 import com.kormax.felicatool.service.CommandSupport
 import com.kormax.felicatool.service.SystemScanContext
 import com.kormax.felicatool.service.logging.CommunicationLogEntry
@@ -19,6 +20,35 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 object ExportUtils {
+    private fun CommandSupport.toBooleanOrNull(): Boolean? =
+        when (this) {
+            CommandSupport.UNKNOWN -> null
+            CommandSupport.SUPPORTED -> true
+            CommandSupport.UNSUPPORTED -> false
+        }
+
+    private fun JSONObject.putBooleanIfKnown(
+        name: String,
+        support: CommandSupport,
+    ) {
+        support.toBooleanOrNull()?.let { put(name, it) }
+    }
+
+    private fun JSONObject.putAvailableCommand(
+        name: String,
+        capability: CommandCapability,
+        addDetails: JSONObject.() -> Unit = {},
+    ) {
+        if (!capability.available) {
+            return
+        }
+
+        val commandJson = JSONObject()
+        commandJson.putBooleanIfKnown("trailing_data_supported", capability.trailingDataSupported)
+        commandJson.addDetails()
+        put(name, commandJson)
+    }
+
     /** Masks an IDM hex string, keeping first 2 bytes and last 1 byte visible */
     private fun maskIdm(hex: String): String {
         if (hex.length < 6) return hex
@@ -342,90 +372,6 @@ object ExportUtils {
             json.put("container_properties", containerPropertyJson)
         }
 
-        // Read without encryption fields
-        json.put(
-            "read_without_encryption_error_location_indication",
-            scanContext.readWithoutEncryptionErrorLocationIndication.name,
-        )
-
-        scanContext.readWithoutEncryptionIllegalNumberErrorPreference?.let { preference ->
-            json.put("read_without_encryption_illegal_number_error_preference", preference.name)
-        }
-
-        scanContext.readWithoutEncryptionMaxServicesPerRequest?.let {
-            json.put("read_without_encryption_max_services_per_request", it)
-        }
-        scanContext.readWithoutEncryptionMaxBlocksPerRequest?.let {
-            json.put("read_without_encryption_max_blocks_per_request", it)
-        }
-
-        // Write without encryption fields
-        scanContext.writeWithoutEncryptionErrorLocationIndication?.let { errorIndication ->
-            json.put("write_without_encryption_error_location_indication", errorIndication.name)
-        }
-        scanContext.writeWithoutEncryptionMaxBlocksPerRequest?.let {
-            json.put("write_without_encryption_max_blocks_per_request", it)
-        }
-
-        scanContext.echoMaxPayloadSize?.let { json.put("echo_max_payload_size", it) }
-        scanContext.pollingCommandTrailingDataSupported?.let {
-            json.put("polling_command_trailing_data_supported", it)
-        }
-        json.put(
-            "request_service_unknown_node_attributes_supported",
-            scanContext.requestServiceUnknownNodeAttributesSupported,
-        )
-        json.put(
-            "authentication1_des_node_list_hierarchy_validation",
-            scanContext.authentication1DesNodeListHierarchyValidation.name,
-        )
-
-        // Supported commands - build as a list of only supported commands
-        val supportedCommandsArray = JSONArray()
-        val commandMappings =
-            listOf(
-                "polling" to scanContext.pollingSupport,
-                "polling_system_code" to scanContext.pollingSystemCodeSupport,
-                "polling_communication_performance" to
-                    scanContext.pollingCommunicationPerformanceSupport,
-                "request_response" to scanContext.requestResponseSupport,
-                "reset_mode" to scanContext.resetModeSupport,
-                "request_system_code" to scanContext.requestSystemCodeSupport,
-                "request_specification_version" to scanContext.requestSpecificationVersionSupport,
-                "request_product_information" to scanContext.requestProductInformationSupport,
-                "get_system_status" to scanContext.getSystemStatusSupport,
-                "request_code_list" to scanContext.requestCodeListSupport,
-                "search_service_code" to scanContext.searchServiceCodeSupport,
-                "request_service" to scanContext.requestServiceSupport,
-                "request_service_v2" to scanContext.requestServiceV2Support,
-                "request_block_information" to scanContext.requestBlockInformationSupport,
-                "request_block_information_ex" to scanContext.requestBlockInformationExSupport,
-                "get_node_property_value_limited_service" to
-                    scanContext.getNodePropertyValueLimitedServiceSupport,
-                "get_node_property_mac_communication" to
-                    scanContext.getNodePropertyMacCommunicationSupport,
-                "read_without_encryption" to scanContext.readBlocksWithoutEncryptionSupport,
-                "write_without_encryption" to scanContext.writeBlocksWithoutEncryptionSupport,
-                "get_area_information" to scanContext.getAreaInformationSupport,
-                "get_container_property" to scanContext.getContainerPropertySupport,
-                "set_parameter" to scanContext.setParameterSupport,
-                "authentication1_des_determine_supported" to scanContext.authentication1DesSupport,
-                "authentication1_aes" to scanContext.authentication1AesSupport,
-                "get_container_issue_information" to
-                    scanContext.getContainerIssueInformationSupport,
-                "get_container_id" to scanContext.getContainerIdSupport,
-                "internal_authenticate_and_read" to scanContext.internalAuthenticateAndReadSupport,
-                "echo" to scanContext.echoSupport,
-            )
-
-        commandMappings.forEach { (commandName, supportStatus) ->
-            if (supportStatus == CommandSupport.SUPPORTED) {
-                supportedCommandsArray.put(commandName)
-            }
-        }
-
-        json.put("supported_commands", supportedCommandsArray)
-
         // Encryption identifier - check if any system has encryption info
         val encryptionIdentifier =
             scanContext.systemScanContexts
@@ -437,6 +383,135 @@ object ExportUtils {
             encryptionJson.put("des_key_type", encId.desKeyType.name)
             json.put("encryption_identifier", encryptionJson)
         }
+
+        val commandsJson = JSONObject()
+        commandsJson.putAvailableCommand("polling", scanContext.commands.polling) {
+            putBooleanIfKnown(
+                "system_code_request_supported",
+                scanContext.commands.polling.systemCodeSupported,
+            )
+            putBooleanIfKnown(
+                "communication_performance_request_supported",
+                scanContext.commands.polling.communicationPerformanceSupported,
+            )
+        }
+        commandsJson.putAvailableCommand("request_response", scanContext.commands.requestResponse)
+        commandsJson.putAvailableCommand(
+            "request_system_code",
+            scanContext.commands.requestSystemCode,
+        )
+        commandsJson.putAvailableCommand(
+            "request_specification_version",
+            scanContext.commands.requestSpecificationVersion,
+        )
+        commandsJson.putAvailableCommand(
+            "request_product_information",
+            scanContext.commands.requestProductInformation,
+        )
+        commandsJson.putAvailableCommand("get_system_status", scanContext.commands.getSystemStatus)
+        commandsJson.putAvailableCommand(
+            "search_service_code",
+            scanContext.commands.searchServiceCode,
+        )
+        commandsJson.putAvailableCommand("request_code_list", scanContext.commands.requestCodeList)
+        commandsJson.putAvailableCommand("request_service", scanContext.commands.requestService) {
+            putBooleanIfKnown(
+                "unknown_node_attributes_supported",
+                scanContext.commands.requestService.unknownNodeAttributesSupported,
+            )
+        }
+        commandsJson.putAvailableCommand(
+            "request_service_v2",
+            scanContext.commands.requestServiceV2,
+        )
+        commandsJson.putAvailableCommand(
+            "request_block_information",
+            scanContext.commands.requestBlockInformation,
+        )
+        commandsJson.putAvailableCommand(
+            "request_block_information_ex",
+            scanContext.commands.requestBlockInformationEx,
+        )
+        commandsJson.putAvailableCommand(
+            "get_node_property",
+            scanContext.commands.getNodeProperty,
+        ) {
+            putBooleanIfKnown(
+                "mac_communication_supported",
+                scanContext.commands.getNodeProperty.macCommunicationSupported,
+            )
+            putBooleanIfKnown(
+                "value_limited_service_supported",
+                scanContext.commands.getNodeProperty.valueLimitedServiceSupported,
+            )
+        }
+        commandsJson.putAvailableCommand(
+            "read_without_encryption",
+            scanContext.commands.readWithoutEncryption,
+        ) {
+            put(
+                "error_location_indication",
+                scanContext.commands.readWithoutEncryption.errorLocationIndication.name,
+            )
+            scanContext.commands.readWithoutEncryption.illegalNumberErrorPreference?.let {
+                preference ->
+                put("illegal_number_error_preference", preference.name)
+            }
+            scanContext.commands.readWithoutEncryption.maxServicesPerRequest?.let {
+                put("max_services_per_request", it)
+            }
+            scanContext.commands.readWithoutEncryption.maxBlocksPerRequest?.let {
+                put("max_blocks_per_request", it)
+            }
+        }
+        commandsJson.putAvailableCommand(
+            "write_without_encryption",
+            scanContext.commands.writeWithoutEncryption,
+        ) {
+            scanContext.commands.writeWithoutEncryption.errorLocationIndication?.let {
+                errorIndication ->
+                put("error_location_indication", errorIndication.name)
+            }
+            scanContext.commands.writeWithoutEncryption.maxBlocksPerRequest?.let {
+                put("max_blocks_per_request", it)
+            }
+        }
+        commandsJson.putAvailableCommand(
+            "get_area_information",
+            scanContext.commands.getAreaInformation,
+        )
+        commandsJson.putAvailableCommand(
+            "get_container_property",
+            scanContext.commands.getContainerProperty,
+        )
+        commandsJson.putAvailableCommand("set_parameter", scanContext.commands.setParameter)
+        commandsJson.putAvailableCommand(
+            "get_container_issue_information",
+            scanContext.commands.getContainerIssueInformation,
+        )
+        commandsJson.putAvailableCommand("get_container_id", scanContext.commands.getContainerId)
+        commandsJson.putAvailableCommand("echo", scanContext.commands.echo) {
+            scanContext.commands.echo.maxPayloadSize?.let { put("max_payload_size", it) }
+        }
+        commandsJson.putAvailableCommand("reset_mode", scanContext.commands.resetMode)
+        commandsJson.putAvailableCommand(
+            "internal_authenticate_and_read",
+            scanContext.commands.internalAuthenticateAndRead,
+        )
+        commandsJson.putAvailableCommand(
+            "authentication1_des",
+            scanContext.commands.authentication1Des,
+        ) {
+            val validation = scanContext.commands.authentication1Des.nodeListHierarchyValidation
+            if (validation != Authentication1DesNodeListHierarchyValidation.UNKNOWN) {
+                put("node_list_hierarchy_validation", validation.name)
+            }
+        }
+        commandsJson.putAvailableCommand(
+            "authentication1_aes",
+            scanContext.commands.authentication1Aes,
+        )
+        json.put("commands", commandsJson)
 
         // Systems array - organize nodes per system
         val systemsJson = JSONObject()

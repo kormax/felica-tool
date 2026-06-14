@@ -28,7 +28,8 @@ class WriteWithoutEncryptionCommand(
      * number of block list elements.
      */
     val blockData: Array<ByteArray>,
-) : FelicaCommandWithIdm<WriteWithoutEncryptionResponse>(idm) {
+    trailingData: ByteArray = ByteArray(0),
+) : FelicaCommandWithIdm<WriteWithoutEncryptionResponse>(idm, trailingData) {
 
     init {
         require(serviceCodes.isNotEmpty()) { "At least one service code must be specified" }
@@ -55,7 +56,15 @@ class WriteWithoutEncryptionCommand(
         val blockListSize = blockListElements.sumOf { it.toByteArray().size }
         val blockDataSize = blockData.size * BLOCK_SIZE
         val payloadSize =
-            1 + 1 + 8 + 1 + (serviceCodes.size * 2) + 1 + blockListSize + blockDataSize
+            1 +
+                1 +
+                8 +
+                1 +
+                (serviceCodes.size * 2) +
+                1 +
+                blockListSize +
+                blockDataSize +
+                trailingData.size
         require(payloadSize <= MAX_COMMAND_LENGTH) {
             "Command payload size ($payloadSize bytes) exceeds maximum allowed ($MAX_COMMAND_LENGTH bytes). " +
                 "Try reducing the number of blocks (current: ${blockListElements.size}) or using 2-byte block list format."
@@ -111,7 +120,7 @@ class WriteWithoutEncryptionCommand(
         WriteWithoutEncryptionResponse.fromByteArray(data)
 
     override fun toByteArray(): ByteArray =
-        buildFelicaMessage(
+        buildFelicaCommandMessage(
             COMMAND_CODE,
             idm,
             capacity =
@@ -174,17 +183,19 @@ class WriteWithoutEncryptionCommand(
                     blockListElements.add(BlockListElement.fromByteArray(byteArrayOf(first) + rest))
                 }
 
-                require(remaining() == numberOfBlocks * BLOCK_SIZE) {
-                    "Block data length mismatch: expected ${numberOfBlocks * BLOCK_SIZE} bytes, got ${remaining()} remaining bytes"
+                require(remaining() >= numberOfBlocks * BLOCK_SIZE) {
+                    "Block data length mismatch: expected at least ${numberOfBlocks * BLOCK_SIZE} bytes, got ${remaining()} remaining bytes"
                 }
 
                 val blockData = Array(numberOfBlocks) { bytes(BLOCK_SIZE) }
+                val trailingData = bytes(remaining())
 
                 WriteWithoutEncryptionCommand(
                     idm,
                     serviceCodes,
                     blockListElements.toTypedArray(),
                     blockData,
+                    trailingData,
                 )
             }
     }

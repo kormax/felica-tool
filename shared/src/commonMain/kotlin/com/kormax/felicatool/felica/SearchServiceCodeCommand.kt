@@ -15,10 +15,12 @@ class SearchServiceCodeCommand(
      * beginning
      */
     val index: Int = 0,
-) : FelicaCommandWithIdm<SearchServiceCodeResponse>(idm) {
+    trailingData: ByteArray = ByteArray(0),
+) : FelicaCommandWithIdm<SearchServiceCodeResponse>(idm, trailingData) {
 
     init {
         require(index in 0..0xFFFF) { "Index must be between 0 and 65535" }
+        requireFrameLength(MIN_LENGTH)
     }
 
     override val commandClass: CommandClass = Companion.COMMAND_CLASS
@@ -27,7 +29,7 @@ class SearchServiceCodeCommand(
         SearchServiceCodeResponse.fromByteArray(data)
 
     override fun toByteArray(): ByteArray =
-        buildFelicaMessage(COMMAND_CODE, idm, capacity = MIN_LENGTH) {
+        buildFelicaCommandMessage(COMMAND_CODE, idm, capacity = MIN_LENGTH) {
             addByte(index and 0xFF)
             addByte((index shr 8) and 0xFF)
         }
@@ -45,7 +47,7 @@ class SearchServiceCodeCommand(
                 require(index in 0..MAX_ITERATOR_INDEX) {
                     "Index must be between 0 and $MAX_ITERATOR_INDEX, got $index"
                 }
-                SearchServiceCodeCommand(idm, index)
+                SearchServiceCodeCommand(idm, index, bytes(remaining()))
             }
     }
 }

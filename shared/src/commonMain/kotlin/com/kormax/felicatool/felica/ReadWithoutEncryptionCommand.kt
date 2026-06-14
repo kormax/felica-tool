@@ -24,7 +24,8 @@ class ReadWithoutEncryptionCommand(
      * access mode.
      */
     val blockListElements: Array<BlockListElement>,
-) : FelicaCommandWithIdm<ReadWithoutEncryptionResponse>(idm) {
+    trailingData: ByteArray = ByteArray(0),
+) : FelicaCommandWithIdm<ReadWithoutEncryptionResponse>(idm, trailingData) {
 
     init {
         require(serviceCodes.isNotEmpty()) { "At least one service code must be specified" }
@@ -38,6 +39,13 @@ class ReadWithoutEncryptionCommand(
         require(blockListElements.size <= MAX_BLOCKS) {
             "Maximum $MAX_BLOCKS blocks can be requested at once"
         }
+        requireFrameLength(
+            BASE_LENGTH +
+                1 +
+                (serviceCodes.size * 2) +
+                1 +
+                blockListElements.sumOf { it.toByteArray().size }
+        )
 
         // Validate service code list order - service codes must be in ascending order
         for (i in 1 until serviceCodes.size) {
@@ -97,7 +105,7 @@ class ReadWithoutEncryptionCommand(
         ReadWithoutEncryptionResponse.fromByteArray(data)
 
     override fun toByteArray(): ByteArray =
-        buildFelicaMessage(
+        buildFelicaCommandMessage(
             COMMAND_CODE,
             idm,
             capacity =
@@ -154,7 +162,12 @@ class ReadWithoutEncryptionCommand(
                     blockListElements.add(BlockListElement.fromByteArray(byteArrayOf(first) + rest))
                 }
 
-                ReadWithoutEncryptionCommand(idm, serviceCodes, blockListElements.toTypedArray())
+                ReadWithoutEncryptionCommand(
+                    idm,
+                    serviceCodes,
+                    blockListElements.toTypedArray(),
+                    bytes(remaining()),
+                )
             }
     }
 }

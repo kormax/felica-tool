@@ -11,11 +11,19 @@ package com.kormax.felicatool.felica
  */
 class GetContainerPropertyCommand(
     /** Property index (2 bytes, little-endian encoded) */
-    val property: Property = Property.PROPERTY_1
-) : FelicaCommandWithoutIdm<GetContainerPropertyResponse>() {
+    val property: Property = Property.PROPERTY_1,
+    trailingData: ByteArray = ByteArray(0),
+) : FelicaCommandWithoutIdm<GetContainerPropertyResponse>(trailingData) {
 
     /** Alternative constructor with raw index value */
-    constructor(index: Short) : this(Property.fromIndex(index))
+    constructor(
+        index: Short,
+        trailingData: ByteArray = ByteArray(0),
+    ) : this(Property.fromIndex(index), trailingData)
+
+    init {
+        requireFrameLength(COMMAND_LENGTH)
+    }
 
     /** Convenience property to access the index value */
     val index: Short
@@ -27,7 +35,7 @@ class GetContainerPropertyCommand(
         GetContainerPropertyResponse.fromByteArray(data)
 
     override fun toByteArray(): ByteArray =
-        buildFelicaMessage(COMMAND_CODE, capacity = COMMAND_LENGTH) {
+        buildFelicaCommandMessage(COMMAND_CODE, capacity = COMMAND_LENGTH) {
             addBytes(property.toByteArray())
         }
 
@@ -40,7 +48,7 @@ class GetContainerPropertyCommand(
         /** Parse a Get Container Property command from raw bytes */
         fun fromByteArray(data: ByteArray): GetContainerPropertyCommand =
             parseFelicaCommandWithoutIdm(data, COMMAND_CODE, minLength = COMMAND_LENGTH) {
-                GetContainerPropertyCommand(Property.fromByteArray(bytes(2)))
+                GetContainerPropertyCommand(Property.fromByteArray(bytes(2)), bytes(remaining()))
             }
     }
 

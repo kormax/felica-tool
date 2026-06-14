@@ -7,13 +7,15 @@ class ResetModeCommand(
 
     /** Reserved bytes (2 bytes, must be all 0x00) */
     val reserved: ByteArray = ByteArray(2),
-) : FelicaCommandWithIdm<ResetModeResponse>(idm) {
+    trailingData: ByteArray = ByteArray(0),
+) : FelicaCommandWithIdm<ResetModeResponse>(idm, trailingData) {
 
     init {
         require(reserved.size == 2) { "Reserved bytes must be exactly 2 bytes" }
         require(reserved.all { it == 0x00.toByte() }) {
             "Reserved bytes must be all 0x00, got: ${reserved.toHexString()}"
         }
+        requireFrameLength(COMMAND_LENGTH)
     }
 
     override val commandClass: CommandClass = Companion.COMMAND_CLASS
@@ -21,7 +23,9 @@ class ResetModeCommand(
     override fun responseFromByteArray(data: ByteArray) = ResetModeResponse.fromByteArray(data)
 
     override fun toByteArray(): ByteArray =
-        buildFelicaMessage(COMMAND_CODE, idm, capacity = COMMAND_LENGTH) { addBytes(reserved) }
+        buildFelicaCommandMessage(COMMAND_CODE, idm, capacity = COMMAND_LENGTH) {
+            addBytes(reserved)
+        }
 
     companion object : CommandCompanion {
         override val COMMAND_CODE: Short = 0x3E
@@ -38,7 +42,7 @@ class ResetModeCommand(
                     "Reserved bytes must be 0x00, got: ${reserved.toHexString()}"
                 }
 
-                ResetModeCommand(idm, reserved)
+                ResetModeCommand(idm, reserved, bytes(remaining()))
             }
     }
 }

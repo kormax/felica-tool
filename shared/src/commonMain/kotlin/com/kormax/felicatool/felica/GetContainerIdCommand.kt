@@ -8,13 +8,15 @@ package com.kormax.felicatool.felica
  */
 class GetContainerIdCommand(
     /** Reserved data (2 bytes) - typically set to 0x0000 */
-    val reserved: ByteArray = byteArrayOf(0x00, 0x00)
-) : FelicaCommandWithoutIdm<GetContainerIdResponse>() {
+    val reserved: ByteArray = byteArrayOf(0x00, 0x00),
+    trailingData: ByteArray = ByteArray(0),
+) : FelicaCommandWithoutIdm<GetContainerIdResponse>(trailingData) {
 
     init {
         require(reserved.size == 2) {
             "Reserved data must be exactly 2 bytes, got ${reserved.size}"
         }
+        requireFrameLength(COMMAND_LENGTH)
     }
 
     override val commandClass: CommandClass = Companion.COMMAND_CLASS
@@ -22,7 +24,7 @@ class GetContainerIdCommand(
     override fun responseFromByteArray(data: ByteArray) = GetContainerIdResponse.fromByteArray(data)
 
     override fun toByteArray(): ByteArray =
-        buildFelicaMessage(COMMAND_CODE, capacity = COMMAND_LENGTH) { addBytes(reserved) }
+        buildFelicaCommandMessage(COMMAND_CODE, capacity = COMMAND_LENGTH) { addBytes(reserved) }
 
     companion object : CommandCompanion {
         override val COMMAND_CODE: Short = 0x70
@@ -34,7 +36,7 @@ class GetContainerIdCommand(
         /** Parse a Get Container ID command from raw bytes */
         fun fromByteArray(data: ByteArray): GetContainerIdCommand =
             parseFelicaCommandWithoutIdm(data, COMMAND_CODE, minLength = COMMAND_LENGTH) {
-                GetContainerIdCommand(bytes(2))
+                GetContainerIdCommand(bytes(2), bytes(remaining()))
             }
     }
 }

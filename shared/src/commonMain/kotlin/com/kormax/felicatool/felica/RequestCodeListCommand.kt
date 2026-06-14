@@ -15,15 +15,22 @@ class RequestCodeListCommand(
 
     /** The index to start from (as unsigned 16-bit integer) Use 0 to start from the beginning */
     val index: Int,
-) : FelicaCommandWithIdm<RequestCodeListResponse>(idm) {
+    trailingData: ByteArray = ByteArray(0),
+) : FelicaCommandWithIdm<RequestCodeListResponse>(idm, trailingData) {
 
     init {
         require(parentNodeCode.size == 2) { "Parent node code must be exactly 2 bytes" }
         require(index in 0..0xFFFF) { "Index must be between 0 and 65535" }
+        requireFrameLength(MIN_LENGTH)
     }
 
     /** Alternative constructor that accepts a Node object */
-    constructor(idm: ByteArray, parentNode: Node, index: Int) : this(idm, parentNode.code, index)
+    constructor(
+        idm: ByteArray,
+        parentNode: Node,
+        index: Int,
+        trailingData: ByteArray = ByteArray(0),
+    ) : this(idm, parentNode.code, index, trailingData)
 
     override val commandClass: CommandClass = Companion.COMMAND_CLASS
 
@@ -31,7 +38,7 @@ class RequestCodeListCommand(
         RequestCodeListResponse.fromByteArray(data)
 
     override fun toByteArray(): ByteArray =
-        buildFelicaMessage(COMMAND_CODE, idm, capacity = MIN_LENGTH) {
+        buildFelicaCommandMessage(COMMAND_CODE, idm, capacity = MIN_LENGTH) {
             addBytes(parentNodeCode)
             addByte(index and 0xFF)
             addByte((index shr 8) and 0xFF)
@@ -53,7 +60,7 @@ class RequestCodeListCommand(
                 require(index in 0..MAX_ITERATOR_INDEX) {
                     "Index must be between 0 and $MAX_ITERATOR_INDEX, got $index"
                 }
-                RequestCodeListCommand(idm, parentNodeCode, index)
+                RequestCodeListCommand(idm, parentNodeCode, index, bytes(remaining()))
             }
     }
 }

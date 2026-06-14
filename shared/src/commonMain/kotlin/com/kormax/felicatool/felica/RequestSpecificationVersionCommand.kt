@@ -12,11 +12,13 @@ class RequestSpecificationVersionCommand(
 
     /** Reserved field (2 bytes, should be 0000h) */
     val reserved: ByteArray = byteArrayOf(0x00, 0x00),
-) : FelicaCommandWithIdm<RequestSpecificationVersionResponse>(idm) {
+    trailingData: ByteArray = ByteArray(0),
+) : FelicaCommandWithIdm<RequestSpecificationVersionResponse>(idm, trailingData) {
 
     init {
         require(reserved.size == 2) { "Reserved field must be exactly 2 bytes" }
         require(reserved.contentEquals(byteArrayOf(0x00, 0x00))) { "Reserved field must be 0000h" }
+        requireFrameLength(LENGTH)
     }
 
     override val commandClass: CommandClass = Companion.COMMAND_CLASS
@@ -25,7 +27,7 @@ class RequestSpecificationVersionCommand(
         RequestSpecificationVersionResponse.fromByteArray(data)
 
     override fun toByteArray(): ByteArray =
-        buildFelicaMessage(COMMAND_CODE, idm, capacity = LENGTH) { addBytes(reserved) }
+        buildFelicaCommandMessage(COMMAND_CODE, idm, capacity = LENGTH) { addBytes(reserved) }
 
     companion object : CommandCompanion {
         override val COMMAND_CODE: Short = 0x3C
@@ -36,7 +38,7 @@ class RequestSpecificationVersionCommand(
         /** Parse a Request Specification Version command from raw bytes */
         fun fromByteArray(data: ByteArray): RequestSpecificationVersionCommand =
             parseFelicaCommandWithIdm(data, COMMAND_CODE, minLength = LENGTH) { idm ->
-                RequestSpecificationVersionCommand(idm, bytes(2))
+                RequestSpecificationVersionCommand(idm, bytes(2), bytes(remaining()))
             }
     }
 }

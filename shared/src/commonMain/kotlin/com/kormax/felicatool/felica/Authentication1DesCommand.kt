@@ -18,7 +18,8 @@ class Authentication1DesCommand(
 
     /** Challenge1A (8 bytes) sent to the card for authentication */
     val challenge1A: ByteArray,
-) : FelicaCommandWithIdm<Authentication1DesResponse>(idm) {
+    trailingData: ByteArray = ByteArray(0),
+) : FelicaCommandWithIdm<Authentication1DesResponse>(idm, trailingData) {
 
     init {
         require(areaCodes.isNotEmpty() || nodeCodes.isNotEmpty()) {
@@ -32,6 +33,7 @@ class Authentication1DesCommand(
         require(challenge1A.size == 8) {
             "Challenge1A must be exactly 8 bytes, got ${challenge1A.size}"
         }
+        requireFrameLength(BASE_LENGTH + 2 + (areaCodes.size * 2) + (nodeCodes.size * 2) + 8)
     }
 
     /**
@@ -48,11 +50,13 @@ class Authentication1DesCommand(
         areaNodes: List<Area>,
         nodes: List<Node>,
         challenge1A: ByteArray,
+        trailingData: ByteArray = ByteArray(0),
     ) : this(
         idm,
         areaNodes.map { it.code }.toTypedArray(),
         nodes.map { it.code }.toTypedArray(),
         challenge1A,
+        trailingData,
     )
 
     override val commandClass: CommandClass = Companion.COMMAND_CLASS
@@ -62,7 +66,7 @@ class Authentication1DesCommand(
         Authentication1DesResponse.fromByteArray(data)
 
     override fun toByteArray(): ByteArray =
-        buildFelicaMessage(
+        buildFelicaCommandMessage(
             COMMAND_CODE,
             idm,
             capacity =
@@ -100,7 +104,13 @@ class Authentication1DesCommand(
                 val nodeCodes = Array(numberOfNodeCodes) { bytes(2) }
                 val challenge1A = bytes(8)
 
-                Authentication1DesCommand(idm, areaCodes, nodeCodes, challenge1A)
+                Authentication1DesCommand(
+                    idm,
+                    areaCodes,
+                    nodeCodes,
+                    challenge1A,
+                    bytes(remaining()),
+                )
             }
     }
 }

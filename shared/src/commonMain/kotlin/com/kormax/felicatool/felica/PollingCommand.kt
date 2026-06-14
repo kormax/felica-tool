@@ -19,15 +19,12 @@ class PollingCommand(
     val timeSlot: TimeSlot = TimeSlot.SLOT_1,
 
     /** Non-standard bytes after the regular Polling command payload. */
-    val trailingData: ByteArray = ByteArray(0),
-) : FelicaCommandWithoutIdm<PollingResponse>() {
+    trailingData: ByteArray = ByteArray(0),
+) : FelicaCommandWithoutIdm<PollingResponse>(trailingData) {
 
     init {
         require(systemCode.size == 2) { "System code must be exactly 2 bytes" }
-        val frameLength = MIN_COMMAND_LENGTH + trailingData.size
-        require(frameLength <= MAX_FRAME_LENGTH) {
-            "Polling command frame length ($frameLength bytes) exceeds FeliCa frame length limit ($MAX_FRAME_LENGTH bytes)"
-        }
+        requireFrameLength(MIN_COMMAND_LENGTH)
     }
 
     override val commandClass: CommandClass = Companion.COMMAND_CLASS
@@ -35,11 +32,10 @@ class PollingCommand(
     override fun responseFromByteArray(data: ByteArray) = PollingResponse.fromByteArray(data)
 
     override fun toByteArray(): ByteArray =
-        buildFelicaMessage(COMMAND_CODE, capacity = MIN_COMMAND_LENGTH + trailingData.size) {
+        buildFelicaCommandMessage(COMMAND_CODE, capacity = MIN_COMMAND_LENGTH) {
             addBytes(systemCode)
             addByte(requestCode.value)
             addByte(timeSlot.value)
-            addBytes(trailingData)
         }
 
     companion object : CommandCompanion {

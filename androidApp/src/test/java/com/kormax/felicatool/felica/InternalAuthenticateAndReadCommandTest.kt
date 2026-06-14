@@ -135,6 +135,31 @@ class InternalAuthenticateAndReadCommandTest {
     }
 
     @Test
+    fun testInternalAuthenticateAndReadCommandTrailingDataRoundTrip() {
+        val idm = IDM
+        val serviceCodes = arrayOf("0930".hexToByteArray())
+        val blockListElements = arrayOf(BlockListElement(0, 0))
+        val trailingData = "AABB".hexToByteArray()
+
+        val originalCommand =
+            InternalAuthenticateAndReadCommand(
+                idm,
+                serviceCodes,
+                blockListElements,
+                CHALLENGE,
+                trailingData = trailingData,
+            )
+        val data = originalCommand.toByteArray()
+        val parsedCommand = InternalAuthenticateAndReadCommand.fromByteArray(data)
+
+        assertEquals(35, data.size)
+        assertEquals(35.toByte(), data[0])
+        assertEquals(CHALLENGE.toList(), parsedCommand.challenge.toList())
+        assertArrayEquals(trailingData, originalCommand.trailingData)
+        assertArrayEquals(trailingData, parsedCommand.trailingData)
+    }
+
+    @Test
     fun testInternalAuthenticateAndReadCommandMultipleServicesUnordered() {
         // Unlike ReadWithoutEncryption, services can be in any order
         val idm = IDM
@@ -227,6 +252,18 @@ class InternalAuthenticateAndReadCommandTest {
             arrayOf("0930".hexToByteArray()),
             arrayOf(BlockListElement(0, 0)),
             shortChallenge,
+        )
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testInternalAuthenticateAndReadCommandChallengeTooLong() {
+        val idm = IDM
+        val longChallenge = "00112233445566778899AABBCCDDEEFF00".hexToByteArray() // 17 bytes
+        InternalAuthenticateAndReadCommand(
+            idm,
+            arrayOf("0930".hexToByteArray()),
+            arrayOf(BlockListElement(0, 0)),
+            longChallenge,
         )
     }
 

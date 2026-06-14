@@ -17,10 +17,12 @@ internal abstract class ReadWithoutEncryptionScanStep(
         icon = icon,
     ) {
     final override fun readSupport(context: CardScanContext): CommandSupport =
-        context.readBlocksWithoutEncryptionSupport
+        context.commands.readWithoutEncryption.supported
 
     final override fun writeSupport(
         context: CardScanContext,
         support: CommandSupport,
-    ): CardScanContext = context.copy(readBlocksWithoutEncryptionSupport = support)
+    ): CardScanContext = context.withCommands {
+        copy(readWithoutEncryption = readWithoutEncryption.copy(supported = support))
+    }
 }

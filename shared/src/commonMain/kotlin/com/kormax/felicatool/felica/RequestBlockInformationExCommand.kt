@@ -15,7 +15,8 @@ class RequestBlockInformationExCommand(
      * Endian format.
      */
     val nodeCodes: Array<ByteArray>,
-) : FelicaCommandWithIdm<RequestBlockInformationExResponse>(idm) {
+    trailingData: ByteArray = ByteArray(0),
+) : FelicaCommandWithIdm<RequestBlockInformationExResponse>(idm, trailingData) {
 
     init {
         require(nodeCodes.isNotEmpty()) { "At least one node code must be specified" }
@@ -23,6 +24,7 @@ class RequestBlockInformationExCommand(
             "Maximum $MAX_NODE_CODES node codes can be requested at once"
         }
         require(nodeCodes.all { it.size == 2 }) { "Each node code must be exactly 2 bytes" }
+        requireFrameLength(BASE_LENGTH + 1 + (nodeCodes.size * 2))
     }
 
     /**
@@ -34,7 +36,8 @@ class RequestBlockInformationExCommand(
     constructor(
         idm: ByteArray,
         nodes: Array<Node>,
-    ) : this(idm, nodes.map { it.code }.toTypedArray())
+        trailingData: ByteArray = ByteArray(0),
+    ) : this(idm, nodes.map { it.code }.toTypedArray(), trailingData)
 
     override val commandClass: CommandClass = Companion.COMMAND_CLASS
     override val timeoutUnits: Int = nodeCodes.size
@@ -43,7 +46,11 @@ class RequestBlockInformationExCommand(
         RequestBlockInformationExResponse.fromByteArray(data)
 
     override fun toByteArray(): ByteArray =
-        buildFelicaMessage(COMMAND_CODE, idm, capacity = BASE_LENGTH + 1 + (nodeCodes.size * 2)) {
+        buildFelicaCommandMessage(
+            COMMAND_CODE,
+            idm,
+            capacity = BASE_LENGTH + 1 + (nodeCodes.size * 2),
+        ) {
             addByte(nodeCodes.size)
             nodeCodes.forEach { addBytes(it) }
         }
@@ -67,7 +74,7 @@ class RequestBlockInformationExCommand(
                 }
 
                 val nodeCodes = Array(numberOfNodes) { bytes(2) }
-                RequestBlockInformationExCommand(idm, nodeCodes)
+                RequestBlockInformationExCommand(idm, nodeCodes, bytes(remaining()))
             }
     }
 }

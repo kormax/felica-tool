@@ -105,7 +105,11 @@ data class ScanOverviewCommandSection(
     val commands: List<ScanOverviewCommandSupport>,
 )
 
-data class ScanOverviewCommandSupport(val title: String, val status: CommandSupport)
+data class ScanOverviewCommandSupport(
+    val title: String,
+    val status: CommandSupport,
+    val trailingDataSupport: CommandSupport = CommandSupport.UNKNOWN,
+)
 
 data class ScanOverviewChip(val text: String, val role: ScanOverviewChipRole)
 
@@ -189,19 +193,6 @@ object ScanOverviewModelBuilder {
             }
             scanContext.primarySystemCode?.let {
                 add(ScanOverviewField("Primary System Code", it.toHexString()))
-            }
-            scanContext.pollingCommandTrailingDataSupported?.let { supported ->
-                add(
-                    ScanOverviewField(
-                        "Polling - Trailing Data Supported",
-                        if (supported) "Supported" else "Not supported",
-                        if (supported) {
-                            ScanOverviewChipRole.SUCCESS
-                        } else {
-                            ScanOverviewChipRole.WARNING
-                        },
-                    )
-                )
             }
             scanContext.productInformation?.let { productInformation ->
                 if (
@@ -869,66 +860,103 @@ object ScanOverviewModelBuilder {
     private fun buildCommandSupport(
         scanContext: CardScanContext
     ): List<ScanOverviewCommandSection> {
+        fun commandSupport(
+            title: String,
+            status: CommandSupport,
+            trailingDataSupport: CommandSupport = CommandSupport.UNKNOWN,
+        ) =
+            ScanOverviewCommandSupport(
+                title = title,
+                status = status,
+                trailingDataSupport = trailingDataSupport,
+            )
+
         return listOf(
             ScanOverviewCommandSection(
                 title = "Basic Commands",
                 commands =
                     listOf(
-                        ScanOverviewCommandSupport("Polling", scanContext.pollingSupport),
-                        ScanOverviewCommandSupport(
+                        commandSupport(
+                            "Polling",
+                            scanContext.commands.polling.supported,
+                            scanContext.commands.polling.trailingDataSupported,
+                        ),
+                        commandSupport(
                             "Polling (System Code)",
-                            scanContext.pollingSystemCodeSupport,
+                            scanContext.commands.polling.systemCodeSupported,
                         ),
-                        ScanOverviewCommandSupport(
+                        commandSupport(
                             "Polling (Communication Performance)",
-                            scanContext.pollingCommunicationPerformanceSupport,
+                            scanContext.commands.polling.communicationPerformanceSupported,
                         ),
-                        ScanOverviewCommandSupport(
+                        commandSupport(
                             "Request Response",
-                            scanContext.requestResponseSupport,
+                            scanContext.commands.requestResponse.supported,
+                            scanContext.commands.requestResponse.trailingDataSupported,
                         ),
-                        ScanOverviewCommandSupport(
+                        commandSupport(
                             "Request System Code",
-                            scanContext.requestSystemCodeSupport,
+                            scanContext.commands.requestSystemCode.supported,
+                            scanContext.commands.requestSystemCode.trailingDataSupported,
                         ),
-                        ScanOverviewCommandSupport(
+                        commandSupport(
                             "Request Specification",
-                            scanContext.requestSpecificationVersionSupport,
+                            scanContext.commands.requestSpecificationVersion.supported,
+                            scanContext.commands.requestSpecificationVersion.trailingDataSupported,
                         ),
-                        ScanOverviewCommandSupport(
+                        commandSupport(
                             "Request Product Info",
-                            scanContext.requestProductInformationSupport,
+                            scanContext.commands.requestProductInformation.supported,
+                            scanContext.commands.requestProductInformation.trailingDataSupported,
                         ),
-                        ScanOverviewCommandSupport("Reset Mode", scanContext.resetModeSupport),
                     ),
             ),
             ScanOverviewCommandSection(
                 title = "Node Commands",
                 commands =
                     listOf(
-                        ScanOverviewCommandSupport(
+                        commandSupport(
                             "Search Service Code",
-                            scanContext.searchServiceCodeSupport,
+                            scanContext.commands.searchServiceCode.supported,
+                            scanContext.commands.searchServiceCode.trailingDataSupported,
                         ),
-                        ScanOverviewCommandSupport(
+                        commandSupport(
                             "Request Code List",
-                            scanContext.requestCodeListSupport,
+                            scanContext.commands.requestCodeList.supported,
+                            scanContext.commands.requestCodeList.trailingDataSupported,
                         ),
-                        ScanOverviewCommandSupport(
+                        commandSupport(
                             "Request Service",
-                            scanContext.requestServiceSupport,
+                            scanContext.commands.requestService.supported,
+                            scanContext.commands.requestService.trailingDataSupported,
                         ),
-                        ScanOverviewCommandSupport(
+                        commandSupport(
                             "Request Service V2",
-                            scanContext.requestServiceV2Support,
+                            scanContext.commands.requestServiceV2.supported,
+                            scanContext.commands.requestServiceV2.trailingDataSupported,
                         ),
-                        ScanOverviewCommandSupport(
+                        commandSupport(
                             "Request Block Info",
-                            scanContext.requestBlockInformationSupport,
+                            scanContext.commands.requestBlockInformation.supported,
+                            scanContext.commands.requestBlockInformation.trailingDataSupported,
                         ),
-                        ScanOverviewCommandSupport(
+                        commandSupport(
                             "Request Block Info Ex",
-                            scanContext.requestBlockInformationExSupport,
+                            scanContext.commands.requestBlockInformationEx.supported,
+                            scanContext.commands.requestBlockInformationEx.trailingDataSupported,
+                        ),
+                        commandSupport(
+                            "Get Node Property",
+                            scanContext.commands.getNodeProperty.supported,
+                            scanContext.commands.getNodeProperty.trailingDataSupported,
+                        ),
+                        commandSupport(
+                            "Get Node Property (MAC Communication)",
+                            scanContext.commands.getNodeProperty.macCommunicationSupported,
+                        ),
+                        commandSupport(
+                            "Get Node Property (Value Limited Service)",
+                            scanContext.commands.getNodeProperty.valueLimitedServiceSupported,
                         ),
                     ),
             ),
@@ -936,25 +964,35 @@ object ScanOverviewModelBuilder {
                 title = "Block and Auth Commands",
                 commands =
                     listOf(
-                        ScanOverviewCommandSupport(
+                        commandSupport(
                             "Read Without Encryption",
-                            scanContext.readBlocksWithoutEncryptionSupport,
+                            scanContext.commands.readWithoutEncryption.supported,
+                            scanContext.commands.readWithoutEncryption.trailingDataSupported,
                         ),
-                        ScanOverviewCommandSupport(
+                        commandSupport(
                             "Write Without Encryption",
-                            scanContext.writeBlocksWithoutEncryptionSupport,
+                            scanContext.commands.writeWithoutEncryption.supported,
+                            scanContext.commands.writeWithoutEncryption.trailingDataSupported,
                         ),
-                        ScanOverviewCommandSupport(
+                        commandSupport(
+                            "Reset Mode",
+                            scanContext.commands.resetMode.supported,
+                            scanContext.commands.resetMode.trailingDataSupported,
+                        ),
+                        commandSupport(
                             "Authenticate1 DES",
-                            scanContext.authentication1DesSupport,
+                            scanContext.commands.authentication1Des.supported,
+                            scanContext.commands.authentication1Des.trailingDataSupported,
                         ),
-                        ScanOverviewCommandSupport(
+                        commandSupport(
                             "Authenticate1 AES",
-                            scanContext.authentication1AesSupport,
+                            scanContext.commands.authentication1Aes.supported,
+                            scanContext.commands.authentication1Aes.trailingDataSupported,
                         ),
-                        ScanOverviewCommandSupport(
+                        commandSupport(
                             "Internal Authenticate and Read",
-                            scanContext.internalAuthenticateAndReadSupport,
+                            scanContext.commands.internalAuthenticateAndRead.supported,
+                            scanContext.commands.internalAuthenticateAndRead.trailingDataSupported,
                         ),
                     ),
             ),
