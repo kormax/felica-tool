@@ -13,21 +13,17 @@ internal object WriteWithoutEncryptionDetermineErrorIndicationStep :
     ) {
     override suspend fun ScanSession.perform(): StepOutput {
         if (scanContext.writeBlocksWithoutEncryptionSupport != CommandSupport.SUPPORTED) {
-            throw StepPreconditionNotMet(
+            throw StepSkipped(
                 "Write Without Encryption support must be confirmed before determining error indication"
             )
         }
 
         val probeTarget = scanContext.findWritableBlockProbeTarget()
-        ensureCardPresence(target)
 
         val response =
-            transceiveWithRetries(
-                target = target,
-                systemCode = probeTarget.systemCode,
-            ) { activeTarget, _ ->
+            executeCommand(withSelectedSystemCode = probeTarget.systemCode) {
                 WriteWithoutEncryptionCommand(
-                    idm = activeTarget.idm,
+                    idm = idm,
                     serviceCodes = arrayOf(probeTarget.service.code),
                     blockListElements =
                         arrayOf(

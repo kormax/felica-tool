@@ -21,14 +21,13 @@ internal object PollingCommunicationPerformanceStep :
     ): CardScanContext = context.copy(pollingCommunicationPerformanceSupport = support)
 
     override suspend fun ScanSession.perform(): StepOutput {
-        ensureCardPresence(target)
-
-        val commPerfCommand =
-            PollingCommand(
-                systemCode = target.systemCode ?: byteArrayOf(0xFF.toByte(), 0xFF.toByte()),
-                requestCode = RequestCode.COMMUNICATION_PERFORMANCE_REQUEST,
-            )
-        val parsedCommPerfResponse = transceiveWithRetries(target, commPerfCommand)
+        val parsedCommPerfResponse =
+            executeCommand(withPresenceChecking = false) {
+                PollingCommand(
+                    systemCode = SYSTEM_CODE_WILDCARD,
+                    requestCode = RequestCode.COMMUNICATION_PERFORMANCE_REQUEST,
+                )
+            }
 
         // Store communication performance in context
         if (parsedCommPerfResponse.hasRequestData) {

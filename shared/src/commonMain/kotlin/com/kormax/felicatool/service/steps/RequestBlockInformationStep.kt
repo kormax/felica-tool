@@ -1,48 +1,67 @@
 package com.kormax.felicatool.service.steps
 
-import com.kormax.felicatool.felica.*
-import com.kormax.felicatool.service.*
+import com.kormax.felicatool.felica.Area
+import com.kormax.felicatool.felica.CountInformation
+import com.kormax.felicatool.felica.Node
+import com.kormax.felicatool.felica.RequestBlockInformationCommand
+import com.kormax.felicatool.felica.RequestBlockInformationExCommand
+import com.kormax.felicatool.felica.Service
+import com.kormax.felicatool.service.CardScanContext
+import com.kormax.felicatool.service.CommandSupport
+import com.kormax.felicatool.service.ScanSession
+import com.kormax.felicatool.service.ScanStep
+import com.kormax.felicatool.service.StepOutput
+import com.kormax.felicatool.service.StepSkipped
+import com.kormax.felicatool.service.SystemScanContext
 import com.kormax.felicatool.ui.ScanStepIcon
 
+private const val REQUEST_BLOCK_INFORMATION_MAX_NODES = 32
+private const val REQUEST_BLOCK_INFORMATION_EX_MAX_NODES = 16
+
 internal object RequestBlockInformationStep :
-    CommandSupportScanStep(
+    ScanStep(
         id = "request_block_information",
         title = "Request Block Information",
-        description = "Request the amount of allocated blocks for nodes",
+        description = "Request block counts for discovered nodes",
         icon = ScanStepIcon.INFO,
     ) {
-    override fun readSupport(context: CardScanContext): CommandSupport =
-        context.requestBlockInformationSupport
-
-    override fun writeSupport(
-        context: CardScanContext,
-        support: CommandSupport,
-    ): CardScanContext = context.copy(requestBlockInformationSupport = support)
+    override fun commandSupport(context: CardScanContext): CommandSupport =
+        when {
+            context.requestBlockInformationExSupport == CommandSupport.SUPPORTED ||
+                context.requestBlockInformationSupport == CommandSupport.SUPPORTED ->
+                CommandSupport.SUPPORTED
+            context.requestBlockInformationExSupport == CommandSupport.UNSUPPORTED &&
+                context.requestBlockInformationSupport == CommandSupport.UNSUPPORTED ->
+                CommandSupport.UNSUPPORTED
+            else -> CommandSupport.UNKNOWN
+        }
 
     override suspend fun ScanSession.perform(): StepOutput {
+        val method =
+            when {
+                scanContext.requestBlockInformationExSupport == CommandSupport.SUPPORTED ->
+                    BlockInformationMethod.EX
+                scanContext.requestBlockInformationSupport == CommandSupport.SUPPORTED ->
+                    BlockInformationMethod.REGULAR
+                else ->
+                    throw StepSkipped(
+                        "Request Block Information is unavailable; cannot read block counts"
+                    )
+            }
         val allNodes = scanContext.systemScanContexts.flatMap { it.nodes }
 
         if (allNodes.isEmpty()) {
-            throw StepPreconditionNotMet(
+            throw StepSkipped(
                 "No nodes discovered. Request Block Information requires discovered nodes from Discover Nodes step."
             )
         }
-        ensureCardPresence(target)
 
-        // Request block information in batches (max 32 services per request as per FeliCa spec)
-        val maxServicesPerRequest = 32
         val results = mutableListOf<String>()
         val updatedSystemContexts = mutableListOf<SystemScanContext>()
         var totalBlockCountsRetrieved = 0
 
-        // Process each system context separately
         for ((contextIndex, systemContext) in scanContext.systemScanContexts.withIndex()) {
-            // Perform system-specific polling before executing commands
-            pollSystemCode(target, systemContext.systemCode)
-
             val nodes = systemContext.nodes
-            val blockInfoResults = mutableListOf<String>()
-            val nodeBlockCountsMap = mutableMapOf<Node, CountInformation>()
             val systemCodeHex = systemContext.systemCode?.toHexString() ?: "unknown"
 
             if (nodes.isEmpty()) {
@@ -51,36 +70,22 @@ internal object RequestBlockInformationStep :
                 continue
             }
 
-            nodes.chunked(maxServicesPerRequest).forEachIndexed { batchIndex, nodeBatch ->
-                val nodeCodes = nodeBatch.map { it.code }.toTypedArray()
-                val requestBlockInfoCommand = RequestBlockInformationCommand(target.idm, nodeCodes)
-                val requestBlockInfoResponse = target.transceive(requestBlockInfoCommand)
-
-                // Process the block information for each service in this batch
-                nodeBatch.zip(requestBlockInfoResponse.assignedBlockCountInformation).forEach {
-                    (node, blockInfo) ->
-                    totalBlockCountsRetrieved++
-                    val blockCount = blockInfo.toInt()
-                    blockInfoResults.add(
-                        "${node.fullCode.toHexString().padStart(8, ' ')}: ${blockCount.toString().padStart(5, ' ')} blocks"
-                    )
-                    // Store block count information object in map
-                    nodeBlockCountsMap[node] = blockInfo
+            val result =
+                when (method) {
+                    BlockInformationMethod.EX -> loadExtendedBlockCounts(systemContext, nodes)
+                    BlockInformationMethod.REGULAR -> loadRegularBlockCounts(systemContext, nodes)
                 }
-            }
-
-            // Update context with block count data
-            val updatedSystemContext = systemContext.copy(nodeBlockCounts = nodeBlockCountsMap)
-            updatedSystemContexts.add(updatedSystemContext)
+            totalBlockCountsRetrieved += result.countsRetrieved
+            updatedSystemContexts.add(result.systemContext)
 
             results.add(
                 buildString {
                     appendLine("System Context ${contextIndex + 1} ($systemCodeHex):")
-                    appendLine("  Services processed: ${nodes.size}")
+                    appendLine("  Nodes processed: ${nodes.size}")
                     appendLine()
 
-                    if (blockInfoResults.isNotEmpty()) {
-                        blockInfoResults.forEach { result -> appendLine(result) }
+                    if (result.lines.isNotEmpty()) {
+                        result.lines.forEach { line -> appendLine(line) }
                     } else {
                         appendLine("  No block information retrieved")
                     }
@@ -88,16 +93,16 @@ internal object RequestBlockInformationStep :
             )
         }
 
-        // Update scan context with all system contexts
         scanContext = scanContext.copy(systemScanContexts = updatedSystemContexts)
 
         val collapsedResult =
-            "Loaded block counts for $totalBlockCountsRetrieved/${allNodes.size} node(s) across ${updatedSystemContexts.size} system(s)"
+            "Loaded block counts for $totalBlockCountsRetrieved/${allNodes.size} node(s) using ${method.label}"
         val expandedResult =
             buildString {
                     appendLine("Request Block Information Results:")
+                    appendLine("Method: ${method.label}")
                     appendLine("Processed ${scanContext.systemScanContexts.size} system(s)")
-                    appendLine("Total services processed: ${allNodes.size}")
+                    appendLine("Total nodes processed: ${allNodes.size}")
                     appendLine()
 
                     results.forEach { result ->
@@ -109,4 +114,118 @@ internal object RequestBlockInformationStep :
 
         return StepOutput(result = expandedResult, collapsedResult = collapsedResult)
     }
+
+    private suspend fun ScanSession.loadExtendedBlockCounts(
+        systemContext: SystemScanContext,
+        nodes: List<Node>,
+    ): BlockInformationLoadResult {
+        val lines = mutableListOf("           Assign |  Free  |  Total")
+        val nodeAssignedBlockCountsMap = mutableMapOf<Node, CountInformation>()
+        val nodeFreeBlockCountsMap = mutableMapOf<Node, CountInformation>()
+        var countsRetrieved = 0
+
+        nodes.chunked(REQUEST_BLOCK_INFORMATION_EX_MAX_NODES).forEach { nodeBatch ->
+            val nodeCodes = nodeBatch.map { it.code }.toTypedArray()
+            val response =
+                executeCommand(withSelectedSystemCode = systemContext.systemCode) {
+                    RequestBlockInformationExCommand(idm, nodeCodes)
+                }
+
+            nodeBatch.zip(response.assignedBlockCount.zip(response.freeBlockCount)).forEach {
+                (node, blockCounts) ->
+                val (assignedCount, freeCount) = blockCounts
+                countsRetrieved++
+                val assignedBlocks = assignedCount.toInt()
+                val freeBlocks = freeCount.toInt()
+                val totalBlocks = assignedBlocks + freeBlocks
+                lines.add(
+                    " ${node.fullCode.toHexString().padStart(8, ' ')}: ${assignedBlocks.toString().padStart(6, ' ')} | ${freeBlocks.toString().padStart(6, ' ')} | ${totalBlocks.toString().padStart(6, ' ')}"
+                )
+
+                nodeAssignedBlockCountsMap[node] = assignedCount
+                nodeFreeBlockCountsMap[node] = freeCount
+            }
+        }
+
+        return BlockInformationLoadResult(
+            systemContext =
+                systemContext.copy(
+                    nodeBlockCounts = emptyMap(),
+                    nodeAssignedBlockCounts = nodeAssignedBlockCountsMap,
+                    nodeFreeBlockCounts = nodeFreeBlockCountsMap,
+                ),
+            lines = lines,
+            countsRetrieved = countsRetrieved,
+        )
+    }
+
+    private suspend fun ScanSession.loadRegularBlockCounts(
+        systemContext: SystemScanContext,
+        nodes: List<Node>,
+    ): BlockInformationLoadResult {
+        val lines = mutableListOf("           Assign |  Free")
+        val nodeBlockCountsMap = mutableMapOf<Node, CountInformation>()
+        val nodeAssignedBlockCountsMap = mutableMapOf<Node, CountInformation>()
+        val nodeFreeBlockCountsMap = mutableMapOf<Node, CountInformation>()
+        var countsRetrieved = 0
+
+        nodes.chunked(REQUEST_BLOCK_INFORMATION_MAX_NODES).forEach { nodeBatch ->
+            val nodeCodes = nodeBatch.map { it.code }.toTypedArray()
+            val response =
+                executeCommand(withSelectedSystemCode = systemContext.systemCode) {
+                    RequestBlockInformationCommand(idm, nodeCodes)
+                }
+
+            nodeBatch.zip(response.blockCountInformation).forEach { (node, blockInfo) ->
+                countsRetrieved++
+                val assignedCount: CountInformation?
+                val freeCount: CountInformation?
+                when (node) {
+                    is Area -> {
+                        assignedCount = null
+                        freeCount = blockInfo
+                        nodeFreeBlockCountsMap[node] = blockInfo
+                    }
+                    is Service -> {
+                        assignedCount = blockInfo
+                        freeCount = null
+                        nodeAssignedBlockCountsMap[node] = blockInfo
+                    }
+                    else -> {
+                        assignedCount = null
+                        freeCount = null
+                        nodeBlockCountsMap[node] = blockInfo
+                    }
+                }
+
+                val assignedText = assignedCount?.toInt()?.toString()?.padStart(6, ' ') ?: "     -"
+                val freeText = freeCount?.toInt()?.toString()?.padStart(6, ' ') ?: "     -"
+                lines.add(
+                    " ${node.fullCode.toHexString().padStart(8, ' ')}: $assignedText | $freeText"
+                )
+            }
+        }
+
+        return BlockInformationLoadResult(
+            systemContext =
+                systemContext.copy(
+                    nodeBlockCounts = nodeBlockCountsMap,
+                    nodeAssignedBlockCounts = nodeAssignedBlockCountsMap,
+                    nodeFreeBlockCounts = nodeFreeBlockCountsMap,
+                ),
+            lines = lines,
+            countsRetrieved = countsRetrieved,
+        )
+    }
 }
+
+private enum class BlockInformationMethod(val label: String) {
+    EX("Request Block Information Ex"),
+    REGULAR("Request Block Information"),
+}
+
+private data class BlockInformationLoadResult(
+    val systemContext: SystemScanContext,
+    val lines: List<String>,
+    val countsRetrieved: Int,
+)

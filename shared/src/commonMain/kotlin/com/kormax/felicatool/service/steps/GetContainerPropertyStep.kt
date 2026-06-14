@@ -20,8 +20,6 @@ internal object GetContainerPropertyStep :
     ): CardScanContext = context.copy(getContainerPropertySupport = support)
 
     override suspend fun ScanSession.perform(): StepOutput {
-        ensureCardPresence(target)
-
         val results = mutableListOf<String>()
         val containerPropertyValues =
             mutableMapOf<GetContainerPropertyCommand.Property, ByteArray>()
@@ -36,8 +34,9 @@ internal object GetContainerPropertyStep :
         var successfulCommands = 0
 
         propertiesToTest.forEach { property ->
-            val getContainerPropertyCommand = GetContainerPropertyCommand(property)
-            val getContainerPropertyResponse = target.transceive(getContainerPropertyCommand)
+            val getContainerPropertyResponse = executeCommand {
+                GetContainerPropertyCommand(property)
+            }
 
             // Store the property value in the map using Property object as key
             containerPropertyValues[property] = getContainerPropertyResponse.data

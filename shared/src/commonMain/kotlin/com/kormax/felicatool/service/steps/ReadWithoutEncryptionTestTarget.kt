@@ -2,7 +2,7 @@ package com.kormax.felicatool.service.steps
 
 import com.kormax.felicatool.felica.*
 import com.kormax.felicatool.service.CardScanContext
-import com.kormax.felicatool.service.StepPreconditionNotMet
+import com.kormax.felicatool.service.StepSkipped
 import com.kormax.felicatool.service.SystemScanContext
 
 private val FELICA_LITE_SYSTEM_CODE = byteArrayOf(0x88.toByte(), 0xB4.toByte())
@@ -23,7 +23,7 @@ internal fun CardScanContext.findReadWithoutEncryptionTestTarget(
         context.nodes.filterIsInstance<Service>()
     }
     if (allServices.isEmpty()) {
-        throw StepPreconditionNotMet("No services available")
+        throw StepSkipped("No services available")
     }
 
     val allServicesWithoutAuth = allServices.filter { service ->
@@ -32,7 +32,7 @@ internal fun CardScanContext.findReadWithoutEncryptionTestTarget(
     val useAuthenticationRequiredFallback =
         allowAuthenticationRequiredFallback && allServicesWithoutAuth.isEmpty()
     if (allServicesWithoutAuth.isEmpty() && !useAuthenticationRequiredFallback) {
-        throw StepPreconditionNotMet("No services found that don't require authentication")
+        throw StepSkipped("No services found that don't require authentication")
     }
 
     val bestSystemContext =
@@ -46,7 +46,7 @@ internal fun CardScanContext.findReadWithoutEncryptionTestTarget(
                     !service.attribute.authenticationRequired
                 }
             }
-        } ?: throw StepPreconditionNotMet("No system context found with readable services")
+        } ?: throw StepSkipped("No system context found with readable services")
 
     val servicesInBestSystem = bestSystemContext.nodes.filterIsInstance<Service>()
     val servicesWithoutAuth = servicesInBestSystem.filter { service ->
@@ -61,7 +61,7 @@ internal fun CardScanContext.findReadWithoutEncryptionTestTarget(
             emptyList()
         }
     if (candidateServices.isEmpty()) {
-        throw StepPreconditionNotMet("No readable services found in the selected system")
+        throw StepSkipped("No readable services found in the selected system")
     }
 
     val testService =

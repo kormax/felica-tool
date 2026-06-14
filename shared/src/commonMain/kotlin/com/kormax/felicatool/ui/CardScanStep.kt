@@ -7,6 +7,7 @@ import kotlin.time.Duration
 enum class StepStatus {
     PENDING,
     IN_PROGRESS,
+    SKIPPED,
     COMPLETED,
     ERROR,
 }

@@ -20,15 +20,13 @@ internal object RequestServiceDetermineSupportedStep :
     ): CardScanContext = context.copy(requestServiceSupport = support)
 
     override suspend fun ScanSession.perform(): StepOutput {
-        val systemContext = scanContext.systemScanContexts.firstOrNull()
         var requestedNodes: List<Node> = emptyList()
 
         val requestServiceResponse =
-            transceiveWithRetries(
-                target = target,
-                systemCode = systemContext?.systemCode,
-                maxAttempts = ATTEMPTS_DETERMINE_SUPPORTED,
-            ) { activeTarget, attempt ->
+            executeCommand(
+                withSelectedSystemCode = SYSTEM_CODE_WILDCARD,
+                attempts = ATTEMPTS_DETERMINE_SUPPORTED,
+            ) {
                 requestedNodes =
                     when (attempt) {
                         // Heuristics
@@ -39,7 +37,7 @@ internal object RequestServiceDetermineSupportedStep :
                         else -> listOf(System, Area.ROOT)
                     }
                 RequestServiceCommand(
-                    activeTarget.idm,
+                    idm,
                     requestedNodes.map { node -> node.code }.toTypedArray(),
                 )
             }
@@ -47,7 +45,6 @@ internal object RequestServiceDetermineSupportedStep :
         return StepOutput(
             buildString {
                     appendLine("Request Service command is supported (response received)")
-                    appendLine("System: ${formatSystemCodeLabel(systemContext?.systemCode)}")
                     appendLine("Nodes:")
                     requestedNodes.zip(requestServiceResponse.keyVersions).forEach {
                         (node, keyVersion) ->

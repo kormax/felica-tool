@@ -25,7 +25,6 @@ internal object GetSystemStatusStep :
                 "No systems have been discovered. Please run system discovery first."
             )
         }
-        ensureCardPresence(target)
 
         var errors = 0
         val results = mutableListOf<String>()
@@ -33,19 +32,13 @@ internal object GetSystemStatusStep :
 
         // Process each system context separately
         for ((contextIndex, systemContext) in scanContext.systemScanContexts.withIndex()) {
-            // Perform system-specific polling before executing commands
-            pollSystemCode(target, systemContext.systemCode)
-
             val systemCodeHex = systemContext.systemCode?.toHexString()?.uppercase() ?: "unknown"
 
             try {
-                val getSystemStatusCommand = GetSystemStatusCommand(target.idm)
                 val getSystemStatusResponse =
-                    transceiveWithRetries(
-                        target = target,
-                        command = getSystemStatusCommand,
-                        systemCode = systemContext.systemCode,
-                    )
+                    executeCommand(withSelectedSystemCode = systemContext.systemCode) {
+                        GetSystemStatusCommand(idm)
+                    }
 
                 // Store system status as ByteArray in context
                 val systemStatusData =

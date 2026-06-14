@@ -613,7 +613,7 @@ class MainActivity : ComponentActivity() {
 
                 try {
                     withContext(Dispatchers.IO) {
-                        activeTarget.transceive(
+                        val pollingCommand =
                             PollingCommand(
                                 systemCode =
                                     activeTarget.systemCode
@@ -621,6 +621,9 @@ class MainActivity : ComponentActivity() {
                                 requestCode = RequestCode.NO_REQUEST,
                                 timeSlot = TimeSlot.SLOT_1,
                             )
+                        activeTarget.transceive(
+                            data = pollingCommand.toByteArray(),
+                            timeout = activeTarget.inferTimeout(pollingCommand),
                         )
                     }
                     delay(TAG_REMOVAL_PRESENCE_CHECK_DELAY_MILLIS)

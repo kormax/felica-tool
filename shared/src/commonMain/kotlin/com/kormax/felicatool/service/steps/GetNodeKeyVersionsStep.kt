@@ -18,7 +18,7 @@ internal object GetNodeKeyVersionsStep :
             scanContext.requestServiceSupport == CommandSupport.SUPPORTED ->
                 requestServiceKeyVersions()
             else ->
-                throw StepPreconditionNotMet(
+                throw StepSkipped(
                     "Get node key versions requires Request Service or Request Service V2 support"
                 )
         }
@@ -36,8 +36,6 @@ internal object GetNodeKeyVersionsStep :
                 "No nodes found. Request service key versions require at least one area to be discovered."
             )
         }
-        ensureCardPresence(target)
-
         // Get key versions in batches (max 32 nodes per request)
         val maxNodesPerRequest = 32
         val keyVersionResults = mutableListOf<String>()
@@ -45,9 +43,6 @@ internal object GetNodeKeyVersionsStep :
 
         // Process each system context separately
         for (systemContext in scanContext.systemScanContexts) {
-            // Perform system-specific polling before executing commands
-            pollSystemCode(target, systemContext.systemCode)
-
             val systemNodes = systemContext.nodes
             val nodeKeyVersionsMap = mutableMapOf<Node, KeyVersion>()
 
@@ -56,9 +51,10 @@ internal object GetNodeKeyVersionsStep :
             }
             systemNodes.chunked(maxNodesPerRequest).forEachIndexed { batchIndex, nodeBatch ->
                 val nodeCodes = nodeBatch.map { it.code }.toTypedArray()
-                val requestServiceCommand = RequestServiceCommand(target.idm, nodeCodes)
                 val requestServiceResponse =
-                    transceiveWithRetries(target = target, command = requestServiceCommand)
+                    executeCommand(withSelectedSystemCode = systemContext.systemCode) {
+                        RequestServiceCommand(idm, nodeCodes)
+                    }
 
                 // Collect key version results for this batch
                 nodeBatch.forEachIndexed { index, node ->
@@ -129,8 +125,6 @@ internal object GetNodeKeyVersionsStep :
                 "No nodes found. Request service key versions require at least one area to be discovered."
             )
         }
-        ensureCardPresence(target)
-
         // Get key versions in batches (max 32 nodes per request)
         val maxNodesPerRequest = 32
         val keyVersionResults = mutableListOf<String>()
@@ -139,9 +133,6 @@ internal object GetNodeKeyVersionsStep :
 
         // Process each system context separately
         for (systemContext in scanContext.systemScanContexts) {
-            // Perform system-specific polling before executing commands
-            pollSystemCode(target, systemContext.systemCode)
-
             val nodes = systemContext.nodes
             val nodeAesKeyVersionsMap = mutableMapOf<Node, KeyVersion>()
             val nodeDesKeyVersionsMap = mutableMapOf<Node, KeyVersion>()
@@ -152,9 +143,10 @@ internal object GetNodeKeyVersionsStep :
             }
             nodes.chunked(maxNodesPerRequest).forEachIndexed { batchIndex, nodeBatch ->
                 val nodeCodes = nodeBatch.map { it.code }.toTypedArray()
-                val requestServiceV2Command = RequestServiceV2Command(target.idm, nodeCodes)
                 val requestServiceV2Response =
-                    transceiveWithRetries(target = target, command = requestServiceV2Command)
+                    executeCommand(withSelectedSystemCode = systemContext.systemCode) {
+                        RequestServiceV2Command(idm, nodeCodes)
+                    }
 
                 if (requestServiceV2Response.isStatusSuccessful) {
                     // Store encryption identifier from first successful response

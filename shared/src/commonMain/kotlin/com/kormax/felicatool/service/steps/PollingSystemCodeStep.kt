@@ -20,14 +20,13 @@ internal object PollingSystemCodeStep :
     ): CardScanContext = context.copy(pollingSystemCodeSupport = support)
 
     override suspend fun ScanSession.perform(): StepOutput {
-        ensureCardPresence(target)
-
-        val systemCodeCommand =
-            PollingCommand(
-                systemCode = target.systemCode ?: byteArrayOf(0xFF.toByte(), 0xFF.toByte()),
-                requestCode = RequestCode.SYSTEM_CODE_REQUEST,
-            )
-        val parsedSystemCodeResponse = transceiveWithRetries(target, systemCodeCommand)
+        val parsedSystemCodeResponse =
+            executeCommand(withPresenceChecking = false) {
+                PollingCommand(
+                    systemCode = SYSTEM_CODE_WILDCARD,
+                    requestCode = RequestCode.SYSTEM_CODE_REQUEST,
+                )
+            }
 
         // Store system code in context
         if (parsedSystemCodeResponse.hasRequestData) {
@@ -53,7 +52,7 @@ internal object PollingSystemCodeStep :
                 val systemContext =
                     SystemScanContext(
                         systemCode = parsedSystemCodeResponse.systemCode,
-                        idm = target.idm,
+                        idm = parsedSystemCodeResponse.idm,
                     )
                 scanContext = scanContext.copy(systemScanContexts = listOf(systemContext))
             }

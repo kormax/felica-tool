@@ -5,8 +5,9 @@ import android.nfc.TagLostException as AndroidTagLostException
 import android.nfc.tech.NfcF
 import android.util.Log
 import com.kormax.felicatool.nfc.NfcReaderSession
-import com.kormax.felicatool.nfc.TagLostException
-import com.kormax.felicatool.nfc.TagUnavailableException
+import com.kormax.felicatool.nfc.NfcTargetUnavailableException
+import com.kormax.felicatool.nfc.TransceiveErrorException
+import com.kormax.felicatool.nfc.TransceiveTimeoutException
 import kotlin.time.Duration
 
 /** Android implementation of FeliCaTarget using NfcF technology */
@@ -91,7 +92,7 @@ class AndroidFeliCaTarget(
     }
 
     override suspend fun drop() {
-        if (!markUnavailable(TagUnavailableException())) {
+        if (!markUnavailable(NfcTargetUnavailableException())) {
             return
         }
         runCatching { adapter.ignore(nfcF.tag, 0, null, null) }
@@ -99,7 +100,7 @@ class AndroidFeliCaTarget(
     }
 
     override suspend fun transceive(data: ByteArray, timeout: Duration?): ByteArray {
-        ensureSessionAvailable()
+        ensureReaderSessionAvailable()
         val currentNfcF = ensureNativeTagAvailable()
         Log.d(TAG, "Sending command: ${data.toHexString()}")
 
@@ -112,28 +113,43 @@ class AndroidFeliCaTarget(
 
         try {
             val responseBytes = currentNfcF.transceive(data)
-            ensureSessionAvailable()
+            ensureReaderSessionAvailable()
             ensureNativeTagAvailable()
             Log.d(TAG, "Received response: ${responseBytes.toHexString()}")
             return responseBytes
         } catch (e: Exception) {
-            ensureSessionAvailable()
+            if (e is NfcTargetUnavailableException) {
+                throw e
+            }
+            ensureReaderSessionAvailable()
             ensureNativeTagAvailable()
             val staleTagException =
                 e is SecurityException &&
                     e.message?.contains("out of date", ignoreCase = true) == true
             val mappedException =
                 when {
-                    e is AndroidTagLostException -> TagLostException(e)
-                    staleTagException -> TagLostException(e)
-                    else -> e
+                    staleTagException ->
+                        NfcTargetUnavailableException("NFC target handle is out of date", e)
+                    e is AndroidTagLostException -> TransceiveTimeoutException(cause = e)
+                    else -> TransceiveErrorException(cause = e)
                 }
-            if (staleTagException && mappedException is TagLostException) {
+            if (staleTagException && mappedException is NfcTargetUnavailableException) {
                 markUnavailable(mappedException)
                 Log.i(TAG, "Marking NFC tag unavailable after stale tag transceive failure")
             }
             Log.e(TAG, "Transceive failed", mappedException)
             throw mappedException
+        }
+    }
+
+    private fun ensureReaderSessionAvailable() {
+        try {
+            ensureSessionAvailable()
+        } catch (e: Exception) {
+            val exception =
+                NfcTargetUnavailableException("NFC reader session is no longer active", e)
+            markUnavailable(exception)
+            throw exception
         }
     }
 

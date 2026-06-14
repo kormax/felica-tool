@@ -20,23 +20,19 @@ internal object SearchServiceCodeDetermineSupportedStep :
     ): CardScanContext = context.copy(searchServiceCodeSupport = support)
 
     override suspend fun ScanSession.perform(): StepOutput {
-        val systemContext = scanContext.systemScanContexts.firstOrNull()
-
         val index = 0
         val searchServiceCodeResponse =
-            transceiveWithRetries(
-                target,
-                SearchServiceCodeCommand(target.idm, index),
-                systemCode = systemContext?.systemCode,
-                maxAttempts = ATTEMPTS_DETERMINE_SUPPORTED,
-            )
-        val systemCodeHex = formatSystemCodeLabel(systemContext?.systemCode)
+            executeCommand(
+                withSelectedSystemCode = SYSTEM_CODE_WILDCARD,
+                attempts = ATTEMPTS_DETERMINE_SUPPORTED,
+            ) {
+                SearchServiceCodeCommand(idm, index)
+            }
         val node = searchServiceCodeResponse.node
 
         return StepOutput(
             buildString {
                     appendLine("Search Service Code command is supported (response received)")
-                    appendLine("System: $systemCodeHex")
                     appendLine("Index: $index")
                     appendLine("Node: ${describeNode(node)}")
                 }

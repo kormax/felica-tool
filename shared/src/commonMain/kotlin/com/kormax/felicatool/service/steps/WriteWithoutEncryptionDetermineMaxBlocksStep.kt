@@ -1,10 +1,9 @@
 package com.kormax.felicatool.service.steps
 
 import com.kormax.felicatool.felica.*
-import com.kormax.felicatool.nfc.TagUnavailableException
+import com.kormax.felicatool.nfc.TransceiveTimeoutException
 import com.kormax.felicatool.service.*
 import com.kormax.felicatool.ui.ScanStepIcon
-import kotlinx.coroutines.CancellationException
 
 internal object WriteWithoutEncryptionDetermineMaxBlocksStep :
     WriteWithoutEncryptionScanStep(
@@ -15,13 +14,12 @@ internal object WriteWithoutEncryptionDetermineMaxBlocksStep :
     ) {
     override suspend fun ScanSession.perform(): StepOutput {
         if (scanContext.writeBlocksWithoutEncryptionSupport != CommandSupport.SUPPORTED) {
-            throw StepPreconditionNotMet(
+            throw StepSkipped(
                 "Write Without Encryption support must be confirmed before determining max blocks"
             )
         }
 
         val probeTarget = scanContext.findWritableBlockProbeTarget()
-        ensureCardPresence(target)
 
         // Start with theoretical maximum and work down
         var maxBlocks = WriteWithoutEncryptionCommand.MAX_BLOCKS
@@ -29,12 +27,9 @@ internal object WriteWithoutEncryptionDetermineMaxBlocksStep :
         while (maxBlocks > 0) {
             try {
                 val response =
-                    transceiveWithRetries(
-                        target = target,
-                        systemCode = probeTarget.systemCode,
-                    ) { activeTarget, _ ->
+                    executeCommand(withSelectedSystemCode = probeTarget.systemCode) {
                         WriteWithoutEncryptionCommand(
-                            idm = activeTarget.idm,
+                            idm = idm,
                             serviceCodes = arrayOf(probeTarget.service.code),
                             blockListElements =
                                 Array(maxBlocks) {
@@ -66,11 +61,7 @@ internal object WriteWithoutEncryptionDetermineMaxBlocksStep :
                     "CardScanService",
                     "WriteWithoutEncryption failed with $maxBlocks blocks, ${formatStatus(response)}",
                 )
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: TagUnavailableException) {
-                throw e
-            } catch (e: Exception) {
+            } catch (e: TransceiveTimeoutException) {
                 // Card may not respond if command is too large (e.g., FeliCa Lite)
                 // Retry helper checks card availability before continuing with a smaller size.
                 ScanLog.d(

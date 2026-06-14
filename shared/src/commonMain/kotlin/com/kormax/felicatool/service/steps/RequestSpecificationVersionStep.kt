@@ -20,15 +20,10 @@ internal object RequestSpecificationVersionStep :
     ): CardScanContext = context.copy(requestSpecificationVersionSupport = support)
 
     override suspend fun ScanSession.perform(): StepOutput {
-        ensureCardPresence(target)
-
-        val requestSpecVersionCommand = RequestSpecificationVersionCommand(target.idm)
         val requestSpecVersionResponse =
-            transceiveWithRetries(
-                target = target,
-                command = requestSpecVersionCommand,
-                systemCode = byteArrayOf(0xFF.toByte(), 0xFF.toByte()),
-            )
+            executeCommand(withSelectedSystemCode = SYSTEM_CODE_WILDCARD) {
+                RequestSpecificationVersionCommand(idm)
+            }
 
         // Store specification version in context
         scanContext =

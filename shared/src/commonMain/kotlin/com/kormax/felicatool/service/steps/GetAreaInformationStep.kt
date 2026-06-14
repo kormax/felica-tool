@@ -23,12 +23,10 @@ internal object GetAreaInformationStep :
         val allAreas = scanContext.systemScanContexts.flatMap { it.nodes.filterIsInstance<Area>() }
 
         if (allAreas.isEmpty()) {
-            throw StepPreconditionNotMet(
+            throw StepSkipped(
                 "No areas discovered. Get Area Information requires discovered areas from Discover Nodes step."
             )
         }
-        ensureCardPresence(target)
-
         val results = mutableListOf<String>()
         val maxAreasPerRequest = 10 // Process areas in smaller batches to avoid overwhelming output
         var totalSuccessful = 0
@@ -36,9 +34,6 @@ internal object GetAreaInformationStep :
 
         // Process areas in batches across all system contexts
         for ((contextIndex, systemContext) in scanContext.systemScanContexts.withIndex()) {
-            // Perform system-specific polling before executing commands
-            pollSystemCode(target, systemContext.systemCode)
-
             val systemAreas = systemContext.nodes.filterIsInstance<Area>()
             if (systemAreas.isEmpty()) {
                 continue
@@ -53,13 +48,10 @@ internal object GetAreaInformationStep :
 
                 areaBatch.forEach { area ->
                     totalTested++
-                    val getAreaInformationCommand = GetAreaInformationCommand(target.idm, area)
                     val getAreaInformationResponse =
-                        transceiveWithRetries(
-                            target = target,
-                            command = getAreaInformationCommand,
-                            systemCode = systemContext.systemCode,
-                        )
+                        executeCommand(withSelectedSystemCode = systemContext.systemCode) {
+                            GetAreaInformationCommand(idm, area)
+                        }
 
                     if (getAreaInformationResponse.isStatusSuccessful) {
                         totalSuccessful++

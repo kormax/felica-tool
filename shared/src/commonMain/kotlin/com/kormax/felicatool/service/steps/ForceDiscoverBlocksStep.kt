@@ -15,8 +15,6 @@ internal object ForceDiscoverBlocksStep :
     override fun isEnabled(settings: ScanSettings): Boolean = settings.forceDiscoverAllBlocks
 
     override suspend fun ScanSession.perform(): StepOutput {
-        ensureCardPresence(target)
-
         val contextResults = mutableListOf<String>()
         val updatedSystemContexts = mutableListOf<SystemScanContext>()
         var totalNewBlocksFound = 0
@@ -24,10 +22,17 @@ internal object ForceDiscoverBlocksStep :
         var totalBlocksScanned = 0
 
         val maxBlocksPerRequest = scanContext.readWithoutEncryptionMaxBlocksPerRequest ?: 15
+        val readableServiceCount =
+            scanContext.systemScanContexts.sumOf { systemContext ->
+                systemContext.nodes.filterIsInstance<Service>().count { service ->
+                    !service.attribute.authenticationRequired
+                }
+            }
+        if (readableServiceCount == 0) {
+            throw StepSkipped("No readable services available for force block discovery")
+        }
 
         for ((contextIndex, systemContext) in scanContext.systemScanContexts.withIndex()) {
-            pollSystemCode(target, systemContext.systemCode)
-
             val services = systemContext.nodes.filterIsInstance<Service>()
             val servicesWithoutAuth = services.filter { !it.attribute.authenticationRequired }
             val systemCodeHex = systemContext.systemCode?.toHexString() ?: "unknown"
@@ -74,18 +79,14 @@ internal object ForceDiscoverBlocksStep :
                                 accessMode = BlockListElement.AccessMode.NORMAL,
                                 extended = currentBlock > 255,
                             )
-                        val command =
-                            ReadWithoutEncryptionCommand(
-                                idm = target.idm,
-                                serviceCodes = arrayOf(service.code),
-                                blockListElements = arrayOf(blockElement),
-                            )
                         val response =
-                            transceiveWithRetries(
-                                target = target,
-                                command = command,
-                                systemCode = systemContext.systemCode,
-                            )
+                            executeCommand(withSelectedSystemCode = systemContext.systemCode) {
+                                ReadWithoutEncryptionCommand(
+                                    idm = idm,
+                                    serviceCodes = arrayOf(service.code),
+                                    blockListElements = arrayOf(blockElement),
+                                )
+                            }
 
                         if (
                             response.statusFlag1 == 0x00.toByte() && response.blockData.isNotEmpty()

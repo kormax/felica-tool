@@ -20,10 +20,7 @@ internal object GetContainerIdStep :
     ): CardScanContext = context.copy(getContainerIdSupport = support)
 
     override suspend fun ScanSession.perform(): StepOutput {
-        ensureCardPresence(target)
-
-        val getContainerIdCommand = GetContainerIdCommand()
-        val getContainerIdResponse = target.transceive(getContainerIdCommand)
+        val getContainerIdResponse = executeCommand { GetContainerIdCommand() }
 
         // Store container IDM in context
         scanContext = scanContext.copy(containerIdm = getContainerIdResponse.containerIdm)

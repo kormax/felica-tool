@@ -16,16 +16,15 @@ internal object ReadBlocksWithoutEncryptionStep :
         val allServices = allDiscoveredNodes.filterIsInstance<Service>()
 
         if (allServices.isEmpty()) {
-            throw StepPreconditionNotMet("No services available for block reading")
+            throw StepSkipped("No services available for block reading")
         }
 
         // Filter services that don't require authentication across all system contexts
         val allServicesWithoutAuth = allServices.filter { !it.attribute.authenticationRequired }
 
         if (allServicesWithoutAuth.isEmpty()) {
-            throw StepPreconditionNotMet("No services found that don't require authentication")
+            throw StepSkipped("No services found that don't require authentication")
         }
-        ensureCardPresence(target)
 
         // Process each system context separately
         val updatedSystemContexts = mutableListOf<SystemScanContext>()
@@ -36,9 +35,6 @@ internal object ReadBlocksWithoutEncryptionStep :
         var maxServicesPerRequest = 0
 
         for ((contextIndex, systemContext) in scanContext.systemScanContexts.withIndex()) {
-            // Perform system-specific polling before executing commands
-            pollSystemCode(target, systemContext.systemCode)
-
             val services = systemContext.nodes.filterIsInstance<Service>()
             val servicesWithoutAuth = services.filter { !it.attribute.authenticationRequired }
             val systemCodeHex = systemContext.systemCode?.toHexString() ?: "unknown"
@@ -306,20 +302,14 @@ internal object ReadBlocksWithoutEncryptionStep :
                 "Prepared block request with ${servicesToRead.size} ${servicesToRead} services and ${blocksToRead.size} ${blocksToRead} blocks",
             )
             try {
-                // Create the Read Without Encryption command manually
-                val readCommand =
-                    ReadWithoutEncryptionCommand(
-                        idm = target.idm,
-                        serviceCodes = servicesToRead.map { it.code }.toTypedArray(),
-                        blockListElements = blocksToRead.toTypedArray(),
-                    )
-
                 val response =
-                    transceiveWithRetries(
-                        target = target,
-                        command = readCommand,
-                        systemCode = systemCode,
-                    )
+                    executeCommand(withSelectedSystemCode = systemCode) {
+                        ReadWithoutEncryptionCommand(
+                            idm = idm,
+                            serviceCodes = servicesToRead.map { it.code }.toTypedArray(),
+                            blockListElements = blocksToRead.toTypedArray(),
+                        )
+                    }
 
                 // Check status flags
                 val statusFlag1 = response.statusFlag1
@@ -639,19 +629,14 @@ internal object ReadBlocksWithoutEncryptionStep :
                             extended = extended,
                         )
 
-                    val readCommand =
-                        ReadWithoutEncryptionCommand(
-                            idm = target.idm,
-                            serviceCodes = arrayOf(service.code),
-                            blockListElements = arrayOf(blockElement),
-                        )
-
                     val response =
-                        transceiveWithRetries(
-                            target = target,
-                            command = readCommand,
-                            systemCode = systemCode,
-                        )
+                        executeCommand(withSelectedSystemCode = systemCode) {
+                            ReadWithoutEncryptionCommand(
+                                idm = idm,
+                                serviceCodes = arrayOf(service.code),
+                                blockListElements = arrayOf(blockElement),
+                            )
+                        }
 
                     if (
                         isReadStatusFlag2Successful(response.statusFlag2) &&

@@ -21,7 +21,9 @@ internal object RequestResponseStep :
 
     override suspend fun ScanSession.perform(): StepOutput {
         val requestResponseResponse =
-            transceiveWithRetries(target, RequestResponseCommand(target.idm))
+            executeCommand(withSelectedSystemCode = SYSTEM_CODE_WILDCARD) {
+                RequestResponseCommand(idm)
+            }
 
         val mode = requestResponseResponse.mode
 

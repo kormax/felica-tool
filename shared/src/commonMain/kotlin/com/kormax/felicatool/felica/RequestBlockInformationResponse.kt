@@ -1,25 +1,25 @@
 package com.kormax.felicatool.felica
 
 /**
- * Contains detailed information about blocks in the requested services, including block count,
- * block attributes, and other block-related properties.
+ * Contains block count information for the requested nodes. The non-extended command reports free
+ * blocks for areas and assigned blocks for services.
  */
 class RequestBlockInformationResponse(
     /** The card's IDM (8 bytes) - unique identifier */
     idm: ByteArray,
 
-    /** Array of size information for each requested service */
-    val assignedBlockCountInformation: Array<CountInformation>,
+    /** Array of block count information for each requested node */
+    val blockCountInformation: Array<CountInformation>,
 ) : FelicaResponseWithIdm(idm) {
 
     override fun toByteArray(): ByteArray =
         buildFelicaMessage(
             RESPONSE_CODE,
             idm,
-            capacity = BASE_LENGTH + 1 + (assignedBlockCountInformation.size * 2),
+            capacity = BASE_LENGTH + 1 + (blockCountInformation.size * 2),
         ) {
-            addByte(assignedBlockCountInformation.size)
-            assignedBlockCountInformation.forEach { addBytes(it.toByteArray()) }
+            addByte(blockCountInformation.size)
+            blockCountInformation.forEach { addBytes(it.toByteArray()) }
         }
 
     companion object {
@@ -34,10 +34,9 @@ class RequestBlockInformationResponse(
                     "Insufficient data for size information $numberOfBlocks blocks"
                 }
 
-                val assignedBlockCountInformation =
-                    Array(numberOfBlocks) { CountInformation(bytes(2)) }
+                val blockCountInformation = Array(numberOfBlocks) { CountInformation(bytes(2)) }
 
-                RequestBlockInformationResponse(idm, assignedBlockCountInformation)
+                RequestBlockInformationResponse(idm, blockCountInformation)
             }
     }
 }

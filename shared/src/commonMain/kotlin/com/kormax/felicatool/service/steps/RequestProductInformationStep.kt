@@ -20,15 +20,10 @@ internal object RequestProductInformationStep :
     ): CardScanContext = context.copy(requestProductInformationSupport = support)
 
     override suspend fun ScanSession.perform(): StepOutput {
-        ensureCardPresence(target)
-
-        val requestProductInformationCommand = RequestProductInformationCommand(target.idm)
         val requestProductInformationResponse =
-            transceiveWithRetries(
-                target = target,
-                command = requestProductInformationCommand,
-                systemCode = byteArrayOf(0xFF.toByte(), 0xFF.toByte()),
-            )
+            executeCommand(withSelectedSystemCode = SYSTEM_CODE_WILDCARD) {
+                RequestProductInformationCommand(idm)
+            }
 
         // Store product information in context
         scanContext = scanContext.copy(productInformation = requestProductInformationResponse)

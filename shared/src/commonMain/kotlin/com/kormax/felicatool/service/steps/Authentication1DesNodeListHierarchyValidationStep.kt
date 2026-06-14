@@ -1,10 +1,10 @@
 package com.kormax.felicatool.service.steps
 
 import com.kormax.felicatool.felica.*
-import com.kormax.felicatool.nfc.TagUnavailableException
+import com.kormax.felicatool.nfc.TransceiveTimeoutException
 import com.kormax.felicatool.service.*
 import com.kormax.felicatool.ui.ScanStepIcon
-import kotlinx.coroutines.CancellationException
+import kotlin.time.Duration.Companion.milliseconds
 
 private const val AUTHENTICATION1_DES_NODE_LIST_HIERARCHY_VALIDATION_ATTEMPTS = 3
 
@@ -18,14 +18,14 @@ internal object Authentication1DesNodeListHierarchyValidationStep :
     ) {
     override suspend fun ScanSession.perform(): StepOutput {
         if (scanContext.authentication1DesSupport != CommandSupport.SUPPORTED) {
-            throw StepPreconditionNotMet(
+            throw StepSkipped(
                 "Authenticate1 DES support is not confirmed; cannot check node-list hierarchy validation"
             )
         }
 
         val preferredTarget = scanContext.findBestAuthentication1DesTarget()
         if (preferredTarget == null) {
-            throw StepPreconditionNotMet(
+            throw StepSkipped(
                 "No suitable system found for Authenticate1 DES node-list hierarchy validation (root area with valid DES key is required)."
             )
         }
@@ -64,62 +64,33 @@ internal object Authentication1DesNodeListHierarchyValidationStep :
             }
         val nonImmediateNode = serviceUnderNonRootArea ?: nestedAreaUnderNonRootArea
         if (nonImmediateNode == null) {
-            throw StepPreconditionNotMet(
+            throw StepSkipped(
                 "No node found under an area under root area; cannot check Authenticate1 DES node-list hierarchy validation."
             )
         }
-        ensureCardPresence(target)
-
         val challenge1A = ByteArray(8) { 0x00.toByte() }
         val areasToAuth = listOf(preferredTarget.rootArea)
         // Area0 may appear in both lists: this is allowed because key updates can target areas.
         val nodesToAuth = listOf<Node>(preferredTarget.rootArea, nonImmediateNode)
 
-        var selectedSystemIdmUsed: ByteArray? = null
-
         val response =
             try {
-                transceiveWithRetries(
-                    target = target,
-                    systemCode = preferredTarget.systemContext.systemCode,
-                    maxAttempts = AUTHENTICATION1_DES_NODE_LIST_HIERARCHY_VALIDATION_ATTEMPTS,
-                    retryDelayStepMs = 50,
-                ) { activeTarget, _ ->
-                    val currentSystemContext =
-                        scanContext.systemScanContexts.firstOrNull { context ->
-                            context.systemCode.sameBytes(preferredTarget.systemContext.systemCode)
-                        }
-                    val selectedSystemIdm = currentSystemContext?.idm ?: activeTarget.idm
-                    selectedSystemIdmUsed = selectedSystemIdm
-
+                executeCommand(
+                    withSelectedSystemCode = preferredTarget.systemContext.systemCode,
+                    withResetToMode0 = true,
+                    attempts = AUTHENTICATION1_DES_NODE_LIST_HIERARCHY_VALIDATION_ATTEMPTS,
+                    retryDelay = 50.milliseconds,
+                ) {
                     Authentication1DesCommand(
-                        idm = selectedSystemIdm,
+                        idm = idm,
                         areaNodes = areasToAuth,
                         nodes = nodesToAuth,
                         challenge1A = challenge1A,
                     )
                 }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: TagUnavailableException) {
-                throw e
-            } catch (e: Exception) {
+            } catch (e: TransceiveTimeoutException) {
                 null
             }
-
-        if (response != null) {
-            setCurrentMode(
-                Mode.Mode1.Des,
-                selectedSystemCode = preferredTarget.systemContext.systemCode,
-            )
-        }
-
-        val resetStateResult =
-            resetAuthenticationState(
-                target = target,
-                authenticatedSystemCode = preferredTarget.systemContext.systemCode,
-                authenticatedSystemIdm = selectedSystemIdmUsed,
-            )
 
         val validationBehavior =
             if (response != null) {
@@ -152,8 +123,6 @@ internal object Authentication1DesNodeListHierarchyValidationStep :
                         )
                     }
                     appendLine("Validation behavior: $validationBehavior")
-                    appendLine()
-                    appendLine(resetStateResult)
                 }
                 .trim()
         )

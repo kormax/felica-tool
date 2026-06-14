@@ -22,7 +22,7 @@ class RequestBlockInformationCommandTest {
                 0xEF.toByte(), // IDM
                 0x01.toByte(), // number of services
                 0x10.toByte(),
-                0x00.toByte(), // service code
+                0x00.toByte(), // node code
             )
 
         val command = RequestBlockInformationCommand.fromByteArray(data)

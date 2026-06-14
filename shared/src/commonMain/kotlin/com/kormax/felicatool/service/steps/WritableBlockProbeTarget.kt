@@ -2,7 +2,7 @@ package com.kormax.felicatool.service.steps
 
 import com.kormax.felicatool.felica.*
 import com.kormax.felicatool.service.CardScanContext
-import com.kormax.felicatool.service.StepPreconditionNotMet
+import com.kormax.felicatool.service.StepSkipped
 import com.kormax.felicatool.service.SystemScanContext
 
 private val FELICA_LITE_SYSTEM_CODE = byteArrayOf(0x88.toByte(), 0xB4.toByte())
@@ -21,7 +21,7 @@ internal fun CardScanContext.findWritableBlockProbeTarget(): WritableBlockProbeT
     val allServices = allDiscoveredNodes.filterIsInstance<Service>()
 
     if (allServices.isEmpty()) {
-        throw StepPreconditionNotMet("No services available for write testing")
+        throw StepSkipped("No services available for write testing")
     }
 
     val writableServices = allServices.filter { service ->
@@ -31,9 +31,7 @@ internal fun CardScanContext.findWritableBlockProbeTarget(): WritableBlockProbeT
     }
 
     if (writableServices.isEmpty()) {
-        throw StepPreconditionNotMet(
-            "No suitable writable services found (R/W RANDOM, no auth required)"
-        )
+        throw StepSkipped("No suitable writable services found (R/W RANDOM, no auth required)")
     }
 
     data class ServiceCandidate(
@@ -95,7 +93,7 @@ internal fun CardScanContext.findWritableBlockProbeTarget(): WritableBlockProbeT
     }
 
     if (serviceCandidates.isEmpty()) {
-        throw StepPreconditionNotMet(
+        throw StepSkipped(
             "No empty blocks (all 0x00 or 0xFF) found in any writable service. " +
                 "Cannot safely test write commands without risking data modification."
         )

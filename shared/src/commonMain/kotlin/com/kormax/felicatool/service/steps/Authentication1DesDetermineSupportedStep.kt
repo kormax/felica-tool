@@ -22,12 +22,10 @@ internal object Authentication1DesDetermineSupportedStep :
     override suspend fun ScanSession.perform(): StepOutput {
         val testTarget = scanContext.findBestAuthentication1DesTarget()
         if (testTarget == null) {
-            throw StepPreconditionNotMet(
+            throw StepSkipped(
                 "No suitable system found for DES authentication (root area with valid DES key is required)."
             )
         }
-        ensureCardPresence(target)
-
         val systemCodeHex = testTarget.systemContext.systemCode?.toHexString() ?: "unknown"
         ScanLog.d(
             "CardScanService",
@@ -41,36 +39,19 @@ internal object Authentication1DesDetermineSupportedStep :
         // Area0 may appear in both lists: this is allowed because key updates can target areas.
         val nodesToAuth = listOf<Node>(testTarget.rootArea)
 
-        var selectedSystemIdmUsed: ByteArray? = null
         val authenticateResponse =
-            transceiveWithRetries(
-                target = target,
-                systemCode = testTarget.systemContext.systemCode,
-                maxAttempts = ATTEMPTS_DETERMINE_SUPPORTED,
-                retryDelayStepMs = 50,
-            ) { activeTarget, _ ->
-                val selectedSystemContext =
-                    scanContext.systemScanContexts.firstOrNull { context ->
-                        context.systemCode.sameBytes(testTarget.systemContext.systemCode)
-                    }
-                val selectedSystemIdm = selectedSystemContext?.idm ?: activeTarget.idm
-                selectedSystemIdmUsed = selectedSystemIdm
-
+            executeCommand(
+                withSelectedSystemCode = testTarget.systemContext.systemCode,
+                withResetToMode0 = true,
+                attempts = ATTEMPTS_DETERMINE_SUPPORTED,
+            ) {
                 Authentication1DesCommand(
-                    idm = selectedSystemIdm,
+                    idm = idm,
                     areaNodes = areasToAuth,
                     nodes = nodesToAuth,
                     challenge1A = challenge1A,
                 )
             }
-        setCurrentMode(Mode.Mode1.Des, selectedSystemCode = testTarget.systemContext.systemCode)
-
-        val resetModeResult =
-            resetAuthenticationState(
-                target = target,
-                authenticatedSystemCode = testTarget.systemContext.systemCode,
-                authenticatedSystemIdm = selectedSystemIdmUsed,
-            )
 
         return StepOutput(
             buildString {
@@ -119,9 +100,6 @@ internal object Authentication1DesDetermineSupportedStep :
                         }
                         appendLine()
                     }
-
-                    appendLine()
-                    appendLine("$resetModeResult")
                 }
                 .trim()
         )

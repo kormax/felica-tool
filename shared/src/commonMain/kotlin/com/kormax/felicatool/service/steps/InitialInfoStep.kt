@@ -22,16 +22,17 @@ internal object InitialInfoStep :
     override suspend fun ScanSession.perform(): StepOutput {
         IcTypeRegistry.ensureReady()
 
-        // Use the PMM from the target (already obtained during creation)
-        val pmm = target.pmm
-        val idmHex = target.idm.toHexString()
+        // Use the PMM already obtained during target creation.
+        val cardPmm = pmm
+        val cardIdm = idm
+        val idmHex = cardIdm.toHexString()
 
         // Store card information in context
         scanContext =
             scanContext.copy(
-                primaryIdm = target.idm,
-                pmm = pmm,
-                primarySystemCode = target.systemCode,
+                primaryIdm = cardIdm,
+                pmm = cardPmm,
+                primarySystemCode = systemCode,
             )
 
         return StepOutput(
@@ -42,31 +43,31 @@ internal object InitialInfoStep :
                     // needed.
                     appendLine()
                     appendLine("PMM Information:")
-                    appendLine("  Raw PMM: ${pmm.toString()}")
-                    appendLine("  ROM Type: 0x${byteToHex(pmm.romType)}")
-                    appendLine("  IC Type: 0x${byteToHex(pmm.icType)}")
-                    IcTypeRegistry.getIcName(pmm.icType, pmm.romType)?.let { icTypeName ->
+                    appendLine("  Raw PMM: ${cardPmm.toString()}")
+                    appendLine("  ROM Type: 0x${byteToHex(cardPmm.romType)}")
+                    appendLine("  IC Type: 0x${byteToHex(cardPmm.icType)}")
+                    IcTypeRegistry.getIcName(cardPmm.icType, cardPmm.romType)?.let { icTypeName ->
                         appendLine("  IC Type Name: $icTypeName")
                     }
                     appendLine()
                     appendLine("Timeout Multipliers (ms):")
                     appendLine(
-                        "  Variable Response Time: ${formatTimeoutFormula(pmm.variableResponseTimeConstant, pmm.variableResponseTimePerUnit, pmm.variableResponseTimeCommandSupported)}"
+                        "  Variable Response Time: ${formatTimeoutFormula(cardPmm.variableResponseTimeConstant, cardPmm.variableResponseTimePerUnit, cardPmm.variableResponseTimeCommandSupported)}"
                     )
                     appendLine(
-                        "  Fixed Response Time: ${formatTimeoutFormula(pmm.fixedResponseTimeConstant, pmm.fixedResponseTimePerUnit, pmm.fixedResponseTimeCommandSupported)}"
+                        "  Fixed Response Time: ${formatTimeoutFormula(cardPmm.fixedResponseTimeConstant, cardPmm.fixedResponseTimePerUnit, cardPmm.fixedResponseTimeCommandSupported)}"
                     )
                     appendLine(
-                        "  Mutual Auth: ${formatTimeoutFormula(pmm.mutualAuthConstant, pmm.mutualAuthPerUnit, pmm.mutualAuthCommandSupported)}"
+                        "  Mutual Auth: ${formatTimeoutFormula(cardPmm.mutualAuthConstant, cardPmm.mutualAuthPerUnit, cardPmm.mutualAuthCommandSupported)}"
                     )
                     appendLine(
-                        "  Data Read: ${formatTimeoutFormula(pmm.dataReadConstant, pmm.dataReadPerUnit, pmm.dataReadCommandSupported)}"
+                        "  Data Read: ${formatTimeoutFormula(cardPmm.dataReadConstant, cardPmm.dataReadPerUnit, cardPmm.dataReadCommandSupported)}"
                     )
                     appendLine(
-                        "  Data Write: ${formatTimeoutFormula(pmm.dataWriteConstant, pmm.dataWritePerUnit, pmm.dataWriteCommandSupported)}"
+                        "  Data Write: ${formatTimeoutFormula(cardPmm.dataWriteConstant, cardPmm.dataWritePerUnit, cardPmm.dataWriteCommandSupported)}"
                     )
                     appendLine(
-                        "  Other: ${formatTimeoutFormula(pmm.otherConstant, pmm.otherPerUnit, pmm.otherCommandSupported)}"
+                        "  Other: ${formatTimeoutFormula(cardPmm.otherConstant, cardPmm.otherPerUnit, cardPmm.otherCommandSupported)}"
                     )
                 }
                 .trimEnd()

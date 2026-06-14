@@ -20,21 +20,15 @@ internal object RequestCodeListDetermineSupportedStep :
     ): CardScanContext = context.copy(requestCodeListSupport = support)
 
     override suspend fun ScanSession.perform(): StepOutput {
-        val systemContext = scanContext.systemScanContexts.firstOrNull()
-
         val index = 1
         val requestCodeListResponse =
-            transceiveWithRetries(
-                target,
-                RequestCodeListCommand(target.idm, Area.ROOT, index),
-                systemCode = systemContext?.systemCode,
-            )
-        val systemCodeHex = formatSystemCodeLabel(systemContext?.systemCode)
+            executeCommand(withSelectedSystemCode = SYSTEM_CODE_WILDCARD) {
+                RequestCodeListCommand(idm, Area.ROOT, index)
+            }
 
         return StepOutput(
             buildString {
                     appendLine("Request Code List command is supported (response received)")
-                    appendLine("System: $systemCodeHex")
                     appendLine("Parent node: ${Area.ROOT.code.toHexString().uppercase()}")
                     appendLine("Index: $index")
                     appendLine("Status: ${formatStatus(requestCodeListResponse)}")

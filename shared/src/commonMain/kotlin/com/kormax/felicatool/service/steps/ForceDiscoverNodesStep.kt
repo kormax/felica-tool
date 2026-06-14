@@ -21,11 +21,10 @@ internal object ForceDiscoverNodesStep :
         val requestServiceSupported = scanContext.requestServiceSupport == CommandSupport.SUPPORTED
 
         if (!requestServiceV2Supported && !requestServiceSupported) {
-            throw StepPreconditionNotMet(
+            throw StepSkipped(
                 "Force discover requires RequestService or RequestServiceV2 to be supported"
             )
         }
-        ensureCardPresence(target)
 
         val useV2 = requestServiceV2Supported
         val results = mutableListOf<String>()
@@ -49,9 +48,6 @@ internal object ForceDiscoverNodesStep :
 
         // Process each system context
         for (systemContext in scanContext.systemScanContexts) {
-            // Perform system-specific polling before executing commands
-            pollSystemCode(target, systemContext.systemCode)
-
             val existingNodes = systemContext.nodes.toSet()
             val existingNodeCodes = existingNodes.map { it.code.toHexString().uppercase() }.toSet()
             val newlyDiscoveredNodes = mutableListOf<Node>()
@@ -98,13 +94,10 @@ internal object ForceDiscoverNodesStep :
 
                     val slots: List<SlotResult> =
                         if (useV2) {
-                            val command = RequestServiceV2Command(target.idm, nodeCodes)
                             val response =
-                                transceiveWithRetries(
-                                    target = target,
-                                    command = command,
-                                    systemCode = systemContext.systemCode,
-                                )
+                                executeCommand(withSelectedSystemCode = systemContext.systemCode) {
+                                    RequestServiceV2Command(idm, nodeCodes)
+                                }
                             if (!response.isStatusSuccessful) return@forEach
                             batch.indices.map { i ->
                                 val aes = response.aesKeyVersions[i]
@@ -115,13 +108,10 @@ internal object ForceDiscoverNodesStep :
                                 }
                             }
                         } else {
-                            val command = RequestServiceCommand(target.idm, nodeCodes)
                             val response =
-                                transceiveWithRetries(
-                                    target = target,
-                                    command = command,
-                                    systemCode = systemContext.systemCode,
-                                )
+                                executeCommand(withSelectedSystemCode = systemContext.systemCode) {
+                                    RequestServiceCommand(idm, nodeCodes)
+                                }
                             batch.indices.map { i ->
                                 val kv = response.keyVersions[i]
                                 SlotResult(kv, "Key") { node -> newNodeKeyVersions[node] = kv }

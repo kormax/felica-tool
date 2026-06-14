@@ -12,10 +12,9 @@ internal object EchoDetermineSupportedStep :
         icon = ScanStepIcon.REFRESH,
     ) {
     override suspend fun ScanSession.perform(): StepOutput {
-        ensureCardPresence(target)
-
         val payload = ByteArray(0)
-        val response = transceiveWithRetries(target, EchoCommand(payload))
+        val response =
+            executeCommand(withSelectedSystemCode = SYSTEM_CODE_WILDCARD) { EchoCommand(payload) }
         if (!response.data.contentEquals(payload)) {
             throw RuntimeException(
                 "Echo mismatch (${response.data.size} bytes returned): ${response.data.toHexString()}"

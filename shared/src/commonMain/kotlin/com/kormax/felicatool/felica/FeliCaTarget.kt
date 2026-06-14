@@ -1,7 +1,6 @@
 package com.kormax.felicatool.felica
 
 import com.kormax.felicatool.nfc.NfcReaderSession
-import com.kormax.felicatool.nfc.TagUnavailableException
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
@@ -65,52 +64,5 @@ interface FeliCaTarget {
 
         // Return the calculated timeout with 50ms margin
         return pmm.totalTimeout(commandClass, units) + 50.toDuration(DurationUnit.MILLISECONDS)
-    }
-
-    /**
-     * Typed transceive function - sends a command and receives a parsed response
-     *
-     * @param T The expected response type
-     * @param command The FeliCa command to send
-     * @param timeout Optional timeout override. If null, timeout is inferred from PMM and command
-     *   type
-     * @return The parsed response of type T
-     */
-    suspend fun <T : FelicaResponse> transceive(
-        command: FelicaCommand<T>,
-        timeout: Duration? = null,
-    ): T {
-        if (!isAvailable) {
-            throw TagUnavailableException()
-        }
-        val commandBytes = command.toByteArray()
-        val inferredTimeout = timeout ?: inferTimeout(command)
-        val responseBytes = transceive(commandBytes, inferredTimeout)
-        val response = command.responseFromByteArray(responseBytes)
-        updateCurrentTargetState(command, response)
-        return response
-    }
-
-    private fun updateCurrentTargetState(command: FelicaCommand<*>, response: FelicaResponse) {
-        when {
-            command is PollingCommand && response is PollingResponse -> {
-                currentIdm = response.idm.copyOf()
-                currentSystemCode =
-                    when {
-                        command.requestCode == RequestCode.SYSTEM_CODE_REQUEST &&
-                            response.hasRequestData -> response.systemCode.copyOf()
-                        command.systemCode.none { it == 0xFF.toByte() } ->
-                            command.systemCode.copyOf()
-                        else -> null
-                    }
-            }
-            command is FelicaCommandWithIdm<*> -> {
-                val commandIdm = command.idm.copyOf()
-                if (!currentIdm.contentEquals(commandIdm)) {
-                    currentSystemCode = null
-                }
-                currentIdm = commandIdm
-            }
-        }
     }
 }

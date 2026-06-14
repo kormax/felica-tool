@@ -1,10 +1,10 @@
 package com.kormax.felicatool.service.steps
 
 import com.kormax.felicatool.felica.*
-import com.kormax.felicatool.nfc.TagUnavailableException
+import com.kormax.felicatool.nfc.TransceiveTimeoutException
 import com.kormax.felicatool.service.*
 import com.kormax.felicatool.ui.ScanStepIcon
-import kotlinx.coroutines.CancellationException
+import kotlin.time.Duration.Companion.milliseconds
 
 private const val REQUEST_SERVICE_UNKNOWN_ATTRIBUTE_PROBE_ATTEMPTS = 3
 private const val REQUEST_SERVICE_UNKNOWN_ATTRIBUTE_SERVICE_NUMBER = 0
@@ -19,22 +19,17 @@ internal object RequestServiceUnknownNodeAttributesStep :
     ) {
     override suspend fun ScanSession.perform(): StepOutput {
         if (scanContext.requestServiceSupport != CommandSupport.SUPPORTED) {
-            throw StepPreconditionNotMet(
+            throw StepSkipped(
                 "Request Service command is unavailable; cannot probe unknown attribute behavior"
             )
         }
-        ensureCardPresence(target)
-
-        val systemContext = scanContext.systemScanContexts.firstOrNull()
         val knownAttributes = buildSet {
             addAll(ServiceAttribute.entries.map { it.value })
             addAll(AreaAttribute.entries.map { it.value })
         }
         val unknownAttributeValue =
             (0..0x3F).firstOrNull { it !in knownAttributes }
-                ?: throw IllegalStateException(
-                    "No unknown node attribute value available for probing"
-                )
+                ?: throw StepSkipped("No unknown node attribute value available for probing")
         val unknownAttributeNodeCodeValue =
             (REQUEST_SERVICE_UNKNOWN_ATTRIBUTE_SERVICE_NUMBER shl 6) or unknownAttributeValue
         val unknownAttributeNodeCode =
@@ -45,19 +40,14 @@ internal object RequestServiceUnknownNodeAttributesStep :
 
         val response =
             try {
-                transceiveWithRetries(
-                    target = target,
-                    systemCode = systemContext?.systemCode,
-                    maxAttempts = REQUEST_SERVICE_UNKNOWN_ATTRIBUTE_PROBE_ATTEMPTS,
-                    retryDelayStepMs = 50,
-                ) { activeTarget, _ ->
-                    RequestServiceCommand(activeTarget.idm, arrayOf(unknownAttributeNodeCode))
+                executeCommand(
+                    withSelectedSystemCode = SYSTEM_CODE_WILDCARD,
+                    attempts = REQUEST_SERVICE_UNKNOWN_ATTRIBUTE_PROBE_ATTEMPTS,
+                    retryDelay = 50.milliseconds,
+                ) {
+                    RequestServiceCommand(idm, arrayOf(unknownAttributeNodeCode))
                 }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: TagUnavailableException) {
-                throw e
-            } catch (e: Exception) {
+            } catch (e: TransceiveTimeoutException) {
                 null
             }
         val responseReceived = response != null
@@ -72,9 +62,7 @@ internal object RequestServiceUnknownNodeAttributesStep :
                             "(service=${REQUEST_SERVICE_UNKNOWN_ATTRIBUTE_SERVICE_NUMBER}, " +
                             "attribute=0x${byteToHex(unknownAttributeValue)})"
                     )
-                    appendLine(
-                        "System: ${systemContext?.systemCode?.toHexString()?.uppercase() ?: "wildcard"}"
-                    )
+                    appendLine("System: ${formatSystemCodeLabel(SYSTEM_CODE_WILDCARD)}")
                     appendLine("Supported = $responseReceived")
                     if (response != null) {
                         val keyVersionHex =

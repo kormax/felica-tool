@@ -1,7 +1,7 @@
 package com.kormax.felicatool.service.steps
 
 import com.kormax.felicatool.felica.*
-import com.kormax.felicatool.nfc.TagUnavailableException
+import com.kormax.felicatool.nfc.TransceiveTimeoutException
 import com.kormax.felicatool.service.*
 import com.kormax.felicatool.ui.ScanStepIcon
 
@@ -20,23 +20,11 @@ internal object EchoDetermineMaxPayloadSizeStep :
 
     override suspend fun ScanSession.perform(): StepOutput {
         if (scanContext.echoSupport != CommandSupport.SUPPORTED) {
-            throw StepPreconditionNotMet(
-                "Echo support must be confirmed before determining max payload size"
-            )
+            throw StepSkipped("Echo support must be confirmed before determining max payload size")
         }
-
-        ensureCardPresence(target)
-
-        val minLength = 0
+        val knownSupportedLength = 0
         val maxLength = 252
         val attempts = mutableListOf<EchoAttemptResult>()
-
-        val baselineAttempt = attemptEcho(minLength)
-        attempts += baselineAttempt
-        if (!baselineAttempt.success) {
-            val reason = baselineAttempt.error?.let { ": $it" } ?: ""
-            throw RuntimeException("Echo command failed even at $minLength bytes$reason")
-        }
 
         val maxAttempt = attemptEcho(maxLength)
         attempts += maxAttempt
@@ -45,9 +33,9 @@ internal object EchoDetermineMaxPayloadSizeStep :
             return formatResult(maxLength, attempts)
         }
 
-        var lowerBound = minLength
+        var lowerBound = knownSupportedLength
         var upperBound = maxLength
-        var bestLength = minLength
+        var bestLength = knownSupportedLength
 
         while ((upperBound - lowerBound) > 1) {
             val candidate = (lowerBound + upperBound) / 2
@@ -67,9 +55,8 @@ internal object EchoDetermineMaxPayloadSizeStep :
 
     private suspend fun ScanSession.attemptEcho(length: Int): EchoAttemptResult {
         val payload = ByteArray(length) { index -> (index and 0xFF).toByte() }
-        val command = EchoCommand(payload)
         return try {
-            val response = transceiveWithRetries(target, command)
+            val response = executeCommand { EchoCommand(payload) }
             if (response.data.contentEquals(payload)) {
                 EchoAttemptResult(length, success = true, error = null)
             } else {
@@ -79,9 +66,7 @@ internal object EchoDetermineMaxPayloadSizeStep :
                     error = "Echo mismatch (${response.data.size} bytes returned)",
                 )
             }
-        } catch (e: TagUnavailableException) {
-            throw e
-        } catch (e: Exception) {
+        } catch (e: TransceiveTimeoutException) {
             EchoAttemptResult(length, success = false, error = e.message ?: "Unknown error")
         }
     }

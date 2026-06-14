@@ -19,13 +19,8 @@ internal object ResetModeStep :
     ): CardScanContext = context.copy(resetModeSupport = support)
 
     override suspend fun ScanSession.perform(): StepOutput {
-        ensureCardPresence(target)
-
-        val resetModeCommand = ResetModeCommand(target.idm)
-        val resetModeResponse = target.transceive(resetModeCommand)
-        if (resetModeResponse.isStatusSuccessful) {
-            setCurrentMode(Mode.Mode0)
-        }
+        val resetModeResponse =
+            executeCommand(withSelectedSystemCode = SYSTEM_CODE_WILDCARD) { ResetModeCommand(idm) }
 
         return StepOutput(
             buildString {

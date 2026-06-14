@@ -924,10 +924,12 @@ fun TreeNodeCard(
                         context.nodeFreeBlockCounts[node]?.takeUnless { it.isInvalid }?.toInt()
                     if (blockCount != null || assignedCount != null || freeCount != null) {
                         val blockText =
-                            if (assignedCount != null && freeCount != null) {
-                                "Blocks: $freeCount/$assignedCount"
-                            } else {
-                                "Blocks: ${blockCount ?: 0}"
+                            when {
+                                assignedCount != null && freeCount != null ->
+                                    "Blocks: $assignedCount assigned, $freeCount free"
+                                assignedCount != null -> "Blocks: $assignedCount assigned"
+                                freeCount != null -> "Blocks: $freeCount free"
+                                else -> "Blocks: ${blockCount ?: 0}"
                             }
                         AttributeChip(blockText, isInfo = true)
                     }

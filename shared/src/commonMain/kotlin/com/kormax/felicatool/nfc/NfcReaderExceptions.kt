@@ -1,9 +1,21 @@
 package com.kormax.felicatool.nfc
 
-class TagLostException(cause: Throwable? = null) :
-    IllegalStateException("Active NFC tag was lost", cause)
+open class NfcReaderException(message: String, cause: Throwable? = null) :
+    IllegalStateException(message, cause)
 
-class TagUnavailableException(
-    message: String = "NFC tag is no longer available",
+class NfcTargetUnavailableException(
+    message: String = "NFC target is no longer available",
     cause: Throwable? = null,
-) : IllegalStateException(message, cause)
+) : NfcReaderException(message, cause)
+
+class TransceiveTimeoutException(
+    message: String = "NFC transceive timed out",
+    cause: Throwable? = null,
+) : NfcReaderException(message, cause)
+
+class TransceiveErrorException(
+    message: String = "NFC transceive failed",
+    cause: Throwable? = null,
+) : NfcReaderException(message, cause)
+
+typealias TagUnavailableException = NfcTargetUnavailableException

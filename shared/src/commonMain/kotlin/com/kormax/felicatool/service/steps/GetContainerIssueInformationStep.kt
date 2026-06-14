@@ -21,11 +21,9 @@ internal object GetContainerIssueInformationStep :
     ): CardScanContext = context.copy(getContainerIssueInformationSupport = support)
 
     override suspend fun ScanSession.perform(): StepOutput {
-        ensureCardPresence(target)
-
-        val getContainerIssueInformationCommand = GetContainerIssueInformationCommand(target.idm)
-        val getContainerIssueInformationResponse =
-            target.transceive(getContainerIssueInformationCommand)
+        val getContainerIssueInformationResponse = executeCommand {
+            GetContainerIssueInformationCommand(idm)
+        }
         val containerInformation = getContainerIssueInformationResponse.containerInformation
 
         // Store container issue information in context

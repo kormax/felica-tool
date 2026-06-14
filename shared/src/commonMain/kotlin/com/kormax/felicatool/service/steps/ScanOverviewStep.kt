@@ -3,7 +3,6 @@ package com.kormax.felicatool.service.steps
 import com.kormax.felicatool.service.ScanSession
 import com.kormax.felicatool.service.ScanStep
 import com.kormax.felicatool.service.StepOutput
-import com.kormax.felicatool.service.logging.CommunicationLoggedFeliCaTarget
 import com.kormax.felicatool.ui.ScanStepIcon
 
 internal object ScanOverviewStep :
@@ -14,9 +13,6 @@ internal object ScanOverviewStep :
         icon = ScanStepIcon.LIST,
     ) {
     override suspend fun ScanSession.perform(): StepOutput {
-        (target as? CommunicationLoggedFeliCaTarget)?.let { loggedTarget ->
-            context = context.copy(communicationLog = loggedTarget.log)
-        }
         return StepOutput("Click to view comprehensive overview of all discovered card data")
     }
 }

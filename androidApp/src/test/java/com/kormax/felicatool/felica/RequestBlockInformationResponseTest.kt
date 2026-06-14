@@ -42,9 +42,9 @@ class RequestBlockInformationResponseTest {
             ),
             response.idm,
         )
-        assertEquals(2, response.assignedBlockCountInformation.size)
-        assertEquals(0x0010, response.assignedBlockCountInformation[0].toInt())
-        assertEquals(0x0020, response.assignedBlockCountInformation[1].toInt())
+        assertEquals(2, response.blockCountInformation.size)
+        assertEquals(0x0010, response.blockCountInformation[0].toInt())
+        assertEquals(0x0020, response.blockCountInformation[1].toInt())
     }
 
     @Test
@@ -68,13 +68,13 @@ class RequestBlockInformationResponseTest {
 
         assertArrayEquals(original.idm, parsed.idm)
         assertEquals(
-            original.assignedBlockCountInformation.size,
-            parsed.assignedBlockCountInformation.size,
+            original.blockCountInformation.size,
+            parsed.blockCountInformation.size,
         )
-        for (i in 0 until original.assignedBlockCountInformation.size) {
+        for (i in 0 until original.blockCountInformation.size) {
             assertEquals(
-                original.assignedBlockCountInformation[i].toInt(),
-                parsed.assignedBlockCountInformation[i].toInt(),
+                original.blockCountInformation[i].toInt(),
+                parsed.blockCountInformation[i].toInt(),
             )
         }
     }

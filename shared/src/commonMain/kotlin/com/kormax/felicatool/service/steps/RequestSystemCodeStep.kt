@@ -21,7 +21,9 @@ internal object RequestSystemCodeStep :
 
     override suspend fun ScanSession.perform(): StepOutput {
         val requestSystemCodeResponse =
-            transceiveWithRetries(target, RequestSystemCodeCommand(target.idm))
+            executeCommand(withSelectedSystemCode = SYSTEM_CODE_WILDCARD) {
+                RequestSystemCodeCommand(idm)
+            }
 
         // Handle special system codes and ensure system contexts exist
         val updatedSystemContexts =

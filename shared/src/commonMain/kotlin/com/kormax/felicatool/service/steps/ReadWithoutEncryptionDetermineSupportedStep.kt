@@ -20,13 +20,12 @@ internal object ReadWithoutEncryptionDetermineSupportedStep :
         val systemCode = testTarget.systemContext.systemCode
 
         val response =
-            transceiveWithRetries(
-                target = target,
-                systemCode = systemCode,
-                maxAttempts = ATTEMPTS_DETERMINE_SUPPORTED,
-            ) { activeTarget, _ ->
+            executeCommand(
+                withSelectedSystemCode = systemCode,
+                attempts = ATTEMPTS_DETERMINE_SUPPORTED,
+            ) {
                 ReadWithoutEncryptionCommand(
-                    idm = activeTarget.idm,
+                    idm = idm,
                     serviceCodes = arrayOf(testTarget.service.code),
                     blockListElements =
                         arrayOf(

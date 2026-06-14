@@ -651,8 +651,10 @@ object ExportUtils {
         }
 
         // Block counts
-        (systemContext.nodeAssignedBlockCounts[node] ?: systemContext.nodeBlockCounts[node])?.let {
-            blockInfo ->
+        systemContext.nodeBlockCounts[node]?.let { blockInfo ->
+            nodeJson.put("blocks_total", blockInfo.toInt())
+        }
+        systemContext.nodeAssignedBlockCounts[node]?.let { blockInfo ->
             nodeJson.put("blocks_allocated", blockInfo.toInt())
         }
         systemContext.nodeFreeBlockCounts[node]?.let { freeBlockInfo ->

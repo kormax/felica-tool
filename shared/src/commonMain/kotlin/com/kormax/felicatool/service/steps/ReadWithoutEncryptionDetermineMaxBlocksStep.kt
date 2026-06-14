@@ -1,10 +1,9 @@
 package com.kormax.felicatool.service.steps
 
 import com.kormax.felicatool.felica.*
-import com.kormax.felicatool.nfc.TagUnavailableException
+import com.kormax.felicatool.nfc.TransceiveTimeoutException
 import com.kormax.felicatool.service.*
 import com.kormax.felicatool.ui.ScanStepIcon
-import kotlinx.coroutines.CancellationException
 
 internal object ReadWithoutEncryptionDetermineMaxBlocksStep :
     ReadWithoutEncryptionScanStep(
@@ -25,12 +24,9 @@ internal object ReadWithoutEncryptionDetermineMaxBlocksStep :
         while (maxBlocks > 0) {
             try {
                 val response =
-                    transceiveWithRetries(
-                        target = target,
-                        systemCode = testTarget.systemContext.systemCode,
-                    ) { activeTarget, _ ->
+                    executeCommand(withSelectedSystemCode = testTarget.systemContext.systemCode) {
                         ReadWithoutEncryptionCommand(
-                            idm = activeTarget.idm,
+                            idm = idm,
                             serviceCodes = arrayOf(testTarget.service.code),
                             blockListElements =
                                 Array(maxBlocks) {
@@ -67,11 +63,7 @@ internal object ReadWithoutEncryptionDetermineMaxBlocksStep :
                     "CardScanService",
                     "ReadWithoutEncryption failed with $maxBlocks blocks, ${formatStatus(response)}",
                 )
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: TagUnavailableException) {
-                throw e
-            } catch (e: Exception) {
+            } catch (e: TransceiveTimeoutException) {
                 // Card may not respond if command is too large (e.g., FeliCa Lite)
                 // Retry helper checks card availability before continuing with a smaller size.
                 ScanLog.d(
@@ -92,7 +84,7 @@ internal object ReadWithoutEncryptionDetermineMaxBlocksStep :
         scanContext = scanContext.copy(readWithoutEncryptionMaxBlocksPerRequest = maxBlocks)
 
         if (usedFallback) {
-            markStepSupported()
+            scanContext = withCommandSupport(scanContext, CommandSupport.SUPPORTED)
             throw StepBehaviorUnexpected(
                 "Maximum blocks fallback to 1: unexpected status (${formatStatus(fallbackStatus1, fallbackStatus2)})"
             )

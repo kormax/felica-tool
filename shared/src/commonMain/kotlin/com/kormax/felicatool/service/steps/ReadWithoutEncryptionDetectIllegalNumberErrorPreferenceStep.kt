@@ -21,12 +21,9 @@ internal object ReadWithoutEncryptionDetectIllegalNumberErrorPreferenceStep :
             )
 
         val response =
-            transceiveWithRetries(
-                target = target,
-                systemCode = testTarget.systemContext.systemCode,
-            ) { activeTarget, _ ->
+            executeCommand(withSelectedSystemCode = testTarget.systemContext.systemCode) {
                 ReadWithoutEncryptionCommand(
-                    idm = activeTarget.idm,
+                    idm = idm,
                     serviceCodes = Array(requestedCount) { testTarget.service.code },
                     blockListElements =
                         Array(requestedCount) { serviceIndex ->
@@ -68,7 +65,7 @@ internal object ReadWithoutEncryptionDetectIllegalNumberErrorPreferenceStep :
             val fallbackLabel = fallbackPreference?.name ?: "UNCHANGED"
             val fallbackMessage =
                 "Limit error preference fallback to $fallbackLabel: unexpected status (${formatStatus(response)})"
-            markStepSupported()
+            scanContext = withCommandSupport(scanContext, CommandSupport.SUPPORTED)
             throw StepBehaviorUnexpected(fallbackMessage)
         }
 

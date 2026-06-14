@@ -13,15 +13,11 @@ internal object WriteWithoutEncryptionDetermineSupportedStep :
     ) {
     override suspend fun ScanSession.perform(): StepOutput {
         val probeTarget = scanContext.findWritableBlockProbeTarget()
-        ensureCardPresence(target)
 
         val response =
-            transceiveWithRetries(
-                target = target,
-                systemCode = probeTarget.systemCode,
-            ) { activeTarget, _ ->
+            executeCommand(withSelectedSystemCode = probeTarget.systemCode) {
                 WriteWithoutEncryptionCommand(
-                    idm = activeTarget.idm,
+                    idm = idm,
                     serviceCodes = arrayOf(probeTarget.service.code),
                     blockListElements =
                         arrayOf(

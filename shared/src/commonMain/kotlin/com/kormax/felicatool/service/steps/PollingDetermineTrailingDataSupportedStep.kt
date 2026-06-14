@@ -1,10 +1,10 @@
 package com.kormax.felicatool.service.steps
 
 import com.kormax.felicatool.felica.*
-import com.kormax.felicatool.nfc.TagUnavailableException
+import com.kormax.felicatool.nfc.TransceiveTimeoutException
 import com.kormax.felicatool.service.*
 import com.kormax.felicatool.ui.ScanStepIcon
-import kotlinx.coroutines.CancellationException
+import kotlin.time.Duration.Companion.milliseconds
 
 private const val POLLING_TRAILING_DATA_PROBE_ATTEMPTS = 3
 private val POLLING_TRAILING_DATA_PROBE_BYTES = byteArrayOf(0x00)
@@ -17,12 +17,10 @@ internal object PollingDetermineTrailingDataSupportedStep :
         icon = ScanStepIcon.SEARCH,
     ) {
     override suspend fun ScanSession.perform(): StepOutput {
-        ensureCardPresence(target)
-
-        val systemCode = target.systemCode ?: byteArrayOf(0xFF.toByte(), 0xFF.toByte())
+        val selectedSystemCode = systemCode ?: SYSTEM_CODE_WILDCARD
         val command =
             PollingCommand(
-                systemCode = systemCode,
+                systemCode = selectedSystemCode,
                 requestCode = RequestCode.NO_REQUEST,
                 timeSlot = TimeSlot.SLOT_1,
                 trailingData = POLLING_TRAILING_DATA_PROBE_BYTES,
@@ -31,17 +29,13 @@ internal object PollingDetermineTrailingDataSupportedStep :
 
         val response =
             try {
-                transceiveWithRetries(
-                    target = target,
-                    command = command,
-                    maxAttempts = POLLING_TRAILING_DATA_PROBE_ATTEMPTS,
-                    retryDelayStepMs = 50,
-                )
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: TagUnavailableException) {
-                throw e
-            } catch (e: Exception) {
+                executeCommand(
+                    attempts = POLLING_TRAILING_DATA_PROBE_ATTEMPTS,
+                    retryDelay = 50.milliseconds,
+                ) {
+                    command
+                }
+            } catch (e: TransceiveTimeoutException) {
                 null
             }
 

@@ -25,12 +25,9 @@ internal object ReadWithoutEncryptionDetermineMaxServicesStep :
 
         while (maxServices > 0) {
             val response =
-                transceiveWithRetries(
-                    target = target,
-                    systemCode = testTarget.systemContext.systemCode,
-                ) { activeTarget, _ ->
+                executeCommand(withSelectedSystemCode = testTarget.systemContext.systemCode) {
                     ReadWithoutEncryptionCommand(
-                        idm = activeTarget.idm,
+                        idm = idm,
                         serviceCodes = Array(maxServices) { testTarget.service.code },
                         blockListElements =
                             Array(maxServices) { serviceIndex ->
@@ -86,7 +83,7 @@ internal object ReadWithoutEncryptionDetermineMaxServicesStep :
         scanContext = scanContext.copy(readWithoutEncryptionMaxServicesPerRequest = maxServices)
 
         if (usedFallback) {
-            markStepSupported()
+            scanContext = withCommandSupport(scanContext, CommandSupport.SUPPORTED)
             throw StepBehaviorUnexpected(
                 "Maximum services fallback to 1: unexpected status (${formatStatus(fallbackStatus1, fallbackStatus2)})"
             )

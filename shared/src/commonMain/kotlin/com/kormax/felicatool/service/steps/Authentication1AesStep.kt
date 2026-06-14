@@ -57,25 +57,16 @@ internal object Authentication1AesStep :
 
         val selectedSystemContext = bestSystemContext
         if (selectedSystemContext == null) {
-            throw StepPreconditionNotMet(
+            throw StepSkipped(
                 "No system found with AES-compatible nodes. AES authentication requires nodes with AES key versions."
             )
         }
-        ensureCardPresence(target)
 
         val systemCodeHex = selectedSystemContext.systemCode?.toHexString() ?: "unknown"
         ScanLog.d(
             "CardScanService",
             "Selected system $systemCodeHex for AES authentication with ${bestAesCompatibleAreas.size} areas and ${bestAesCompatibleServices.size} services",
         )
-
-        // Poll the selected system before authentication
-        pollSystemCode(target, selectedSystemContext.systemCode)
-        val currentSelectedSystemContext =
-            scanContext.systemScanContexts.firstOrNull { context ->
-                context.systemCode.sameBytes(selectedSystemContext.systemCode)
-            }
-        val selectedSystemIdm = currentSelectedSystemContext?.idm ?: target.idm
 
         // Generate a random challenge1A (16 bytes for AES)
         val challenge1A = ByteArray(16) { 0x0.toByte() }
@@ -87,22 +78,17 @@ internal object Authentication1AesStep :
         // Up to 16 nodes in total
         val aesCompatibleNodes = bestAesCompatibleAreas.take(1) + bestAesCompatibleServices.take(1)
 
-        val authenticateCommand =
-            Authentication1AesCommand(
-                idm = selectedSystemIdm,
-                nodeCodes = aesCompatibleNodes.map { it.code }.toTypedArray(),
-                challenge1A = challenge1A,
-            )
-
-        val authenticateResponse = target.transceive(authenticateCommand)
-        setCurrentMode(Mode.Mode1.Aes, selectedSystemCode = selectedSystemContext.systemCode)
-
-        val resetModeResult =
-            resetAuthenticationState(
-                target = target,
-                authenticatedSystemCode = selectedSystemContext.systemCode,
-                authenticatedSystemIdm = selectedSystemIdm,
-            )
+        val authenticateResponse =
+            executeCommand(
+                withSelectedSystemCode = selectedSystemContext.systemCode,
+                withResetToMode0 = true,
+            ) {
+                Authentication1AesCommand(
+                    idm = idm,
+                    nodeCodes = aesCompatibleNodes.map { it.code }.toTypedArray(),
+                    challenge1A = challenge1A,
+                )
+            }
 
         return StepOutput(
             buildString {
@@ -124,9 +110,6 @@ internal object Authentication1AesStep :
                         }
                         appendLine()
                     }
-
-                    appendLine()
-                    appendLine("$resetModeResult")
                 }
                 .trim()
         )

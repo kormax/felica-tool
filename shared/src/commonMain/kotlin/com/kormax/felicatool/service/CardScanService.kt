@@ -1,8 +1,8 @@
 package com.kormax.felicatool.service
 
 import com.kormax.felicatool.felica.FeliCaTarget
-import com.kormax.felicatool.nfc.TagUnavailableException
-import com.kormax.felicatool.service.logging.CommunicationLoggedFeliCaTarget
+import com.kormax.felicatool.nfc.NfcTargetUnavailableException
+import com.kormax.felicatool.nfc.TransceiveTimeoutException
 import com.kormax.felicatool.ui.CardScanStep
 import com.kormax.felicatool.ui.StepStatus
 import com.kormax.felicatool.util.EmptyNodeMetadataProvider
@@ -40,14 +40,11 @@ class CardScanService(
 
         onStepsChanged(workingSteps)
 
-        val loggedTarget = CommunicationLoggedFeliCaTarget(target)
         val session =
             ScanSession(
-                target = loggedTarget,
+                initialTarget = target,
                 settings = scanSettings,
                 nodeMetadataProvider = nodeMetadataProvider,
-                readContext = { scanContext },
-                writeContext = { updatedContext -> scanContext = updatedContext },
             )
 
         for (index in workingSteps.indices) {
@@ -75,11 +72,15 @@ class CardScanService(
                     updatedStep.errorMessage == CARD_LOST_MESSAGE
             ) {
                 terminalErrorMessage = updatedStep.errorMessage
+                scanContext = session.contextSnapshot()
                 break
             }
+            scanContext = session.contextSnapshot()
         }
         val scanDuration = scanStartTime.elapsedNow()
-        scanContext = scanContext.copy(scanDurationMillis = scanDuration.inWholeMilliseconds)
+        session.context =
+            session.context.copy(scanDurationMillis = scanDuration.inWholeMilliseconds)
+        scanContext = session.contextSnapshot()
 
         return CardScanResult(
             steps = workingSteps,
@@ -104,9 +105,9 @@ class CardScanService(
             )
         }
 
-        if (scanStep.commandSupport(scanContext) == CommandSupport.UNSUPPORTED) {
+        if (scanStep.commandSupport(session.context) == CommandSupport.UNSUPPORTED) {
             return step.copy(
-                status = StepStatus.COMPLETED,
+                status = StepStatus.SKIPPED,
                 result = "Command not supported by this card",
                 duration = kotlin.time.Duration.ZERO,
             )
@@ -115,7 +116,6 @@ class CardScanService(
         val inProgressStep = step.copy(status = StepStatus.IN_PROGRESS)
         onStepUpdate(inProgressStep)
 
-        session.beginStep(scanStep)
         val startTime = TimeSource.Monotonic.markNow()
 
         try {
@@ -138,7 +138,15 @@ class CardScanService(
                 errorMessage = e.message ?: "Prerequisite not met",
                 duration = startTime.elapsedNow(),
             )
-        } catch (e: TagUnavailableException) {
+        } catch (e: StepSkipped) {
+            ScanLog.i("CardScanService", "Skipping step ${step.id}: ${e.message}")
+
+            return step.copy(
+                status = StepStatus.SKIPPED,
+                result = e.message ?: "Step skipped",
+                duration = startTime.elapsedNow(),
+            )
+        } catch (e: NfcTargetUnavailableException) {
             ScanLog.e("CardScanService", "Card unavailable for step ${step.id}", e)
 
             return step.copy(
@@ -146,10 +154,22 @@ class CardScanService(
                 errorMessage = CARD_LOST_MESSAGE,
                 duration = startTime.elapsedNow(),
             )
+        } catch (e: TransceiveTimeoutException) {
+            ScanLog.w("CardScanService", "No response for step ${step.id}: ${e.message}", e)
+
+            session.context =
+                scanStep.withCommandSupport(session.context, CommandSupport.UNSUPPORTED)
+
+            return step.copy(
+                status = StepStatus.ERROR,
+                errorMessage = e.message ?: "No response from target",
+                duration = startTime.elapsedNow(),
+            )
         } catch (e: Exception) {
             ScanLog.e("CardScanService", "Error executing step ${step.id}", e)
 
-            scanContext = scanStep.withCommandSupport(scanContext, CommandSupport.UNSUPPORTED)
+            session.context =
+                scanStep.withCommandSupport(session.context, CommandSupport.UNSUPPORTED)
 
             return step.copy(
                 status = StepStatus.ERROR,

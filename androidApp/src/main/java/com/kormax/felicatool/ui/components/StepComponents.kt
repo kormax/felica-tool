@@ -56,6 +56,7 @@ fun StepCard(
                 when (step.status) {
                     StepStatus.PENDING -> MaterialTheme.colorScheme.surface
                     StepStatus.IN_PROGRESS -> MaterialTheme.colorScheme.primaryContainer
+                    StepStatus.SKIPPED -> MaterialTheme.colorScheme.surfaceVariant
                     StepStatus.COMPLETED -> MaterialTheme.colorScheme.tertiaryContainer
                     StepStatus.ERROR -> MaterialTheme.colorScheme.errorContainer
                 },
@@ -66,6 +67,7 @@ fun StepCard(
         when (step.status) {
             StepStatus.PENDING -> MaterialTheme.colorScheme.onSurface
             StepStatus.IN_PROGRESS -> MaterialTheme.colorScheme.onPrimaryContainer
+            StepStatus.SKIPPED -> MaterialTheme.colorScheme.onSurfaceVariant
             StepStatus.COMPLETED -> MaterialTheme.colorScheme.onTertiaryContainer
             StepStatus.ERROR -> MaterialTheme.colorScheme.onErrorContainer
         }
@@ -84,6 +86,7 @@ fun StepCard(
                 when (step.status) {
                     StepStatus.PENDING -> step.icon.imageVector()
                     StepStatus.IN_PROGRESS -> Icons.Default.Refresh
+                    StepStatus.SKIPPED -> Icons.Default.Info
                     StepStatus.COMPLETED -> Icons.Default.CheckCircle
                     StepStatus.ERROR -> Icons.Default.Close
                 }
@@ -139,6 +142,7 @@ fun StepCard(
 
                 // Show result or error
                 when (step.status) {
+                    StepStatus.SKIPPED,
                     StepStatus.COMPLETED -> {
                         // Show collapsed or expanded result
                         val resultToShow =

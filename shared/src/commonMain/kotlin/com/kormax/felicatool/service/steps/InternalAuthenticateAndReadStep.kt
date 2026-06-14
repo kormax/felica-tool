@@ -44,12 +44,11 @@ internal object InternalAuthenticateAndReadStep :
         }
 
         if (bestSystemContext == null || bestMacService == null) {
-            throw StepPreconditionNotMet(
+            throw StepSkipped(
                 "No services with MAC communication enabled found. " +
                     "Internal Authenticate and Read requires at least one service with MAC enabled."
             )
         }
-        ensureCardPresence(target)
 
         val systemCodeHex = bestSystemContext.systemCode?.toHexString() ?: "unknown"
         val serviceCodeHex = bestMacService.code.toHexString()
@@ -59,79 +58,52 @@ internal object InternalAuthenticateAndReadStep :
             "Selected system $systemCodeHex, service $serviceCodeHex for Internal Authenticate and Read",
         )
 
-        // Poll the selected system before the command
-        pollSystemCode(target, bestSystemContext.systemCode)
-        val selectedSystemContext =
-            scanContext.systemScanContexts.firstOrNull { context ->
-                context.systemCode.sameBytes(bestSystemContext.systemCode)
-            }
-        val selectedSystemIdm = selectedSystemContext?.idm ?: target.idm
-
         // Generate a 16-byte challenge
         val challenge = ByteArray(16) { 0x00 }
 
         // Create block list element for block 0 of the service
         val blockListElement = BlockListElement(serviceCodeListOrder = 0, blockNumber = 0)
 
-        val command =
-            InternalAuthenticateAndReadCommand(
-                idm = selectedSystemIdm,
-                serviceCodes = arrayOf(bestMacService.code),
-                blockListElements = arrayOf(blockListElement),
-                challenge = challenge,
+        val response =
+            executeCommand(
+                withSelectedSystemCode = bestSystemContext.systemCode,
+                withResetToMode0 = true,
+            ) {
+                InternalAuthenticateAndReadCommand(
+                    idm = idm,
+                    serviceCodes = arrayOf(bestMacService.code),
+                    blockListElements = arrayOf(blockListElement),
+                    challenge = challenge,
+                )
+            }
+
+        return if (response.isStatusSuccessful) {
+            StepOutput(
+                buildString {
+                        appendLine("Internal Authenticate and Read Results:")
+                        appendLine("System: $systemCodeHex")
+                        appendLine("Service: $serviceCodeHex (${bestMacService.attribute})")
+                        appendLine("Challenge sent: ${challenge.toHexString()}")
+                        appendLine("Status: Success")
+                        appendLine("Blocks returned: ${response.blockData.size}")
+                        response.blockData.forEachIndexed { index, block ->
+                            appendLine("  Block $index: ${block.toHexString()}")
+                        }
+                        appendLine("Challenge response: ${response.challenge.toHexString()}")
+                        appendLine("MAC: ${response.mac.toHexString()}")
+                    }
+                    .trim()
             )
-
-        return try {
-            val response = target.transceive(command)
-            if (response.isStatusSuccessful) {
-                setCurrentMode(Mode.Mode1.AesMac, selectedSystemCode = bestSystemContext.systemCode)
-            }
-
-            val resetModeResult =
-                resetAuthenticationState(
-                    target = target,
-                    authenticatedSystemCode = bestSystemContext.systemCode,
-                    authenticatedSystemIdm = selectedSystemIdm,
-                )
-
-            if (response.isStatusSuccessful) {
-                StepOutput(
-                    buildString {
-                            appendLine("Internal Authenticate and Read Results:")
-                            appendLine("System: $systemCodeHex")
-                            appendLine("Service: $serviceCodeHex (${bestMacService.attribute})")
-                            appendLine("Challenge sent: ${challenge.toHexString()}")
-                            appendLine("Status: Success")
-                            appendLine("Blocks returned: ${response.blockData.size}")
-                            response.blockData.forEachIndexed { index, block ->
-                                appendLine("  Block $index: ${block.toHexString()}")
-                            }
-                            appendLine("Challenge response: ${response.challenge.toHexString()}")
-                            appendLine("MAC: ${response.mac.toHexString()}")
-                            appendLine()
-                            appendLine("Reset Mode:")
-                            appendLine("  $resetModeResult")
-                        }
-                        .trim()
-                )
-            } else {
-                StepOutput(
-                    buildString {
-                            appendLine("Internal Authenticate and Read Results:")
-                            appendLine("System: $systemCodeHex")
-                            appendLine("Service: $serviceCodeHex (${bestMacService.attribute})")
-                            appendLine("Challenge sent: ${challenge.toHexString()}")
-                            appendLine("Status: Failed (${formatStatus(response)})")
-                            appendLine()
-                            appendLine("Reset Mode:")
-                            appendLine("  $resetModeResult")
-                        }
-                        .trim()
-                )
-            }
-        } catch (e: Exception) {
-            throw RuntimeException(
-                "Internal Authenticate and Read failed for service $serviceCodeHex: ${e.message}"
+        } else {
+            StepOutput(
+                buildString {
+                        appendLine("Internal Authenticate and Read Results:")
+                        appendLine("System: $systemCodeHex")
+                        appendLine("Service: $serviceCodeHex (${bestMacService.attribute})")
+                        appendLine("Challenge sent: ${challenge.toHexString()}")
+                        appendLine("Status: Failed (${formatStatus(response)})")
+                    }
+                    .trim()
             )
         }
     }

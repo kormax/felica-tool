@@ -13,8 +13,9 @@ import com.kormax.felicatool.service.steps.GetContainerIdStep
 import com.kormax.felicatool.service.steps.GetContainerIssueInformationStep
 import com.kormax.felicatool.service.steps.GetContainerPropertyStep
 import com.kormax.felicatool.service.steps.GetNodeKeyVersionsStep
-import com.kormax.felicatool.service.steps.GetNodePropertyMacCommunicationStep
-import com.kormax.felicatool.service.steps.GetNodePropertyValueLimitedServiceStep
+import com.kormax.felicatool.service.steps.GetNodePropertyMacCommunicationDetermineSupportedStep
+import com.kormax.felicatool.service.steps.GetNodePropertyStep
+import com.kormax.felicatool.service.steps.GetNodePropertyValueLimitedServiceDetermineSupportedStep
 import com.kormax.felicatool.service.steps.GetSystemStatusStep
 import com.kormax.felicatool.service.steps.InitialInfoStep
 import com.kormax.felicatool.service.steps.InternalAuthenticateAndReadStep
@@ -28,7 +29,8 @@ import com.kormax.felicatool.service.steps.ReadWithoutEncryptionDetermineErrorIn
 import com.kormax.felicatool.service.steps.ReadWithoutEncryptionDetermineMaxBlocksStep
 import com.kormax.felicatool.service.steps.ReadWithoutEncryptionDetermineMaxServicesStep
 import com.kormax.felicatool.service.steps.ReadWithoutEncryptionDetermineSupportedStep
-import com.kormax.felicatool.service.steps.RequestBlockInformationExStep
+import com.kormax.felicatool.service.steps.RequestBlockInformationDetermineSupportedStep
+import com.kormax.felicatool.service.steps.RequestBlockInformationExDetermineSupportedStep
 import com.kormax.felicatool.service.steps.RequestBlockInformationStep
 import com.kormax.felicatool.service.steps.RequestCodeListDetermineSupportedStep
 import com.kormax.felicatool.service.steps.RequestProductInformationStep
@@ -59,18 +61,20 @@ internal object ScanStepRegistry {
             RequestSpecificationVersionStep,
             RequestProductInformationStep,
             GetSystemStatusStep,
-            RequestCodeListDetermineSupportedStep,
             SearchServiceCodeDetermineSupportedStep,
+            RequestCodeListDetermineSupportedStep,
             RequestServiceDetermineSupportedStep,
             RequestServiceUnknownNodeAttributesStep,
             RequestServiceV2DetermineSupportedStep,
             DiscoverNodesStep,
             GetNodeKeyVersionsStep,
             ForceDiscoverNodesStep,
+            RequestBlockInformationDetermineSupportedStep,
+            RequestBlockInformationExDetermineSupportedStep,
             RequestBlockInformationStep,
-            RequestBlockInformationExStep,
-            GetNodePropertyValueLimitedServiceStep,
-            GetNodePropertyMacCommunicationStep,
+            GetNodePropertyValueLimitedServiceDetermineSupportedStep,
+            GetNodePropertyMacCommunicationDetermineSupportedStep,
+            GetNodePropertyStep,
             ReadWithoutEncryptionDetermineSupportedStep,
             ReadWithoutEncryptionDetermineErrorIndicationStep,
             ReadWithoutEncryptionDetectIllegalNumberErrorPreferenceStep,

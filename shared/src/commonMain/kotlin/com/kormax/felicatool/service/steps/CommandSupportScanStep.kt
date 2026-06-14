@@ -31,7 +31,9 @@ internal abstract class CommandSupportScanStep(
 
     final override suspend fun run(session: ScanSession): StepOutput {
         val output = session.perform()
-        session.markStepSupported()
+        if (readSupport(session.context) != CommandSupport.UNSUPPORTED) {
+            session.context = withCommandSupport(session.context, CommandSupport.SUPPORTED)
+        }
         return output
     }
 

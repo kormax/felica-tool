@@ -1,13 +1,15 @@
 package com.kormax.felicatool.service
 
 import com.kormax.felicatool.felica.*
-import com.kormax.felicatool.nfc.TagUnavailableException
-import com.kormax.felicatool.service.logging.CommunicationLoggedFeliCaTarget
+import com.kormax.felicatool.nfc.NfcReaderException
+import com.kormax.felicatool.nfc.NfcTargetUnavailableException
+import com.kormax.felicatool.nfc.TransceiveErrorException
+import com.kormax.felicatool.nfc.TransceiveTimeoutException
+import com.kormax.felicatool.service.logging.CommunicationLogEntry
 import com.kormax.felicatool.util.NodeMetadataProvider
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
+import kotlin.time.TimeSource
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
@@ -15,23 +17,40 @@ import kotlinx.coroutines.delay
 private const val PRESENCE_CHECK_ATTEMPTS = 5
 private const val PRESENCE_CHECK_RETRY_DELAY_STEP_MS = 50L
 private const val PRESENCE_CHECK_REDISCOVERY_TIMEOUT_MILLIS = 600
-private const val RETRY_ATTEMPTS = 3
-private const val RETRY_DELAY_STEP_MS = 10L
 private const val FIELD_RESET_REDISCOVERY_TIMEOUT_MILLIS = 600
+
+internal const val COMMAND_EXECUTION_ATTEMPTS = 3
+internal val COMMAND_EXECUTION_RETRY_DELAY: Duration = 5.milliseconds
+internal val SYSTEM_CODE_WILDCARD: ByteArray = byteArrayOf(0xFF.toByte(), 0xFF.toByte())
+
+internal class CommandExecutionScope(
+    val idm: ByteArray,
+    val systemCode: ByteArray?,
+    /** 1-based command execution attempt index. */
+    val attempt: Int,
+)
 
 internal class ScanSession
 internal constructor(
-    val target: FeliCaTarget,
+    initialTarget: FeliCaTarget,
     val settings: ScanSettings,
     val nodeMetadataProvider: NodeMetadataProvider,
-    private val readContext: () -> CardScanContext,
-    private val writeContext: (CardScanContext) -> Unit,
+    initialContext: CardScanContext = CardScanContext(),
 ) {
-    var context: CardScanContext
-        get() = readContext()
-        set(value) {
-            writeContext(value)
-        }
+    private var activeTarget: FeliCaTarget = initialTarget
+    private val communicationLogMark = TimeSource.Monotonic.markNow()
+    private val communicationLog = mutableListOf<CommunicationLogEntry>()
+
+    val idm: ByteArray
+        get() = activeTarget.idm.copyOf()
+
+    val systemCode: ByteArray?
+        get() = activeTarget.systemCode?.copyOf()
+
+    val pmm: Pmm
+        get() = Pmm(activeTarget.pmm.toByteArray())
+
+    var context: CardScanContext = initialContext
 
     var scanContext: CardScanContext
         get() = context
@@ -39,380 +58,136 @@ internal constructor(
             context = value
         }
 
-    private lateinit var currentStep: ScanStep
     private var activeSystemCode: ByteArray? = null
 
     private var currentModeValue: Mode = Mode.Mode0
     val currentMode: Mode
         get() = currentModeValue
 
-    private val step: ScanStep
-        get() = currentStep
+    fun contextSnapshot(): CardScanContext =
+        context.copy(communicationLog = communicationLog.toList())
 
-    fun beginStep(step: ScanStep) {
-        currentStep = step
-    }
-
-    fun markStepSupported() {
-        context = step.withCommandSupport(context, CommandSupport.SUPPORTED)
-    }
-
-    fun setCurrentMode(
-        mode: Mode,
-        selectedSystemCode: ByteArray? = null,
-    ) {
-        if (mode == Mode.Mode0) {
-            resetCurrentMode()
-        } else {
-            activeSystemCode = selectedSystemCode?.copyOf()
-            currentModeValue = mode
-        }
-    }
-
-    suspend fun pollSystemCode(
-        target: FeliCaTarget,
-        systemCode: ByteArray? = null,
-    ) {
-        val pollingSystemCode =
-            systemCode ?: target.systemCode ?: byteArrayOf(0xFF.toByte(), 0xFF.toByte())
-        val pollingCommand =
-            PollingCommand(
-                systemCode = pollingSystemCode,
-                requestCode = RequestCode.NO_REQUEST,
-                timeSlot = TimeSlot.SLOT_1,
-            )
-        val pollingResponse = target.transceive(pollingCommand)
-
-        if (scanContext.systemScanContexts.isNotEmpty()) {
-            var updated = false
-            val updatedContexts =
-                scanContext.systemScanContexts.mapIndexed { index, context ->
-                    val shouldUpdate =
-                        when {
-                            systemCode != null -> context.systemCode.sameBytes(systemCode)
-                            scanContext.primarySystemCode != null ->
-                                context.systemCode.sameBytes(scanContext.primarySystemCode)
-                            scanContext.systemScanContexts.size == 1 -> index == 0
-                            else -> false
-                        }
-                    if (shouldUpdate && context.idm?.contentEquals(pollingResponse.idm) != true) {
-                        updated = true
-                        context.copy(idm = pollingResponse.idm)
-                    } else {
-                        context
-                    }
-                }
-
-            if (updated) {
-                scanContext = scanContext.copy(systemScanContexts = updatedContexts)
-            }
-        }
-
-        if (currentModeValue == Mode.Mode0) {
-            return
-        }
-
-        val resolvedPolledSystemCode =
-            systemCode
-                ?: scanContext.primarySystemCode
-                ?: scanContext.systemScanContexts.singleOrNull()?.systemCode
-        if (!activeSystemCode.sameBytes(resolvedPolledSystemCode)) {
-            resetCurrentMode()
-        }
-    }
-
-    suspend fun resetAuthenticationState(
-        target: FeliCaTarget,
-        authenticatedSystemCode: ByteArray?,
-        authenticatedSystemIdm: ByteArray?,
-    ): String {
-        if (authenticatedSystemIdm == null) {
-            return "State reset skipped: selected-system IDM is unavailable"
-        }
-
-        var fieldResetFailurePrefix =
-            when (scanContext.resetModeSupport) {
-                CommandSupport.SUPPORTED ->
-                    try {
-                        val resetModeResponse =
-                            target.transceive(ResetModeCommand(authenticatedSystemIdm))
-                        if (resetModeResponse.isStatusSuccessful) {
-                            setCurrentMode(Mode.Mode0)
-                            return "State reset to Mode 0 by executing Reset Mode command"
-                        }
-
-                        "Reset Mode failed (${formatStatus(resetModeResponse)}); field-drop reset to Mode 0"
-                    } catch (e: CancellationException) {
-                        throw e
-                    } catch (e: Exception) {
-                        val details = e.message ?: e::class.simpleName ?: "Unknown error"
-                        "Reset Mode error ($details); field-drop reset to Mode 0"
-                    }
-                CommandSupport.UNKNOWN ->
-                    "Reset Mode support is not confirmed; field-drop reset to Mode 0"
-                CommandSupport.UNSUPPORTED ->
-                    "Reset Mode is unsupported; field-drop reset to Mode 0"
-            }
-        var fieldResetSuccessMessage =
-            "State reset to Mode 0 by dropping reader field and rediscovering the card"
-
-        val alternativeSystemCode =
-            if (scanContext.systemScanContexts.size > 1) {
-                scanContext.systemScanContexts
-                    .firstOrNull { context ->
-                        !context.systemCode.sameBytes(authenticatedSystemCode)
-                    }
-                    ?.systemCode
-            } else {
-                null
-            }
-
-        if (alternativeSystemCode != null) {
-            try {
-                pollSystemCode(target, alternativeSystemCode)
-                val returnPollingResult =
-                    try {
-                        if (authenticatedSystemCode != null) {
-                            pollSystemCode(target, authenticatedSystemCode)
-                            "re-polled back to selected system (${authenticatedSystemCode.toHexString().uppercase()})"
-                        } else {
-                            "selected system code is unavailable for re-poll"
-                        }
-                    } catch (e: CancellationException) {
-                        throw e
-                    } catch (e: Exception) {
-                        val details = e.message ?: e::class.simpleName ?: "Unknown error"
-                        "failed to re-poll selected system ($details)"
-                    }
-
-                return buildString {
-                    append("State reset to Mode 0 by polling another system ")
-                    append("(${alternativeSystemCode.toHexString().uppercase()}); ")
-                    append(returnPollingResult)
-                }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                val details = e.message ?: e::class.simpleName ?: "Unknown error"
-                fieldResetFailurePrefix =
-                    "State reset via alternate-system polling failed ($details); field-drop reset to Mode 0"
-                fieldResetSuccessMessage =
-                    "State reset to Mode 0 by dropping reader field after alternate-system polling failed ($details)"
-            }
-        } else {
-            fieldResetFailurePrefix =
-                when (scanContext.resetModeSupport) {
-                    CommandSupport.UNSUPPORTED ->
-                        "Reset Mode is unsupported and no alternate system is available for polling reset; field-drop reset to Mode 0"
-                    CommandSupport.UNKNOWN ->
-                        "Reset Mode support is not confirmed and no alternate system is available for polling reset; field-drop reset to Mode 0"
-                    CommandSupport.SUPPORTED -> fieldResetFailurePrefix
-                }
-        }
-
-        return try {
-            val rediscoveredTarget =
-                dropAndRediscover(
-                    target = target,
-                    timeout = FIELD_RESET_REDISCOVERY_TIMEOUT_MILLIS.milliseconds,
-                )
-            (target as? CommunicationLoggedFeliCaTarget)?.replaceTarget(rediscoveredTarget)
-            resetCurrentMode()
-            fieldResetSuccessMessage
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: TagUnavailableException) {
-            "$fieldResetFailurePrefix failed (${e.message})"
-        }
-    }
-
-    private fun resetCurrentMode() {
-        activeSystemCode = null
-        currentModeValue = Mode.Mode0
-    }
-
-    suspend fun ensureCardPresence(
-        target: FeliCaTarget,
-        maxAttempts: Int = PRESENCE_CHECK_ATTEMPTS,
-    ) {
-        var lastException: Exception? = null
-        val stepId = step.descriptor.id
-
-        var attempt = 1
-        while (attempt <= maxAttempts) {
-            if (!target.isAvailable) {
-                try {
-                    val rediscoveredTarget =
-                        dropAndRediscover(
-                            target = target,
-                            timeout = PRESENCE_CHECK_REDISCOVERY_TIMEOUT_MILLIS.milliseconds,
-                        )
-                    ScanLog.w("CardScanService", "Card rediscovered")
-                    (target as? CommunicationLoggedFeliCaTarget)?.replaceTarget(rediscoveredTarget)
-                    return
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: Exception) {
-                    ScanLog.w(
-                        "CardScanService",
-                        "Card rediscovery failed during presence check for step $stepId",
-                        e,
-                    )
-                    throw TagUnavailableException(CardScanService.CARD_LOST_MESSAGE, e)
-                }
-            }
-
-            try {
-                if (scanContext.requestResponseSupport == CommandSupport.SUPPORTED) {
-                    try {
-                        target.transceive(RequestResponseCommand(target.idm))
-                        return
-                    } catch (e: Exception) {
-                        when (e) {
-                            is CancellationException,
-                            is TagUnavailableException -> throw e
-                        }
-                        ScanLog.w(
-                            "CardScanService",
-                            "Request Response presence check failed for step $stepId",
-                            e,
-                        )
-                    }
-                }
-
-                if (scanContext.requestServiceSupport == CommandSupport.SUPPORTED) {
-                    try {
-                        val probeService = Service(0, ServiceAttribute.RandomRoWithoutKey)
-                        target.transceive(
-                            RequestServiceCommand(target.idm, arrayOf(probeService.code))
-                        )
-                        return
-                    } catch (e: Exception) {
-                        when (e) {
-                            is CancellationException,
-                            is TagUnavailableException -> throw e
-                        }
-                        ScanLog.w(
-                            "CardScanService",
-                            "Request Service presence check failed for step $stepId",
-                            e,
-                        )
-                    }
-                }
-
-                pollSystemCode(target)
-                return
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                lastException = e
-                ScanLog.w(
-                    "CardScanService",
-                    "Card presence check attempt $attempt failed for step $stepId",
-                    e,
-                )
-                delay(PRESENCE_CHECK_RETRY_DELAY_STEP_MS * attempt)
-            }
-            attempt++
-        }
-
-        throw TagUnavailableException(CardScanService.CARD_LOST_MESSAGE, lastException)
-    }
-
-    suspend fun <T : FelicaResponse> transceiveWithRetries(
-        target: FeliCaTarget,
-        command: FelicaCommand<T>,
-        systemCode: ByteArray? = null,
-        maxAttempts: Int = RETRY_ATTEMPTS,
-        retryDelayStepMs: Long = RETRY_DELAY_STEP_MS,
+    suspend fun <T : FelicaResponse> executeCommand(
+        withSelectedSystemCode: ByteArray? = null,
+        withResetToMode0: Boolean = false,
+        withPresenceChecking: Boolean = true,
+        attempts: Int = COMMAND_EXECUTION_ATTEMPTS,
+        retryDelay: Duration = COMMAND_EXECUTION_RETRY_DELAY,
+        createCommand: CommandExecutionScope.() -> FelicaCommand<T>,
     ): T =
-        transceiveWithRetries(
-            target = target,
-            systemCode = systemCode,
-            maxAttempts = maxAttempts,
-            retryDelayStepMs = retryDelayStepMs,
-        ) { _, _ ->
-            command
+        executeCommand(
+            withSelectedSystemCode = withSelectedSystemCode,
+            withResetToMode0 = withResetToMode0,
+            withPresenceChecking = withPresenceChecking,
+            attempts = attempts,
+            retryDelay = { retryDelay },
+            createCommand = createCommand,
+        )
+
+    suspend fun <T : FelicaResponse> executeCommand(
+        withSelectedSystemCode: ByteArray? = null,
+        withResetToMode0: Boolean = false,
+        withPresenceChecking: Boolean = true,
+        attempts: Int = COMMAND_EXECUTION_ATTEMPTS,
+        retryDelay: CommandExecutionScope.() -> Duration,
+        createCommand: CommandExecutionScope.() -> FelicaCommand<T>,
+    ): T {
+        require(attempts >= 1) { "Command execution attempts must be at least 1" }
+        val selectedSystemCode = withSelectedSystemCode?.copyOf()
+        selectedSystemCode?.let {
+            require(it.size == 2) { "Selected system code must be exactly 2 bytes" }
         }
 
-    suspend fun <T : FelicaResponse> transceiveWithRetries(
-        target: FeliCaTarget,
-        systemCode: ByteArray? = null,
-        maxAttempts: Int = RETRY_ATTEMPTS,
-        retryDelayStepMs: Long = RETRY_DELAY_STEP_MS,
-        createCommand: (FeliCaTarget, Int) -> FelicaCommand<T>,
-    ): T {
         var lastException: Exception? = null
         var lastCommandLabel = "FeliCa command"
-        var activeTarget = target
+        var lastCommandIdm: ByteArray? = null
+        var commandWasSent = false
 
-        for (attempt in 1..maxAttempts) {
-            try {
-                if (!activeTarget.isAvailable) {
-                    val rediscoveredTarget =
-                        try {
-                            dropAndRediscover(
-                                target = activeTarget,
-                                timeout = PRESENCE_CHECK_REDISCOVERY_TIMEOUT_MILLIS.milliseconds,
-                            )
-                        } catch (e: CancellationException) {
-                            throw e
-                        } catch (e: Exception) {
-                            throw TagUnavailableException(CardScanService.CARD_LOST_MESSAGE, e)
-                        }
+        for (attempt in 1..attempts) {
+            var attemptCommandLabel = "system activation"
+            val failure: Exception =
+                try {
+                    ensureActiveTargetAvailable()
 
-                    ScanLog.w("CardScanService", "Card rediscovered")
-                    (target as? CommunicationLoggedFeliCaTarget)?.replaceTarget(rediscoveredTarget)
-                    activeTarget =
-                        if (target is CommunicationLoggedFeliCaTarget) {
-                            target
-                        } else {
-                            rediscoveredTarget
-                        }
-                }
-
-                if (systemCode != null) {
-                    // First attempt can trust a matching cached system code; retries poll again to
-                    // confirm the card is still present and selected after a failed exchange.
-                    val isWildcardSystemCode =
-                        systemCode.size == 2 && systemCode.all { it == 0xFF.toByte() }
-                    val shouldPollSystemCode =
-                        attempt > 1 ||
-                            (!isWildcardSystemCode &&
-                                !activeTarget.currentSystemCode.sameBytes(systemCode))
-                    if (shouldPollSystemCode) {
-                        pollSystemCode(activeTarget, systemCode)
+                    if (selectedSystemCode != null && shouldSelectSystemCode(selectedSystemCode)) {
+                        selectSystemCode(selectedSystemCode)
                     }
-                }
-                val retryTimeoutExtension =
-                    (retryDelayStepMs * (attempt - 1)).toDuration(DurationUnit.MILLISECONDS)
-                val command = createCommand(activeTarget, attempt)
-                lastCommandLabel = command::class.simpleName ?: "FeliCa command"
-                return activeTarget.transceive(
-                    command,
-                    activeTarget.inferTimeout(command) + retryTimeoutExtension,
-                )
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                lastException = e
-                if (attempt >= maxAttempts) {
-                    break
+
+                    val scope =
+                        CommandExecutionScope(
+                            idm = resolveCurrentIdm(selectedSystemCode),
+                            systemCode = selectedSystemCode?.copyOf(),
+                            attempt = attempt,
+                        )
+                    val command = scope.createCommand()
+                    lastCommandLabel = command::class.simpleName ?: "FeliCa command"
+                    attemptCommandLabel = lastCommandLabel
+                    lastCommandIdm = (command as? FelicaCommandWithIdm<*>)?.idm?.copyOf()
+
+                    commandWasSent = true
+
+                    val response = transceive(command, selectedSystemCode = selectedSystemCode)
+
+                    if (withResetToMode0) {
+                        resetToMode0OrThrow(
+                            authenticatedSystemCode = selectedSystemCode,
+                            authenticatedSystemIdm = lastCommandIdm,
+                        )
+                    }
+
+                    return response
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: NfcTargetUnavailableException) {
+                    throw e
+                } catch (e: TransceiveTimeoutException) {
+                    e
+                } catch (e: TransceiveErrorException) {
+                    e
                 }
 
-                ScanLog.w(
-                    "CardScanService",
-                    "$lastCommandLabel attempt $attempt failed; retrying",
-                    e,
+            lastException = failure
+            if (attempt >= attempts) {
+                break
+            }
+
+            val delayScope =
+                CommandExecutionScope(
+                    idm = resolveCurrentIdm(selectedSystemCode),
+                    systemCode = selectedSystemCode?.copyOf(),
+                    attempt = attempt,
                 )
+            val delayDuration = delayScope.retryDelay()
+            require(!delayDuration.isNegative()) { "Retry delay must not be negative" }
+            ScanLog.w(
+                "CardScanService",
+                "$attemptCommandLabel attempt $attempt failed; retrying",
+                failure,
+            )
+            delay(delayDuration)
+        }
+
+        val cause =
+            lastException ?: RuntimeException("$lastCommandLabel failed without an exception")
+        if (withPresenceChecking) {
+            if (withResetToMode0 && commandWasSent) {
+                resetToMode0OrThrow(
+                    authenticatedSystemCode = selectedSystemCode,
+                    authenticatedSystemIdm = lastCommandIdm,
+                )
+            } else {
+                confirmCardPresence(withSelectedSystemCode = selectedSystemCode)
             }
         }
 
-        if (!activeTarget.isAvailable) {
-            throw TagUnavailableException(CardScanService.CARD_LOST_MESSAGE, lastException)
+        if (cause is TransceiveErrorException) {
+            throw cause
         }
 
-        throw lastException ?: RuntimeException("$lastCommandLabel failed without an exception")
+        throw TransceiveTimeoutException(
+            message = "No response from target after $attempts attempt(s)",
+            cause = cause,
+        )
     }
 
     suspend fun handleDiscoveredSystemCodes(
@@ -432,7 +207,7 @@ internal constructor(
             } else {
                 val canPoll =
                     try {
-                        pollSystemCode(target, systemCode)
+                        selectSystemCode(systemCode)
                         true
                     } catch (e: Exception) {
                         ScanLog.d(
@@ -445,9 +220,9 @@ internal constructor(
                 if (canPoll) {
                     updatedSystemContexts.add(
                         SystemScanContext(
-                            systemCode = systemCode,
+                            systemCode = systemCode.copyOf(),
                             nodes = emptyList(),
-                            idm = target.idm,
+                            idm = activeTarget.idm.copyOf(),
                         )
                     )
                 }
@@ -455,6 +230,297 @@ internal constructor(
         }
 
         return updatedSystemContexts
+    }
+
+    private suspend fun ensureActiveTargetAvailable() {
+        if (activeTarget.isAvailable) {
+            return
+        }
+
+        activeTarget =
+            dropAndRediscover(
+                target = activeTarget,
+                timeout = PRESENCE_CHECK_REDISCOVERY_TIMEOUT_MILLIS.milliseconds,
+            )
+        ScanLog.w("CardScanService", "Card rediscovered")
+    }
+
+    private suspend fun <T : FelicaResponse> transceive(
+        command: FelicaCommand<T>,
+        selectedSystemCode: ByteArray? = null,
+        timeout: Duration? = null,
+    ): T {
+        val commandBytes = command.toByteArray()
+        log(command)
+        updateStateAfterCommandSent(command, selectedSystemCode)
+
+        val responseBytes =
+            try {
+                activeTarget.transceive(
+                    commandBytes,
+                    timeout ?: activeTarget.inferTimeout(command),
+                )
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: NfcReaderException) {
+                throw e
+            } catch (e: Exception) {
+                throw TransceiveErrorException(cause = e)
+            }
+
+        val response = command.responseFromByteArray(responseBytes)
+        log(response)
+        updateStateAfterResponse(command, response)
+        return response
+    }
+
+    private suspend fun selectSystemCode(systemCode: ByteArray): PollingResponse {
+        require(systemCode.size == 2) { "System code must be exactly 2 bytes" }
+        val selectedSystemCode = systemCode.copyOf()
+        val pollingCommand =
+            PollingCommand(
+                systemCode = selectedSystemCode,
+                requestCode = RequestCode.NO_REQUEST,
+                timeSlot = TimeSlot.SLOT_1,
+            )
+
+        return transceive(pollingCommand)
+    }
+
+    private fun shouldSelectSystemCode(systemCode: ByteArray): Boolean {
+        val currentSystemCode = activeTarget.systemCode ?: return true
+        return !systemCode.sameBytes(SYSTEM_CODE_WILDCARD) &&
+            !currentSystemCode.contentEquals(systemCode)
+    }
+
+    private suspend fun resetToMode0OrThrow(
+        authenticatedSystemCode: ByteArray?,
+        authenticatedSystemIdm: ByteArray?,
+    ) {
+        if (
+            authenticatedSystemIdm != null &&
+                scanContext.resetModeSupport == CommandSupport.SUPPORTED
+        ) {
+            try {
+                val resetModeCommand = ResetModeCommand(authenticatedSystemIdm)
+                transceive(resetModeCommand)
+                return
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: NfcTargetUnavailableException) {
+                throw e
+            } catch (e: Exception) {
+                ScanLog.w("CardScanService", "Reset Mode command failed; falling back", e)
+            }
+        }
+
+        val alternativeSystemCode =
+            if (scanContext.systemScanContexts.size > 1) {
+                scanContext.systemScanContexts
+                    .firstOrNull { context ->
+                        !context.systemCode.sameBytes(authenticatedSystemCode)
+                    }
+                    ?.systemCode
+                    ?.copyOf()
+            } else {
+                null
+            }
+
+        if (alternativeSystemCode != null) {
+            try {
+                selectSystemCode(alternativeSystemCode)
+                authenticatedSystemCode?.let { selectSystemCode(it) }
+                return
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: NfcTargetUnavailableException) {
+                throw e
+            } catch (e: Exception) {
+                ScanLog.w(
+                    "CardScanService",
+                    "Alternate-system polling reset failed; falling back to field reset",
+                    e,
+                )
+            }
+        }
+
+        activeTarget =
+            dropAndRediscover(
+                target = activeTarget,
+                timeout = FIELD_RESET_REDISCOVERY_TIMEOUT_MILLIS.milliseconds,
+            )
+        resetCurrentMode()
+    }
+
+    private suspend fun confirmCardPresence(
+        withSelectedSystemCode: ByteArray? = null,
+        maxAttempts: Int = PRESENCE_CHECK_ATTEMPTS,
+    ) {
+        var lastException: Exception? = null
+
+        var attempt = 1
+        while (attempt <= maxAttempts) {
+            try {
+                ensureActiveTargetAvailable()
+
+                if (
+                    scanContext.requestResponseSupport == CommandSupport.SUPPORTED &&
+                        activeTarget.pmm.icType != 0x24.toByte()
+                ) {
+                    val command = RequestResponseCommand(activeTarget.idm)
+                    transceive(command)
+                    return
+                }
+
+                if (withSelectedSystemCode.sameBytes(SYSTEM_CODE_WILDCARD)) {
+                    selectSystemCode(SYSTEM_CODE_WILDCARD)
+                    return
+                }
+
+                if (scanContext.requestServiceSupport == CommandSupport.SUPPORTED) {
+                    val probeService = Service(0, ServiceAttribute.RandomRoWithoutKey)
+                    val command =
+                        RequestServiceCommand(activeTarget.idm, arrayOf(probeService.code))
+                    transceive(command)
+                    return
+                }
+
+                selectSystemCode(
+                    withSelectedSystemCode ?: activeTarget.systemCode ?: SYSTEM_CODE_WILDCARD
+                )
+                return
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: NfcTargetUnavailableException) {
+                throw e
+            } catch (e: Exception) {
+                lastException = e
+                ScanLog.w(
+                    "CardScanService",
+                    "Card presence check attempt $attempt failed",
+                    e,
+                )
+                delay(PRESENCE_CHECK_RETRY_DELAY_STEP_MS * attempt)
+            }
+            attempt++
+        }
+
+        throw NfcTargetUnavailableException(CardScanService.CARD_LOST_MESSAGE, lastException)
+    }
+
+    private fun resolveCurrentIdm(systemCode: ByteArray?): ByteArray {
+        val contextIdm =
+            if (systemCode != null && !systemCode.sameBytes(SYSTEM_CODE_WILDCARD)) {
+                scanContext.systemScanContexts
+                    .firstOrNull { context -> context.systemCode.sameBytes(systemCode) }
+                    ?.idm
+            } else {
+                null
+            }
+
+        return (contextIdm ?: activeTarget.idm).copyOf()
+    }
+
+    private fun updateStateAfterResponse(command: FelicaCommand<*>, response: FelicaResponse) {
+        when {
+            command is PollingCommand && response is PollingResponse -> {
+                activeTarget.currentIdm = response.idm.copyOf()
+                activeTarget.currentSystemCode =
+                    when {
+                        command.requestCode == RequestCode.SYSTEM_CODE_REQUEST &&
+                            response.hasRequestData -> response.systemCode.copyOf()
+                        !command.systemCode.sameBytes(SYSTEM_CODE_WILDCARD) ->
+                            command.systemCode.copyOf()
+                        else -> null
+                    }
+                updateSystemContextIdm(command, response)
+                resetModeIfPollingSelectedDifferentSystem(command)
+            }
+            command is FelicaCommandWithIdm<*> -> {
+                val commandIdm = command.idm.copyOf()
+                if (!activeTarget.currentIdm.contentEquals(commandIdm)) {
+                    activeTarget.currentSystemCode = null
+                }
+                activeTarget.currentIdm = commandIdm
+            }
+        }
+
+        if (command is ResetModeCommand && response is ResetModeResponse) {
+            resetCurrentMode()
+        }
+    }
+
+    private fun resetModeIfPollingSelectedDifferentSystem(command: PollingCommand) {
+        if (currentModeValue == Mode.Mode0) {
+            return
+        }
+
+        val resolvedPolledSystemCode =
+            command.systemCode.takeUnless { it.sameBytes(SYSTEM_CODE_WILDCARD) }
+        if (!activeSystemCode.sameBytes(resolvedPolledSystemCode)) {
+            resetCurrentMode()
+        }
+    }
+
+    private fun updateSystemContextIdm(command: PollingCommand, response: PollingResponse) {
+        if (scanContext.systemScanContexts.isEmpty()) {
+            return
+        }
+
+        val requestedSystemCode = command.systemCode
+        var updated = false
+        val updatedContexts =
+            scanContext.systemScanContexts.mapIndexed { index, context ->
+                val shouldUpdate =
+                    when {
+                        !requestedSystemCode.sameBytes(SYSTEM_CODE_WILDCARD) ->
+                            context.systemCode.sameBytes(requestedSystemCode)
+                        scanContext.primarySystemCode != null ->
+                            context.systemCode.sameBytes(scanContext.primarySystemCode)
+                        scanContext.systemScanContexts.size == 1 -> index == 0
+                        else -> false
+                    }
+                if (shouldUpdate && context.idm?.contentEquals(response.idm) != true) {
+                    updated = true
+                    context.copy(idm = response.idm.copyOf())
+                } else {
+                    context
+                }
+            }
+
+        if (updated) {
+            scanContext = scanContext.copy(systemScanContexts = updatedContexts)
+        }
+    }
+
+    private fun updateStateAfterCommandSent(
+        command: FelicaCommand<*>,
+        selectedSystemCode: ByteArray?,
+    ) {
+        val mode =
+            when (command) {
+                is Authentication1DesCommand -> Mode.Mode1.Des
+                is Authentication1AesCommand -> Mode.Mode1.Aes
+                is InternalAuthenticateAndReadCommand -> Mode.Mode1.AesMac
+                else -> null
+            } ?: return
+
+        activeSystemCode =
+            selectedSystemCode?.takeUnless { it.sameBytes(SYSTEM_CODE_WILDCARD) }?.copyOf()
+        currentModeValue = mode
+    }
+
+    private fun resetCurrentMode() {
+        activeSystemCode = null
+        currentModeValue = Mode.Mode0
+    }
+
+    private fun log(message: Any) {
+        communicationLog +=
+            CommunicationLogEntry(
+                timestamp = communicationLogMark.elapsedNow().inWholeNanoseconds,
+                message = message,
+            )
     }
 }
 
@@ -468,16 +534,16 @@ private suspend fun dropAndRediscover(
             target.drop()
             target.readerSession.discoverFeliCaTarget(timeout = timeout)
         } catch (e: TimeoutCancellationException) {
-            throw TagUnavailableException("card was not rediscovered", e)
+            throw NfcTargetUnavailableException("card was not rediscovered", e)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
             val details = e.message ?: e::class.simpleName ?: "Unknown error"
-            throw TagUnavailableException("rediscovery failed: $details", e)
+            throw NfcTargetUnavailableException("rediscovery failed: $details", e)
         }
 
     if (!rediscoveredTarget.initialIdm.contentEquals(initialIdm)) {
-        throw TagUnavailableException("rediscovered a different card")
+        throw NfcTargetUnavailableException("rediscovered a different card")
     }
 
     return rediscoveredTarget

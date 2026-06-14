@@ -238,7 +238,9 @@ private class AndroidNfcReaderSession(
 
         if (replacedTarget != null) {
             Log.i(TAG, "Marking previous NFC tag unavailable after rediscovery")
-            replacedTarget.markUnavailable(TagLostException())
+            replacedTarget.markUnavailable(
+                NfcTargetUnavailableException("NFC target was replaced by a rediscovered target")
+            )
         }
 
         if (discovery != null) {
@@ -261,7 +263,7 @@ private class AndroidNfcReaderSession(
                 }
             }
 
-        target?.markUnavailable(TagLostException())
+        target?.markUnavailable(NfcTargetUnavailableException("NFC target was removed"))
     }
 
     private fun resumeDiscoveryWithTag(tag: Tag, discovery: CancellableContinuation<FeliCaTarget>) {
@@ -302,7 +304,9 @@ private class AndroidNfcReaderSession(
                             currentTarget = null
                         }
                     }
-                    target.markUnavailable(TagLostException())
+                    target.markUnavailable(
+                        NfcTargetUnavailableException("NFC target discovery was cancelled")
+                    )
                 }
             } catch (e: Exception) {
                 val sessionException =
@@ -345,7 +349,7 @@ private class AndroidNfcReaderSession(
         activity.lifecycle.removeObserver(this)
         disableReaderMode()
         if (target != null) {
-            target.markUnavailable(TagLostException())
+            target.markUnavailable(NfcTargetUnavailableException("NFC reader session closed"))
         }
 
         if (discovery?.isActive == true) {

@@ -20,22 +20,19 @@ internal object RequestServiceV2DetermineSupportedStep :
     ): CardScanContext = context.copy(requestServiceV2Support = support)
 
     override suspend fun ScanSession.perform(): StepOutput {
-        val systemContext = scanContext.systemScanContexts.firstOrNull()
-
         val requestServiceV2Response =
-            transceiveWithRetries(
-                target,
-                RequestServiceV2Command(target.idm, arrayOf(System.code)),
-                systemCode = systemContext?.systemCode,
-                maxAttempts = ATTEMPTS_DETERMINE_SUPPORTED,
-            )
+            executeCommand(
+                withSelectedSystemCode = SYSTEM_CODE_WILDCARD,
+                attempts = ATTEMPTS_DETERMINE_SUPPORTED,
+            ) {
+                RequestServiceV2Command(idm, arrayOf(System.code))
+            }
         val aesKeyVersion = requestServiceV2Response.aesKeyVersions.firstOrNull()
         val desKeyVersion = requestServiceV2Response.desKeyVersions.firstOrNull()
 
         return StepOutput(
             buildString {
                     appendLine("Request Service V2 command is supported (response received)")
-                    appendLine("System: ${formatSystemCodeLabel(systemContext?.systemCode)}")
                     appendLine("Node: ${System.code.toHexString().uppercase()} (System)")
                     appendLine("Status: ${formatStatus(requestServiceV2Response)}")
                     requestServiceV2Response.encryptionIdentifier?.let { encryptionIdentifier ->

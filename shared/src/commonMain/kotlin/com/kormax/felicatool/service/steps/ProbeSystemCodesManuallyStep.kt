@@ -21,8 +21,6 @@ internal object ProbeSystemCodesManuallyStep :
         icon = ScanStepIcon.SEARCH,
     ) {
     override suspend fun ScanSession.perform(): StepOutput {
-        ensureCardPresence(target)
-
         val requestSystemCodeSucceeded =
             scanContext.requestSystemCodeSupport == CommandSupport.SUPPORTED
         val reportedSystemCodes =
@@ -56,8 +54,15 @@ internal object ProbeSystemCodesManuallyStep :
         for ((systemCode, label) in targetsToProbe) {
             val systemCodeHex = systemCode.toHexString().uppercase()
             try {
-                pollSystemCode(target, systemCode)
-                val contextAdded = addOrUpdateSystemContext(systemCode, target.idm)
+                val pollingResponse =
+                    executeCommand(withPresenceChecking = false) {
+                        PollingCommand(
+                            systemCode = systemCode,
+                            requestCode = RequestCode.NO_REQUEST,
+                            timeSlot = TimeSlot.SLOT_1,
+                        )
+                    }
+                val contextAdded = addOrUpdateSystemContext(systemCode, pollingResponse.idm)
                 val contextStatus =
                     if (contextAdded) {
                         "added system context"
@@ -70,7 +75,7 @@ internal object ProbeSystemCodesManuallyStep :
                     manualAddedCount++
                 }
                 manualResultLines +=
-                    "  - $systemCodeHex ($label): found (IDM ${target.idm.toHexString().uppercase()}; $contextStatus)"
+                    "  - $systemCodeHex ($label): found (IDM ${pollingResponse.idm.toHexString().uppercase()}; $contextStatus)"
             } catch (e: Exception) {
                 val error = e.message ?: e::class.simpleName ?: "Unknown error"
                 manualResultLines += "  - $systemCodeHex ($label): not found ($error)"
@@ -104,14 +109,14 @@ internal object ProbeSystemCodesManuallyStep :
                 }
 
                 try {
-                    val pollingCommand =
-                        PollingCommand(
-                            systemCode = probeSystemCode,
-                            requestCode = RequestCode.SYSTEM_CODE_REQUEST,
-                            timeSlot = TimeSlot.SLOT_1,
-                        )
                     val pollingResponse =
-                        transceiveWithRetries(target = target, command = pollingCommand)
+                        executeCommand(withPresenceChecking = false) {
+                            PollingCommand(
+                                systemCode = probeSystemCode,
+                                requestCode = RequestCode.SYSTEM_CODE_REQUEST,
+                                timeSlot = TimeSlot.SLOT_1,
+                            )
+                        }
 
                     val discoveredSystemCode =
                         if (pollingResponse.hasRequestData) {

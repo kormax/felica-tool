@@ -16,12 +16,9 @@ internal object ReadWithoutEncryptionDetermineErrorIndicationStep :
         val invalidBlockNumber = 127
 
         val response =
-            transceiveWithRetries(
-                target = target,
-                systemCode = testTarget.systemContext.systemCode,
-            ) { activeTarget, _ ->
+            executeCommand(withSelectedSystemCode = testTarget.systemContext.systemCode) {
                 ReadWithoutEncryptionCommand(
-                    idm = activeTarget.idm,
+                    idm = idm,
                     serviceCodes = arrayOf(testTarget.service.code),
                     blockListElements =
                         arrayOf(
@@ -51,7 +48,7 @@ internal object ReadWithoutEncryptionDetermineErrorIndicationStep :
             scanContext =
                 scanContext.copy(readWithoutEncryptionErrorLocationIndication = fallbackType)
 
-            markStepSupported()
+            scanContext = withCommandSupport(scanContext, CommandSupport.SUPPORTED)
             throw StepBehaviorUnexpected(fallbackMessage)
         }
 
@@ -63,7 +60,7 @@ internal object ReadWithoutEncryptionDetermineErrorIndicationStep :
             scanContext =
                 scanContext.copy(readWithoutEncryptionErrorLocationIndication = fallbackType)
 
-            markStepSupported()
+            scanContext = withCommandSupport(scanContext, CommandSupport.SUPPORTED)
             throw StepBehaviorUnexpected(fallbackMessage)
         }
 
@@ -106,7 +103,7 @@ internal object ReadWithoutEncryptionDetermineErrorIndicationStep :
             scanContext.copy(readWithoutEncryptionErrorLocationIndication = errorIndicationType)
 
         if (usedFallback) {
-            markStepSupported()
+            scanContext = withCommandSupport(scanContext, CommandSupport.SUPPORTED)
             throw StepBehaviorUnexpected(
                 fallbackMessage ?: "Error indication fallback to ${fallbackType.name}"
             )

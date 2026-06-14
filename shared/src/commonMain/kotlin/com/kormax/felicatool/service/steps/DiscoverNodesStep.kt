@@ -1,11 +1,9 @@
 package com.kormax.felicatool.service.steps
 
 import com.kormax.felicatool.felica.*
-import com.kormax.felicatool.nfc.TagUnavailableException
 import com.kormax.felicatool.service.*
 import com.kormax.felicatool.ui.ScanStepIcon
 import com.kormax.felicatool.util.NodeDefinitionType
-import kotlinx.coroutines.CancellationException
 
 private data class NodeDiscoveryResult(
     val methodLabel: String,
@@ -26,9 +24,6 @@ internal object DiscoverNodesStep :
             scanContext.requestCodeListSupport == CommandSupport.SUPPORTED
         val searchServiceCodeSupported =
             scanContext.searchServiceCodeSupport == CommandSupport.SUPPORTED
-        if (requestCodeListSupported || searchServiceCodeSupported) {
-            ensureCardPresence(target)
-        }
         val details = mutableListOf<String>()
 
         val discoveryResult =
@@ -164,22 +159,16 @@ internal object DiscoverNodesStep :
             val systemCodeHex = formatSystemCodeLabel(systemContext.systemCode)
 
             try {
-                pollSystemCode(target, systemContext.systemCode)
-
                 val areas = mutableListOf<Area>()
                 val services = mutableListOf<Service>()
                 var requestCount = 0
                 var stopReason = "completed"
 
                 for (index in 1..RequestCodeListCommand.MAX_ITERATOR_INDEX) {
-                    val requestCodeListCommand =
-                        RequestCodeListCommand(target.idm, Area.ROOT, index)
                     val requestCodeListResponse =
-                        transceiveWithRetries(
-                            target = target,
-                            command = requestCodeListCommand,
-                            systemCode = systemContext.systemCode,
-                        )
+                        executeCommand(withSelectedSystemCode = systemContext.systemCode) {
+                            RequestCodeListCommand(idm, Area.ROOT, index)
+                        }
                     requestCount++
 
                     if (!requestCodeListResponse.isStatusSuccessful) {
@@ -211,10 +200,6 @@ internal object DiscoverNodesStep :
                 details.add(
                     "System ${contextIndex + 1} ($systemCodeHex): Request Code List found ${areas.size} area(s), ${services.size} service(s) in $requestCount request(s); $stopReason"
                 )
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: TagUnavailableException) {
-                throw e
             } catch (e: Exception) {
                 ScanLog.w(
                     "CardScanService",
@@ -241,7 +226,7 @@ internal object DiscoverNodesStep :
         }
 
         val fallbackContext =
-            SystemScanContext(systemCode = scanContext.primarySystemCode, idm = target.idm)
+            SystemScanContext(systemCode = scanContext.primarySystemCode, idm = idm)
         scanContext = scanContext.copy(systemScanContexts = listOf(fallbackContext))
         return scanContext.systemScanContexts
     }
@@ -261,11 +246,8 @@ internal object DiscoverNodesStep :
 
                 for (index in 0x0000..SearchServiceCodeCommand.MAX_ITERATOR_INDEX) {
                     val parsedSearchResponse =
-                        transceiveWithRetries(
-                            target = target,
-                            systemCode = systemContext.systemCode,
-                        ) { activeTarget, _ ->
-                            SearchServiceCodeCommand(activeTarget.idm, index)
+                        executeCommand(withSelectedSystemCode = systemContext.systemCode) {
+                            SearchServiceCodeCommand(idm, index)
                         }
                     requestCount++
 
@@ -294,10 +276,6 @@ internal object DiscoverNodesStep :
                 details.add(
                     "System ${contextIndex + 1} ($systemCodeHex): Search Service Code found $areaCount area(s), $serviceCount service(s) in $requestCount request(s); $stopReason"
                 )
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: TagUnavailableException) {
-                throw e
             } catch (e: Exception) {
                 ScanLog.w(
                     "CardScanService",
