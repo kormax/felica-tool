@@ -7,8 +7,9 @@ package com.kormax.felicatool.felica
  * returns the raw block data (16 bytes per block).
  *
  * IMPORTANT: Service codes must be provided in ascending order, and block list elements must be
- * ordered by service code (all blocks for first service, then second service, etc.) with block
- * numbers in ascending order within each service.
+ * ordered by service code (all blocks for first referenced service, then later referenced services,
+ * etc.) with block numbers in ascending order within each service. Service code entries may be left
+ * unreferenced by the block list.
  */
 class ReadWithoutEncryptionCommand(
     /** The 8-byte IDM of the target card (obtained from polling) */
@@ -65,10 +66,9 @@ class ReadWithoutEncryptionCommand(
         // Group blocks by service code list order
         val blocksByService = blockListElements.groupBy { it.serviceCodeListOrder }
 
-        // Validate that all service codes have corresponding blocks
-        for (serviceIndex in serviceCodes.indices) {
-            require(blocksByService.containsKey(serviceIndex)) {
-                "Missing blocks for service at index $serviceIndex"
+        for (block in blockListElements) {
+            require(block.serviceCodeListOrder in serviceCodes.indices) {
+                "Block references service index ${block.serviceCodeListOrder}, but only ${serviceCodes.size} service code(s) are present"
             }
         }
 

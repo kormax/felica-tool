@@ -67,6 +67,7 @@ data class ReadWithoutEncryptionCommandCapability(
     val maxBlocksPerRequest: Int? = null,
     val maxServicesPerRequest: Int? = null,
     val illegalNumberErrorPreference: IllegalNumberErrorPreference? = null,
+    val unusedInvalidServiceSupported: CommandSupport = CommandSupport.UNKNOWN,
 ) : CommandCapability
 
 data class WriteWithoutEncryptionCommandCapability(

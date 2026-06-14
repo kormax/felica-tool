@@ -356,7 +356,7 @@ internal object ReadBlocksWithoutEncryptionStep :
                         ErrorLocationIndication.INDEX -> {
                             // Adjust max block size and retry
                             val currentLen = blocksToRead.size
-                            maxBlocks = statusFlag1.toInt() and 0xFF - 1
+                            maxBlocks = (statusFlag1.toInt() and 0xFF) - 1
                             ScanLog.d(
                                 TAG,
                                 "NUMBER mode: Adjusting max blocks readable at once to $maxBlocks",
@@ -409,12 +409,22 @@ internal object ReadBlocksWithoutEncryptionStep :
                                     "Got ErrorLocationIndication.FLAG, but statusFlag1 is not 0xFF $statusFlag1"
                                 )
                             }
-                            ScanLog.d(
-                                TAG,
-                                "FLAG mode: Adjusting settings max blocks per read to 1, as unable to determine which exact block is problematic",
-                            )
-                            maxBlocks = 1
-                            maxServices = 1
+                            if (blocksToRead.size == 1) {
+                                val blockElement = blocksToRead[0]
+                                val service = servicesToRead[blockElement.serviceCodeListOrder]
+                                blockCountByService[service] = blockElement.blockNumber
+                                ScanLog.d(
+                                    TAG,
+                                    "FLAG mode: Marking service $service as checked up to block ${blockElement.blockNumber}, as single-block read returned illegal block number",
+                                )
+                            } else {
+                                ScanLog.d(
+                                    TAG,
+                                    "FLAG mode: Adjusting settings max blocks per read to 1, as unable to determine which exact block is problematic",
+                                )
+                                maxBlocks = 1
+                                maxServices = 1
+                            }
                         }
 
                         ErrorLocationIndication.INDEX -> {

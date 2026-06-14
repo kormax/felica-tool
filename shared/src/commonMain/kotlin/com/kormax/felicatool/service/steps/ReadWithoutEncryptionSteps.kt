@@ -9,12 +9,95 @@ private val FELICA_LITE_SYSTEM_CODE = byteArrayOf(0x88.toByte(), 0xB4.toByte())
 private val NDEF_SYSTEM_CODE = byteArrayOf(0x12.toByte(), 0xFC.toByte())
 private val PROTECTED_READ_TEST_SERVICE_CODES = setOf("0B00", "0900")
 private const val PROTECTED_READ_TEST_BLOCK_NUMBER = 0x0092
+private const val READ_WITHOUT_ENCRYPTION_UNUSED_INVALID_SERVICE_ATTEMPTS = 3
 
 private data class ReadWithoutEncryptionTestTarget(
     val systemContext: SystemScanContext,
     val service: Service,
     val blockNumber: Int,
 )
+
+private data class ReadWithoutEncryptionUnusedInvalidServiceTarget(
+    val systemContext: SystemScanContext,
+    val presentService: Service,
+    val unusedService: Service,
+    val unusedServiceDescription: String,
+    val serviceCodes: List<Service>,
+    val referencedServiceIndex: Int,
+    val blockNumber: Int,
+)
+
+private fun serviceCodeValue(service: Service): Int =
+    (service.code[1].toInt() and 0xFF) shl 8 or (service.code[0].toInt() and 0xFF)
+
+private fun isReadableWithoutEncryptionService(service: Service): Boolean =
+    !service.attribute.authenticationRequired &&
+        (service.attribute.mode == ServiceMode.READ_ONLY ||
+            service.attribute.mode == ServiceMode.READ_WRITE)
+
+private fun unknownNodeAttributeValues(): List<Int> {
+    val knownAttributes = buildSet {
+        addAll(ServiceAttribute.entries.map { it.value })
+        addAll(AreaAttribute.entries.map { it.value })
+    }
+    return (0..0x3F).filter { it !in knownAttributes }
+}
+
+private fun resolveReadWithoutEncryptionTestBlockNumber(
+    systemCode: ByteArray?,
+    serviceCode: ByteArray,
+): Int {
+    val isProtectedSystem =
+        systemCode?.contentEquals(FELICA_LITE_SYSTEM_CODE) == true ||
+            systemCode?.contentEquals(NDEF_SYSTEM_CODE) == true
+    val serviceCodeHex = serviceCode.toHexString().uppercase()
+    return if (isProtectedSystem && serviceCodeHex in PROTECTED_READ_TEST_SERVICE_CODES) {
+        PROTECTED_READ_TEST_BLOCK_NUMBER
+    } else {
+        0
+    }
+}
+
+private fun findUnusedUnknownAttributeService(
+    presentService: Service,
+    knownNodeCodes: Set<String>,
+): Service? {
+    val unknownAttributeValues = unknownNodeAttributeValues()
+    if (unknownAttributeValues.isEmpty()) {
+        return null
+    }
+    val presentServiceCodeValue = serviceCodeValue(presentService)
+    return (0..1023)
+        .asSequence()
+        .flatMap { number ->
+            unknownAttributeValues.asSequence().map { attributeValue ->
+                Service(number, ServiceAttribute.Unknown(attributeValue))
+            }
+        }
+        .filter { candidate -> candidate.code.toHexString().uppercase() !in knownNodeCodes }
+        .minByOrNull { candidate ->
+            val candidateServiceCodeValue = serviceCodeValue(candidate)
+            when {
+                candidateServiceCodeValue < presentServiceCodeValue ->
+                    presentServiceCodeValue - candidateServiceCodeValue
+                else -> candidateServiceCodeValue - presentServiceCodeValue
+            }
+        }
+}
+
+private fun findUnusedAbsentService(
+    presentService: Service,
+    knownNodeCodes: Set<String>,
+): Service? {
+    val candidateNumbers =
+        ((presentService.number - 1) downTo 1).asSequence() +
+            sequenceOf(0) +
+            ((presentService.number + 1)..1023).asSequence()
+    return candidateNumbers
+        .map { number -> Service(number, presentService.attribute) }
+        .filter { candidate -> candidate.code.toHexString().uppercase() !in knownNodeCodes }
+        .firstOrNull()
+}
 
 private fun CardScanContext.findReadWithoutEncryptionTestTarget(
     allowAuthenticationRequiredFallback: Boolean = false
@@ -72,21 +155,90 @@ private fun CardScanContext.findReadWithoutEncryptionTestTarget(
             if (service.attribute.mode == ServiceMode.READ_ONLY) score += 1
             score
         }!!
-    val isProtectedSystem =
-        bestSystemContext.systemCode?.contentEquals(FELICA_LITE_SYSTEM_CODE) == true ||
-            bestSystemContext.systemCode?.contentEquals(NDEF_SYSTEM_CODE) == true
-    val serviceCodeHex = testService.code.toHexString().uppercase()
     val testBlockNumber =
-        if (isProtectedSystem && serviceCodeHex in PROTECTED_READ_TEST_SERVICE_CODES) {
-            PROTECTED_READ_TEST_BLOCK_NUMBER
-        } else {
-            0
-        }
+        resolveReadWithoutEncryptionTestBlockNumber(
+            systemCode = bestSystemContext.systemCode,
+            serviceCode = testService.code,
+        )
 
     return ReadWithoutEncryptionTestTarget(
         systemContext = bestSystemContext,
         service = testService,
         blockNumber = testBlockNumber,
+    )
+}
+
+private fun CardScanContext.findReadWithoutEncryptionUnusedInvalidServiceTarget():
+    ReadWithoutEncryptionUnusedInvalidServiceTarget {
+    val systemsByPreference =
+        systemScanContexts.sortedWith(
+            compareByDescending<SystemScanContext> { systemContext ->
+                    systemContext.nodes
+                        .filterIsInstance<Service>()
+                        .count(::isReadableWithoutEncryptionService)
+                }
+                .thenByDescending { systemContext ->
+                    if (systemContext.systemCode != null) 1 else 0
+                }
+        )
+
+    for (systemContext in systemsByPreference) {
+        val knownNodeCodes =
+            systemContext.nodes.map { node -> node.code.toHexString().uppercase() }.toSet()
+        val presentServices =
+            systemContext.nodes
+                .filterIsInstance<Service>()
+                .filter(::isReadableWithoutEncryptionService)
+                .sortedWith(
+                    compareByDescending<Service> { if (it.number != 0) 1 else 0 }
+                        .thenByDescending { if (it.attribute.type == ServiceType.RANDOM) 1 else 0 }
+                        .thenByDescending {
+                            if (it.attribute.mode == ServiceMode.READ_ONLY) 1 else 0
+                        }
+                        .thenBy { it.number }
+                )
+
+        for (presentService in presentServices) {
+            // Some cards verify the whole service list eagerly. On those cards, an unused invalid
+            // service entry can still fail the command, even when the block list references only a
+            // valid present service. Invalid entries include a non-existing service or a service
+            // code with an unknown/invalid attribute.
+            val invalidService =
+                findUnusedUnknownAttributeService(
+                    presentService = presentService,
+                    knownNodeCodes = knownNodeCodes,
+                )
+                    ?: findUnusedAbsentService(
+                        presentService = presentService,
+                        knownNodeCodes = knownNodeCodes,
+                    )
+                    ?: continue
+            val serviceCodes = listOf(invalidService, presentService).sortedBy(::serviceCodeValue)
+            val blockNumber =
+                resolveReadWithoutEncryptionTestBlockNumber(
+                    systemCode = systemContext.systemCode,
+                    serviceCode = presentService.code,
+                )
+
+            return ReadWithoutEncryptionUnusedInvalidServiceTarget(
+                systemContext = systemContext,
+                presentService = presentService,
+                unusedService = invalidService,
+                unusedServiceDescription =
+                    if (invalidService.attribute is ServiceAttribute.Unknown) {
+                        "unknown attribute, unused by block list"
+                    } else {
+                        "not present, unused by block list"
+                    },
+                serviceCodes = serviceCodes,
+                referencedServiceIndex = serviceCodes.indexOf(presentService),
+                blockNumber = blockNumber,
+            )
+        }
+    }
+
+    throw StepSkipped(
+        "No readable no-auth service found with an unused invalid service code candidate."
     )
 }
 
@@ -594,6 +746,91 @@ internal object ReadWithoutEncryptionDetermineMaxBlocksStep :
 
         return StepOutput(
             buildString { appendLine("Maximum blocks per request: $maxBlocks") }.trim()
+        )
+    }
+}
+
+internal object ReadWithoutEncryptionUnusedInvalidServiceSupportedStep :
+    ReadWithoutEncryptionScanStep(
+        id = "read_without_encryption_determine_unused_invalid_service_supported",
+        title = "Read: Unused Invalid Service Supported",
+        description =
+            "Check whether Read Without Encryption accepts an unused invalid service entry in the service code list",
+        icon = ScanStepIcon.SEARCH,
+    ) {
+    override suspend fun ScanSession.perform(): StepOutput {
+        val testTarget = scanContext.findReadWithoutEncryptionUnusedInvalidServiceTarget()
+
+        val blockListElement =
+            BlockListElement(
+                serviceCodeListOrder = testTarget.referencedServiceIndex,
+                blockNumber = testTarget.blockNumber,
+            )
+
+        val response =
+            try {
+                executeCommand(
+                    withSelectedSystemCode = testTarget.systemContext.systemCode,
+                    attempts = READ_WITHOUT_ENCRYPTION_UNUSED_INVALID_SERVICE_ATTEMPTS,
+                ) {
+                    ReadWithoutEncryptionCommand(
+                        idm = idm,
+                        serviceCodes =
+                            testTarget.serviceCodes.map { service -> service.code }.toTypedArray(),
+                        blockListElements = arrayOf(blockListElement),
+                    )
+                }
+            } catch (e: TransceiveTimeoutException) {
+                null
+            }
+
+        val support =
+            if (response?.isStatusSuccessful == true) {
+                CommandSupport.SUPPORTED
+            } else {
+                CommandSupport.UNSUPPORTED
+            }
+
+        scanContext = scanContext.withCommands {
+            copy(
+                readWithoutEncryption =
+                    readWithoutEncryption.copy(unusedInvalidServiceSupported = support)
+            )
+        }
+
+        val systemCodeHex = testTarget.systemContext.systemCode?.toHexString() ?: "unknown"
+
+        return StepOutput(
+            buildString {
+                    appendLine("Read Without Encryption unused invalid service support check:")
+                    appendLine("System: $systemCodeHex")
+                    appendLine("Service code list:")
+                    testTarget.serviceCodes.forEachIndexed { index, service ->
+                        val presence =
+                            when (service) {
+                                testTarget.presentService -> "present, referenced by block list"
+                                testTarget.unusedService -> testTarget.unusedServiceDescription
+                                else -> "unknown"
+                            }
+                        appendLine(
+                            "  ${index + 1}. ${describeNode(service)} (${service.code.toHexString().uppercase()}) - $presence"
+                        )
+                    }
+                    appendLine("Block list:")
+                    appendLine(
+                        "  1. service list index ${testTarget.referencedServiceIndex + 1}, block ${formatBlockNumberHex(testTarget.blockNumber)}"
+                    )
+                    if (response != null) {
+                        appendLine("Status: ${formatStatus(response)}")
+                        appendLine("Returned blocks: ${response.blockData.size}")
+                    } else {
+                        appendLine(
+                            "No response after $READ_WITHOUT_ENCRYPTION_UNUSED_INVALID_SERVICE_ATTEMPTS attempts; card presence confirmed"
+                        )
+                    }
+                    appendLine("Result: ${support.toOutputLabel()}")
+                }
+                .trim()
         )
     }
 }

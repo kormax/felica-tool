@@ -585,6 +585,10 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                             maxServices ->
                             InfoChip(label = "Read Max Services", value = maxServices.toString())
                         }
+                        CommandSupportChip(
+                            "Read Unused Invalid Service",
+                            context.commands.readWithoutEncryption.unusedInvalidServiceSupported,
+                        )
                         InfoChip(
                             label = "Read Error Mode",
                             value =

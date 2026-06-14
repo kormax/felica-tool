@@ -463,6 +463,10 @@ object ExportUtils {
             scanContext.commands.readWithoutEncryption.maxBlocksPerRequest?.let {
                 put("max_blocks_per_request", it)
             }
+            putBooleanIfKnown(
+                "unused_invalid_service_supported",
+                scanContext.commands.readWithoutEncryption.unusedInvalidServiceSupported,
+            )
         }
         commandsJson.putAvailableCommand(
             "write_without_encryption",
