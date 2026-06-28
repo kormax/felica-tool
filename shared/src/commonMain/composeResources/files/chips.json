@@ -2,20 +2,128 @@
   {
     "ic": "00",
     "rom": "02",
-    "name": "RC-S830"
+    "name": "RC-S914",
+    "products": [
+      {
+        "model": "RC-S914",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-S830",
+        "kind": "media"
+      }
+    ]
   },
   {
     "ic": "00",
     "rom": "03",
-    "name": "RC-S833"
+    "name": "RC-S914 for export markets",
+    "products": [
+      {
+        "model": "RC-S914",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-S833",
+        "kind": "media"
+      }
+    ]
   },
   {
     "ic": "01",
-    "name": "RC-S915"
+    "rom": "03",
+    "name": "RC-S915",
+    "products": [
+      {
+        "model": "RC-S915",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-S934F",
+        "kind": "antenna"
+      },
+      {
+        "model": "RC-S935F",
+        "kind": "antenna"
+      },
+      {
+        "model": "RC-S938",
+        "kind": "antenna"
+      },
+      {
+        "model": "RC-S860",
+        "kind": "media"
+      },
+      {
+        "model": "RC-S862",
+        "kind": "media"
+      },
+      {
+        "model": "RC-S863",
+        "kind": "media"
+      },
+      {
+        "model": "RC-S864",
+        "kind": "media"
+      },
+      {
+        "model": "RC-S891",
+        "kind": "media"
+      }
+    ]
+  },
+  {
+    "ic": "01",
+    "rom": "04",
+    "name": "RC-S915",
+    "products": [
+      {
+        "model": "RC-S915",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-S934F",
+        "kind": "antenna"
+      },
+      {
+        "model": "RC-S935F",
+        "kind": "antenna"
+      },
+      {
+        "model": "RC-S938",
+        "kind": "antenna"
+      },
+      {
+        "model": "RC-S860",
+        "kind": "media"
+      },
+      {
+        "model": "RC-S862",
+        "kind": "media"
+      },
+      {
+        "model": "RC-S863",
+        "kind": "media"
+      },
+      {
+        "model": "RC-S864",
+        "kind": "media"
+      },
+      {
+        "model": "RC-S891",
+        "kind": "media"
+      }
+    ]
   },
   {
     "ic": "02",
-    "name": "RC-S919"
+    "name": "RC-S919",
+    "products": [
+      {
+        "model": "RC-S919",
+        "kind": "chip"
+      }
+    ]
   },
   {
     "ic": "06",
@@ -27,23 +135,58 @@
   },
   {
     "ic": "08",
-    "name": "RC-S952"
+    "name": "RC-S952",
+    "products": [
+      {
+        "model": "RC-S952",
+        "kind": "chip"
+      }
+    ]
   },
   {
     "ic": "09",
-    "name": "RC-S953"
+    "name": "RC-S953",
+    "products": [
+      {
+        "model": "RC-S953",
+        "kind": "chip"
+      }
+    ]
   },
   {
     "ic": "0B",
-    "name": "RC-S953/?"
+    "rom": "10",
+    "name": "Unknown RC-S95X"
   },
   {
     "ic": "0C",
-    "name": "RC-S954"
+    "name": "Unknown RC-S95X"
   },
   {
     "ic": "0D",
-    "name": "RC-S960"
+    "name": "RC-S960",
+    "products": [
+      {
+        "model": "RC-S960",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-S970F",
+        "kind": "antenna"
+      },
+      {
+        "model": "RC-S979F",
+        "kind": "antenna"
+      },
+      {
+        "model": "RC-S880",
+        "kind": "media"
+      },
+      {
+        "model": "RC-S889",
+        "kind": "media"
+      }
+    ]
   },
   {
     "ic": "10",
@@ -71,6 +214,7 @@
   },
   {
     "ic": "16",
+    "rom": "01",
     "name": "Mobile FeliCa 4.0 for Apple Wallet"
   },
   {
@@ -79,6 +223,7 @@
   },
   {
     "ic": "18",
+    "rom": "01",
     "name": "Mobile FeliCa 4.1"
   },
   {
@@ -111,122 +256,570 @@
   },
   {
     "ic": "20",
-    "name": "RC-S962"
+    "rom": "01",
+    "name": "RC-S962",
+    "products": [
+      {
+        "model": "RC-S962",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-S893",
+        "kind": "antenna"
+      },
+      {
+        "model": "RC-S981F",
+        "kind": "antenna"
+      },
+      {
+        "model": "RC-S975F",
+        "kind": "antenna"
+      },
+      {
+        "model": "RC-S976F",
+        "kind": "antenna"
+      },
+      {
+        "model": "RC-S885",
+        "kind": "media"
+      },
+      {
+        "model": "RC-S888",
+        "kind": "media"
+      },
+      {
+        "model": "RC-S892",
+        "kind": "media"
+      }
+    ]
   },
   {
     "ic": "24",
     "rom": "02",
-    "name": "FeliCa Standard China/Hong Kong version"
-  },
-  {
-    "ic": "31",
-    "name": "RC-S114"
+    "name": "Unknown China/Hong Kong version",
+    "note": "Found on some Octopus cards."
   },
   {
     "ic": "31",
     "rom": "05",
-    "name": "RC-S1XX"
+    "name": "Unknown RC-SA SD1"
   },
   {
     "ic": "31",
     "rom": "06",
-    "name": "RC-S1XX for regional collaboration"
+    "name": "Unknown RC-SA SD1 for regional collaboration",
+    "note": "Found on Suica 2-in-1 regional collaboration cards that support Extended Overlap."
   },
   {
     "ic": "32",
     "rom": "03",
-    "name": "RC-SA00/1"
+    "name": "RC-SA00/1",
+    "products": [
+      {
+        "model": "RC-SA00/1A",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-SA00/1B",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-SA00/1C",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-SA00/1D",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-SA00/1S",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-SA00/1T",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-S109",
+        "kind": "antenna"
+      },
+      {
+        "model": "RC-S109/1",
+        "kind": "antenna"
+      },
+      {
+        "model": "RC-S111",
+        "kind": "antenna"
+      },
+      {
+        "model": "RC-S111/1",
+        "kind": "antenna"
+      },
+      {
+        "model": "RC-SA02F",
+        "kind": "antenna"
+      },
+      {
+        "model": "RC-SA03F",
+        "kind": "antenna"
+      },
+      {
+        "model": "RC-S100",
+        "kind": "media"
+      },
+      {
+        "model": "RC-S108",
+        "kind": "media"
+      },
+      {
+        "model": "RC-S108/1",
+        "kind": "media"
+      }
+    ]
   },
   {
     "ic": "33",
     "rom": "03",
-    "name": "RC-SA00/2"
+    "name": "RC-SA00/2",
+    "products": [
+      {
+        "model": "RC-SA00/2A",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-SA00/2B",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-SA00/2C",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-SA00/2D",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-SA00/2S",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-SA00/2T",
+        "kind": "chip"
+      }
+    ]
   },
   {
     "ic": "34",
     "rom": "03",
-    "name": "RC-SA01/1"
+    "name": "RC-SA01/1",
+    "products": [
+      {
+        "model": "RC-SA01/1A",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-SA01/1B",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-SA01/1C",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-SA01/1D",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-SA01/1S",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-SA01/1T",
+        "kind": "chip"
+      }
+    ]
   },
   {
     "ic": "35",
     "rom": "03",
-    "name": "RC-SA01/2"
+    "name": "RC-SA01/2",
+    "products": [
+      {
+        "model": "RC-SA01/2A",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-SA01/2B",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-SA01/2C",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-SA01/2D",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-SA01/2S",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-SA01/2T",
+        "kind": "chip"
+      }
+    ]
   },
   {
     "ic": "36",
     "rom": "01",
-    "name": "RC-SA04/1"
+    "name": "RC-SA04/1",
+    "products": [
+      {
+        "model": "RC-SA04/1A",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-SA04/1B",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-SA04/1C",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-SA04/1D",
+        "kind": "chip"
+      }
+    ]
+  },
+  {
+    "ic": "38",
+    "rom": "02",
+    "name": "Unknown SD2",
+    "note": "Found on new Octopus cards."
+  },
+  {
+    "ic": "3B",
+    "rom": "04",
+    "name": "Unknown SD2",
+    "note": "Found on new Octopus + T-Union dual-interface cards."
   },
   {
     "ic": "3E",
-    "name": "RC-SA08/1"
+    "name": "RC-SA08",
+    "products": [
+      {
+        "model": "RC-SA08/1",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-SA08/2",
+        "kind": "chip"
+      }
+    ]
   },
   {
     "ic": "3E",
     "rom": "03",
-    "name": "RC-SA08/X"
+    "name": "RC-SA08",
+    "products": [
+      {
+        "model": "RC-SA08/1",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-SA08/2",
+        "kind": "chip"
+      }
+    ]
   },
   {
     "ic": "43",
     "rom": "01",
-    "name": "RC-SA24/1-3x"
+    "name": "RC-SA24",
+    "products": [
+      {
+        "model": "RC-SA24/1x",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-SA24/3x",
+        "kind": "chip"
+      }
+    ]
   },
   {
     "ic": "44",
     "rom": "01",
-    "name": "RC-SA20/1-3x"
+    "name": "RC-SA20/1",
+    "products": [
+      {
+        "model": "RC-SA20/1x",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-SA20/3x",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-S129/1",
+        "kind": "antenna"
+      },
+      {
+        "model": "RC-S131/1",
+        "kind": "antenna"
+      },
+      {
+        "model": "RC-SA22F",
+        "kind": "antenna"
+      },
+      {
+        "model": "RC-S120",
+        "kind": "media"
+      },
+      {
+        "model": "RC-S128/1",
+        "kind": "media"
+      },
+      {
+        "model": "RC-S136",
+        "kind": "media"
+      }
+    ]
   },
   {
     "ic": "45",
     "rom": "01",
-    "name": "RC-SA20/2-4x"
+    "name": "RC-SA20/2",
+    "products": [
+      {
+        "model": "RC-SA20/2x",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-SA20/4x",
+        "kind": "chip"
+      }
+    ]
   },
   {
     "ic": "46",
     "rom": "01",
-    "name": "RC-SA21/2x"
+    "name": "RC-SA21/2",
+    "products": [
+      {
+        "model": "RC-SA21/2x",
+        "kind": "chip"
+      }
+    ]
   },
   {
     "ic": "47",
     "rom": "01",
-    "name": "RC-SA24/1-3x1"
+    "name": "RC-SA24",
+    "products": [
+      {
+        "model": "RC-SA24/1x1",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-SA24/3x1",
+        "kind": "chip"
+      }
+    ]
   },
   {
     "ic": "48",
     "rom": "01",
-    "name": "RC-SA21/2x1"
+    "name": "RC-SA21/2x1",
+    "products": [
+      {
+        "model": "RC-SA21/2x1",
+        "kind": "chip"
+      }
+    ]
   },
   {
     "ic": "4B",
     "rom": "02",
-    "name": "RC-SA28/1x"
+    "name": "RC-SA28/1x",
+    "products": [
+      {
+        "model": "RC-SA28/1x",
+        "kind": "chip"
+      }
+    ]
   },
   {
-    "ic": "A2",
-    "name": "RC-SA14"
+    "ic": "50",
+    "name": "Unknown RC-SA SD3",
+    "products": [
+      {
+        "model": "RC-SA42F",
+        "kind": "antenna"
+      },
+      {
+        "model": "RC-S140",
+        "kind": "media"
+      }
+    ]
+  },
+  {
+    "ic": "51",
+    "name": "RC-SA40/2P",
+    "products": [
+      {
+        "model": "RC-SA40/2P",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-S149",
+        "kind": "antenna"
+      },
+      {
+        "model": "RC-S148",
+        "kind": "media"
+      }
+    ]
+  },
+  {
+    "ic": "52",
+    "name": "RC-SA41/2C",
+    "products": [
+      {
+        "model": "RC-SA41/2C",
+        "kind": "chip"
+      }
+    ]
   },
   {
     "ic": "E0",
-    "name": "RC-S926 FeliCa Plug"
+    "name": "RC-S926 FeliCa Plug",
+    "products": [
+      {
+        "model": "RC-S926",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-S801",
+        "kind": "module"
+      },
+      {
+        "model": "RC-S802",
+        "kind": "module"
+      }
+    ]
   },
   {
     "ic": "E1",
-    "name": "RC-S967 in Plug Mode"
+    "name": "RC-S967 in Plug Mode",
+    "products": [
+      {
+        "model": "RC-S967",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-S730",
+        "kind": "module"
+      },
+      {
+        "model": "RC-S732",
+        "kind": "module"
+      }
+    ]
   },
   {
     "ic": "F0",
-    "name": "RC-S965 FeliCa Lite"
+    "name": "RC-S965 FeliCa Lite",
+    "products": [
+      {
+        "model": "RC-S965",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-S978F",
+        "kind": "antenna"
+      },
+      {
+        "model": "RC-S710",
+        "kind": "module"
+      },
+      {
+        "model": "RC-S886",
+        "kind": "media"
+      },
+      {
+        "model": "RC-S887",
+        "kind": "media"
+      },
+      {
+        "model": "RC-S701",
+        "kind": "media"
+      }
+    ]
   },
   {
     "ic": "F1",
-    "name": "RC-S966 FeliCa Lite-S"
+    "rom": "00",
+    "name": "RC-S966 FeliCa Lite-S",
+    "products": [
+      {
+        "model": "RC-S966",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-S982",
+        "kind": "antenna"
+      },
+      {
+        "model": "RC-S982F",
+        "kind": "antenna"
+      },
+      {
+        "model": "RC-S711",
+        "kind": "module"
+      },
+      {
+        "model": "RC-S712",
+        "kind": "module"
+      }
+    ]
   },
   {
     "ic": "F2",
-    "name": "RC-S967 in Lite-S Mode"
+    "name": "FeliCa Lite-S Host Through Mode",
+    "products": [
+      {
+        "model": "RC-S967",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-S730",
+        "kind": "module"
+      },
+      {
+        "model": "RC-S732",
+        "kind": "module"
+      }
+    ]
   },
   {
     "ic": "FF",
-    "name": "RC-S967 in NFC-DEP Mode"
+    "name": "NFC-DEP Mode",
+    "products": [
+      {
+        "model": "RC-S967",
+        "kind": "chip"
+      },
+      {
+        "model": "RC-S730",
+        "kind": "module"
+      },
+      {
+        "model": "RC-S732",
+        "kind": "module"
+      }
+    ]
   }
 ]
