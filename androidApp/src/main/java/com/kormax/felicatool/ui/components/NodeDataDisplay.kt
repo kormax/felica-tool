@@ -172,13 +172,13 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
 
                 // IDM
                 context.primaryIdm?.let { idm ->
-                    CompactInfoRow(label = "Primary IDM", value = idm.toHexString())
+                    CompactInfoRow(label = "Primary IDM", value = idm.toHexString().uppercase())
                 }
 
                 // PMM
                 context.pmm?.let { pmm ->
                     val icTypeResolution = IcTypeRegistry.resolveIcType(pmm.icType, pmm.romType)
-                    CompactInfoRow(label = "PMM", value = pmm.toHexString())
+                    CompactInfoRow(label = "PMM", value = pmm.toHexString().uppercase())
                     FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -208,7 +208,10 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
 
                 // System Code
                 context.primarySystemCode?.let { systemCode ->
-                    CompactInfoRow(label = "Primary System Code", value = systemCode.toHexString())
+                    CompactInfoRow(
+                        label = "Primary System Code",
+                        value = systemCode.toHexString().uppercase(),
+                    )
                 }
 
                 // Product Info
@@ -216,7 +219,7 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                     if (productInfo.success && productInfo.productInformationData.isNotEmpty()) {
                         CompactInfoRow(
                             label = "Product Information",
-                            value = productInfo.productInformationData.toHexString(),
+                            value = productInfo.productInformationData.toHexString().uppercase(),
                         )
                     }
                 }
@@ -303,7 +306,10 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                     context.containerIssueInformation?.let { containerInfo ->
                         CompactInfoRow(
                             label = "Format Version Carrier Info",
-                            value = containerInfo.formatVersionCarrierInformation.toHexString(),
+                            value =
+                                containerInfo.formatVersionCarrierInformation
+                                    .toHexString()
+                                    .uppercase(),
                         )
 
                         // Try to decode mobile phone model as printable string
@@ -316,10 +322,12 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                                 if (printableBytes.size >= 3) { // At least 3 printable characters
                                     String(printableBytes.toByteArray(), Charsets.UTF_8)
                                 } else {
-                                    containerInfo.mobilePhoneModelInformation.toHexString()
+                                    containerInfo.mobilePhoneModelInformation
+                                        .toHexString()
+                                        .uppercase()
                                 }
                             } catch (e: Exception) {
-                                containerInfo.mobilePhoneModelInformation.toHexString()
+                                containerInfo.mobilePhoneModelInformation.toHexString().uppercase()
                             }
 
                         CompactInfoRow(label = "Mobile Phone Model", value = modelString)
@@ -327,7 +335,10 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
 
                     // Container IDM
                     context.containerIdm?.let { containerIdm ->
-                        CompactInfoRow(label = "Container IDM", value = containerIdm.toHexString())
+                        CompactInfoRow(
+                            label = "Container IDM",
+                            value = containerIdm.toHexString().uppercase(),
+                        )
                     }
                 }
 
@@ -1123,10 +1134,12 @@ private fun NodeDetailsContent(nodeInfo: NodeInformation, context: SystemScanCon
     val node = nodeInfo.node
     // System-specific information
     if (node is System) {
-        context.idm?.let { idm -> CompactInfoRow(label = "IDM", value = idm.toHexString()) }
+        context.idm?.let { idm ->
+            CompactInfoRow(label = "IDM", value = idm.toHexString().uppercase())
+        }
 
         context.systemStatus?.let { systemStatus ->
-            CompactInfoRow(label = "System Status", value = systemStatus.toHexString())
+            CompactInfoRow(label = "System Status", value = systemStatus.toHexString().uppercase())
         }
 
         // Node statistics - Areas and Services side by side
@@ -1300,7 +1313,7 @@ private fun NodeDetailsContent(nodeInfo: NodeInformation, context: SystemScanCon
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Text(
-                        text = blockBytes.toHexString(),
+                        text = blockBytes.toHexString().uppercase(),
                         style = MaterialTheme.typography.bodySmall,
                         fontFamily = FontFamily.Monospace,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -1586,7 +1599,8 @@ private fun getNodeDisplayText(
     return when (node) {
         is Area -> {
             val area = node
-            val baseText = "Area ${area.fullCode.toHexString()} (${area.number}-${area.endNumber})"
+            val baseText =
+                "Area ${area.fullCode.toHexString().uppercase()} (${area.number}-${area.endNumber})"
             val areaName =
                 context.systemCode?.toHexString()?.uppercase()?.let { systemCode ->
                     val areaParentCode = parentArea?.fullCode?.toHexString()?.uppercase()
@@ -1605,7 +1619,8 @@ private fun getNodeDisplayText(
         }
         is Service -> {
             val service = node
-            val baseText = "Service ${service.fullCode.toHexString()} (#${service.number})"
+            val baseText =
+                "Service ${service.fullCode.toHexString().uppercase()} (#${service.number})"
             // Use stored parentArea for efficient service name lookup
             val serviceName = getServiceNameFromNodeInfo(service, context, parentArea)
             if (serviceName != null) {
@@ -1616,7 +1631,7 @@ private fun getNodeDisplayText(
         }
         is System -> {
             // Display system code from context instead of node code
-            val systemCode = context.systemCode?.toHexString()
+            val systemCode = context.systemCode?.toHexString()?.uppercase()
             val baseText =
                 if (systemCode != null) {
                     "System $systemCode"

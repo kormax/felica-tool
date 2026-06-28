@@ -7,7 +7,11 @@ import com.kormax.felicatool.service.CardScanContext
 import com.kormax.felicatool.service.SystemScanContext
 
 object ServicePresenceAnalyzer {
-    data class ProviderPresence(val provider: String, val systems: Set<String>, val nodeCount: Int)
+    data class ProviderPresence(
+        val provider: String,
+        val systems: Set<String>,
+        val nodeCount: Int,
+    )
 
     data class DetectionResult(val providers: List<ProviderPresence>, val unknownServiceCount: Int)
 
@@ -62,23 +66,60 @@ object ServicePresenceAnalyzer {
         }
 
         val hasAnyNonRootProvider = providers.values.any { it.hasNonRootNode }
+        val visibleProviders =
+            providers.values.filter { it.hasNonRootNode || !hasAnyNonRootProvider }
+        val systemPriorities = visibleProviders.systemPriorities()
         val providerList =
-            providers.values
-                .filter { it.hasNonRootNode || !hasAnyNonRootProvider }
-                .sortedWith(
-                    compareByDescending<MutableProviderPresence> { it.nodeCount }
-                        .thenBy { it.provider }
-                )
-                .map { it.toImmutable() }
+            visibleProviders.sortedWith(providerComparator(systemPriorities)).map {
+                it.toImmutable(systemPriorities)
+            }
 
         return DetectionResult(providerList, unknownServiceCount)
     }
+
+    private fun List<MutableProviderPresence>.systemPriorities(): Map<String, Int> {
+        val largestProviderGroupNodeCounts = mutableMapOf<String, Int>()
+        val totalProviderNodeCounts = mutableMapOf<String, Int>()
+
+        forEach { provider ->
+            provider.systemNodeCounts.forEach { (systemCode, nodeCount) ->
+                largestProviderGroupNodeCounts[systemCode] =
+                    maxOf(largestProviderGroupNodeCounts[systemCode] ?: 0, nodeCount)
+                totalProviderNodeCounts[systemCode] =
+                    (totalProviderNodeCounts[systemCode] ?: 0) + nodeCount
+            }
+        }
+
+        return largestProviderGroupNodeCounts.keys
+            .sortedWith(
+                compareByDescending<String> { systemCode ->
+                        largestProviderGroupNodeCounts[systemCode] ?: 0
+                    }
+                    .thenByDescending { systemCode -> totalProviderNodeCounts[systemCode] ?: 0 }
+                    .thenBy { it }
+            )
+            .mapIndexed { index, systemCode -> systemCode to index }
+            .toMap()
+    }
+
+    private fun providerComparator(
+        systemPriorities: Map<String, Int>
+    ): Comparator<MutableProviderPresence> =
+        compareBy<MutableProviderPresence> { provider ->
+                provider.primarySystem(systemPriorities)?.let { systemPriorities[it] }
+                    ?: Int.MAX_VALUE
+            }
+            .thenByDescending { provider ->
+                provider.primarySystem(systemPriorities)?.let { provider.systemNodeCounts[it] } ?: 0
+            }
+            .thenByDescending { it.nodeCount }
+            .thenBy { it.provider }
 
     private fun findContainingArea(node: Node, context: SystemScanContext): Area? {
         return context.nodes
             .filterIsInstance<Area>()
             .filter { candidate -> node.belongsTo(candidate) }
-            .minByOrNull { it.endNumber - it.number }
+            .minWithOrNull(areaContainmentComparator)
     }
 
     private fun findParentArea(area: Area, context: SystemScanContext): Area? {
@@ -86,11 +127,18 @@ object ServicePresenceAnalyzer {
             context.nodes.filterIsInstance<Area>().filter { other ->
                 other != area && area.belongsTo(other)
             }
-        return parentAreas.minByOrNull { it.endNumber - it.number }
+        return parentAreas.minWithOrNull(areaContainmentComparator)
     }
+
+    private val areaContainmentComparator =
+        compareBy<Area> { it.endNumber - it.number }
+            .thenByDescending { it.number }
+            .thenBy { it.attribute.canCreateSubArea }
+            .thenBy { it.fullCode.toHexString() }
 
     private class MutableProviderPresence(val provider: String) {
         private val systemCodes = linkedSetOf<String>()
+        val systemNodeCounts = linkedMapOf<String, Int>()
         var nodeCount: Int = 0
             private set
 
@@ -99,14 +147,32 @@ object ServicePresenceAnalyzer {
 
         fun addMatch(systemCode: String, isRootArea: Boolean) {
             systemCodes += systemCode
+            systemNodeCounts[systemCode] = (systemNodeCounts[systemCode] ?: 0) + 1
             nodeCount++
             if (!isRootArea) {
                 hasNonRootNode = true
             }
         }
 
-        fun toImmutable(): ProviderPresence {
-            return ProviderPresence(provider, systemCodes.toSet(), nodeCount)
+        fun toImmutable(systemPriorities: Map<String, Int>): ProviderPresence {
+            val orderedSystemCodes =
+                systemCodes
+                    .sortedWith(
+                        compareBy<String> { systemPriorities[it] ?: Int.MAX_VALUE }.thenBy { it }
+                    )
+                    .toCollection(linkedSetOf())
+            return ProviderPresence(
+                provider = provider,
+                systems = orderedSystemCodes,
+                nodeCount = nodeCount,
+            )
         }
+
+        fun primarySystem(systemPriorities: Map<String, Int>): String? =
+            systemNodeCounts.keys.minWithOrNull(
+                compareBy<String> { systemPriorities[it] ?: Int.MAX_VALUE }
+                    .thenByDescending { systemNodeCounts[it] ?: 0 }
+                    .thenBy { it }
+            )
     }
 }

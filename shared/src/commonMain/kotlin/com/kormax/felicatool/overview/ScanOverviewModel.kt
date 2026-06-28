@@ -168,9 +168,11 @@ object ScanOverviewModelBuilder {
 
     private fun buildCardInformation(scanContext: CardScanContext): List<ScanOverviewField> {
         return buildList {
-            scanContext.primaryIdm?.let { add(ScanOverviewField("Primary IDM", it.toHexString())) }
+            scanContext.primaryIdm?.let {
+                add(ScanOverviewField("Primary IDM", it.toHexString().uppercase()))
+            }
             scanContext.pmm?.let { pmm ->
-                add(ScanOverviewField("PMM", pmm.toHexString()))
+                add(ScanOverviewField("PMM", pmm.toHexString().uppercase()))
                 add(
                     ScanOverviewField(
                         "IC",
@@ -192,7 +194,7 @@ object ScanOverviewModelBuilder {
                 }
             }
             scanContext.primarySystemCode?.let {
-                add(ScanOverviewField("Primary System Code", it.toHexString()))
+                add(ScanOverviewField("Primary System Code", it.toHexString().uppercase()))
             }
             scanContext.productInformation?.let { productInformation ->
                 if (
@@ -202,7 +204,7 @@ object ScanOverviewModelBuilder {
                     add(
                         ScanOverviewField(
                             "Product Information",
-                            productInformation.productInformationData.toHexString(),
+                            productInformation.productInformationData.toHexString().uppercase(),
                         )
                     )
                 }
@@ -211,7 +213,9 @@ object ScanOverviewModelBuilder {
                 add(
                     ScanOverviewField(
                         "Format Version Carrier Info",
-                        containerInformation.formatVersionCarrierInformation.toHexString(),
+                        containerInformation.formatVersionCarrierInformation
+                            .toHexString()
+                            .uppercase(),
                     )
                 )
                 add(
@@ -222,7 +226,7 @@ object ScanOverviewModelBuilder {
                 )
             }
             scanContext.containerIdm?.let {
-                add(ScanOverviewField("Container IDM", it.toHexString()))
+                add(ScanOverviewField("Container IDM", it.toHexString().uppercase()))
             }
             scanContext.specificationVersion?.let { specificationVersion ->
                 add(
@@ -361,8 +365,7 @@ object ScanOverviewModelBuilder {
                                     systemCode,
                                     NodeDefinitionType.SYSTEM,
                                 )
-                                ?.let { "System ${systemCode.lowercase()} - $it" }
-                                ?: "System ${systemCode.lowercase()}"
+                                ?.let { "System $systemCode - $it" } ?: "System $systemCode"
                         } else {
                             "System (No Code)"
                         },
@@ -392,7 +395,7 @@ object ScanOverviewModelBuilder {
                     title =
                         buildString {
                             append(
-                                "Area ${node.fullCode.toHexString()} (${node.number}-${node.endNumber})"
+                                "Area ${node.fullCode.toHexString().uppercase()} (${node.number}-${node.endNumber})"
                             )
                             if (nodeName != null) {
                                 append(" - ")
@@ -435,7 +438,9 @@ object ScanOverviewModelBuilder {
                     code = node.code.toHexString().uppercase(),
                     title =
                         buildString {
-                            append("Service ${node.fullCode.toHexString()} (#${node.number})")
+                            append(
+                                "Service ${node.fullCode.toHexString().uppercase()} (#${node.number})"
+                            )
                             if (nodeName != null) {
                                 append(" - ")
                                 append(nodeName)
@@ -606,9 +611,11 @@ object ScanOverviewModelBuilder {
     ): List<ScanOverviewField> {
         return buildList {
             if (node is System) {
-                systemContext.idm?.let { add(ScanOverviewField("IDM", it.toHexString())) }
+                systemContext.idm?.let {
+                    add(ScanOverviewField("IDM", it.toHexString().uppercase()))
+                }
                 systemContext.systemStatus?.let {
-                    add(ScanOverviewField("System Status", it.toHexString()))
+                    add(ScanOverviewField("System Status", it.toHexString().uppercase()))
                 }
                 add(
                     ScanOverviewField(
@@ -677,7 +684,7 @@ object ScanOverviewModelBuilder {
                         .sortedBy { it.key }
                         .forEach { (blockNumber, bytes) ->
                             val blockNumberHex = formatBlockNumberHex(blockNumber)
-                            add(ScanOverviewField(blockNumberHex, bytes.toHexString()))
+                            add(ScanOverviewField(blockNumberHex, bytes.toHexString().uppercase()))
                         }
                 }
             }
@@ -1076,7 +1083,7 @@ object ScanOverviewModelBuilder {
         return if (printableBytes.size >= 3) {
             printableBytes.map { (it.toInt() and 0xFF).toChar() }.joinToString("")
         } else {
-            bytes.toHexString()
+            bytes.toHexString().uppercase()
         }
     }
 }
