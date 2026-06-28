@@ -11,6 +11,8 @@ import com.kormax.felicatool.service.CommandSupport
 import com.kormax.felicatool.service.SystemScanContext
 import com.kormax.felicatool.service.byteToHex
 import com.kormax.felicatool.service.formatBlockNumberHex
+import com.kormax.felicatool.util.CardTypeInference
+import com.kormax.felicatool.util.CardTypeInferrer
 import com.kormax.felicatool.util.IcTypeRegistry
 import com.kormax.felicatool.util.NodeDefinitionType
 import com.kormax.felicatool.util.NodeRegistry
@@ -19,6 +21,7 @@ import com.kormax.felicatool.util.ServiceIconCatalog
 import com.kormax.felicatool.util.ServicePresenceAnalyzer
 
 data class ScanOverviewModel(
+    val inferredCardType: CardTypeInference?,
     val cardInformation: List<ScanOverviewField>,
     val detectedProviders: List<ScanOverviewProvider>,
     val unknownServiceCount: Int,
@@ -148,9 +151,11 @@ object ScanOverviewModelBuilder {
 
     fun build(scanContext: CardScanContext): ScanOverviewModel {
         val providerDetection = ServicePresenceAnalyzer.detectProviders(scanContext)
+        val inferredCardType = CardTypeInferrer.infer(scanContext)
 
         return ScanOverviewModel(
-            cardInformation = buildCardInformation(scanContext),
+            inferredCardType = inferredCardType,
+            cardInformation = buildCardInformation(scanContext, inferredCardType),
             detectedProviders =
                 providerDetection.providers.map { provider ->
                     ScanOverviewProvider(
@@ -166,8 +171,14 @@ object ScanOverviewModelBuilder {
         )
     }
 
-    private fun buildCardInformation(scanContext: CardScanContext): List<ScanOverviewField> {
+    private fun buildCardInformation(
+        scanContext: CardScanContext,
+        inferredCardType: CardTypeInference?,
+    ): List<ScanOverviewField> {
         return buildList {
+            inferredCardType?.let {
+                add(ScanOverviewField("Card Type", CardTypeInferrer.displayLabel(it)))
+            }
             scanContext.primaryIdm?.let {
                 add(ScanOverviewField("Primary IDM", it.toHexString().uppercase()))
             }

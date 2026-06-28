@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -32,11 +31,16 @@ import com.kormax.felicatool.felica.IllegalNumberErrorPreference
 import com.kormax.felicatool.service.CardScanContext
 import com.kormax.felicatool.service.CommandSupport
 import com.kormax.felicatool.service.SystemScanContext
+import com.kormax.felicatool.shared.resources.*
+import com.kormax.felicatool.util.CardTypeInference
+import com.kormax.felicatool.util.CardTypeInferrer
+import com.kormax.felicatool.util.CardTypeMedia
 import com.kormax.felicatool.util.IcTypeRegistry
 import com.kormax.felicatool.util.NodeDefinitionType
 import com.kormax.felicatool.util.NodeRegistry
 import com.kormax.felicatool.util.ServiceIconMapper
 import com.kormax.felicatool.util.ServicePresenceAnalyzer
+import org.jetbrains.compose.resources.stringResource
 
 /** Data class representing a node in the hierarchical tree structure */
 data class NodeInformation(
@@ -127,14 +131,12 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
     var isExpanded by remember { mutableStateOf(true) }
     val rotationAngle by
         animateFloatAsState(targetValue = if (isExpanded) 0f else 180f, label = "cardInfoRotation")
-    val androidContext = LocalContext.current
 
     val providerDetectionResult =
         remember(context.systemScanContexts) { ServicePresenceAnalyzer.detectProviders(context) }
     val detectedProviders = providerDetectionResult.providers
     val unknownServiceCount = providerDetectionResult.unknownServiceCount
-
-    val systemContext = context.systemScanContexts.firstOrNull()
+    val inferredCardType = remember(context) { CardTypeInferrer.infer(context) }
 
     Card(modifier = modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp).animateContentSize()) {
@@ -169,6 +171,14 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
 
             if (isExpanded) {
                 Spacer(modifier = Modifier.height(12.dp))
+
+                inferredCardType?.let { inference ->
+                    CompactInfoRow(
+                        label = "Card Type",
+                        value = localizedCardTypeLabel(inference),
+                        monospace = false,
+                    )
+                }
 
                 // IDM
                 context.primaryIdm?.let { idm ->
@@ -1327,11 +1337,52 @@ private fun NodeDetailsContent(nodeInfo: NodeInformation, context: SystemScanCon
 }
 
 @Composable
+private fun localizedCardTypeLabel(inference: CardTypeInference): String {
+    val cardLabel = inference.cardId?.let { localizedCardLabel(it) }
+
+    return when (inference.media) {
+        CardTypeMedia.PHYSICAL_CARD ->
+            cardLabel ?: localizedUnknownCardLabel(inference.possibleCardCount)
+        CardTypeMedia.APPLE_WALLET,
+        CardTypeMedia.OSAIFU_KEITAI -> {
+            val mediaLabel = localizedMediaLabel(inference.media)
+            val wrappedCardLabel =
+                cardLabel
+                    ?: inference.possibleCardCount?.let {
+                        localizedUnknownCardLabel(it)
+                    }
+            wrappedCardLabel?.let {
+                stringResource(Res.string.card_type_in_media, it, mediaLabel)
+            } ?: stringResource(Res.string.card_type_media_device, mediaLabel)
+        }
+    }
+}
+
+@Composable
+private fun localizedCardLabel(cardId: String): String =
+    Res.allStringResources["card_type_${cardId.trim().lowercase()}"]?.let { stringResource(it) }
+        ?: CardTypeInferrer.formatCardId(cardId)
+
+@Composable
+private fun localizedUnknownCardLabel(possibleCardCount: Int?): String =
+    possibleCardCount?.let { stringResource(Res.string.card_type_unknown_possible, it) }
+        ?: "Unknown"
+
+@Composable
+private fun localizedMediaLabel(media: CardTypeMedia): String =
+    when (media) {
+        CardTypeMedia.PHYSICAL_CARD -> "Physical Card"
+        CardTypeMedia.APPLE_WALLET -> stringResource(Res.string.card_type_media_apple_wallet)
+        CardTypeMedia.OSAIFU_KEITAI -> stringResource(Res.string.card_type_media_osaifu_keitai)
+    }
+
+@Composable
 private fun CompactInfoRow(
     label: String,
     value: String,
     modifier: Modifier = Modifier,
     labelMaxWidth: Dp = 160.dp,
+    monospace: Boolean = true,
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -1350,7 +1401,7 @@ private fun CompactInfoRow(
         Text(
             text = value,
             style = MaterialTheme.typography.bodySmall.copy(lineBreak = LineBreak.Simple),
-            fontFamily = FontFamily.Monospace,
+            fontFamily = if (monospace) FontFamily.Monospace else FontFamily.Default,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.weight(1f).padding(top = 2.dp),
             textAlign = TextAlign.End,

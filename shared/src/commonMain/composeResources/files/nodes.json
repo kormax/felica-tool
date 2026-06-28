@@ -37,6 +37,7 @@
       "SUGOCA_MONO",
       "SUICA",
       "SUICA_MONO",
+      "SUICA_WELCOME",
       "TOICA",
       "TOTRA",
       "TOWADA_SKYBLUE"
@@ -82,6 +83,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -155,6 +157,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -204,6 +207,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -253,6 +257,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -302,6 +307,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -351,6 +357,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -392,6 +399,7 @@
           "SHUKOKU_ORANGE",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -433,6 +441,7 @@
           "SHUKOKU_ORANGE",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -474,6 +483,7 @@
           "SHUKOKU_ORANGE",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -515,6 +525,7 @@
           "SHUKOKU_ORANGE",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -556,6 +567,7 @@
           "SHUKOKU_ORANGE",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -597,6 +609,7 @@
           "SHUKOKU_ORANGE",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -638,6 +651,7 @@
           "SHUKOKU_ORANGE",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -679,6 +693,7 @@
           "SHUKOKU_ORANGE",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -720,6 +735,7 @@
           "SHUKOKU_ORANGE",
           "SUGOCA_MONO",
           "SUICA",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -769,6 +785,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -818,6 +835,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -867,6 +885,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -916,6 +935,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -965,6 +985,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -1014,6 +1035,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -1063,6 +1085,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -1112,6 +1135,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -1161,6 +1185,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -1210,6 +1235,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -1259,6 +1285,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -1308,6 +1335,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -1352,6 +1380,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOTRA",
           "TOWADA_SKYBLUE"
         ],
@@ -1400,6 +1429,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -1449,6 +1479,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -1498,6 +1529,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -1547,6 +1579,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -1596,6 +1629,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -1645,6 +1679,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -1694,6 +1729,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -1743,6 +1779,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -1792,6 +1829,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -1841,6 +1879,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -1890,6 +1929,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -1939,6 +1979,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -1988,6 +2029,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -2037,6 +2079,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -2086,6 +2129,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -2135,6 +2179,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -2179,6 +2224,7 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -2211,6 +2257,7 @@
           "SHUKOKU_ORANGE",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -2265,6 +2312,7 @@
           "SHUKOKU_ORANGE",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOTRA",
           "TOWADA_SKYBLUE"
         ],
@@ -2306,6 +2354,7 @@
           "SHUKOKU_ORANGE",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOTRA",
           "TOWADA_SKYBLUE"
         ],
@@ -2349,6 +2398,7 @@
           "SHUKOKU_ORANGE",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -2405,6 +2455,7 @@
           "SHUKOKU_ORANGE",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOICA",
           "TOTRA",
           "TOWADA_SKYBLUE"
@@ -5719,7 +5770,7 @@
     "service_provider": "NDEF",
     "cards": [
       "FELICA_LITE",
-      "WAON"
+      "WAON_LOCAL"
     ],
     "nodes": [
       {
@@ -5729,7 +5780,7 @@
         "service_provider": "NDEF",
         "cards": [
           "FELICA_LITE",
-          "WAON"
+          "WAON_LOCAL"
         ],
         "mediums": [
           "CARD"
@@ -5844,18 +5895,20 @@
   },
   "8005": {
     "name": "Shenzhen Tong",
-    "service_provider": "SHENZEN_TONG",
+    "service_provider": "SHENZHEN_TONG",
     "cards": [
-      "OCTOPUS"
+      "OCTOPUS_SHENZHEN_TONG",
+      "SHENZHEN_TONG"
     ],
     "nodes": [
       {
         "code": "0000feff",
         "parent": null,
         "name": null,
-        "service_provider": "SHENZEN_TONG",
+        "service_provider": "SHENZHEN_TONG",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS_SHENZHEN_TONG",
+          "SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD"
@@ -5865,9 +5918,10 @@
         "code": "0800",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "SHENZEN_TONG",
+        "service_provider": "SHENZHEN_TONG",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS_SHENZHEN_TONG",
+          "SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD"
@@ -5877,9 +5931,10 @@
         "code": "0900",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "SHENZEN_TONG",
+        "service_provider": "SHENZHEN_TONG",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS_SHENZHEN_TONG",
+          "SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD"
@@ -5889,9 +5944,10 @@
         "code": "4800",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "SHENZEN_TONG",
+        "service_provider": "SHENZHEN_TONG",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS_SHENZHEN_TONG",
+          "SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD"
@@ -5901,9 +5957,10 @@
         "code": "8800",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "SHENZEN_TONG",
+        "service_provider": "SHENZHEN_TONG",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS_SHENZHEN_TONG",
+          "SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD"
@@ -5913,9 +5970,10 @@
         "code": "8a00",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "SHENZEN_TONG",
+        "service_provider": "SHENZHEN_TONG",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS_SHENZHEN_TONG",
+          "SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD"
@@ -5925,9 +5983,10 @@
         "code": "0801",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "SHENZEN_TONG",
+        "service_provider": "SHENZHEN_TONG",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS_SHENZHEN_TONG",
+          "SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD"
@@ -5937,9 +5996,10 @@
         "code": "0a01",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "SHENZEN_TONG",
+        "service_provider": "SHENZHEN_TONG",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS_SHENZHEN_TONG",
+          "SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD"
@@ -5949,9 +6009,10 @@
         "code": "0c01",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "SHENZEN_TONG",
+        "service_provider": "SHENZHEN_TONG",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS_SHENZHEN_TONG",
+          "SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD"
@@ -5961,9 +6022,10 @@
         "code": "1002",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "SHENZEN_TONG",
+        "service_provider": "SHENZHEN_TONG",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS_SHENZHEN_TONG",
+          "SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD"
@@ -5973,9 +6035,10 @@
         "code": "1202",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "SHENZEN_TONG",
+        "service_provider": "SHENZHEN_TONG",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS_SHENZHEN_TONG",
+          "SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD"
@@ -5985,9 +6048,10 @@
         "code": "1402",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "SHENZEN_TONG",
+        "service_provider": "SHENZHEN_TONG",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS_SHENZHEN_TONG",
+          "SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD"
@@ -5997,9 +6061,10 @@
         "code": "0803",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "SHENZEN_TONG",
+        "service_provider": "SHENZHEN_TONG",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS_SHENZHEN_TONG",
+          "SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD"
@@ -6009,9 +6074,10 @@
         "code": "4803",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "SHENZEN_TONG",
+        "service_provider": "SHENZHEN_TONG",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS_SHENZHEN_TONG",
+          "SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD"
@@ -6021,9 +6087,10 @@
         "code": "8803",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "SHENZEN_TONG",
+        "service_provider": "SHENZHEN_TONG",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS_SHENZHEN_TONG",
+          "SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD"
@@ -6033,9 +6100,10 @@
         "code": "c803",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "SHENZEN_TONG",
+        "service_provider": "SHENZHEN_TONG",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS_SHENZHEN_TONG",
+          "SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD"
@@ -6045,9 +6113,10 @@
         "code": "0804",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "SHENZEN_TONG",
+        "service_provider": "SHENZHEN_TONG",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS_SHENZHEN_TONG",
+          "SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD"
@@ -6057,9 +6126,10 @@
         "code": "4804",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "SHENZEN_TONG",
+        "service_provider": "SHENZHEN_TONG",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS_SHENZHEN_TONG",
+          "SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD"
@@ -6069,9 +6139,10 @@
         "code": "8804",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "SHENZEN_TONG",
+        "service_provider": "SHENZHEN_TONG",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS_SHENZHEN_TONG",
+          "SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD"
@@ -6081,9 +6152,10 @@
         "code": "c804",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "SHENZEN_TONG",
+        "service_provider": "SHENZHEN_TONG",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS_SHENZHEN_TONG",
+          "SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD"
@@ -6093,9 +6165,10 @@
         "code": "0805",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "SHENZEN_TONG",
+        "service_provider": "SHENZHEN_TONG",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS_SHENZHEN_TONG",
+          "SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD"
@@ -6105,9 +6178,10 @@
         "code": "4805",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "SHENZEN_TONG",
+        "service_provider": "SHENZHEN_TONG",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS_SHENZHEN_TONG",
+          "SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD"
@@ -6117,9 +6191,10 @@
         "code": "8805",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "SHENZEN_TONG",
+        "service_provider": "SHENZHEN_TONG",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS_SHENZHEN_TONG",
+          "SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD"
@@ -6131,7 +6206,8 @@
     "name": "Octopus",
     "service_provider": "OCTOPUS",
     "cards": [
-      "OCTOPUS"
+      "OCTOPUS",
+      "OCTOPUS_SHENZHEN_TONG"
     ],
     "nodes": [
       {
@@ -6140,7 +6216,8 @@
         "name": null,
         "service_provider": "OCTOPUS",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS",
+          "OCTOPUS_SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD",
@@ -6153,7 +6230,8 @@
         "name": null,
         "service_provider": "OCTOPUS",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS",
+          "OCTOPUS_SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD",
@@ -6166,7 +6244,8 @@
         "name": null,
         "service_provider": "OCTOPUS",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS",
+          "OCTOPUS_SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD",
@@ -6179,7 +6258,8 @@
         "name": null,
         "service_provider": "OCTOPUS",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS",
+          "OCTOPUS_SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD",
@@ -6192,7 +6272,8 @@
         "name": "Octopus balance",
         "service_provider": "OCTOPUS",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS",
+          "OCTOPUS_SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD",
@@ -6205,7 +6286,8 @@
         "name": null,
         "service_provider": "OCTOPUS",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS",
+          "OCTOPUS_SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD",
@@ -6218,7 +6300,8 @@
         "name": null,
         "service_provider": "OCTOPUS",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS",
+          "OCTOPUS_SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD",
@@ -6231,7 +6314,8 @@
         "name": null,
         "service_provider": "OCTOPUS",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS",
+          "OCTOPUS_SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD",
@@ -6244,7 +6328,8 @@
         "name": null,
         "service_provider": "OCTOPUS",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS",
+          "OCTOPUS_SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD",
@@ -6257,7 +6342,8 @@
         "name": null,
         "service_provider": "OCTOPUS",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS",
+          "OCTOPUS_SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD",
@@ -6270,7 +6356,8 @@
         "name": null,
         "service_provider": "OCTOPUS",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS",
+          "OCTOPUS_SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD",
@@ -6283,7 +6370,8 @@
         "name": null,
         "service_provider": "OCTOPUS",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS",
+          "OCTOPUS_SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD",
@@ -6296,7 +6384,8 @@
         "name": null,
         "service_provider": "OCTOPUS",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS",
+          "OCTOPUS_SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD",
@@ -6309,7 +6398,8 @@
         "name": null,
         "service_provider": "OCTOPUS",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS",
+          "OCTOPUS_SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD",
@@ -6322,7 +6412,8 @@
         "name": null,
         "service_provider": "OCTOPUS",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS",
+          "OCTOPUS_SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD",
@@ -6335,7 +6426,8 @@
         "name": null,
         "service_provider": "OCTOPUS",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS",
+          "OCTOPUS_SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD",
@@ -6348,7 +6440,8 @@
         "name": null,
         "service_provider": "OCTOPUS",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS",
+          "OCTOPUS_SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD",
@@ -6361,7 +6454,8 @@
         "name": null,
         "service_provider": "OCTOPUS",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS",
+          "OCTOPUS_SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD",
@@ -6374,7 +6468,8 @@
         "name": null,
         "service_provider": "OCTOPUS",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS",
+          "OCTOPUS_SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD",
@@ -6387,7 +6482,8 @@
         "name": null,
         "service_provider": "OCTOPUS",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS",
+          "OCTOPUS_SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD",
@@ -6400,7 +6496,8 @@
         "name": null,
         "service_provider": "OCTOPUS",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS",
+          "OCTOPUS_SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD",
@@ -6413,7 +6510,8 @@
         "name": null,
         "service_provider": "OCTOPUS",
         "cards": [
-          "OCTOPUS"
+          "OCTOPUS",
+          "OCTOPUS_SHENZHEN_TONG"
         ],
         "mediums": [
           "CARD",
@@ -8245,7 +8343,7 @@
     "service_provider": "SHIKOKU",
     "cards": [
       "DESUCA",
-      "IYOTETSU"
+      "IC_E_CARD"
     ],
     "nodes": [
       {
@@ -8255,7 +8353,7 @@
         "service_provider": "SHIKOKU",
         "cards": [
           "DESUCA",
-          "IYOTETSU"
+          "IC_E_CARD"
         ],
         "mediums": [
           "CARD"
@@ -8268,7 +8366,7 @@
         "service_provider": "SHIKOKU",
         "cards": [
           "DESUCA",
-          "IYOTETSU"
+          "IC_E_CARD"
         ],
         "mediums": [
           "CARD"
@@ -8281,7 +8379,7 @@
         "service_provider": "SHIKOKU",
         "cards": [
           "DESUCA",
-          "IYOTETSU"
+          "IC_E_CARD"
         ],
         "mediums": [
           "CARD"
@@ -8294,7 +8392,7 @@
         "service_provider": "SHIKOKU",
         "cards": [
           "DESUCA",
-          "IYOTETSU"
+          "IC_E_CARD"
         ],
         "mediums": [
           "CARD"
@@ -8307,7 +8405,7 @@
         "service_provider": "SHIKOKU",
         "cards": [
           "DESUCA",
-          "IYOTETSU"
+          "IC_E_CARD"
         ],
         "mediums": [
           "CARD"
@@ -8320,7 +8418,7 @@
         "service_provider": "SHIKOKU",
         "cards": [
           "DESUCA",
-          "IYOTETSU"
+          "IC_E_CARD"
         ],
         "mediums": [
           "CARD"
@@ -8333,7 +8431,7 @@
         "service_provider": "SHIKOKU",
         "cards": [
           "DESUCA",
-          "IYOTETSU"
+          "IC_E_CARD"
         ],
         "mediums": [
           "CARD"
@@ -8363,7 +8461,7 @@
         "name": "Iyotetsu attributes",
         "service_provider": "IYOTETSU",
         "cards": [
-          "IYOTETSU"
+          "IC_E_CARD"
         ],
         "mediums": [
           "CARD"
@@ -8376,7 +8474,7 @@
         "service_provider": "SHIKOKU",
         "cards": [
           "DESUCA",
-          "IYOTETSU"
+          "IC_E_CARD"
         ],
         "mediums": [
           "CARD"
@@ -8406,7 +8504,7 @@
         "name": "Iyotetsu attributes",
         "service_provider": "IYOTETSU",
         "cards": [
-          "IYOTETSU"
+          "IC_E_CARD"
         ],
         "mediums": [
           "CARD"
@@ -8419,7 +8517,7 @@
         "service_provider": "SHIKOKU",
         "cards": [
           "DESUCA",
-          "IYOTETSU"
+          "IC_E_CARD"
         ],
         "mediums": [
           "CARD"
@@ -8432,7 +8530,7 @@
         "service_provider": "SHIKOKU",
         "cards": [
           "DESUCA",
-          "IYOTETSU"
+          "IC_E_CARD"
         ],
         "mediums": [
           "CARD"
@@ -8445,7 +8543,7 @@
         "service_provider": "SHIKOKU",
         "cards": [
           "DESUCA",
-          "IYOTETSU"
+          "IC_E_CARD"
         ],
         "mediums": [
           "CARD"
@@ -8458,7 +8556,7 @@
         "service_provider": "SHIKOKU",
         "cards": [
           "DESUCA",
-          "IYOTETSU"
+          "IC_E_CARD"
         ],
         "mediums": [
           "CARD"
@@ -8471,7 +8569,7 @@
         "service_provider": "SHIKOKU",
         "cards": [
           "DESUCA",
-          "IYOTETSU"
+          "IC_E_CARD"
         ],
         "mediums": [
           "CARD"
@@ -8484,7 +8582,7 @@
         "service_provider": "SHIKOKU",
         "cards": [
           "DESUCA",
-          "IYOTETSU"
+          "IC_E_CARD"
         ],
         "mediums": [
           "CARD"
@@ -8497,7 +8595,7 @@
         "service_provider": "SHIKOKU",
         "cards": [
           "DESUCA",
-          "IYOTETSU"
+          "IC_E_CARD"
         ],
         "mediums": [
           "CARD"
@@ -8510,7 +8608,7 @@
         "service_provider": "SHIKOKU",
         "cards": [
           "DESUCA",
-          "IYOTETSU"
+          "IC_E_CARD"
         ],
         "mediums": [
           "CARD"
@@ -8523,7 +8621,7 @@
         "service_provider": "SHIKOKU",
         "cards": [
           "DESUCA",
-          "IYOTETSU"
+          "IC_E_CARD"
         ],
         "mediums": [
           "CARD"
@@ -8536,7 +8634,7 @@
         "service_provider": "SHIKOKU",
         "cards": [
           "DESUCA",
-          "IYOTETSU"
+          "IC_E_CARD"
         ],
         "mediums": [
           "CARD"
@@ -8549,7 +8647,7 @@
         "service_provider": "SHIKOKU",
         "cards": [
           "DESUCA",
-          "IYOTETSU"
+          "IC_E_CARD"
         ],
         "mediums": [
           "CARD"
@@ -8562,7 +8660,7 @@
         "service_provider": "SHIKOKU",
         "cards": [
           "DESUCA",
-          "IYOTETSU"
+          "IC_E_CARD"
         ],
         "mediums": [
           "CARD"
@@ -8575,7 +8673,7 @@
         "service_provider": "SHIKOKU",
         "cards": [
           "DESUCA",
-          "IYOTETSU"
+          "IC_E_CARD"
         ],
         "mediums": [
           "CARD"
@@ -8588,7 +8686,7 @@
         "service_provider": "SHIKOKU",
         "cards": [
           "DESUCA",
-          "IYOTETSU"
+          "IC_E_CARD"
         ],
         "mediums": [
           "CARD"
@@ -8601,7 +8699,7 @@
         "service_provider": "SHIKOKU",
         "cards": [
           "DESUCA",
-          "IYOTETSU"
+          "IC_E_CARD"
         ],
         "mediums": [
           "CARD"
@@ -8614,7 +8712,7 @@
         "service_provider": "SHIKOKU",
         "cards": [
           "DESUCA",
-          "IYOTETSU"
+          "IC_E_CARD"
         ],
         "mediums": [
           "CARD"
@@ -8627,7 +8725,7 @@
         "service_provider": "SHIKOKU",
         "cards": [
           "DESUCA",
-          "IYOTETSU"
+          "IC_E_CARD"
         ],
         "mediums": [
           "CARD"
@@ -8640,7 +8738,7 @@
         "service_provider": "SHIKOKU",
         "cards": [
           "DESUCA",
-          "IYOTETSU"
+          "IC_E_CARD"
         ],
         "mediums": [
           "CARD"
@@ -8653,7 +8751,7 @@
         "service_provider": "SHIKOKU",
         "cards": [
           "DESUCA",
-          "IYOTETSU"
+          "IC_E_CARD"
         ],
         "mediums": [
           "CARD"
@@ -14111,8 +14209,8 @@
     ]
   },
   "86a7": {
-    "name": "Suica",
-    "service_provider": "SUICA",
+    "name": "JR East",
+    "service_provider": "JR_EAST",
     "cards": [
       "AKICA",
       "AOPASS",
@@ -14129,6 +14227,7 @@
       "SHUKOKU_ORANGE",
       "SUICA",
       "SUICA_MONO",
+      "SUICA_WELCOME",
       "TOTRA",
       "TOWADA_SKYBLUE"
     ],
@@ -14137,7 +14236,7 @@
         "code": "0000feff",
         "parent": null,
         "name": null,
-        "service_provider": "SUICA",
+        "service_provider": "JR_EAST",
         "cards": [
           "AKICA",
           "AOPASS",
@@ -14154,6 +14253,7 @@
           "SHUKOKU_ORANGE",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOTRA",
           "TOWADA_SKYBLUE"
         ],
@@ -14165,7 +14265,7 @@
         "code": "40007f00",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "SUICA",
+        "service_provider": "JR_EAST",
         "cards": [
           "AKICA",
           "AOPASS",
@@ -14182,6 +14282,7 @@
           "SHUKOKU_ORANGE",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOTRA",
           "TOWADA_SKYBLUE"
         ],
@@ -14193,7 +14294,7 @@
         "code": "4800",
         "parent": "40007f00",
         "name": null,
-        "service_provider": "SUICA",
+        "service_provider": "JR_EAST",
         "cards": [
           "AKICA",
           "AOPASS",
@@ -14210,6 +14311,7 @@
           "SHUKOKU_ORANGE",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOTRA",
           "TOWADA_SKYBLUE"
         ],
@@ -14221,7 +14323,7 @@
         "code": "4b00",
         "parent": "40007f00",
         "name": null,
-        "service_provider": "SUICA",
+        "service_provider": "JR_EAST",
         "cards": [
           "AKICA",
           "AOPASS",
@@ -14238,6 +14340,7 @@
           "SHUKOKU_ORANGE",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOTRA",
           "TOWADA_SKYBLUE"
         ],
@@ -14249,7 +14352,7 @@
         "code": "8002bf02",
         "parent": "0000feff",
         "name": null,
-        "service_provider": "SUICA",
+        "service_provider": "JR_EAST",
         "cards": [
           "AKICA",
           "AOPASS",
@@ -14266,6 +14369,7 @@
           "SHUKOKU_ORANGE",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOTRA",
           "TOWADA_SKYBLUE"
         ],
@@ -14277,7 +14381,7 @@
         "code": "8802",
         "parent": "8002bf02",
         "name": null,
-        "service_provider": "SUICA",
+        "service_provider": "JR_EAST",
         "cards": [
           "AKICA",
           "AOPASS",
@@ -14294,6 +14398,7 @@
           "SHUKOKU_ORANGE",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOTRA",
           "TOWADA_SKYBLUE"
         ],
@@ -14305,7 +14410,7 @@
         "code": "8b02",
         "parent": "8002bf02",
         "name": null,
-        "service_provider": "SUICA",
+        "service_provider": "JR_EAST",
         "cards": [
           "AKICA",
           "AOPASS",
@@ -14322,6 +14427,7 @@
           "SHUKOKU_ORANGE",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOTRA",
           "TOWADA_SKYBLUE"
         ],
@@ -17092,7 +17198,7 @@
     "name": "Nankai",
     "service_provider": "NANKAI",
     "cards": [
-      "NANKAI"
+      "NACCHI"
     ],
     "nodes": [
       {
@@ -17101,7 +17207,7 @@
         "name": null,
         "service_provider": "NANKAI",
         "cards": [
-          "NANKAI"
+          "NACCHI"
         ],
         "mediums": [
           "CARD"
@@ -17113,7 +17219,7 @@
         "name": null,
         "service_provider": "NANKAI",
         "cards": [
-          "NANKAI"
+          "NACCHI"
         ],
         "mediums": [
           "CARD"
@@ -17125,7 +17231,7 @@
         "name": null,
         "service_provider": "NANKAI",
         "cards": [
-          "NANKAI"
+          "NACCHI"
         ],
         "mediums": [
           "CARD"
@@ -17137,7 +17243,7 @@
         "name": null,
         "service_provider": "NANKAI",
         "cards": [
-          "NANKAI"
+          "NACCHI"
         ],
         "mediums": [
           "CARD"
@@ -17149,7 +17255,7 @@
         "name": null,
         "service_provider": "NANKAI",
         "cards": [
-          "NANKAI"
+          "NACCHI"
         ],
         "mediums": [
           "CARD"
@@ -17161,7 +17267,7 @@
         "name": null,
         "service_provider": "NANKAI",
         "cards": [
-          "NANKAI"
+          "NACCHI"
         ],
         "mediums": [
           "CARD"
@@ -17173,7 +17279,7 @@
         "name": null,
         "service_provider": "NANKAI",
         "cards": [
-          "NANKAI"
+          "NACCHI"
         ],
         "mediums": [
           "CARD"
@@ -17185,7 +17291,7 @@
         "name": null,
         "service_provider": "NANKAI",
         "cards": [
-          "NANKAI"
+          "NACCHI"
         ],
         "mediums": [
           "CARD"
@@ -17197,7 +17303,7 @@
         "name": null,
         "service_provider": "NANKAI",
         "cards": [
-          "NANKAI"
+          "NACCHI"
         ],
         "mediums": [
           "CARD"
@@ -17209,7 +17315,7 @@
         "name": null,
         "service_provider": "NANKAI",
         "cards": [
-          "NANKAI"
+          "NACCHI"
         ],
         "mediums": [
           "CARD"
@@ -17221,7 +17327,7 @@
         "name": null,
         "service_provider": "NANKAI",
         "cards": [
-          "NANKAI"
+          "NACCHI"
         ],
         "mediums": [
           "CARD"
@@ -17233,7 +17339,7 @@
         "name": null,
         "service_provider": "NANKAI",
         "cards": [
-          "NANKAI"
+          "NACCHI"
         ],
         "mediums": [
           "CARD"
@@ -17245,7 +17351,7 @@
         "name": null,
         "service_provider": "NANKAI",
         "cards": [
-          "NANKAI"
+          "NACCHI"
         ],
         "mediums": [
           "CARD"
@@ -17257,7 +17363,7 @@
         "name": null,
         "service_provider": "NANKAI",
         "cards": [
-          "NANKAI"
+          "NACCHI"
         ],
         "mediums": [
           "CARD"
@@ -17269,7 +17375,7 @@
         "name": null,
         "service_provider": "NANKAI",
         "cards": [
-          "NANKAI"
+          "NACCHI"
         ],
         "mediums": [
           "CARD"
@@ -17281,7 +17387,7 @@
         "name": null,
         "service_provider": "NANKAI",
         "cards": [
-          "NANKAI"
+          "NACCHI"
         ],
         "mediums": [
           "CARD"
@@ -17293,7 +17399,7 @@
         "name": null,
         "service_provider": "NANKAI",
         "cards": [
-          "NANKAI"
+          "NACCHI"
         ],
         "mediums": [
           "CARD"
@@ -17305,7 +17411,7 @@
         "name": null,
         "service_provider": "NANKAI",
         "cards": [
-          "NANKAI"
+          "NACCHI"
         ],
         "mediums": [
           "CARD"
@@ -17317,7 +17423,7 @@
         "name": null,
         "service_provider": "NANKAI",
         "cards": [
-          "NANKAI"
+          "NACCHI"
         ],
         "mediums": [
           "CARD"
@@ -17329,7 +17435,7 @@
         "name": null,
         "service_provider": "NANKAI",
         "cards": [
-          "NANKAI"
+          "NACCHI"
         ],
         "mediums": [
           "CARD"
@@ -17341,7 +17447,7 @@
         "name": null,
         "service_provider": "NANKAI",
         "cards": [
-          "NANKAI"
+          "NACCHI"
         ],
         "mediums": [
           "CARD"
@@ -17353,7 +17459,7 @@
         "name": null,
         "service_provider": "NANKAI",
         "cards": [
-          "NANKAI"
+          "NACCHI"
         ],
         "mediums": [
           "CARD"
@@ -17365,7 +17471,7 @@
         "name": null,
         "service_provider": "NANKAI",
         "cards": [
-          "NANKAI"
+          "NACCHI"
         ],
         "mediums": [
           "CARD"
@@ -21314,9 +21420,11 @@
       "SUGOCA_MONO",
       "SUICA",
       "SUICA_MONO",
+      "SUICA_WELCOME",
       "TOTRA",
       "TOWADA_SKYBLUE",
-      "WAON"
+      "WAON",
+      "WAON_LOCAL"
     ],
     "nodes": [
       {
@@ -21371,9 +21479,11 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOTRA",
           "TOWADA_SKYBLUE",
-          "WAON"
+          "WAON",
+          "WAON_LOCAL"
         ],
         "mediums": [
           "CARD",
@@ -22864,9 +22974,10 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOTRA",
           "TOWADA_SKYBLUE",
-          "WAON"
+          "WAON_LOCAL"
         ],
         "mediums": [
           "CARD"
@@ -22912,9 +23023,10 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOTRA",
           "TOWADA_SKYBLUE",
-          "WAON"
+          "WAON_LOCAL"
         ],
         "mediums": [
           "CARD"
@@ -22960,9 +23072,58 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOTRA",
           "TOWADA_SKYBLUE",
-          "WAON"
+          "WAON_LOCAL"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4b39",
+        "parent": "4139ff39",
+        "data": {
+          "0000": "^..........0000f4................$"
+        },
+        "name": "Pocket capabilities",
+        "service_provider": "FELICA_POCKET",
+        "cards": [
+          "MANACA",
+          "MANACA_DO",
+          "MANACA_PLAIN"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4b39",
+        "parent": "4139ff39",
+        "data": {
+          "0000": "^..........0000f5................$"
+        },
+        "name": "Pocket capabilities",
+        "service_provider": "FELICA_POCKET",
+        "cards": [
+          "MANACA_USTAR"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4b39",
+        "parent": "4139ff39",
+        "data": {
+          "0000": "^..........800071................$"
+        },
+        "name": "Pocket capabilities",
+        "service_provider": "FELICA_POCKET",
+        "cards": [
+          "NIMOCA_ICAS",
+          "NIMOCA_KUMAMOTO"
         ],
         "mediums": [
           "CARD"
@@ -23008,9 +23169,10 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOTRA",
           "TOWADA_SKYBLUE",
-          "WAON"
+          "WAON_LOCAL"
         ],
         "mediums": [
           "CARD"
@@ -23056,9 +23218,10 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOTRA",
           "TOWADA_SKYBLUE",
-          "WAON"
+          "WAON_LOCAL"
         ],
         "mediums": [
           "CARD"
@@ -23104,9 +23267,10 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOTRA",
           "TOWADA_SKYBLUE",
-          "WAON"
+          "WAON_LOCAL"
         ],
         "mediums": [
           "CARD"
@@ -23152,9 +23316,10 @@
           "SUGOCA_MONO",
           "SUICA",
           "SUICA_MONO",
+          "SUICA_WELCOME",
           "TOTRA",
           "TOWADA_SKYBLUE",
-          "WAON"
+          "WAON_LOCAL"
         ],
         "mediums": [
           "CARD"
@@ -23575,7 +23740,8 @@
         "name": "WAON",
         "service_provider": "WAON",
         "cards": [
-          "WAON"
+          "WAON",
+          "WAON_LOCAL"
         ],
         "mediums": [
           "CARD",
@@ -23588,7 +23754,8 @@
         "name": "WAON",
         "service_provider": "WAON",
         "cards": [
-          "WAON"
+          "WAON",
+          "WAON_LOCAL"
         ],
         "mediums": [
           "CARD",
@@ -23601,7 +23768,8 @@
         "name": null,
         "service_provider": "WAON",
         "cards": [
-          "WAON"
+          "WAON",
+          "WAON_LOCAL"
         ],
         "mediums": [
           "CARD",
@@ -23614,7 +23782,8 @@
         "name": "WAON status",
         "service_provider": "WAON",
         "cards": [
-          "WAON"
+          "WAON",
+          "WAON_LOCAL"
         ],
         "mediums": [
           "CARD",
@@ -23627,7 +23796,8 @@
         "name": null,
         "service_provider": "WAON",
         "cards": [
-          "WAON"
+          "WAON",
+          "WAON_LOCAL"
         ],
         "mediums": [
           "CARD",
@@ -23640,7 +23810,8 @@
         "name": "WAON ID",
         "service_provider": "WAON",
         "cards": [
-          "WAON"
+          "WAON",
+          "WAON_LOCAL"
         ],
         "mediums": [
           "CARD",
@@ -23653,7 +23824,8 @@
         "name": null,
         "service_provider": "WAON",
         "cards": [
-          "WAON"
+          "WAON",
+          "WAON_LOCAL"
         ],
         "mediums": [
           "CARD",
@@ -23666,7 +23838,8 @@
         "name": "WAON log",
         "service_provider": "WAON",
         "cards": [
-          "WAON"
+          "WAON",
+          "WAON_LOCAL"
         ],
         "mediums": [
           "CARD",
@@ -23679,7 +23852,8 @@
         "name": null,
         "service_provider": "WAON",
         "cards": [
-          "WAON"
+          "WAON",
+          "WAON_LOCAL"
         ],
         "mediums": [
           "CARD",
@@ -23692,7 +23866,8 @@
         "name": null,
         "service_provider": "WAON",
         "cards": [
-          "WAON"
+          "WAON",
+          "WAON_LOCAL"
         ],
         "mediums": [
           "CARD",
@@ -23705,7 +23880,8 @@
         "name": null,
         "service_provider": "WAON",
         "cards": [
-          "WAON"
+          "WAON",
+          "WAON_LOCAL"
         ],
         "mediums": [
           "CARD",
@@ -23718,7 +23894,8 @@
         "name": null,
         "service_provider": "WAON",
         "cards": [
-          "WAON"
+          "WAON",
+          "WAON_LOCAL"
         ],
         "mediums": [
           "CARD",
@@ -23731,7 +23908,8 @@
         "name": "WAON balance",
         "service_provider": "WAON",
         "cards": [
-          "WAON"
+          "WAON",
+          "WAON_LOCAL"
         ],
         "mediums": [
           "CARD",
@@ -23744,7 +23922,8 @@
         "name": null,
         "service_provider": "WAON",
         "cards": [
-          "WAON"
+          "WAON",
+          "WAON_LOCAL"
         ],
         "mediums": [
           "CARD",
@@ -23757,7 +23936,8 @@
         "name": "WAON points",
         "service_provider": "WAON",
         "cards": [
-          "WAON"
+          "WAON",
+          "WAON_LOCAL"
         ],
         "mediums": [
           "CARD",
@@ -23770,7 +23950,8 @@
         "name": null,
         "service_provider": "WAON",
         "cards": [
-          "WAON"
+          "WAON",
+          "WAON_LOCAL"
         ],
         "mediums": [
           "CARD",
@@ -23783,7 +23964,8 @@
         "name": null,
         "service_provider": "WAON",
         "cards": [
-          "WAON"
+          "WAON",
+          "WAON_LOCAL"
         ],
         "mediums": [
           "CARD",
@@ -23796,7 +23978,8 @@
         "name": null,
         "service_provider": "WAON",
         "cards": [
-          "WAON"
+          "WAON",
+          "WAON_LOCAL"
         ],
         "mediums": [
           "CARD",
@@ -23809,7 +23992,8 @@
         "name": null,
         "service_provider": "WAON",
         "cards": [
-          "WAON"
+          "WAON",
+          "WAON_LOCAL"
         ],
         "mediums": [
           "CARD",
@@ -23822,7 +24006,8 @@
         "name": null,
         "service_provider": "WAON",
         "cards": [
-          "WAON"
+          "WAON",
+          "WAON_LOCAL"
         ],
         "mediums": [
           "CARD",
@@ -23835,7 +24020,8 @@
         "name": null,
         "service_provider": "WAON",
         "cards": [
-          "WAON"
+          "WAON",
+          "WAON_LOCAL"
         ],
         "mediums": [
           "CARD",
@@ -23848,7 +24034,8 @@
         "name": null,
         "service_provider": "WAON",
         "cards": [
-          "WAON"
+          "WAON",
+          "WAON_LOCAL"
         ],
         "mediums": [
           "CARD",
@@ -23861,7 +24048,8 @@
         "name": null,
         "service_provider": "WAON",
         "cards": [
-          "WAON"
+          "WAON",
+          "WAON_LOCAL"
         ],
         "mediums": [
           "CARD",
@@ -23874,7 +24062,8 @@
         "name": null,
         "service_provider": "WAON",
         "cards": [
-          "WAON"
+          "WAON",
+          "WAON_LOCAL"
         ],
         "mediums": [
           "CARD",
@@ -23887,7 +24076,8 @@
         "name": null,
         "service_provider": "WAON",
         "cards": [
-          "WAON"
+          "WAON",
+          "WAON_LOCAL"
         ],
         "mediums": [
           "CARD",

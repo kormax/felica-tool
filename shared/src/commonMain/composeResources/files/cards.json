@@ -1,0 +1,112 @@
+{
+  "CJRC": {
+    "SUICA": {
+      "SUICA_WELCOME": {},
+      "SUICA_MOBILE": {},
+      "SUICA_MONO": {},
+      "SUICA_PLUS": {
+        "AOPASS": {},
+        "TOTRA": {},
+        "KURURU_NEW": {},
+        "IGUCA": {},
+        "AKICA": {},
+        "HACHICA": {},
+        "CHERICA_YAMAKO": {},
+        "CHERICA_SHOKO": {},
+        "IWATE_GREEN": {},
+        "TOWADA_SKYBLUE": {},
+        "LOCOCA": {},
+        "MEGOICA": {},
+        "NOLBE": {},
+        "ODECA_NEW": {},
+        "SHUKOKU_ORANGE": {}
+      }
+    },
+    "ICOCA": {
+      "ICOCA_MOBILE": {},
+      "ICOCA_SHIKOKU": {},
+      "ICOCA_AINOKAZE": {},
+      "ICOCA_ISHIKAWA": {},
+      "ICOCA_FUKUI": {}
+    },
+    "PASMO": {
+      "PASMO_MOBILE": {}
+    },
+    "MANACA": {
+      "MANACA_DO": {},
+      "MANACA_USTAR": {},
+      "MANACA_PLAIN": {}
+    },
+    "HAYAKAKEN": {},
+    "NIMOCA": {
+      "NIMOCA_TSUTSU": {},
+      "NIMOCA_ICAS": {},
+      "NIMOCA_HIROSHIMA": {},
+      "NIMOCA_KUMAMOTO": {}
+    },
+    "TOICA": {},
+    "SUGOCA": {
+      "SUGOCA_PLAIN": {},
+      "SUGOCA_MONO": {}
+    },
+    "KITACA": {},
+    "ICSCA": {}
+  },
+  "SHIKOKU": {
+    "IC_E_CARD": {},
+    "DESUCA": {}
+  },
+  "KAGOSHIMA": {
+    "RAPICA": {},
+    "IWASAKI": {}
+  },
+  "TOYAMA": {
+    "ECOMYCA": {},
+    "PASSCA": {}
+  },
+  "FUKUSHIMA": {
+    "NORUCA": {
+      "AIZU_NORUCA": {}
+    }
+  },
+  "FELICA_LITE": {
+    "DHAKA_SINGLE": {},
+    "MTR_TICKET": {}
+  },
+  "SPEEDPASS": {
+    "ENEOS": {}
+  },
+  "OCTOPUS": {
+    "OCTOPUS_SHENZHEN_TONG": {}
+  },
+  "DMTCL": {
+    "MRT_PASS": {}
+  },
+  "ASAHIKAWA": {
+    "ASACA": {},
+    "DOCARD": {}
+  },
+  "FELICA_NETWORKS": {
+    "FELICA_POCKET": {},
+    "FELICA_KAZASU_FOLDER": {}
+  },
+  "ANA": {},
+  "JAL": {},
+  "QUICPAY": {},
+  "EDY": {
+    "EDY_RAKUTEN": {},
+    "EDY_HONDA_C_CARD": {},
+    "EDY_KARUWAZA_CLUB": {},
+    "EDY_AMPM": {},
+    "EDY_SAN_IN_SHINPAN": {}
+  },
+  "NANACO": {},
+  "WAON": {
+    "WAON_LOCAL": {}
+  },
+  "MIWA": {
+    "MIWA_FKL": {},
+    "MIWA_IEL": {},
+    "MIWA_KEYMO": {}
+  }
+}

@@ -243,8 +243,8 @@ android {
         applicationId = "com.kormax.felicatool"
         minSdk = 31
         targetSdk = 37
-        versionCode = 26
-        versionName = "0.26.0"
+        versionCode = 27
+        versionName = "0.27.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -282,6 +282,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material.icons.core)
     implementation(libs.androidx.compose.foundation.layout)
+    implementation(libs.jetbrains.compose.components.resources)
     implementation(project(":shared"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
