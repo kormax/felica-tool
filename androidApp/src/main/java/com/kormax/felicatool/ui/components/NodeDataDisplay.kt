@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.kormax.felicatool.BuildConfig
 import com.kormax.felicatool.felica.*
 import com.kormax.felicatool.felica.IllegalNumberErrorPreference
 import com.kormax.felicatool.service.CardScanContext
@@ -36,6 +37,7 @@ import com.kormax.felicatool.util.CardTypeInference
 import com.kormax.felicatool.util.CardTypeInferrer
 import com.kormax.felicatool.util.CardTypeMedia
 import com.kormax.felicatool.util.IcTypeRegistry
+import com.kormax.felicatool.util.ManufacturingDateResolver
 import com.kormax.felicatool.util.NodeDefinitionType
 import com.kormax.felicatool.util.NodeRegistry
 import com.kormax.felicatool.util.ServiceIconMapper
@@ -137,6 +139,14 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
     val detectedProviders = providerDetectionResult.providers
     val unknownServiceCount = providerDetectionResult.unknownServiceCount
     val inferredCardType = remember(context) { CardTypeInferrer.infer(context) }
+    val manufacturingDate =
+        remember(context) {
+            ManufacturingDateResolver.resolve(
+                context = context,
+                currentTimeMillis = java.lang.System.currentTimeMillis(),
+                buildDateEpochMillis = BuildConfig.BUILD_DATE_EPOCH_MILLIS,
+            )
+        }
 
     Card(modifier = modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp).animateContentSize()) {
@@ -212,6 +222,9 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                                     else resolution.name,
                                 isWarning = resolution.isUncertain,
                             )
+                        }
+                        manufacturingDate?.let { date ->
+                            InfoChip(label = "Manufacturing Date", value = date.toString())
                         }
                     }
                 }

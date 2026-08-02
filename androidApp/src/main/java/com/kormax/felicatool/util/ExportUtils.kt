@@ -259,9 +259,11 @@ object ExportUtils {
     }
 
     /** Generates JSON representation of the CardScanContext as a flat list organized per system */
-    private fun generateFlatListJson(
+    internal fun generateFlatListJson(
         scanContext: CardScanContext,
         privacy: Boolean = false,
+        currentTimeMillis: Long = java.lang.System.currentTimeMillis(),
+        buildDateEpochMillis: Long = BuildConfig.BUILD_DATE_EPOCH_MILLIS,
     ): JSONObject {
         val json = JSONObject()
 
@@ -275,7 +277,7 @@ object ExportUtils {
             metadataJson.put("device_manufacturer", "")
             metadataJson.put("device_model", "")
         } else {
-            metadataJson.put("creation_time", java.lang.System.currentTimeMillis() / 1000L)
+            metadataJson.put("creation_time", currentTimeMillis / 1000L)
             metadataJson.put("app_version", BuildConfig.VERSION_NAME)
             metadataJson.put("android_sdk_version", Build.VERSION.SDK_INT)
             metadataJson.put("android_version", Build.VERSION.RELEASE)
@@ -291,6 +293,15 @@ object ExportUtils {
             val hex = it.toHexString().lowercase()
             json.put("primary_idm", if (privacy) maskIdm(hex) else hex)
         }
+
+        ManufacturingDateResolver.resolve(
+                context = scanContext,
+                currentTimeMillis = currentTimeMillis,
+                buildDateEpochMillis = buildDateEpochMillis,
+            )
+            ?.let { manufacturingDate ->
+                json.put("manufacturing_date", manufacturingDate.toString())
+            }
 
         scanContext.pmm?.let { pmm -> json.put("pmm", pmm.toHexString().lowercase()) }
 

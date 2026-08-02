@@ -8,6 +8,8 @@ import org.gradle.api.tasks.TaskAction
 import org.w3c.dom.Element
 import org.w3c.dom.Node
 
+val buildDateEpochMillis = (System.currentTimeMillis() / 86_400_000L) * 86_400_000L
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -243,8 +245,14 @@ android {
         applicationId = "com.kormax.felicatool"
         minSdk = 31
         targetSdk = 37
-        versionCode = 27
-        versionName = "0.27.0"
+        versionCode = 28
+        versionName = "0.28.0"
+
+        buildConfigField(
+            "long",
+            "BUILD_DATE_EPOCH_MILLIS",
+            "${buildDateEpochMillis}L",
+        )
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
