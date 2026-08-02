@@ -30,7 +30,8 @@
       "ICOCA_FUKUI": {}
     },
     "PASMO": {
-      "PASMO_MOBILE": {}
+      "PASMO_MOBILE": {},
+      "PASMO_PASPORT": {}
     },
     "MANACA": {
       "MANACA_DO": {},
@@ -76,9 +77,6 @@
   "SPEEDPASS": {
     "ENEOS": {}
   },
-  "OCTOPUS": {
-    "OCTOPUS_SHENZHEN_TONG": {}
-  },
   "DMTCL": {
     "MRT_PASS": {}
   },
@@ -90,7 +88,10 @@
     "FELICA_POCKET": {},
     "FELICA_KAZASU_FOLDER": {}
   },
-  "ANA": {},
+  "ANA": {
+    "ANA_FOB": {},
+    "ANA_MILEAGE_CLUB": {}
+  },
   "JAL": {},
   "QUICPAY": {},
   "EDY": {

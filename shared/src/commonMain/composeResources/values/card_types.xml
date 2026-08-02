@@ -9,6 +9,8 @@
     <string name="card_type_aizu_noruca">Aizu Noruca</string>
     <string name="card_type_akica">AkiCA</string>
     <string name="card_type_ana">ANA</string>
+    <string name="card_type_ana_fob">ANA Fob</string>
+    <string name="card_type_ana_mileage_club">ANA Mileage Club</string>
     <string name="card_type_aopass">AOPASS</string>
     <string name="card_type_asaca">Asaca</string>
     <string name="card_type_asahikawa">Asahikawa</string>
@@ -102,6 +104,7 @@
     <string name="card_type_odeca_new">odeca (New)</string>
     <string name="card_type_okica">OKICA</string>
     <string name="card_type_pasmo">PASMO</string>
+    <string name="card_type_pasmo_pasport">PASMO PASSPORT</string>
     <string name="card_type_paspy">PASPY</string>
     <string name="card_type_passca">passca</string>
     <string name="card_type_randen">Randen Card</string>

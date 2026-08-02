@@ -32,6 +32,7 @@
       "NOLBE",
       "ODECA_NEW",
       "PASMO",
+      "PASMO_PASPORT",
       "SHUKOKU_ORANGE",
       "SUGOCA",
       "SUGOCA_MONO",
@@ -78,6 +79,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -152,6 +154,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -202,6 +205,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -252,6 +256,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -302,6 +307,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -352,6 +358,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -396,6 +403,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA_MONO",
           "SUICA",
@@ -438,6 +446,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA_MONO",
           "SUICA",
@@ -480,6 +489,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA_MONO",
           "SUICA",
@@ -522,6 +532,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA_MONO",
           "SUICA",
@@ -564,6 +575,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA_MONO",
           "SUICA",
@@ -606,6 +618,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA_MONO",
           "SUICA",
@@ -648,6 +661,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA_MONO",
           "SUICA",
@@ -690,6 +704,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA_MONO",
           "SUICA",
@@ -732,6 +747,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA_MONO",
           "SUICA",
@@ -780,6 +796,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -830,6 +847,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -880,6 +898,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -930,6 +949,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -980,6 +1000,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -1030,6 +1051,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -1080,6 +1102,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -1130,6 +1153,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -1180,6 +1204,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -1230,6 +1255,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -1280,6 +1306,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -1330,6 +1357,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -1375,6 +1403,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -1424,6 +1453,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -1474,6 +1504,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -1524,6 +1555,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -1574,6 +1606,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -1624,6 +1657,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -1674,6 +1708,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -1724,6 +1759,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -1774,6 +1810,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -1824,6 +1861,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -1874,6 +1912,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -1924,6 +1963,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -1974,6 +2014,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -2024,6 +2065,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -2074,6 +2116,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -2124,6 +2167,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -2174,6 +2218,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -2219,6 +2264,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUGOCA",
           "SUGOCA_MONO",
@@ -2254,6 +2300,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUICA",
           "SUICA_MONO",
@@ -2395,6 +2442,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUICA",
           "SUICA_MONO",
@@ -2452,6 +2500,7 @@
           "NOLBE",
           "ODECA_NEW",
           "PASMO",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUICA",
           "SUICA_MONO",
@@ -2720,7 +2769,8 @@
         "name": null,
         "service_provider": "PASMO",
         "cards": [
-          "PASMO"
+          "PASMO",
+          "PASMO_PASPORT"
         ],
         "mediums": [
           "CARD",
@@ -2733,7 +2783,8 @@
         "name": null,
         "service_provider": "PASMO",
         "cards": [
-          "PASMO"
+          "PASMO",
+          "PASMO_PASPORT"
         ],
         "mediums": [
           "CARD",
@@ -2746,7 +2797,8 @@
         "name": null,
         "service_provider": "PASMO",
         "cards": [
-          "PASMO"
+          "PASMO",
+          "PASMO_PASPORT"
         ],
         "mediums": [
           "CARD",
@@ -2759,7 +2811,8 @@
         "name": null,
         "service_provider": "PASMO",
         "cards": [
-          "PASMO"
+          "PASMO",
+          "PASMO_PASPORT"
         ],
         "mediums": [
           "CARD",
@@ -2772,7 +2825,8 @@
         "name": null,
         "service_provider": "PASMO",
         "cards": [
-          "PASMO"
+          "PASMO",
+          "PASMO_PASPORT"
         ],
         "mediums": [
           "CARD",
@@ -6393,6 +6447,18 @@
         ]
       },
       {
+        "code": "0008000f",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "OCTOPUS",
+        "cards": [
+          "OCTOPUS_SHENZHEN_TONG"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
         "code": "00083f0f",
         "parent": "0000feff",
         "name": null,
@@ -6404,6 +6470,18 @@
         "mediums": [
           "CARD",
           "MOBILE"
+        ]
+      },
+      {
+        "code": "0809",
+        "parent": "0008000f",
+        "name": null,
+        "service_provider": "OCTOPUS",
+        "cards": [
+          "OCTOPUS_SHENZHEN_TONG"
+        ],
+        "mediums": [
+          "CARD"
         ]
       },
       {
@@ -6422,6 +6500,18 @@
       },
       {
         "code": "0a09",
+        "parent": "0008000f",
+        "name": null,
+        "service_provider": "OCTOPUS",
+        "cards": [
+          "OCTOPUS_SHENZHEN_TONG"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0a09",
         "parent": "00083f0f",
         "name": null,
         "service_provider": "OCTOPUS",
@@ -6432,6 +6522,18 @@
         "mediums": [
           "CARD",
           "MOBILE"
+        ]
+      },
+      {
+        "code": "080a",
+        "parent": "0008000f",
+        "name": null,
+        "service_provider": "OCTOPUS",
+        "cards": [
+          "OCTOPUS_SHENZHEN_TONG"
+        ],
+        "mediums": [
+          "CARD"
         ]
       },
       {
@@ -6450,6 +6552,18 @@
       },
       {
         "code": "0a0a",
+        "parent": "0008000f",
+        "name": null,
+        "service_provider": "OCTOPUS",
+        "cards": [
+          "OCTOPUS_SHENZHEN_TONG"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0a0a",
         "parent": "00083f0f",
         "name": null,
         "service_provider": "OCTOPUS",
@@ -6464,6 +6578,18 @@
       },
       {
         "code": "080b",
+        "parent": "0008000f",
+        "name": null,
+        "service_provider": "OCTOPUS",
+        "cards": [
+          "OCTOPUS_SHENZHEN_TONG"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "080b",
         "parent": "00083f0f",
         "name": null,
         "service_provider": "OCTOPUS",
@@ -6474,6 +6600,18 @@
         "mediums": [
           "CARD",
           "MOBILE"
+        ]
+      },
+      {
+        "code": "0a0b",
+        "parent": "0008000f",
+        "name": null,
+        "service_provider": "OCTOPUS",
+        "cards": [
+          "OCTOPUS_SHENZHEN_TONG"
+        ],
+        "mediums": [
+          "CARD"
         ]
       },
       {
@@ -7818,6 +7956,123 @@
         "service_provider": "KITAMI_BUS",
         "cards": [
           "KITAMI_BUS"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      }
+    ]
+  },
+  "8082": {
+    "name": "ANA",
+    "service_provider": "ANA",
+    "cards": [
+      "ANA_MILEAGE_CLUB"
+    ],
+    "nodes": [
+      {
+        "code": "0000feff",
+        "parent": null,
+        "name": null,
+        "service_provider": "ANA",
+        "cards": [
+          "ANA_MILEAGE_CLUB"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "00033f03",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "ANA",
+        "cards": [
+          "ANA_MILEAGE_CLUB"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "01033f03",
+        "parent": "00033f03",
+        "name": null,
+        "service_provider": "ANA",
+        "cards": [
+          "ANA_MILEAGE_CLUB"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0803",
+        "parent": "01033f03",
+        "name": null,
+        "service_provider": "ANA",
+        "cards": [
+          "ANA_MILEAGE_CLUB"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0b03",
+        "parent": "01033f03",
+        "name": null,
+        "service_provider": "ANA",
+        "cards": [
+          "ANA_MILEAGE_CLUB"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "00043f04",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "ANA",
+        "cards": [
+          "ANA_MILEAGE_CLUB"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "01043f04",
+        "parent": "00043f04",
+        "name": null,
+        "service_provider": "ANA",
+        "cards": [
+          "ANA_MILEAGE_CLUB"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0804",
+        "parent": "01043f04",
+        "name": null,
+        "service_provider": "ANA",
+        "cards": [
+          "ANA_MILEAGE_CLUB"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0b04",
+        "parent": "01043f04",
+        "name": null,
+        "service_provider": "ANA",
+        "cards": [
+          "ANA_MILEAGE_CLUB"
         ],
         "mediums": [
           "CARD"
@@ -9613,18 +9868,18 @@
   },
   "8182": {
     "name": "ANA",
-    "service_provider": "ANA",
+    "service_provider": "ANA_FOB",
     "cards": [
-      "ANA"
+      "ANA_FOB"
     ],
     "nodes": [
       {
         "code": "0000feff",
         "parent": null,
         "name": null,
-        "service_provider": "ANA",
+        "service_provider": "ANA_FOB",
         "cards": [
-          "ANA"
+          "ANA_FOB"
         ],
         "mediums": [
           "CARD"
@@ -9636,7 +9891,7 @@
         "name": "QuicPay",
         "service_provider": "QUICPAY",
         "cards": [
-          "ANA"
+          "ANA_FOB"
         ],
         "mediums": [
           "CARD"
@@ -9648,7 +9903,7 @@
         "name": null,
         "service_provider": "QUICPAY",
         "cards": [
-          "ANA"
+          "ANA_FOB"
         ],
         "mediums": [
           "CARD"
@@ -9660,7 +9915,7 @@
         "name": "QuicPay ID",
         "service_provider": "QUICPAY",
         "cards": [
-          "ANA"
+          "ANA_FOB"
         ],
         "mediums": [
           "CARD"
@@ -9672,7 +9927,7 @@
         "name": null,
         "service_provider": "QUICPAY",
         "cards": [
-          "ANA"
+          "ANA_FOB"
         ],
         "mediums": [
           "CARD"
@@ -9684,7 +9939,7 @@
         "name": "QuicPay cardholder information",
         "service_provider": "QUICPAY",
         "cards": [
-          "ANA"
+          "ANA_FOB"
         ],
         "mediums": [
           "CARD"
@@ -9696,7 +9951,7 @@
         "name": "QuicPay profile configuration",
         "service_provider": "QUICPAY",
         "cards": [
-          "ANA"
+          "ANA_FOB"
         ],
         "mediums": [
           "CARD"
@@ -9708,7 +9963,7 @@
         "name": null,
         "service_provider": "QUICPAY",
         "cards": [
-          "ANA"
+          "ANA_FOB"
         ],
         "mediums": [
           "CARD"
@@ -9720,7 +9975,7 @@
         "name": null,
         "service_provider": "QUICPAY",
         "cards": [
-          "ANA"
+          "ANA_FOB"
         ],
         "mediums": [
           "CARD"
@@ -9732,7 +9987,7 @@
         "name": null,
         "service_provider": "QUICPAY",
         "cards": [
-          "ANA"
+          "ANA_FOB"
         ],
         "mediums": [
           "CARD"
@@ -9744,7 +9999,7 @@
         "name": "QuicPay card profile 1",
         "service_provider": "QUICPAY",
         "cards": [
-          "ANA"
+          "ANA_FOB"
         ],
         "mediums": [
           "CARD"
@@ -9756,7 +10011,7 @@
         "name": "QuicPay transaction history 1",
         "service_provider": "QUICPAY",
         "cards": [
-          "ANA"
+          "ANA_FOB"
         ],
         "mediums": [
           "CARD"
@@ -9768,7 +10023,7 @@
         "name": null,
         "service_provider": "QUICPAY",
         "cards": [
-          "ANA"
+          "ANA_FOB"
         ],
         "mediums": [
           "CARD"
@@ -9780,7 +10035,7 @@
         "name": "QuicPay card profile 2",
         "service_provider": "QUICPAY",
         "cards": [
-          "ANA"
+          "ANA_FOB"
         ],
         "mediums": [
           "CARD"
@@ -9792,7 +10047,7 @@
         "name": "QuicPay transaction history 2",
         "service_provider": "QUICPAY",
         "cards": [
-          "ANA"
+          "ANA_FOB"
         ],
         "mediums": [
           "CARD"
@@ -9804,7 +10059,7 @@
         "name": null,
         "service_provider": "QUICPAY",
         "cards": [
-          "ANA"
+          "ANA_FOB"
         ],
         "mediums": [
           "CARD"
@@ -9816,7 +10071,7 @@
         "name": "QuicPay card profile 3",
         "service_provider": "QUICPAY",
         "cards": [
-          "ANA"
+          "ANA_FOB"
         ],
         "mediums": [
           "CARD"
@@ -9828,7 +10083,7 @@
         "name": "QuicPay transaction history 3",
         "service_provider": "QUICPAY",
         "cards": [
-          "ANA"
+          "ANA_FOB"
         ],
         "mediums": [
           "CARD"
@@ -14224,6 +14479,7 @@
       "MEGOICA",
       "NOLBE",
       "ODECA_NEW",
+      "PASMO_PASPORT",
       "SHUKOKU_ORANGE",
       "SUICA",
       "SUICA_MONO",
@@ -14250,6 +14506,7 @@
           "MEGOICA",
           "NOLBE",
           "ODECA_NEW",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUICA",
           "SUICA_MONO",
@@ -14279,6 +14536,7 @@
           "MEGOICA",
           "NOLBE",
           "ODECA_NEW",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUICA",
           "SUICA_MONO",
@@ -14308,6 +14566,7 @@
           "MEGOICA",
           "NOLBE",
           "ODECA_NEW",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUICA",
           "SUICA_MONO",
@@ -14337,6 +14596,7 @@
           "MEGOICA",
           "NOLBE",
           "ODECA_NEW",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUICA",
           "SUICA_MONO",
@@ -14366,6 +14626,7 @@
           "MEGOICA",
           "NOLBE",
           "ODECA_NEW",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUICA",
           "SUICA_MONO",
@@ -14395,6 +14656,7 @@
           "MEGOICA",
           "NOLBE",
           "ODECA_NEW",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUICA",
           "SUICA_MONO",
@@ -14424,6 +14686,7 @@
           "MEGOICA",
           "NOLBE",
           "ODECA_NEW",
+          "PASMO_PASPORT",
           "SHUKOKU_ORANGE",
           "SUICA",
           "SUICA_MONO",
@@ -21375,7 +21638,8 @@
     "service_provider": "FELICA_NETWORKS",
     "cards": [
       "AKICA",
-      "ANA",
+      "ANA_FOB",
+      "ANA_MILEAGE_CLUB",
       "AOPASS",
       "CHERICA_SHOKO",
       "CHERICA_YAMAKO",
@@ -21412,6 +21676,7 @@
       "ODECA_NEW",
       "OKICA",
       "PASMO",
+      "PASMO_PASPORT",
       "RYUTO",
       "SHUKOKU_ORANGE",
       "SPEEDPASS",
@@ -21434,7 +21699,8 @@
         "service_provider": "FELICA_NETWORKS",
         "cards": [
           "AKICA",
-          "ANA",
+          "ANA_FOB",
+          "ANA_MILEAGE_CLUB",
           "AOPASS",
           "CHERICA_SHOKO",
           "CHERICA_YAMAKO",
@@ -21471,6 +21737,7 @@
           "ODECA_NEW",
           "OKICA",
           "PASMO",
+          "PASMO_PASPORT",
           "RYUTO",
           "SHUKOKU_ORANGE",
           "SPEEDPASS",
@@ -21508,6 +21775,7 @@
         "name": "Edy",
         "service_provider": "EDY",
         "cards": [
+          "ANA_MILEAGE_CLUB",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
           "EDY_RAKUTEN",
@@ -21536,6 +21804,7 @@
         "name": "Edy",
         "service_provider": "EDY",
         "cards": [
+          "ANA_MILEAGE_CLUB",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
           "EDY_RAKUTEN",
@@ -21564,6 +21833,7 @@
         "name": null,
         "service_provider": "EDY",
         "cards": [
+          "ANA_MILEAGE_CLUB",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
           "EDY_RAKUTEN",
@@ -21592,6 +21862,7 @@
         "name": null,
         "service_provider": "EDY",
         "cards": [
+          "ANA_MILEAGE_CLUB",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
           "EDY_RAKUTEN",
@@ -21620,6 +21891,7 @@
         "name": null,
         "service_provider": "EDY",
         "cards": [
+          "ANA_MILEAGE_CLUB",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
           "EDY_RAKUTEN",
@@ -21648,6 +21920,7 @@
         "name": "Edy management information",
         "service_provider": "EDY",
         "cards": [
+          "ANA_MILEAGE_CLUB",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
           "EDY_RAKUTEN",
@@ -21676,6 +21949,7 @@
         "name": null,
         "service_provider": "EDY",
         "cards": [
+          "ANA_MILEAGE_CLUB",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
           "EDY_RAKUTEN",
@@ -21704,6 +21978,7 @@
         "name": null,
         "service_provider": "EDY",
         "cards": [
+          "ANA_MILEAGE_CLUB",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
           "EDY_RAKUTEN",
@@ -21732,6 +22007,7 @@
         "name": null,
         "service_provider": "EDY",
         "cards": [
+          "ANA_MILEAGE_CLUB",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
           "EDY_RAKUTEN",
@@ -21760,6 +22036,7 @@
         "name": "Edy balance",
         "service_provider": "EDY",
         "cards": [
+          "ANA_MILEAGE_CLUB",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
           "EDY_RAKUTEN",
@@ -21788,6 +22065,7 @@
         "name": null,
         "service_provider": "EDY",
         "cards": [
+          "ANA_MILEAGE_CLUB",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
           "EDY_RAKUTEN",
@@ -21816,6 +22094,7 @@
         "name": null,
         "service_provider": "EDY",
         "cards": [
+          "ANA_MILEAGE_CLUB",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
           "EDY_RAKUTEN",
@@ -21844,6 +22123,7 @@
         "name": null,
         "service_provider": "EDY",
         "cards": [
+          "ANA_MILEAGE_CLUB",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
           "EDY_RAKUTEN",
@@ -21872,6 +22152,7 @@
         "name": null,
         "service_provider": "EDY",
         "cards": [
+          "ANA_MILEAGE_CLUB",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
           "EDY_RAKUTEN",
@@ -21900,6 +22181,7 @@
         "name": null,
         "service_provider": "EDY",
         "cards": [
+          "ANA_MILEAGE_CLUB",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
           "EDY_RAKUTEN",
@@ -21928,6 +22210,7 @@
         "name": null,
         "service_provider": "EDY",
         "cards": [
+          "ANA_MILEAGE_CLUB",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
           "EDY_RAKUTEN",
@@ -21956,6 +22239,7 @@
         "name": null,
         "service_provider": "EDY",
         "cards": [
+          "ANA_MILEAGE_CLUB",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
           "EDY_RAKUTEN",
@@ -21984,6 +22268,7 @@
         "name": "Edy log",
         "service_provider": "EDY",
         "cards": [
+          "ANA_MILEAGE_CLUB",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
           "EDY_RAKUTEN",
@@ -22000,7 +22285,8 @@
         "name": "ANA",
         "service_provider": "ANA",
         "cards": [
-          "ANA"
+          "ANA_FOB",
+          "ANA_MILEAGE_CLUB"
         ],
         "mediums": [
           "CARD",
@@ -22013,7 +22299,8 @@
         "name": "ANA",
         "service_provider": "ANA",
         "cards": [
-          "ANA"
+          "ANA_FOB",
+          "ANA_MILEAGE_CLUB"
         ],
         "mediums": [
           "CARD",
@@ -22026,7 +22313,8 @@
         "name": null,
         "service_provider": "ANA",
         "cards": [
-          "ANA"
+          "ANA_FOB",
+          "ANA_MILEAGE_CLUB"
         ],
         "mediums": [
           "CARD",
@@ -22039,7 +22327,8 @@
         "name": null,
         "service_provider": "ANA",
         "cards": [
-          "ANA"
+          "ANA_FOB",
+          "ANA_MILEAGE_CLUB"
         ],
         "mediums": [
           "CARD",
@@ -22052,7 +22341,8 @@
         "name": null,
         "service_provider": "ANA",
         "cards": [
-          "ANA"
+          "ANA_FOB",
+          "ANA_MILEAGE_CLUB"
         ],
         "mediums": [
           "CARD",
@@ -22065,7 +22355,8 @@
         "name": null,
         "service_provider": "ANA",
         "cards": [
-          "ANA"
+          "ANA_FOB",
+          "ANA_MILEAGE_CLUB"
         ],
         "mediums": [
           "CARD",
@@ -22078,7 +22369,8 @@
         "name": null,
         "service_provider": "ANA",
         "cards": [
-          "ANA"
+          "ANA_FOB",
+          "ANA_MILEAGE_CLUB"
         ],
         "mediums": [
           "CARD",
@@ -22091,7 +22383,8 @@
         "name": null,
         "service_provider": "ANA",
         "cards": [
-          "ANA"
+          "ANA_FOB",
+          "ANA_MILEAGE_CLUB"
         ],
         "mediums": [
           "CARD",
@@ -22104,7 +22397,8 @@
         "name": null,
         "service_provider": "ANA",
         "cards": [
-          "ANA"
+          "ANA_FOB",
+          "ANA_MILEAGE_CLUB"
         ],
         "mediums": [
           "CARD",
@@ -22117,7 +22411,8 @@
         "name": null,
         "service_provider": "ANA",
         "cards": [
-          "ANA"
+          "ANA_FOB",
+          "ANA_MILEAGE_CLUB"
         ],
         "mediums": [
           "CARD",
@@ -22130,7 +22425,8 @@
         "name": null,
         "service_provider": "ANA",
         "cards": [
-          "ANA"
+          "ANA_FOB",
+          "ANA_MILEAGE_CLUB"
         ],
         "mediums": [
           "CARD",
@@ -22143,7 +22439,8 @@
         "name": null,
         "service_provider": "ANA",
         "cards": [
-          "ANA"
+          "ANA_FOB",
+          "ANA_MILEAGE_CLUB"
         ],
         "mediums": [
           "CARD",
@@ -22156,7 +22453,8 @@
         "name": null,
         "service_provider": "ANA",
         "cards": [
-          "ANA"
+          "ANA_FOB",
+          "ANA_MILEAGE_CLUB"
         ],
         "mediums": [
           "CARD",
@@ -22169,7 +22467,8 @@
         "name": null,
         "service_provider": "ANA",
         "cards": [
-          "ANA"
+          "ANA_FOB",
+          "ANA_MILEAGE_CLUB"
         ],
         "mediums": [
           "CARD",
@@ -22182,7 +22481,8 @@
         "name": null,
         "service_provider": "ANA",
         "cards": [
-          "ANA"
+          "ANA_FOB",
+          "ANA_MILEAGE_CLUB"
         ],
         "mediums": [
           "CARD",
@@ -22968,6 +23268,7 @@
           "ODECA_NEW",
           "OKICA",
           "PASMO",
+          "PASMO_PASPORT",
           "RYUTO",
           "SHUKOKU_ORANGE",
           "SUGOCA",
@@ -23017,6 +23318,7 @@
           "ODECA_NEW",
           "OKICA",
           "PASMO",
+          "PASMO_PASPORT",
           "RYUTO",
           "SHUKOKU_ORANGE",
           "SUGOCA",
@@ -23066,6 +23368,7 @@
           "ODECA_NEW",
           "OKICA",
           "PASMO",
+          "PASMO_PASPORT",
           "RYUTO",
           "SHUKOKU_ORANGE",
           "SUGOCA",
@@ -23163,6 +23466,7 @@
           "ODECA_NEW",
           "OKICA",
           "PASMO",
+          "PASMO_PASPORT",
           "RYUTO",
           "SHUKOKU_ORANGE",
           "SUGOCA",
@@ -23212,6 +23516,7 @@
           "ODECA_NEW",
           "OKICA",
           "PASMO",
+          "PASMO_PASPORT",
           "RYUTO",
           "SHUKOKU_ORANGE",
           "SUGOCA",
@@ -23261,6 +23566,7 @@
           "ODECA_NEW",
           "OKICA",
           "PASMO",
+          "PASMO_PASPORT",
           "RYUTO",
           "SHUKOKU_ORANGE",
           "SUGOCA",
@@ -23310,6 +23616,7 @@
           "ODECA_NEW",
           "OKICA",
           "PASMO",
+          "PASMO_PASPORT",
           "RYUTO",
           "SHUKOKU_ORANGE",
           "SUGOCA",
@@ -23468,7 +23775,7 @@
         "name": "Nanaco",
         "service_provider": "NANACO",
         "cards": [
-          "ANA",
+          "ANA_FOB",
           "ENEOS",
           "NANACO",
           "SPEEDPASS"
@@ -23484,7 +23791,7 @@
         "name": "Nanaco",
         "service_provider": "NANACO",
         "cards": [
-          "ANA",
+          "ANA_FOB",
           "ENEOS",
           "NANACO",
           "SPEEDPASS"
@@ -23500,7 +23807,7 @@
         "name": null,
         "service_provider": "NANACO",
         "cards": [
-          "ANA",
+          "ANA_FOB",
           "ENEOS",
           "NANACO",
           "SPEEDPASS"
@@ -23516,7 +23823,7 @@
         "name": "Nanaco management information",
         "service_provider": "NANACO",
         "cards": [
-          "ANA",
+          "ANA_FOB",
           "ENEOS",
           "NANACO",
           "SPEEDPASS"
@@ -23532,7 +23839,7 @@
         "name": null,
         "service_provider": "NANACO",
         "cards": [
-          "ANA",
+          "ANA_FOB",
           "ENEOS",
           "NANACO",
           "SPEEDPASS"
@@ -23548,7 +23855,7 @@
         "name": null,
         "service_provider": "NANACO",
         "cards": [
-          "ANA",
+          "ANA_FOB",
           "ENEOS",
           "NANACO",
           "SPEEDPASS"
@@ -23564,7 +23871,7 @@
         "name": "Nanaco balance",
         "service_provider": "NANACO",
         "cards": [
-          "ANA",
+          "ANA_FOB",
           "ENEOS",
           "NANACO",
           "SPEEDPASS"
@@ -23580,7 +23887,7 @@
         "name": null,
         "service_provider": "NANACO",
         "cards": [
-          "ANA",
+          "ANA_FOB",
           "ENEOS",
           "NANACO",
           "SPEEDPASS"
@@ -23596,7 +23903,7 @@
         "name": "Nanaco usage statistics",
         "service_provider": "NANACO",
         "cards": [
-          "ANA",
+          "ANA_FOB",
           "ENEOS",
           "NANACO",
           "SPEEDPASS"
@@ -23612,7 +23919,7 @@
         "name": null,
         "service_provider": "NANACO",
         "cards": [
-          "ANA",
+          "ANA_FOB",
           "ENEOS",
           "NANACO",
           "SPEEDPASS"
@@ -23628,7 +23935,7 @@
         "name": "Nanaco points",
         "service_provider": "NANACO",
         "cards": [
-          "ANA",
+          "ANA_FOB",
           "ENEOS",
           "NANACO",
           "SPEEDPASS"
@@ -23644,7 +23951,7 @@
         "name": null,
         "service_provider": "NANACO",
         "cards": [
-          "ANA",
+          "ANA_FOB",
           "ENEOS",
           "NANACO",
           "SPEEDPASS"
@@ -23660,7 +23967,7 @@
         "name": null,
         "service_provider": "NANACO",
         "cards": [
-          "ANA",
+          "ANA_FOB",
           "ENEOS",
           "NANACO",
           "SPEEDPASS"
@@ -23676,7 +23983,7 @@
         "name": null,
         "service_provider": "NANACO",
         "cards": [
-          "ANA",
+          "ANA_FOB",
           "ENEOS",
           "NANACO",
           "SPEEDPASS"
@@ -23692,7 +23999,7 @@
         "name": "Nanaco log",
         "service_provider": "NANACO",
         "cards": [
-          "ANA",
+          "ANA_FOB",
           "ENEOS",
           "NANACO",
           "SPEEDPASS"
@@ -23708,7 +24015,7 @@
         "name": null,
         "service_provider": "NANACO",
         "cards": [
-          "ANA",
+          "ANA_FOB",
           "ENEOS",
           "NANACO",
           "SPEEDPASS"
@@ -23724,7 +24031,7 @@
         "name": null,
         "service_provider": "NANACO",
         "cards": [
-          "ANA",
+          "ANA_FOB",
           "ENEOS",
           "NANACO",
           "SPEEDPASS"
