@@ -104,6 +104,7 @@ data class GetNodePropertyCommandCapability(
 data class Authentication1DesCommandCapability(
     override val supported: CommandSupport = CommandSupport.UNKNOWN,
     override val trailingDataSupported: CommandSupport = CommandSupport.UNKNOWN,
-    val incompleteAreaPathForNodeSupported: CommandSupport = CommandSupport.UNKNOWN,
-    val serviceInAreaPathSupported: CommandSupport = CommandSupport.UNKNOWN,
+    val areaListWithoutNodeImmediateParentAreaSupported: CommandSupport = CommandSupport.UNKNOWN,
+    val areaListWithoutRootAreaSupported: CommandSupport = CommandSupport.UNKNOWN,
+    val authenticationRequiredServiceInAreaPathSupported: CommandSupport = CommandSupport.UNKNOWN,
 ) : CommandCapability

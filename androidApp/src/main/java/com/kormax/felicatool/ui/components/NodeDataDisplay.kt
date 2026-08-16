@@ -700,12 +700,18 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                                 context.commands.authentication1Des.trailingDataSupported,
                         )
                         CommandSupportChip(
-                            "Auth1 DES Incomplete Area Path For Node",
-                            context.commands.authentication1Des.incompleteAreaPathForNodeSupported,
+                            "Auth1 DES Area List Without Node Immediate Parent Area",
+                            context.commands.authentication1Des
+                                .areaListWithoutNodeImmediateParentAreaSupported,
                         )
                         CommandSupportChip(
-                            "Auth1 DES Service In Area Path",
-                            context.commands.authentication1Des.serviceInAreaPathSupported,
+                            "Auth1 DES Area List Without Root Area",
+                            context.commands.authentication1Des.areaListWithoutRootAreaSupported,
+                        )
+                        CommandSupportChip(
+                            "Auth1 DES Auth-Required Service In Area Path",
+                            context.commands.authentication1Des
+                                .authenticationRequiredServiceInAreaPathSupported,
                         )
                         CommandSupportChip(
                             "Authenticate1 AES",

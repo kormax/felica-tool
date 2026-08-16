@@ -518,12 +518,18 @@ object ExportUtils {
             scanContext.commands.authentication1Des,
         ) {
             putBooleanIfKnown(
-                "incomplete_area_path_for_node_supported",
-                scanContext.commands.authentication1Des.incompleteAreaPathForNodeSupported,
+                "area_list_without_node_immediate_parent_area_supported",
+                scanContext.commands.authentication1Des
+                    .areaListWithoutNodeImmediateParentAreaSupported,
             )
             putBooleanIfKnown(
-                "service_in_area_path_supported",
-                scanContext.commands.authentication1Des.serviceInAreaPathSupported,
+                "area_list_without_root_area_supported",
+                scanContext.commands.authentication1Des.areaListWithoutRootAreaSupported,
+            )
+            putBooleanIfKnown(
+                "authentication_required_service_in_area_path_supported",
+                scanContext.commands.authentication1Des
+                    .authenticationRequiredServiceInAreaPathSupported,
             )
         }
         commandsJson.putAvailableCommand(
