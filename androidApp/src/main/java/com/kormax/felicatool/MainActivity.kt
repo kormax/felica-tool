@@ -57,6 +57,7 @@ import com.kormax.felicatool.ui.StepStatus
 import com.kormax.felicatool.ui.components.StepsList
 import com.kormax.felicatool.ui.theme.FeliCaToolTheme
 import com.kormax.felicatool.util.IcTypeRegistry
+import com.kormax.felicatool.util.MobileDeviceRegistry
 import com.kormax.felicatool.util.NodeRegistry
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
@@ -169,6 +170,7 @@ class MainActivity : ComponentActivity() {
             runCatching {
                 NodeRegistry.ensureReady()
                 IcTypeRegistry.ensureReady()
+                MobileDeviceRegistry.ensureReady()
             }
                 .onFailure { Log.w(TAG, "Failed to preload shared metadata", it) }
         }

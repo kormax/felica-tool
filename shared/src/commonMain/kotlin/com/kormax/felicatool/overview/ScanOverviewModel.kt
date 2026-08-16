@@ -14,6 +14,7 @@ import com.kormax.felicatool.service.formatBlockNumberHex
 import com.kormax.felicatool.util.CardTypeInference
 import com.kormax.felicatool.util.CardTypeInferrer
 import com.kormax.felicatool.util.IcTypeRegistry
+import com.kormax.felicatool.util.MobileDeviceRegistry
 import com.kormax.felicatool.util.NodeDefinitionType
 import com.kormax.felicatool.util.NodeRegistry
 import com.kormax.felicatool.util.ServiceGrouper
@@ -221,6 +222,7 @@ object ScanOverviewModelBuilder {
                 }
             }
             scanContext.containerIssueInformation?.let { containerInformation ->
+                val mobileDevice = MobileDeviceRegistry.resolve(containerInformation)
                 add(
                     ScanOverviewField(
                         "Format Version Carrier Info",
@@ -231,10 +233,19 @@ object ScanOverviewModelBuilder {
                 )
                 add(
                     ScanOverviewField(
-                        "Mobile Phone Model",
+                        "Mobile Phone Model Info",
                         printableOrHex(containerInformation.mobilePhoneModelInformation),
                     )
                 )
+                mobileDevice?.let { device ->
+                    add(ScanOverviewField("Device Model", device.name))
+                    device.model?.let { model ->
+                        add(ScanOverviewField("Model Number", model))
+                    }
+                    device.carrier?.let { carrier ->
+                        add(ScanOverviewField("Carrier", carrier))
+                    }
+                }
             }
             scanContext.containerIdm?.let {
                 add(ScanOverviewField("Container IDM", it.toHexString().uppercase()))

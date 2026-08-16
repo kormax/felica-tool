@@ -38,6 +38,7 @@ import com.kormax.felicatool.util.CardTypeInferrer
 import com.kormax.felicatool.util.CardTypeMedia
 import com.kormax.felicatool.util.IcTypeRegistry
 import com.kormax.felicatool.util.ManufacturingDateResolver
+import com.kormax.felicatool.util.MobileDeviceRegistry
 import com.kormax.felicatool.util.NodeDefinitionType
 import com.kormax.felicatool.util.NodeRegistry
 import com.kormax.felicatool.util.ServiceIconMapper
@@ -327,6 +328,7 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
 
                     // Container Issue Information
                     context.containerIssueInformation?.let { containerInfo ->
+                        val mobileDevice = MobileDeviceRegistry.resolve(containerInfo)
                         CompactInfoRow(
                             label = "Format Version Carrier Info",
                             value =
@@ -353,7 +355,16 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                                 containerInfo.mobilePhoneModelInformation.toHexString().uppercase()
                             }
 
-                        CompactInfoRow(label = "Mobile Phone Model", value = modelString)
+                        CompactInfoRow(label = "Mobile Phone Model Info", value = modelString)
+                        mobileDevice?.let { device ->
+                            CompactInfoRow(label = "Device Model", value = device.name)
+                            device.model?.let { model ->
+                                CompactInfoRow(label = "Model Number", value = model)
+                            }
+                            device.carrier?.let { carrier ->
+                                CompactInfoRow(label = "Carrier", value = carrier)
+                            }
+                        }
                     }
 
                     // Container IDM

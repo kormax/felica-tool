@@ -3,6 +3,7 @@ package com.kormax.felicatool.service.steps
 import com.kormax.felicatool.felica.*
 import com.kormax.felicatool.service.*
 import com.kormax.felicatool.ui.ScanStepIcon
+import com.kormax.felicatool.util.MobileDeviceRegistry
 
 internal object GetContainerIssueInformationStep :
     CommandSupportScanStep(
@@ -34,6 +35,7 @@ internal object GetContainerIssueInformationStep :
 
         val formatVersionHex = containerInformation.formatVersionCarrierInformation.toHexString()
         val modelInfoHex = containerInformation.mobilePhoneModelInformation.toHexString()
+        val mobileDevice = MobileDeviceRegistry.resolve(containerInformation)
 
         // Try to decode mobile phone model as printable string
         val modelString =
@@ -54,7 +56,12 @@ internal object GetContainerIssueInformationStep :
         return StepOutput(
             buildString {
                 appendLine("Format Version & Carrier Info: $formatVersionHex")
-                appendLine("Mobile Phone Model: $modelString")
+                appendLine("Mobile Phone Model Info: $modelString")
+                mobileDevice?.let { device ->
+                    appendLine("Device Model: ${device.name}")
+                    device.model?.let { model -> appendLine("Model Number: $model") }
+                    device.carrier?.let { carrier -> appendLine("Carrier: $carrier") }
+                }
             }
                 .trim()
         )

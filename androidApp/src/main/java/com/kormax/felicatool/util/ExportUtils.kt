@@ -371,6 +371,13 @@ object ExportUtils {
                     container.mobilePhoneModelInformation.toHexString()
                 }
             containerJson.put("mobile_phone_model_info", modelString)
+            MobileDeviceRegistry.resolve(container)?.let { device ->
+                val deviceJson = JSONObject()
+                deviceJson.put("name", device.name)
+                device.model?.let { model -> deviceJson.put("model", model) }
+                device.carrier?.let { carrier -> deviceJson.put("carrier", carrier) }
+                containerJson.put("device", deviceJson)
+            }
             json.put("container_issue_information", containerJson)
         }
 
