@@ -80,7 +80,8 @@ internal object Authentication1AesStep :
         val selectedSystemContext = testTarget.systemContext
         val aesCompatibleNodes = testTarget.nodes
 
-        val systemCodeHex = selectedSystemContext.systemCode?.toHexString() ?: "unknown"
+        val systemCodeHex =
+            selectedSystemContext.systemCode?.toHexString()?.uppercase() ?: "unknown"
         ScanLog.d(
             "CardScanService",
             "Selected system $systemCodeHex for AES authentication with ${testTarget.aesCompatibleAreas.size} areas and ${testTarget.aesCompatibleServices.size} services",
@@ -88,6 +89,7 @@ internal object Authentication1AesStep :
 
         // Generate a random challenge1A (16 bytes for AES)
         val challenge1A = ByteArray(16) { 0x0.toByte() }
+        val modeBeforeCheck = currentMode
 
         // Take a subset of AES-compatible nodes from the selected system (areas and services
         // combined in single field)
@@ -108,22 +110,24 @@ internal object Authentication1AesStep :
 
         return StepOutput(
             buildString {
-                appendLine("AES Authentication Results:")
-                appendLine("Selected system: $systemCodeHex")
-                appendLine(
-                    "AES-compatible nodes (${aesCompatibleNodes.size}) used in combined field"
-                )
-                appendLine("Challenge1A (sent): ${challenge1A.toHexString()}")
-                appendLine("Response data (received): ${authenticateResponse.data.toHexString()}")
-                appendLine()
-
-                if (aesCompatibleNodes.isNotEmpty()) {
-                    appendLine("Nodes authenticated (areas and services combined):")
-                    aesCompatibleNodes.forEachIndexed { index, node ->
-                        appendLine("  ${index + 1}. ${describeNode(node)} - AES key")
-                    }
-                    appendLine()
+                appendLine("Authenticate1 AES support check:")
+                appendLine("System: $systemCodeHex")
+                appendLine("Mode before check: $modeBeforeCheck")
+                appendLine("Node list:")
+                aesCompatibleNodes.forEachIndexed { index, node ->
+                    appendLine("  ${index + 1}. ${describeNode(node)}")
                 }
+                appendLine(
+                    "Challenge1A (reader challenge): ${challenge1A.toHexString().uppercase()}"
+                )
+                appendLine(
+                    "Challenge1B (reader challenge response): ${authenticateResponse.challenge1B.toHexString().uppercase()}"
+                )
+                appendLine(
+                    "Challenge2A (card challenge): ${authenticateResponse.challenge2A.toHexString().uppercase()}"
+                )
+                appendLine("Nonce: ${authenticateResponse.nonce.toHexString().uppercase()}")
+                appendLine("Authenticate1 AES: ${CommandSupport.SUPPORTED.toOutputLabel()}")
             }
                 .trim()
         )
@@ -174,5 +178,9 @@ internal object Authentication1AesDetermineTrailingDataSupportedStep :
     }
 
     override fun responseLines(response: Authentication1AesResponse): List<String> =
-        listOf("Response data: ${response.data.toHexString()}")
+        listOf(
+            "Challenge1B (reader challenge response): ${response.challenge1B.toHexString()}",
+            "Challenge2A (card challenge): ${response.challenge2A.toHexString()}",
+            "Nonce: ${response.nonce.toHexString()}",
+        )
 }

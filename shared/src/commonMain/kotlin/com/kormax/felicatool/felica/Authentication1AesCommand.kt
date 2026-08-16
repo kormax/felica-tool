@@ -15,7 +15,7 @@ class Authentication1AesCommand(
     /** Array of Node codes to authenticate (2 bytes each) */
     val nodeCodes: Array<ByteArray>,
 
-    /** Challenge1A (16 bytes) sent to the card for authentication */
+    /** Challenge1A (16 bytes) - reader challenge */
     val challenge1A: ByteArray,
 
     /** Flag byte (default 0x00) */
@@ -41,7 +41,7 @@ class Authentication1AesCommand(
      *
      * @param idm The 8-byte IDM of the target card
      * @param nodes List of Node objects to authenticate
-     * @param challenge1A Challenge1A (16 bytes) sent to the card for authentication
+     * @param challenge1A Challenge1A (16 bytes) - reader challenge
      * @param flag Flag byte (default 0x00) - first byte of the data structure
      */
     constructor(

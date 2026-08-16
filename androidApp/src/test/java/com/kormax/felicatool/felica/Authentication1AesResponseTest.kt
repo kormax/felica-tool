@@ -7,36 +7,37 @@ class Authentication1AesResponseTest {
 
     companion object {
         private val IDM = "0102030405060708".hexToByteArray()
-        private val DATA =
-            "AABBCCDDEEFF001122334455667788990011223344556677889900112233445566778899"
-                .hexToByteArray() // 36 bytes
+        private val CHALLENGE_1B = "AABBCCDDEEFF00112233445566778899".hexToByteArray()
+        private val CHALLENGE_2A = "00112233445566778899001122334455".hexToByteArray()
+        private val NONCE = "66778899".hexToByteArray()
     }
 
     @Test
     fun testAuthentication1AesResponseCreation() {
         val idm = IDM
-        val data = DATA
-
-        val response = Authentication1AesResponse(idm, data)
+        val response = Authentication1AesResponse(idm, CHALLENGE_1B, CHALLENGE_2A, NONCE)
 
         assertEquals(idm.toList(), response.idm.toList())
-        assertEquals(data.toList(), response.data.toList())
+        assertEquals(CHALLENGE_1B.toList(), response.challenge1B.toList())
+        assertEquals(CHALLENGE_2A.toList(), response.challenge2A.toList())
+        assertEquals(NONCE.toList(), response.nonce.toList())
     }
 
     @Test
     fun testAuthentication1AesResponseToByteArray() {
         val idm = IDM
-        val data = DATA
-
-        val response = Authentication1AesResponse(idm, data)
+        val response = Authentication1AesResponse(idm, CHALLENGE_1B, CHALLENGE_2A, NONCE)
         val responseData = response.toByteArray()
 
-        // Expected: length(1) + response_code(1) + idm(8) + data(36) = 46 bytes
+        // Expected: length(1) + response_code(1) + idm(8) + challenge1B(16) +
+        // challenge2A(16) + nonce(4) = 46 bytes
         assertEquals(46, responseData.size)
         assertEquals(46.toByte(), responseData[0]) // Length
         assertEquals(0x41.toByte(), responseData[1]) // Response code
         assertEquals(idm.toList(), responseData.sliceArray(2..9).toList()) // IDM
-        assertEquals(data.toList(), responseData.sliceArray(10..45).toList()) // Data
+        assertEquals(CHALLENGE_1B.toList(), responseData.sliceArray(10..25).toList())
+        assertEquals(CHALLENGE_2A.toList(), responseData.sliceArray(26..41).toList())
+        assertEquals(NONCE.toList(), responseData.sliceArray(42..45).toList())
     }
 
     @Test
@@ -49,27 +50,37 @@ class Authentication1AesResponseTest {
         val response = Authentication1AesResponse.fromByteArray(responseData)
 
         assertEquals(IDM.toList(), response.idm.toList())
-        assertEquals(DATA.toList(), response.data.toList())
+        assertEquals(CHALLENGE_1B.toList(), response.challenge1B.toList())
+        assertEquals(CHALLENGE_2A.toList(), response.challenge2A.toList())
+        assertEquals(NONCE.toList(), response.nonce.toList())
     }
 
     @Test
     fun testAuthentication1AesResponseRoundTrip() {
         val idm = IDM
-        val data = DATA
-
-        val originalResponse = Authentication1AesResponse(idm, data)
+        val originalResponse = Authentication1AesResponse(idm, CHALLENGE_1B, CHALLENGE_2A, NONCE)
         val responseData = originalResponse.toByteArray()
         val parsedResponse = Authentication1AesResponse.fromByteArray(responseData)
 
         assertEquals(originalResponse.idm.toList(), parsedResponse.idm.toList())
-        assertEquals(originalResponse.data.toList(), parsedResponse.data.toList())
+        assertEquals(originalResponse.challenge1B.toList(), parsedResponse.challenge1B.toList())
+        assertEquals(originalResponse.challenge2A.toList(), parsedResponse.challenge2A.toList())
+        assertEquals(originalResponse.nonce.toList(), parsedResponse.nonce.toList())
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun testAuthentication1AesResponseInvalidDataSize() {
-        val idm = IDM
-        val invalidData = "AABBCCDDEE".hexToByteArray() // Too short (5 bytes instead of 36)
-        Authentication1AesResponse(idm, invalidData)
+    fun testAuthentication1AesResponseInvalidChallenge1BSize() {
+        Authentication1AesResponse(IDM, ByteArray(15), CHALLENGE_2A, NONCE)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testAuthentication1AesResponseInvalidChallenge2ASize() {
+        Authentication1AesResponse(IDM, CHALLENGE_1B, ByteArray(15), NONCE)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testAuthentication1AesResponseInvalidNonceSize() {
+        Authentication1AesResponse(IDM, CHALLENGE_1B, CHALLENGE_2A, ByteArray(3))
     }
 
     @Test(expected = IllegalArgumentException::class)
