@@ -64,12 +64,12 @@ private fun disableDiscoveryTechnologyForActivity(
     }
 
     runCatching {
-            adapter.setDiscoveryTechnology(
-                activity,
-                NfcAdapter.FLAG_READER_DISABLE,
-                NfcAdapter.FLAG_LISTEN_DISABLE,
-            )
-        }
+        adapter.setDiscoveryTechnology(
+            activity,
+            NfcAdapter.FLAG_READER_DISABLE,
+            NfcAdapter.FLAG_LISTEN_DISABLE,
+        )
+    }
         .onFailure { Log.w(TAG, "Unable to disable default NFC discovery technology", it) }
 }
 

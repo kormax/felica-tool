@@ -167,9 +167,9 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch(Dispatchers.IO) {
             runCatching {
-                    NodeRegistry.ensureReady()
-                    IcTypeRegistry.ensureReady()
-                }
+                NodeRegistry.ensureReady()
+                IcTypeRegistry.ensureReady()
+            }
                 .onFailure { Log.w(TAG, "Failed to preload shared metadata", it) }
         }
 
@@ -326,8 +326,8 @@ class MainActivity : ComponentActivity() {
             }
 
             runCatching {
-                    adapter.enableForegroundDispatch(this, nfcForegroundDispatchIntent, null, null)
-                }
+                adapter.enableForegroundDispatch(this, nfcForegroundDispatchIntent, null, null)
+            }
                 .onFailure { Log.w(TAG, "Unable to enable NFC foreground dispatch", it) }
         } else {
             runCatching { adapter.disableForegroundDispatch(this) }

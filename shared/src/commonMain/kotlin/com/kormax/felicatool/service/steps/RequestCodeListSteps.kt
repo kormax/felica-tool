@@ -30,20 +30,20 @@ internal object RequestCodeListDetermineSupportedStep :
 
         return StepOutput(
             buildString {
-                    appendLine("Request Code List command is supported (response received)")
-                    appendLine("Parent node: ${Area.ROOT.code.toHexString().uppercase()}")
-                    appendLine("Index: $index")
-                    appendLine("Status: ${formatStatus(requestCodeListResponse)}")
+                appendLine("Request Code List command is supported (response received)")
+                appendLine("Parent node: ${Area.ROOT.code.toHexString().uppercase()}")
+                appendLine("Index: $index")
+                appendLine("Status: ${formatStatus(requestCodeListResponse)}")
+                appendLine(
+                    "Returned ${requestCodeListResponse.areas.size} area(s), ${requestCodeListResponse.services.size} service(s)"
+                )
+                appendLine("Continue flag: ${requestCodeListResponse.continueFlag}")
+                if (!requestCodeListResponse.isStatusSuccessful) {
                     appendLine(
-                        "Returned ${requestCodeListResponse.areas.size} area(s), ${requestCodeListResponse.services.size} service(s)"
+                        "Note: Response status is not successful, but command support is confirmed."
                     )
-                    appendLine("Continue flag: ${requestCodeListResponse.continueFlag}")
-                    if (!requestCodeListResponse.isStatusSuccessful) {
-                        appendLine(
-                            "Note: Response status is not successful, but command support is confirmed."
-                        )
-                    }
                 }
+            }
                 .trim()
         )
     }

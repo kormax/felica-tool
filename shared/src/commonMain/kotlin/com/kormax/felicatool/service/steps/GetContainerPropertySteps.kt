@@ -36,11 +36,11 @@ internal object GetContainerPropertyDetermineSupportedStep :
 
         return StepOutput(
             buildString {
-                    appendLine("Get Container Property command is supported (response received)")
-                    appendLine("Property: ${property.label()}")
-                    appendLine("Response Data: ${response.data.toHexString()}")
-                    appendLine("Data Size: ${response.data.size} bytes")
-                }
+                appendLine("Get Container Property command is supported (response received)")
+                appendLine("Property: ${property.label()}")
+                appendLine("Response Data: ${response.data.toHexString()}")
+                appendLine("Data Size: ${response.data.size} bytes")
+            }
                 .trim()
         )
     }
@@ -119,12 +119,12 @@ internal object GetContainerPropertiesStep :
 
         return StepOutput(
             buildString {
-                    appendLine(
-                        "Container properties retrieved: ${containerPropertyValues.size}/${CONTAINER_PROPERTIES_TO_READ.size}"
-                    )
-                    appendLine()
-                    results.forEach { result -> appendLine(result.trimEnd()) }
-                }
+                appendLine(
+                    "Container properties retrieved: ${containerPropertyValues.size}/${CONTAINER_PROPERTIES_TO_READ.size}"
+                )
+                appendLine()
+                results.forEach { result -> appendLine(result.trimEnd()) }
+            }
                 .trim()
         )
     }

@@ -51,21 +51,21 @@ internal object RequestServiceDetermineSupportedStep :
 
         return StepOutput(
             buildString {
-                    appendLine("Request Service command is supported (response received)")
-                    appendLine("Nodes:")
-                    requestedNodes.zip(requestServiceResponse.keyVersions).forEach {
-                        (node, keyVersion) ->
-                        appendLine(
-                            "  ${node.code.toHexString().uppercase()} (${describeNode(node, includeCode = false)}): ${
+                appendLine("Request Service command is supported (response received)")
+                appendLine("Nodes:")
+                requestedNodes.zip(requestServiceResponse.keyVersions).forEach { (node, keyVersion)
+                    ->
+                    appendLine(
+                        "  ${node.code.toHexString().uppercase()} (${describeNode(node, includeCode = false)}): ${
                                 if (keyVersion.isMissing) {
                                     "Not found"
                                 } else {
                                     keyVersion.toInt().toString()
                                 }
                             }"
-                        )
-                    }
+                    )
                 }
+            }
                 .trim()
         )
     }
@@ -165,22 +165,22 @@ internal object RequestServiceUnknownNodeAttributesStep :
 
         return StepOutput(
             buildString {
+                appendLine(
+                    "Probe node: ${unknownAttributeNodeCode.toHexString().uppercase()} " +
+                        "(service=${REQUEST_SERVICE_UNKNOWN_ATTRIBUTE_SERVICE_NUMBER}, " +
+                        "attribute=0x${byteToHex(unknownAttributeValue)})"
+                )
+                appendLine("Supported = $responseReceived")
+                if (response != null) {
+                    val keyVersionHex =
+                        response.keyVersions.first().toByteArray().toHexString().uppercase()
+                    appendLine("Key version: $keyVersionHex")
+                } else {
                     appendLine(
-                        "Probe node: ${unknownAttributeNodeCode.toHexString().uppercase()} " +
-                            "(service=${REQUEST_SERVICE_UNKNOWN_ATTRIBUTE_SERVICE_NUMBER}, " +
-                            "attribute=0x${byteToHex(unknownAttributeValue)})"
+                        "No response after $REQUEST_SERVICE_UNKNOWN_ATTRIBUTE_PROBE_ATTEMPTS attempts"
                     )
-                    appendLine("Supported = $responseReceived")
-                    if (response != null) {
-                        val keyVersionHex =
-                            response.keyVersions.first().toByteArray().toHexString().uppercase()
-                        appendLine("Key version: $keyVersionHex")
-                    } else {
-                        appendLine(
-                            "No response after $REQUEST_SERVICE_UNKNOWN_ATTRIBUTE_PROBE_ATTEMPTS attempts"
-                        )
-                    }
                 }
+            }
                 .trim()
         )
     }
@@ -216,35 +216,35 @@ internal object RequestServiceV2DetermineSupportedStep :
 
         return StepOutput(
             buildString {
-                    appendLine("Request Service V2 command is supported (response received)")
-                    appendLine("Node: ${System.code.toHexString().uppercase()} (System)")
-                    appendLine("Status: ${formatStatus(requestServiceV2Response)}")
-                    requestServiceV2Response.encryptionIdentifier?.let { encryptionIdentifier ->
-                        appendLine("Encryption Identifier: ${encryptionIdentifier.name}")
-                    }
-                    aesKeyVersion?.let { keyVersion ->
-                        appendLine(
-                            "AES System Key Version: ${
-                                    if (keyVersion.isMissing) {
-                                        "Not found"
-                                    } else {
-                                        keyVersion.toInt().toString()
-                                    }
-                                }"
-                        )
-                    }
-                    desKeyVersion?.let { keyVersion ->
-                        appendLine(
-                            "DES System Key Version: ${
-                                    if (keyVersion.isMissing) {
-                                        "Not found"
-                                    } else {
-                                        keyVersion.toInt().toString()
-                                    }
-                                }"
-                        )
-                    }
+                appendLine("Request Service V2 command is supported (response received)")
+                appendLine("Node: ${System.code.toHexString().uppercase()} (System)")
+                appendLine("Status: ${formatStatus(requestServiceV2Response)}")
+                requestServiceV2Response.encryptionIdentifier?.let { encryptionIdentifier ->
+                    appendLine("Encryption Identifier: ${encryptionIdentifier.name}")
                 }
+                aesKeyVersion?.let { keyVersion ->
+                    appendLine(
+                        "AES System Key Version: ${
+                                    if (keyVersion.isMissing) {
+                                        "Not found"
+                                    } else {
+                                        keyVersion.toInt().toString()
+                                    }
+                                }"
+                    )
+                }
+                desKeyVersion?.let { keyVersion ->
+                    appendLine(
+                        "DES System Key Version: ${
+                                    if (keyVersion.isMissing) {
+                                        "Not found"
+                                    } else {
+                                        keyVersion.toInt().toString()
+                                    }
+                                }"
+                    )
+                }
+            }
                 .trim()
         )
     }

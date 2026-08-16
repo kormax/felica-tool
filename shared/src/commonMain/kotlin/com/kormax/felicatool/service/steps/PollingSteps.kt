@@ -112,19 +112,17 @@ internal object PollingCommunicationPerformanceStep :
             val commPerf = parsedCommPerfResponse.communicationPerformance
             StepOutput(
                 buildString {
-                        appendLine("212 kbps: ${if (commPerf.supports212kbps) "✓" else "✗"}")
-                        appendLine("424 kbps: ${if (commPerf.supports424kbps) "✓" else "✗"}")
-                        appendLine(
-                            "848 kbps: ${if (commPerf.supports848kbps) "✓" else "✗"} (reserved)"
-                        )
-                        appendLine(
-                            "1696 kbps: ${if (commPerf.supports1696kbps) "✓" else "✗"} (reserved)"
-                        )
-                        appendLine(
-                            "Auto Detection: ${if (commPerf.isAutomaticDetectionCompliant) "✓" else "✗"}"
-                        )
-                        appendLine("Highest Rate: ${commPerf.getHighestSupportedRate()}")
-                    }
+                    appendLine("212 kbps: ${if (commPerf.supports212kbps) "✓" else "✗"}")
+                    appendLine("424 kbps: ${if (commPerf.supports424kbps) "✓" else "✗"}")
+                    appendLine("848 kbps: ${if (commPerf.supports848kbps) "✓" else "✗"} (reserved)")
+                    appendLine(
+                        "1696 kbps: ${if (commPerf.supports1696kbps) "✓" else "✗"} (reserved)"
+                    )
+                    appendLine(
+                        "Auto Detection: ${if (commPerf.isAutomaticDetectionCompliant) "✓" else "✗"}"
+                    )
+                    appendLine("Highest Rate: ${commPerf.getHighestSupportedRate()}")
+                }
                     .trim()
             )
         } else {
@@ -175,14 +173,12 @@ internal object PollingDetermineTrailingDataSupportedStep :
 
             return StepOutput(
                 buildString {
-                        appendLine("Polling with trailing data: supported")
-                        appendLine("Command length: $commandLength bytes")
-                        appendLine(
-                            "Trailing data: ${POLLING_TRAILING_DATA_PROBE_BYTES.toHexString()}"
-                        )
-                        appendLine("Response IDM: $responseIdmHex")
-                        appendLine("Response PMM: $responsePmmHex")
-                    }
+                    appendLine("Polling with trailing data: supported")
+                    appendLine("Command length: $commandLength bytes")
+                    appendLine("Trailing data: ${POLLING_TRAILING_DATA_PROBE_BYTES.toHexString()}")
+                    appendLine("Response IDM: $responseIdmHex")
+                    appendLine("Response PMM: $responsePmmHex")
+                }
                     .trim()
             )
         }
@@ -193,11 +189,11 @@ internal object PollingDetermineTrailingDataSupportedStep :
 
         return StepOutput(
             buildString {
-                    appendLine("Polling with trailing data: not supported")
-                    appendLine("Command length: $commandLength bytes")
-                    appendLine("Trailing data: ${POLLING_TRAILING_DATA_PROBE_BYTES.toHexString()}")
-                    appendLine("No response after $POLLING_TRAILING_DATA_PROBE_ATTEMPTS attempts")
-                }
+                appendLine("Polling with trailing data: not supported")
+                appendLine("Command length: $commandLength bytes")
+                appendLine("Trailing data: ${POLLING_TRAILING_DATA_PROBE_BYTES.toHexString()}")
+                appendLine("No response after $POLLING_TRAILING_DATA_PROBE_ATTEMPTS attempts")
+            }
                 .trim()
         )
     }

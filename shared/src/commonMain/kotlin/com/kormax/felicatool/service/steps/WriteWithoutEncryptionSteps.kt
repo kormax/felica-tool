@@ -39,13 +39,11 @@ internal object WriteWithoutEncryptionDetermineSupportedStep :
 
         return StepOutput(
             buildString {
-                    appendLine(
-                        "Write Without Encryption command is supported (safe rewrite succeeded)"
-                    )
-                    appendLine("Service: ${probeTarget.service.code.toHexString().uppercase()}")
-                    appendLine("Block: 0x${formatBlockNumberHex(probeTarget.safeBlockNumber)}")
-                    appendLine("Status: ${formatStatus(response)}")
-                }
+                appendLine("Write Without Encryption command is supported (safe rewrite succeeded)")
+                appendLine("Service: ${probeTarget.service.code.toHexString().uppercase()}")
+                appendLine("Block: 0x${formatBlockNumberHex(probeTarget.safeBlockNumber)}")
+                appendLine("Status: ${formatStatus(response)}")
+            }
                 .trim()
         )
     }
@@ -188,10 +186,10 @@ internal object WriteWithoutEncryptionDetermineErrorIndicationStep :
 
         return StepOutput(
             buildString {
-                    appendLine(
-                        "Error indication type: ${errorIndicationType.name} (${formatStatus(statusFlag1, statusFlag2)})"
-                    )
-                }
+                appendLine(
+                    "Error indication type: ${errorIndicationType.name} (${formatStatus(statusFlag1, statusFlag2)})"
+                )
+            }
                 .trim()
         )
     }

@@ -27,11 +27,11 @@ internal object ResetModeStep :
 
         return StepOutput(
             buildString {
-                    appendLine("Status Flags: ${formatStatus(resetModeResponse, prefix = "")}")
+                appendLine("Status Flags: ${formatStatus(resetModeResponse, prefix = "")}")
 
-                    // appendLine("Note: Reset Mode command resets the card's mode to Mode 0.")
-                    // appendLine("This command is supported by AES and AES/DES cards.")
-                }
+                // appendLine("Note: Reset Mode command resets the card's mode to Mode 0.")
+                // appendLine("This command is supported by AES and AES/DES cards.")
+            }
                 .trim()
         )
     }

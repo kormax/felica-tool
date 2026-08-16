@@ -123,18 +123,18 @@ internal object EchoDetermineMaxPayloadSizeStep :
     ): StepOutput =
         StepOutput(
             buildString {
-                    appendLine("Max echo payload: $maxSupported bytes")
-                    appendLine("Attempts (${attempts.size}):")
-                    attempts.forEachIndexed { index, attempt ->
-                        val status =
-                            if (attempt.success) {
-                                "success"
-                            } else {
-                                "failure${attempt.error?.let { ": $it" } ?: ""}"
-                            }
-                        appendLine("  ${index + 1}. ${attempt.length} bytes -> $status")
-                    }
+                appendLine("Max echo payload: $maxSupported bytes")
+                appendLine("Attempts (${attempts.size}):")
+                attempts.forEachIndexed { index, attempt ->
+                    val status =
+                        if (attempt.success) {
+                            "success"
+                        } else {
+                            "failure${attempt.error?.let { ": $it" } ?: ""}"
+                        }
+                    appendLine("  ${index + 1}. ${attempt.length} bytes -> $status")
                 }
+            }
                 .trim()
         )
 }

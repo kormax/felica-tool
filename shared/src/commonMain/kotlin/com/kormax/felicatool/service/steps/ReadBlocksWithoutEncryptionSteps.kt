@@ -154,26 +154,21 @@ internal object ReadBlocksWithoutEncryptionStep :
         val collapsedResult =
             "Read $totalBlocksRead blocks from $totalServicesProcessed services across ${updatedSystemContexts.size} system(s)"
 
-        val expandedResult =
-            buildString {
-                    appendLine("Block Reading Results:")
-                    appendLine("Processed ${scanContext.systemScanContexts.size} system(s)")
-                    appendLine("Total blocks read: $totalBlocksRead")
-                    appendLine("Total services processed: $totalServicesProcessed")
-                    appendLine("Max blocks per request: $maxBlocksPerRequest")
-                    appendLine("Max services per request: $maxServicesPerRequest")
-                    appendLine()
+        val expandedResult = buildString {
+            appendLine("Block Reading Results:")
+            appendLine("Processed ${scanContext.systemScanContexts.size} system(s)")
+            appendLine("Total blocks read: $totalBlocksRead")
+            appendLine("Total services processed: $totalServicesProcessed")
+            appendLine("Max blocks per request: $maxBlocksPerRequest")
+            appendLine("Max services per request: $maxServicesPerRequest")
+            appendLine()
 
-                    contextResults.forEach { result -> appendLine(result) }
+            contextResults.forEach { result -> appendLine(result) }
 
-                    appendLine(
-                        "Note: Only services that don't require authentication are processed."
-                    )
-                    appendLine(
-                        "Block data is stored per system context for comprehensive analysis."
-                    )
-                }
-                .trim()
+            appendLine("Note: Only services that don't require authentication are processed.")
+            appendLine("Block data is stored per system context for comprehensive analysis.")
+        }
+            .trim()
 
         return StepOutput(result = expandedResult, collapsedResult = collapsedResult)
     }

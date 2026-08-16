@@ -92,62 +92,59 @@ internal object DiscoverNodesStep :
         val collapsedResult =
             "Found ${areas.size} areas, ${services.size} services across ${finalSystemContexts.size} system(s) using ${discoveryResult.methodLabel}$fallbackSummary"
 
-        val expandedResult =
-            buildString {
-                    appendLine("Discover Nodes Results:")
-                    appendLine("Method: ${discoveryResult.methodLabel}")
+        val expandedResult = buildString {
+            appendLine("Discover Nodes Results:")
+            appendLine("Method: ${discoveryResult.methodLabel}")
+            appendLine(
+                "Request Code List support: ${scanContext.commands.requestCodeList.supported}"
+            )
+            appendLine(
+                "Search Service Code support: ${scanContext.commands.searchServiceCode.supported}"
+            )
+            appendLine()
+
+            if (details.isNotEmpty()) {
+                appendLine("Discovery Log:")
+                details.forEach { detail -> appendLine("  - $detail") }
+                appendLine()
+            }
+
+            finalSystemContexts.forEachIndexed { index, context ->
+                val contextAreas = context.nodes.filterIsInstance<Area>()
+                val contextServices = context.nodes.filterIsInstance<Service>()
+                val contextSystems = context.nodes.filterIsInstance<System>()
+
+                appendLine(
+                    "System Context ${index + 1} (${formatSystemCodeLabel(context.systemCode)}):"
+                )
+                appendLine("  Areas (${contextAreas.size}):")
+                contextAreas.forEach { area ->
                     appendLine(
-                        "Request Code List support: ${scanContext.commands.requestCodeList.supported}"
-                    )
-                    appendLine(
-                        "Search Service Code support: ${scanContext.commands.searchServiceCode.supported}"
-                    )
-                    appendLine()
-
-                    if (details.isNotEmpty()) {
-                        appendLine("Discovery Log:")
-                        details.forEach { detail -> appendLine("  - $detail") }
-                        appendLine()
-                    }
-
-                    finalSystemContexts.forEachIndexed { index, context ->
-                        val contextAreas = context.nodes.filterIsInstance<Area>()
-                        val contextServices = context.nodes.filterIsInstance<Service>()
-                        val contextSystems = context.nodes.filterIsInstance<System>()
-
-                        appendLine(
-                            "System Context ${index + 1} (${formatSystemCodeLabel(context.systemCode)}):"
-                        )
-                        appendLine("  Areas (${contextAreas.size}):")
-                        contextAreas.forEach { area ->
-                            appendLine(
-                                "    - ${describeNode(area)}: Range ${area.number}-${area.endNumber}"
-                            )
-                        }
-                        if (contextAreas.isEmpty()) appendLine("    - None")
-
-                        appendLine("  Services (${contextServices.size}):")
-                        contextServices.forEach { service ->
-                            appendLine(
-                                "    - ${describeNode(service)}: ${service.attribute::class.simpleName}"
-                            )
-                        }
-                        if (contextServices.isEmpty()) appendLine("    - None")
-
-                        appendLine("  Systems (${contextSystems.size}):")
-                        contextSystems.forEach { system ->
-                            appendLine("    - ${describeNode(system)}")
-                        }
-                        if (contextSystems.isEmpty()) appendLine("    - None")
-                        appendLine()
-                    }
-
-                    appendLine("Total Summary:")
-                    appendLine(
-                        "Areas: ${areas.size}, Services: ${services.size}, Systems: ${systems.size}"
+                        "    - ${describeNode(area)}: Range ${area.number}-${area.endNumber}"
                     )
                 }
-                .trim()
+                if (contextAreas.isEmpty()) appendLine("    - None")
+
+                appendLine("  Services (${contextServices.size}):")
+                contextServices.forEach { service ->
+                    appendLine(
+                        "    - ${describeNode(service)}: ${service.attribute::class.simpleName}"
+                    )
+                }
+                if (contextServices.isEmpty()) appendLine("    - None")
+
+                appendLine("  Systems (${contextSystems.size}):")
+                contextSystems.forEach { system ->
+                    appendLine("    - ${describeNode(system)}")
+                }
+                if (contextSystems.isEmpty()) appendLine("    - None")
+                appendLine()
+            }
+
+            appendLine("Total Summary:")
+            appendLine("Areas: ${areas.size}, Services: ${services.size}, Systems: ${systems.size}")
+        }
+            .trim()
 
         return StepOutput(result = expandedResult, collapsedResult = collapsedResult)
     }

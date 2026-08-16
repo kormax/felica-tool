@@ -108,25 +108,23 @@ internal object Authentication1AesStep :
 
         return StepOutput(
             buildString {
-                    appendLine("AES Authentication Results:")
-                    appendLine("Selected system: $systemCodeHex")
-                    appendLine(
-                        "AES-compatible nodes (${aesCompatibleNodes.size}) used in combined field"
-                    )
-                    appendLine("Challenge1A (sent): ${challenge1A.toHexString()}")
-                    appendLine(
-                        "Response data (received): ${authenticateResponse.data.toHexString()}"
-                    )
-                    appendLine()
+                appendLine("AES Authentication Results:")
+                appendLine("Selected system: $systemCodeHex")
+                appendLine(
+                    "AES-compatible nodes (${aesCompatibleNodes.size}) used in combined field"
+                )
+                appendLine("Challenge1A (sent): ${challenge1A.toHexString()}")
+                appendLine("Response data (received): ${authenticateResponse.data.toHexString()}")
+                appendLine()
 
-                    if (aesCompatibleNodes.isNotEmpty()) {
-                        appendLine("Nodes authenticated (areas and services combined):")
-                        aesCompatibleNodes.forEachIndexed { index, node ->
-                            appendLine("  ${index + 1}. ${describeNode(node)} - AES key")
-                        }
-                        appendLine()
+                if (aesCompatibleNodes.isNotEmpty()) {
+                    appendLine("Nodes authenticated (areas and services combined):")
+                    aesCompatibleNodes.forEachIndexed { index, node ->
+                        appendLine("  ${index + 1}. ${describeNode(node)} - AES key")
                     }
+                    appendLine()
                 }
+            }
                 .trim()
         )
     }

@@ -45,16 +45,16 @@ internal object GetAreaInformationDetermineSupportedStep :
 
         return StepOutput(
             buildString {
-                    appendLine("Get Area Information command is supported (response received)")
-                    appendLine(
-                        "Area: ${testTarget.area.number} (${testTarget.area.code.toHexString()})"
-                    )
-                    appendLine("Status: ${formatStatus(response)}")
-                    if (response.isStatusSuccessful) {
-                        appendLine("Node Code: ${response.nodeCode.toHexString()}")
-                        appendLine("Data: ${response.data.toHexString()}")
-                    }
+                appendLine("Get Area Information command is supported (response received)")
+                appendLine(
+                    "Area: ${testTarget.area.number} (${testTarget.area.code.toHexString()})"
+                )
+                appendLine("Status: ${formatStatus(response)}")
+                if (response.isStatusSuccessful) {
+                    appendLine("Node Code: ${response.nodeCode.toHexString()}")
+                    appendLine("Data: ${response.data.toHexString()}")
                 }
+            }
                 .trim()
         )
     }
@@ -203,18 +203,17 @@ internal object GetAreaInformationStep :
 
         val collapsedResult =
             "Got area information for $totalSuccessful/$totalTested area(s) across ${scanContext.systemScanContexts.size} system(s)"
-        val expandedResult =
-            buildString {
-                    appendLine(
-                        "Get Area Information Results: $totalSuccessful/$totalTested areas returned data"
-                    )
-                    appendLine()
-                    results.forEach { result ->
-                        appendLine(result.trimEnd())
-                        appendLine()
-                    }
-                }
-                .trim()
+        val expandedResult = buildString {
+            appendLine(
+                "Get Area Information Results: $totalSuccessful/$totalTested areas returned data"
+            )
+            appendLine()
+            results.forEach { result ->
+                appendLine(result.trimEnd())
+                appendLine()
+            }
+        }
+            .trim()
 
         return StepOutput(result = expandedResult, collapsedResult = collapsedResult)
     }

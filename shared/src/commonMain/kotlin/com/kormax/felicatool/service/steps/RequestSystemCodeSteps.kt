@@ -45,14 +45,14 @@ internal object RequestSystemCodeDetermineSupportedStep :
         return StepOutput(
             if (requestSystemCodeResponse.systemCodes.isNotEmpty()) {
                 buildString {
-                        appendLine(
-                            "Discovered System Codes (${requestSystemCodeResponse.systemCodes.size}):"
-                        )
-                        requestSystemCodeResponse.systemCodes.forEachIndexed { index, systemCode ->
-                            val systemCodeHex = systemCode.toHexString().uppercase()
-                            appendLine("  ${index + 1}. $systemCodeHex")
-                        }
+                    appendLine(
+                        "Discovered System Codes (${requestSystemCodeResponse.systemCodes.size}):"
+                    )
+                    requestSystemCodeResponse.systemCodes.forEachIndexed { index, systemCode ->
+                        val systemCodeHex = systemCode.toHexString().uppercase()
+                        appendLine("  ${index + 1}. $systemCodeHex")
                     }
+                }
                     .trim()
             } else {
                 "No system codes discovered"

@@ -33,13 +33,13 @@ internal object GetNodePropertyValueLimitedServiceDetermineSupportedStep :
 
         return StepOutput(
             buildString {
-                    appendLine(
-                        "Get Node Property Value-Limited Purse Service is supported (response received)"
-                    )
-                    appendLine("Node: ${System.code.toHexString().uppercase()} (System)")
-                    appendLine("Status: ${formatStatus(response)}")
-                    appendLine("Returned ${response.nodeProperties.size} properties")
-                }
+                appendLine(
+                    "Get Node Property Value-Limited Purse Service is supported (response received)"
+                )
+                appendLine("Node: ${System.code.toHexString().uppercase()} (System)")
+                appendLine("Status: ${formatStatus(response)}")
+                appendLine("Returned ${response.nodeProperties.size} properties")
+            }
                 .trim()
         )
     }
@@ -74,13 +74,11 @@ internal object GetNodePropertyMacCommunicationDetermineSupportedStep :
 
         return StepOutput(
             buildString {
-                    appendLine(
-                        "Get Node Property MAC Communication is supported (response received)"
-                    )
-                    appendLine("Node: ${System.code.toHexString().uppercase()} (System)")
-                    appendLine("Status: ${formatStatus(response)}")
-                    appendLine("Returned ${response.nodeProperties.size} properties")
-                }
+                appendLine("Get Node Property MAC Communication is supported (response received)")
+                appendLine("Node: ${System.code.toHexString().uppercase()} (System)")
+                appendLine("Status: ${formatStatus(response)}")
+                appendLine("Returned ${response.nodeProperties.size} properties")
+            }
                 .trim()
         )
     }
@@ -211,20 +209,19 @@ internal object GetNodePropertyStep :
 
         val collapsedResult =
             "Node properties: $totalEnabledProperties enabled / $totalProperties returned for ${allDiscoveredNodes.size} node(s)"
-        val expandedResult =
-            buildString {
-                    appendLine("Get Node Property Results:")
-                    appendLine("Properties: ${propertyRequests.joinToString { it.label }}")
-                    appendLine("Processed ${scanContext.systemScanContexts.size} system(s)")
+        val expandedResult = buildString {
+            appendLine("Get Node Property Results:")
+            appendLine("Properties: ${propertyRequests.joinToString { it.label }}")
+            appendLine("Processed ${scanContext.systemScanContexts.size} system(s)")
+            appendLine()
+            results.forEachIndexed { index, result ->
+                appendLine(result.trimEnd())
+                if (index < results.lastIndex) {
                     appendLine()
-                    results.forEachIndexed { index, result ->
-                        appendLine(result.trimEnd())
-                        if (index < results.lastIndex) {
-                            appendLine()
-                        }
-                    }
                 }
-                .trimEnd()
+            }
+        }
+            .trimEnd()
 
         return StepOutput(result = expandedResult, collapsedResult = collapsedResult)
     }
@@ -297,11 +294,11 @@ internal object GetNodePropertyStep :
     ): String {
         val nodeCode = node.fullCode.toHexString().padStart(8, ' ')
         return buildString {
-                appendLine(" $nodeCode:")
-                appendLine("   Upper Limit: ${property.upperLimit}")
-                appendLine("   Lower Limit: ${property.lowerLimit}")
-                appendLine("   Generation Number: ${property.generationNumber}")
-            }
+            appendLine(" $nodeCode:")
+            appendLine("   Upper Limit: ${property.upperLimit}")
+            appendLine("   Lower Limit: ${property.lowerLimit}")
+            appendLine("   Generation Number: ${property.generationNumber}")
+        }
             .trimEnd()
     }
 

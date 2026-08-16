@@ -33,72 +33,66 @@ internal object RequestSpecificationVersionDetermineSupportedStep :
 
         return StepOutput(
             buildString {
-                    appendLine("Specification Version Information:")
+                appendLine("Specification Version Information:")
+                appendLine("Status Flags: ${formatStatus(requestSpecVersionResponse, prefix = "")}")
+
+                if (requestSpecVersionResponse.isStatusSuccessful) {
                     appendLine(
-                        "Status Flags: ${formatStatus(requestSpecVersionResponse, prefix = "")}"
+                        "Format Version: ${requestSpecVersionResponse.specificationVersion?.formatVersion?.let { "0x${byteToHex(it)}" } ?: "N/A"}"
                     )
+                    appendLine()
 
-                    if (requestSpecVersionResponse.isStatusSuccessful) {
+                    requestSpecVersionResponse.specificationVersion?.basicVersion?.let {
+                        basicVersion ->
+                        appendLine("Basic Version: ${basicVersion.major}.${basicVersion.minor}")
+                    }
+
+                    requestSpecVersionResponse.specificationVersion?.desOptionVersion?.let {
+                        desVersion ->
+                        appendLine("DES Option Version: ${desVersion.major}.${desVersion.minor}")
+                    }
+
+                    requestSpecVersionResponse.specificationVersion?.specialOptionVersion?.let {
+                        specialVersion ->
                         appendLine(
-                            "Format Version: ${requestSpecVersionResponse.specificationVersion?.formatVersion?.let { "0x${byteToHex(it)}" } ?: "N/A"}"
+                            "Special Option Version: ${specialVersion.major}.${specialVersion.minor}"
                         )
-                        appendLine()
+                    }
 
-                        requestSpecVersionResponse.specificationVersion?.basicVersion?.let {
-                            basicVersion ->
-                            appendLine("Basic Version: ${basicVersion.major}.${basicVersion.minor}")
-                        }
-
-                        requestSpecVersionResponse.specificationVersion?.desOptionVersion?.let {
-                            desVersion ->
+                    requestSpecVersionResponse.specificationVersion
+                        ?.extendedOverlapOptionVersion
+                        ?.let { extendedOverlapVersion ->
                             appendLine(
-                                "DES Option Version: ${desVersion.major}.${desVersion.minor}"
+                                "Extended Overlap Option Version: ${extendedOverlapVersion.major}.${extendedOverlapVersion.minor}"
                             )
                         }
 
-                        requestSpecVersionResponse.specificationVersion
-                            ?.specialOptionVersion
-                            ?.let { specialVersion ->
-                                appendLine(
-                                    "Special Option Version: ${specialVersion.major}.${specialVersion.minor}"
-                                )
-                            }
+                    requestSpecVersionResponse.specificationVersion
+                        ?.valueLimitedPurseServiceOptionVersion
+                        ?.let { valueLimitedPurseVersion ->
+                            appendLine(
+                                "Value-Limited Purse Service Option Version: ${valueLimitedPurseVersion.major}.${valueLimitedPurseVersion.minor}"
+                            )
+                        }
 
-                        requestSpecVersionResponse.specificationVersion
-                            ?.extendedOverlapOptionVersion
-                            ?.let { extendedOverlapVersion ->
-                                appendLine(
-                                    "Extended Overlap Option Version: ${extendedOverlapVersion.major}.${extendedOverlapVersion.minor}"
-                                )
-                            }
+                    requestSpecVersionResponse.specificationVersion
+                        ?.communicationWithMacOptionVersion
+                        ?.let { communicationWithMacVersion ->
+                            appendLine(
+                                "Communication with MAC Option Version: ${communicationWithMacVersion.major}.${communicationWithMacVersion.minor}"
+                            )
+                        }
 
-                        requestSpecVersionResponse.specificationVersion
-                            ?.valueLimitedPurseServiceOptionVersion
-                            ?.let { valueLimitedPurseVersion ->
-                                appendLine(
-                                    "Value-Limited Purse Service Option Version: ${valueLimitedPurseVersion.major}.${valueLimitedPurseVersion.minor}"
-                                )
-                            }
-
-                        requestSpecVersionResponse.specificationVersion
-                            ?.communicationWithMacOptionVersion
-                            ?.let { communicationWithMacVersion ->
-                                appendLine(
-                                    "Communication with MAC Option Version: ${communicationWithMacVersion.major}.${communicationWithMacVersion.minor}"
-                                )
-                            }
-
-                        requestSpecVersionResponse.specificationVersion
-                            ?.randomIdOptionVersion
-                            ?.let { randomIdVersion ->
-                                appendLine(
-                                    "Random ID Option Version: ${randomIdVersion.major}.${randomIdVersion.minor}"
-                                )
-                            }
-                    } else {
-                        appendLine("Failed to retrieve specification version information")
+                    requestSpecVersionResponse.specificationVersion?.randomIdOptionVersion?.let {
+                        randomIdVersion ->
+                        appendLine(
+                            "Random ID Option Version: ${randomIdVersion.major}.${randomIdVersion.minor}"
+                        )
                     }
+                } else {
+                    appendLine("Failed to retrieve specification version information")
                 }
+            }
                 .trim()
         )
     }

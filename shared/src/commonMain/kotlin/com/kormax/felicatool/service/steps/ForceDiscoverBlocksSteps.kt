@@ -154,20 +154,19 @@ internal object ForceDiscoverBlocksStep :
 
         val collapsedResult =
             "Discovered $totalNewBlocksFound new blocks from $totalServicesProcessed services"
-        val expandedResult =
-            buildString {
-                    appendLine("Force Block Discovery Results:")
-                    appendLine("Total new blocks discovered: $totalNewBlocksFound")
-                    appendLine("Services processed: $totalServicesProcessed")
-                    appendLine("Total blocks scanned: $totalBlocksScanned")
-                    appendLine()
-                    contextResults.forEach { appendLine(it) }
-                    appendLine()
-                    appendLine(
-                        "Note: Scanning stops after $maxBlocksPerRequest consecutive read failures per service."
-                    )
-                }
-                .trim()
+        val expandedResult = buildString {
+            appendLine("Force Block Discovery Results:")
+            appendLine("Total new blocks discovered: $totalNewBlocksFound")
+            appendLine("Services processed: $totalServicesProcessed")
+            appendLine("Total blocks scanned: $totalBlocksScanned")
+            appendLine()
+            contextResults.forEach { appendLine(it) }
+            appendLine()
+            appendLine(
+                "Note: Scanning stops after $maxBlocksPerRequest consecutive read failures per service."
+            )
+        }
+            .trim()
 
         return StepOutput(
             result = expandedResult,

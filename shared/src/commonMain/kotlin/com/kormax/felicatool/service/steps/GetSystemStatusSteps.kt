@@ -29,10 +29,10 @@ internal object GetSystemStatusDetermineSupportedStep :
 
         return StepOutput(
             buildString {
-                    appendLine("Get System Status command is supported (response received)")
-                    appendLine("Status Flags: ${formatStatus(response, prefix = "")}")
-                    appendLine("Flag: 0x${byteToHex(response.flag)}")
-                }
+                appendLine("Get System Status command is supported (response received)")
+                appendLine("Status Flags: ${formatStatus(response, prefix = "")}")
+                appendLine("Flag: 0x${byteToHex(response.flag)}")
+            }
                 .trim()
         )
     }
@@ -146,11 +146,11 @@ internal object GetSystemStatusesStep :
 
         return StepOutput(
             buildString {
-                    appendLine("System Statuses:")
-                    appendLine("Processed ${scanContext.systemScanContexts.size} system(s)")
-                    appendLine()
-                    results.forEach { result -> appendLine(result) }
-                }
+                appendLine("System Statuses:")
+                appendLine("Processed ${scanContext.systemScanContexts.size} system(s)")
+                appendLine()
+                results.forEach { result -> appendLine(result) }
+            }
                 .trim()
         )
     }

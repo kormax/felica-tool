@@ -280,17 +280,17 @@ internal object ReadWithoutEncryptionDetermineSupportedStep :
 
         return StepOutput(
             buildString {
-                    appendLine("Read Without Encryption command is supported (response received)")
+                appendLine("Read Without Encryption command is supported (response received)")
+                appendLine(
+                    "System: $systemCodeHex; Service: $serviceCodeHex; Block: ${formatBlockNumberHex(testTarget.blockNumber)}"
+                )
+                appendLine("(${formatStatus(response)})")
+                if (testTarget.service.attribute.authenticationRequired) {
                     appendLine(
-                        "System: $systemCodeHex; Service: $serviceCodeHex; Block: ${formatBlockNumberHex(testTarget.blockNumber)}"
+                        "Note: Used auth-required service fallback because no no-auth service was available."
                     )
-                    appendLine("(${formatStatus(response)})")
-                    if (testTarget.service.attribute.authenticationRequired) {
-                        appendLine(
-                            "Note: Used auth-required service fallback because no no-auth service was available."
-                        )
-                    }
                 }
+            }
                 .trim()
         )
     }
@@ -466,10 +466,10 @@ internal object ReadWithoutEncryptionDetermineErrorIndicationStep :
 
         return StepOutput(
             buildString {
-                    appendLine(
-                        "Error indication type: ${errorIndicationType.name} (${formatStatus(response)})"
-                    )
-                }
+                appendLine(
+                    "Error indication type: ${errorIndicationType.name} (${formatStatus(response)})"
+                )
+            }
                 .trim()
         )
     }
@@ -514,11 +514,11 @@ internal object ReadWithoutEncryptionDetermineIllegalNumberErrorPreferenceStep :
             )
             return StepOutput(
                 buildString {
-                        appendLine(
-                            "Card accepted $requestedCount services and $requestedCount blocks (${formatStatus(response)})"
-                        )
-                        appendLine("Limit error preference unchanged")
-                    }
+                    appendLine(
+                        "Card accepted $requestedCount services and $requestedCount blocks (${formatStatus(response)})"
+                    )
+                    appendLine("Limit error preference unchanged")
+                }
                     .trim()
             )
         }
@@ -560,10 +560,8 @@ internal object ReadWithoutEncryptionDetermineIllegalNumberErrorPreferenceStep :
 
         return StepOutput(
             buildString {
-                    appendLine(
-                        "Limit error preference: $preferenceLabel (${formatStatus(response)})"
-                    )
-                }
+                appendLine("Limit error preference: $preferenceLabel (${formatStatus(response)})")
+            }
                 .trim()
         )
     }
@@ -802,34 +800,34 @@ internal object ReadWithoutEncryptionUnusedInvalidServiceSupportedStep :
 
         return StepOutput(
             buildString {
-                    appendLine("Read Without Encryption unused invalid service support check:")
-                    appendLine("System: $systemCodeHex")
-                    appendLine("Service code list:")
-                    testTarget.serviceCodes.forEachIndexed { index, service ->
-                        val presence =
-                            when (service) {
-                                testTarget.presentService -> "present, referenced by block list"
-                                testTarget.unusedService -> testTarget.unusedServiceDescription
-                                else -> "unknown"
-                            }
-                        appendLine(
-                            "  ${index + 1}. ${describeNode(service)} (${service.code.toHexString().uppercase()}) - $presence"
-                        )
-                    }
-                    appendLine("Block list:")
+                appendLine("Read Without Encryption unused invalid service support check:")
+                appendLine("System: $systemCodeHex")
+                appendLine("Service code list:")
+                testTarget.serviceCodes.forEachIndexed { index, service ->
+                    val presence =
+                        when (service) {
+                            testTarget.presentService -> "present, referenced by block list"
+                            testTarget.unusedService -> testTarget.unusedServiceDescription
+                            else -> "unknown"
+                        }
                     appendLine(
-                        "  1. service list index ${testTarget.referencedServiceIndex + 1}, block ${formatBlockNumberHex(testTarget.blockNumber)}"
+                        "  ${index + 1}. ${describeNode(service)} (${service.code.toHexString().uppercase()}) - $presence"
                     )
-                    if (response != null) {
-                        appendLine("Status: ${formatStatus(response)}")
-                        appendLine("Returned blocks: ${response.blockData.size}")
-                    } else {
-                        appendLine(
-                            "No response after $READ_WITHOUT_ENCRYPTION_UNUSED_INVALID_SERVICE_ATTEMPTS attempts; card presence confirmed"
-                        )
-                    }
-                    appendLine("Result: ${support.toOutputLabel()}")
                 }
+                appendLine("Block list:")
+                appendLine(
+                    "  1. service list index ${testTarget.referencedServiceIndex + 1}, block ${formatBlockNumberHex(testTarget.blockNumber)}"
+                )
+                if (response != null) {
+                    appendLine("Status: ${formatStatus(response)}")
+                    appendLine("Returned blocks: ${response.blockData.size}")
+                } else {
+                    appendLine(
+                        "No response after $READ_WITHOUT_ENCRYPTION_UNUSED_INVALID_SERVICE_ATTEMPTS attempts; card presence confirmed"
+                    )
+                }
+                appendLine("Result: ${support.toOutputLabel()}")
+            }
                 .trim()
         )
     }

@@ -79,16 +79,16 @@ internal abstract class CommandTrailingDataSupportedScanStep<T : FelicaResponse>
 
         return StepOutput(
             buildString {
-                    val supportLabel = if (response != null) "supported" else "not supported"
-                    appendLine("$commandName with trailing data: $supportLabel")
-                    appendLine("Command length: $commandLength bytes")
-                    appendLine("Trailing data: ${COMMAND_TRAILING_DATA_PROBE_BYTES.toHexString()}")
-                    if (response != null) {
-                        responseLines(response).forEach { appendLine(it) }
-                    } else {
-                        appendLine("No response")
-                    }
+                val supportLabel = if (response != null) "supported" else "not supported"
+                appendLine("$commandName with trailing data: $supportLabel")
+                appendLine("Command length: $commandLength bytes")
+                appendLine("Trailing data: ${COMMAND_TRAILING_DATA_PROBE_BYTES.toHexString()}")
+                if (response != null) {
+                    responseLines(response).forEach { appendLine(it) }
+                } else {
+                    appendLine("No response")
                 }
+            }
                 .trim()
         )
     }

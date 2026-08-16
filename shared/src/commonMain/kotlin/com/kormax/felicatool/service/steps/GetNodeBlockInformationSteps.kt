@@ -97,20 +97,19 @@ internal object GetNodeBlockInformationStep :
 
         val collapsedResult =
             "Loaded block counts for $totalBlockCountsRetrieved/${allNodes.size} node(s) using ${method.label}"
-        val expandedResult =
-            buildString {
-                    appendLine("Get Node Block Information Results:")
-                    appendLine("Method: ${method.label}")
-                    appendLine("Processed ${scanContext.systemScanContexts.size} system(s)")
-                    appendLine("Total nodes processed: ${allNodes.size}")
-                    appendLine()
+        val expandedResult = buildString {
+            appendLine("Get Node Block Information Results:")
+            appendLine("Method: ${method.label}")
+            appendLine("Processed ${scanContext.systemScanContexts.size} system(s)")
+            appendLine("Total nodes processed: ${allNodes.size}")
+            appendLine()
 
-                    results.forEach { result ->
-                        appendLine(result)
-                        appendLine()
-                    }
-                }
-                .trim()
+            results.forEach { result ->
+                appendLine(result)
+                appendLine()
+            }
+        }
+            .trim()
 
         return StepOutput(result = expandedResult, collapsedResult = collapsedResult)
     }

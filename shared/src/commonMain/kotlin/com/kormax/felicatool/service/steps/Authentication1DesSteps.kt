@@ -185,52 +185,52 @@ internal object Authentication1DesDetermineSupportedStep :
 
         return StepOutput(
             buildString {
-                    appendLine("DES Authentication Results:")
-                    appendLine("Selected system: $systemCodeHex")
-                    appendLine("Using root area in both area and node lists for support check")
-                    appendLine("Challenge1A (sent): ${challenge1A.toHexString()}")
-                    appendLine(
-                        "Challenge1B (received): ${authenticateResponse.challenge1B.toHexString()}"
-                    )
-                    appendLine(
-                        "Challenge2A (received): ${authenticateResponse.challenge2A.toHexString()}"
-                    )
+                appendLine("DES Authentication Results:")
+                appendLine("Selected system: $systemCodeHex")
+                appendLine("Using root area in both area and node lists for support check")
+                appendLine("Challenge1A (sent): ${challenge1A.toHexString()}")
+                appendLine(
+                    "Challenge1B (received): ${authenticateResponse.challenge1B.toHexString()}"
+                )
+                appendLine(
+                    "Challenge2A (received): ${authenticateResponse.challenge2A.toHexString()}"
+                )
+                appendLine()
+
+                if (areasToAuth.isNotEmpty()) {
+                    appendLine("Areas authenticated:")
+                    areasToAuth.forEachIndexed { index, area ->
+                        val keyType =
+                            when {
+                                testTarget.systemContext.nodeDesKeyVersions.containsKey(area) ->
+                                    "DES key"
+                                testTarget.systemContext.nodeKeyVersions.containsKey(area) ->
+                                    "Legacy (DES) key"
+                                else -> "Unknown"
+                            }
+                        appendLine(
+                            "  ${index + 1}. Area ${area.number}-${area.endNumber} (${area.code.toHexString()}) - $keyType"
+                        )
+                    }
                     appendLine()
-
-                    if (areasToAuth.isNotEmpty()) {
-                        appendLine("Areas authenticated:")
-                        areasToAuth.forEachIndexed { index, area ->
-                            val keyType =
-                                when {
-                                    testTarget.systemContext.nodeDesKeyVersions.containsKey(area) ->
-                                        "DES key"
-                                    testTarget.systemContext.nodeKeyVersions.containsKey(area) ->
-                                        "Legacy (DES) key"
-                                    else -> "Unknown"
-                                }
-                            appendLine(
-                                "  ${index + 1}. Area ${area.number}-${area.endNumber} (${area.code.toHexString()}) - $keyType"
-                            )
-                        }
-                        appendLine()
-                    }
-
-                    if (nodesToAuth.isNotEmpty()) {
-                        appendLine("Nodes authenticated:")
-                        nodesToAuth.forEachIndexed { index, node ->
-                            val keyType =
-                                when {
-                                    testTarget.systemContext.nodeDesKeyVersions.containsKey(node) ->
-                                        "DES key"
-                                    testTarget.systemContext.nodeKeyVersions.containsKey(node) ->
-                                        "Legacy (DES) key"
-                                    else -> "Unknown"
-                                }
-                            appendLine("  ${index + 1}. ${describeNode(node)} - $keyType")
-                        }
-                        appendLine()
-                    }
                 }
+
+                if (nodesToAuth.isNotEmpty()) {
+                    appendLine("Nodes authenticated:")
+                    nodesToAuth.forEachIndexed { index, node ->
+                        val keyType =
+                            when {
+                                testTarget.systemContext.nodeDesKeyVersions.containsKey(node) ->
+                                    "DES key"
+                                testTarget.systemContext.nodeKeyVersions.containsKey(node) ->
+                                    "Legacy (DES) key"
+                                else -> "Unknown"
+                            }
+                        appendLine("  ${index + 1}. ${describeNode(node)} - $keyType")
+                    }
+                    appendLine()
+                }
+            }
                 .trim()
         )
     }
@@ -365,27 +365,25 @@ internal object Authentication1DesIncompleteAreaPathForNodeSupportedStep :
 
         return StepOutput(
             buildString {
-                    appendLine("Authenticate1 DES incomplete area path for node support check:")
-                    appendLine(
-                        "System: ${preferredTarget.systemContext.systemCode?.toHexString()?.uppercase() ?: "unknown"}"
-                    )
-                    appendLine("Mode before check: $modeBeforeCheck")
-                    appendLine("Area list:")
-                    appendLine("  1. ${describeNode(preferredTarget.rootArea)}")
-                    appendLine("Node list:")
-                    appendLine("  1. ${describeNode(preferredTarget.rootArea)}")
-                    appendLine("  2. ${describeNode(nonImmediateNode)}")
-                    appendLine("Challenge1A: ${challenge1A.toHexString().uppercase()}")
-                    if (response != null) {
-                        appendLine("Challenge1B: ${response.challenge1B.toHexString().uppercase()}")
-                        appendLine("Challenge2A: ${response.challenge2A.toHexString().uppercase()}")
-                    } else {
-                        appendLine(
-                            "No response after $AUTHENTICATION1_DES_BEHAVIOR_ATTEMPTS attempts"
-                        )
-                    }
-                    appendLine("Result: ${incompleteAreaPathForNodeSupported.toOutputLabel()}")
+                appendLine("Authenticate1 DES incomplete area path for node support check:")
+                appendLine(
+                    "System: ${preferredTarget.systemContext.systemCode?.toHexString()?.uppercase() ?: "unknown"}"
+                )
+                appendLine("Mode before check: $modeBeforeCheck")
+                appendLine("Area list:")
+                appendLine("  1. ${describeNode(preferredTarget.rootArea)}")
+                appendLine("Node list:")
+                appendLine("  1. ${describeNode(preferredTarget.rootArea)}")
+                appendLine("  2. ${describeNode(nonImmediateNode)}")
+                appendLine("Challenge1A: ${challenge1A.toHexString().uppercase()}")
+                if (response != null) {
+                    appendLine("Challenge1B: ${response.challenge1B.toHexString().uppercase()}")
+                    appendLine("Challenge2A: ${response.challenge2A.toHexString().uppercase()}")
+                } else {
+                    appendLine("No response after $AUTHENTICATION1_DES_BEHAVIOR_ATTEMPTS attempts")
                 }
+                appendLine("Result: ${incompleteAreaPathForNodeSupported.toOutputLabel()}")
+            }
                 .trim()
         )
     }
@@ -429,30 +427,28 @@ internal abstract class Authentication1DesAreaListBehaviorStep(
 
         return StepOutput(
             buildString {
-                    appendLine("$featureName check:")
-                    appendLine(
-                        "System: ${testTarget.systemContext.systemCode?.toHexString()?.uppercase() ?: "unknown"}"
-                    )
-                    appendLine("Mode before check: $modeBeforeCheck")
-                    appendLine("Area list:")
-                    testTarget.areaEntries.forEachIndexed { index, entry ->
-                        appendLine("  ${index + 1}. ${entry.label}")
-                    }
-                    appendLine("Node list:")
-                    testTarget.nodeEntries.forEachIndexed { index, entry ->
-                        appendLine("  ${index + 1}. ${entry.label}")
-                    }
-                    appendLine("Challenge1A: ${challenge1A.toHexString().uppercase()}")
-                    if (response != null) {
-                        appendLine("Challenge1B: ${response.challenge1B.toHexString().uppercase()}")
-                        appendLine("Challenge2A: ${response.challenge2A.toHexString().uppercase()}")
-                    } else {
-                        appendLine(
-                            "No response after $AUTHENTICATION1_DES_BEHAVIOR_ATTEMPTS attempts"
-                        )
-                    }
-                    appendLine("$supportLabel: ${support.toOutputLabel()}")
+                appendLine("$featureName check:")
+                appendLine(
+                    "System: ${testTarget.systemContext.systemCode?.toHexString()?.uppercase() ?: "unknown"}"
+                )
+                appendLine("Mode before check: $modeBeforeCheck")
+                appendLine("Area list:")
+                testTarget.areaEntries.forEachIndexed { index, entry ->
+                    appendLine("  ${index + 1}. ${entry.label}")
                 }
+                appendLine("Node list:")
+                testTarget.nodeEntries.forEachIndexed { index, entry ->
+                    appendLine("  ${index + 1}. ${entry.label}")
+                }
+                appendLine("Challenge1A: ${challenge1A.toHexString().uppercase()}")
+                if (response != null) {
+                    appendLine("Challenge1B: ${response.challenge1B.toHexString().uppercase()}")
+                    appendLine("Challenge2A: ${response.challenge2A.toHexString().uppercase()}")
+                } else {
+                    appendLine("No response after $AUTHENTICATION1_DES_BEHAVIOR_ATTEMPTS attempts")
+                }
+                appendLine("$supportLabel: ${support.toOutputLabel()}")
+            }
                 .trim()
         )
     }

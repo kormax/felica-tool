@@ -90,29 +90,29 @@ internal object InternalAuthenticateAndReadStep :
         return if (response.isStatusSuccessful) {
             StepOutput(
                 buildString {
-                        appendLine("Internal Authenticate and Read Results:")
-                        appendLine("System: $systemCodeHex")
-                        appendLine("Service: $serviceCodeHex (${bestMacService.attribute})")
-                        appendLine("Challenge sent: ${challenge.toHexString()}")
-                        appendLine("Status: Success")
-                        appendLine("Blocks returned: ${response.blockData.size}")
-                        response.blockData.forEachIndexed { index, block ->
-                            appendLine("  Block $index: ${block.toHexString()}")
-                        }
-                        appendLine("Challenge response: ${response.challenge.toHexString()}")
-                        appendLine("MAC: ${response.mac.toHexString()}")
+                    appendLine("Internal Authenticate and Read Results:")
+                    appendLine("System: $systemCodeHex")
+                    appendLine("Service: $serviceCodeHex (${bestMacService.attribute})")
+                    appendLine("Challenge sent: ${challenge.toHexString()}")
+                    appendLine("Status: Success")
+                    appendLine("Blocks returned: ${response.blockData.size}")
+                    response.blockData.forEachIndexed { index, block ->
+                        appendLine("  Block $index: ${block.toHexString()}")
                     }
+                    appendLine("Challenge response: ${response.challenge.toHexString()}")
+                    appendLine("MAC: ${response.mac.toHexString()}")
+                }
                     .trim()
             )
         } else {
             StepOutput(
                 buildString {
-                        appendLine("Internal Authenticate and Read Results:")
-                        appendLine("System: $systemCodeHex")
-                        appendLine("Service: $serviceCodeHex (${bestMacService.attribute})")
-                        appendLine("Challenge sent: ${challenge.toHexString()}")
-                        appendLine("Status: Failed (${formatStatus(response)})")
-                    }
+                    appendLine("Internal Authenticate and Read Results:")
+                    appendLine("System: $systemCodeHex")
+                    appendLine("Service: $serviceCodeHex (${bestMacService.attribute})")
+                    appendLine("Challenge sent: ${challenge.toHexString()}")
+                    appendLine("Status: Failed (${formatStatus(response)})")
+                }
                     .trim()
             )
         }

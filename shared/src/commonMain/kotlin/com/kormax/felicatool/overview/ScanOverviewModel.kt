@@ -265,18 +265,17 @@ object ScanOverviewModelBuilder {
         val services = distinctNodes.filterIsInstance<Service>().size
         val hiddenNodes = systemContext.hiddenNodes.size
         val registryNodes = systemContext.registryPopulatedNodes.size
-        val summary =
-            buildList {
-                    add("$areas areas")
-                    add("$services services")
-                    if (hiddenNodes > 0) {
-                        add("$hiddenNodes hidden")
-                    }
-                    if (registryNodes > 0) {
-                        add("$registryNodes from registry")
-                    }
-                }
-                .joinToString(" | ")
+        val summary = buildList {
+            add("$areas areas")
+            add("$services services")
+            if (hiddenNodes > 0) {
+                add("$hiddenNodes hidden")
+            }
+            if (registryNodes > 0) {
+                add("$registryNodes from registry")
+            }
+        }
+            .joinToString(" | ")
         val areaHeaderGroupsByArea = buildAreaHeaderGroups(systemContext)
         var previousAreaHeaderId: String? = null
 

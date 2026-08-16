@@ -32,18 +32,18 @@ internal object RequestProductInformationDetermineSupportedStep :
 
         return StepOutput(
             buildString {
-                    appendLine(
-                        "Status Flags: ${formatStatus(requestProductInformationResponse, prefix = "")}"
-                    )
+                appendLine(
+                    "Status Flags: ${formatStatus(requestProductInformationResponse, prefix = "")}"
+                )
 
-                    if (requestProductInformationResponse.isStatusSuccessful) {
-                        appendLine(
-                            "Product information: ${requestProductInformationResponse.productInformationData.toHexString()}"
-                        )
-                    } else {
-                        appendLine("Failed to request product information")
-                    }
+                if (requestProductInformationResponse.isStatusSuccessful) {
+                    appendLine(
+                        "Product information: ${requestProductInformationResponse.productInformationData.toHexString()}"
+                    )
+                } else {
+                    appendLine("Failed to request product information")
                 }
+            }
                 .trim()
         )
     }

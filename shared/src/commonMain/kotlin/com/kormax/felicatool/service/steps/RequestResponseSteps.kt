@@ -35,9 +35,9 @@ internal object RequestResponseDetermineSupportedStep :
 
         return StepOutput(
             buildString {
-                    appendLine("Card is present and responding")
-                    appendLine("Current Mode: ${mode.name} (${mode.value})")
-                }
+                appendLine("Card is present and responding")
+                appendLine("Current Mode: ${mode.name} (${mode.value})")
+            }
                 .trim()
         )
     }

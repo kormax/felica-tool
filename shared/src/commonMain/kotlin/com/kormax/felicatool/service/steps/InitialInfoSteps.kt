@@ -38,39 +38,39 @@ internal object InitialInfoStep :
 
         return StepOutput(
             buildString {
-                    appendLine("IDM: $idmHex")
-                    // Note: Manufacturer and NFC System Code information not available through
-                    // FeliCaTarget interface. These would need to be obtained differently if
-                    // needed.
-                    appendLine()
-                    appendLine("PMM Information:")
-                    appendLine("  Raw PMM: ${cardPmm.toString()}")
-                    appendLine("  ROM Type: 0x${byteToHex(cardPmm.romType)}")
-                    appendLine("  IC Type: 0x${byteToHex(cardPmm.icType)}")
-                    IcTypeRegistry.getIcName(cardPmm.icType, cardPmm.romType)?.let { icTypeName ->
-                        appendLine("  IC Type Name: $icTypeName")
-                    }
-                    appendLine()
-                    appendLine("Timeout Multipliers (ms):")
-                    appendLine(
-                        "  Variable Response Time: ${formatTimeoutFormula(cardPmm.variableResponseTimeConstant, cardPmm.variableResponseTimePerUnit, cardPmm.variableResponseTimeCommandSupported)}"
-                    )
-                    appendLine(
-                        "  Fixed Response Time: ${formatTimeoutFormula(cardPmm.fixedResponseTimeConstant, cardPmm.fixedResponseTimePerUnit, cardPmm.fixedResponseTimeCommandSupported)}"
-                    )
-                    appendLine(
-                        "  Mutual Auth: ${formatTimeoutFormula(cardPmm.mutualAuthConstant, cardPmm.mutualAuthPerUnit, cardPmm.mutualAuthCommandSupported)}"
-                    )
-                    appendLine(
-                        "  Data Read: ${formatTimeoutFormula(cardPmm.dataReadConstant, cardPmm.dataReadPerUnit, cardPmm.dataReadCommandSupported)}"
-                    )
-                    appendLine(
-                        "  Data Write: ${formatTimeoutFormula(cardPmm.dataWriteConstant, cardPmm.dataWritePerUnit, cardPmm.dataWriteCommandSupported)}"
-                    )
-                    appendLine(
-                        "  Other: ${formatTimeoutFormula(cardPmm.otherConstant, cardPmm.otherPerUnit, cardPmm.otherCommandSupported)}"
-                    )
+                appendLine("IDM: $idmHex")
+                // Note: Manufacturer and NFC System Code information not available through
+                // FeliCaTarget interface. These would need to be obtained differently if
+                // needed.
+                appendLine()
+                appendLine("PMM Information:")
+                appendLine("  Raw PMM: ${cardPmm.toString()}")
+                appendLine("  ROM Type: 0x${byteToHex(cardPmm.romType)}")
+                appendLine("  IC Type: 0x${byteToHex(cardPmm.icType)}")
+                IcTypeRegistry.getIcName(cardPmm.icType, cardPmm.romType)?.let { icTypeName ->
+                    appendLine("  IC Type Name: $icTypeName")
                 }
+                appendLine()
+                appendLine("Timeout Multipliers (ms):")
+                appendLine(
+                    "  Variable Response Time: ${formatTimeoutFormula(cardPmm.variableResponseTimeConstant, cardPmm.variableResponseTimePerUnit, cardPmm.variableResponseTimeCommandSupported)}"
+                )
+                appendLine(
+                    "  Fixed Response Time: ${formatTimeoutFormula(cardPmm.fixedResponseTimeConstant, cardPmm.fixedResponseTimePerUnit, cardPmm.fixedResponseTimeCommandSupported)}"
+                )
+                appendLine(
+                    "  Mutual Auth: ${formatTimeoutFormula(cardPmm.mutualAuthConstant, cardPmm.mutualAuthPerUnit, cardPmm.mutualAuthCommandSupported)}"
+                )
+                appendLine(
+                    "  Data Read: ${formatTimeoutFormula(cardPmm.dataReadConstant, cardPmm.dataReadPerUnit, cardPmm.dataReadCommandSupported)}"
+                )
+                appendLine(
+                    "  Data Write: ${formatTimeoutFormula(cardPmm.dataWriteConstant, cardPmm.dataWritePerUnit, cardPmm.dataWriteCommandSupported)}"
+                )
+                appendLine(
+                    "  Other: ${formatTimeoutFormula(cardPmm.otherConstant, cardPmm.otherPerUnit, cardPmm.otherCommandSupported)}"
+                )
+            }
                 .trimEnd()
         )
     }

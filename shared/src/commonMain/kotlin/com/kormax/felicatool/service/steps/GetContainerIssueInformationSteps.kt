@@ -53,9 +53,9 @@ internal object GetContainerIssueInformationStep :
 
         return StepOutput(
             buildString {
-                    appendLine("Format Version & Carrier Info: $formatVersionHex")
-                    appendLine("Mobile Phone Model: $modelString")
-                }
+                appendLine("Format Version & Carrier Info: $formatVersionHex")
+                appendLine("Mobile Phone Model: $modelString")
+            }
                 .trim()
         )
     }

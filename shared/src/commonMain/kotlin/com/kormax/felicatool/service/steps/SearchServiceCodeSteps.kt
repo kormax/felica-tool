@@ -34,10 +34,10 @@ internal object SearchServiceCodeDetermineSupportedStep :
 
         return StepOutput(
             buildString {
-                    appendLine("Search Service Code command is supported (response received)")
-                    appendLine("Index: $index")
-                    appendLine("Node: ${describeNode(node)}")
-                }
+                appendLine("Search Service Code command is supported (response received)")
+                appendLine("Index: $index")
+                appendLine("Node: ${describeNode(node)}")
+            }
                 .trim()
         )
     }

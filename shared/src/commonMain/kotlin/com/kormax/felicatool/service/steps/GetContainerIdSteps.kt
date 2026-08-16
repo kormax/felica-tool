@@ -32,10 +32,8 @@ internal object GetContainerIdStep :
 
         return StepOutput(
             buildString {
-                    appendLine(
-                        "Container IDM: ${getContainerIdResponse.containerIdm.toHexString()}"
-                    )
-                }
+                appendLine("Container IDM: ${getContainerIdResponse.containerIdm.toHexString()}")
+            }
                 .trim()
         )
     }

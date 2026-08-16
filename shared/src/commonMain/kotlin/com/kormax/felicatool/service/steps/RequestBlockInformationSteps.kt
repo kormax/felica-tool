@@ -29,12 +29,10 @@ internal object RequestBlockInformationDetermineSupportedStep :
 
         return StepOutput(
             buildString {
-                    appendLine("Request Block Information command is supported (response received)")
-                    appendLine("Node: ${System.code.toHexString().uppercase()} (System)")
-                    appendLine(
-                        "Returned ${response.blockCountInformation.size} block count entries"
-                    )
-                }
+                appendLine("Request Block Information command is supported (response received)")
+                appendLine("Node: ${System.code.toHexString().uppercase()} (System)")
+                appendLine("Returned ${response.blockCountInformation.size} block count entries")
+            }
                 .trim()
         )
     }

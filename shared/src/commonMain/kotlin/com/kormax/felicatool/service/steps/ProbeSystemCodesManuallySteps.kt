@@ -148,46 +148,46 @@ internal object ProbeSystemCodesManuallyStep :
 
         return StepOutput(
             buildString {
-                    appendLine("Probe System Codes Manually Results:")
+                appendLine("Probe System Codes Manually Results:")
 
-                    if (skippedTargets.isNotEmpty()) {
-                        appendLine("Skipped reported candidate(s):")
-                        skippedTargets.forEach { (systemCode, label) ->
-                            appendLine("  - ${systemCode.toHexString().uppercase()} ($label)")
-                        }
-                        appendLine()
+                if (skippedTargets.isNotEmpty()) {
+                    appendLine("Skipped reported candidate(s):")
+                    skippedTargets.forEach { (systemCode, label) ->
+                        appendLine("  - ${systemCode.toHexString().uppercase()} ($label)")
                     }
+                    appendLine()
+                }
 
-                    if (manualResultLines.isEmpty()) {
-                        appendLine("No manual probes needed.")
-                    } else {
-                        appendLine("Probed candidate(s):")
-                        manualResultLines.forEach(::appendLine)
-                    }
+                if (manualResultLines.isEmpty()) {
+                    appendLine("No manual probes needed.")
+                } else {
+                    appendLine("Probed candidate(s):")
+                    manualResultLines.forEach(::appendLine)
+                }
 
-                    if (settings.bruteForceSystemCodePrefixes) {
-                        appendLine()
-                        appendLine("Wildcard suffix brute force:")
-                        appendLine(
-                            "  Range: ${
+                if (settings.bruteForceSystemCodePrefixes) {
+                    appendLine()
+                    appendLine("Wildcard suffix brute force:")
+                    appendLine(
+                        "  Range: ${
                                     byteToHex(WILDCARD_SYSTEM_PROBE_FIRST_PREFIX)
                                 }FF-${
                                     byteToHex(WILDCARD_SYSTEM_PROBE_LAST_PREFIX)
                                 }FF"
-                        )
-                        appendLine("  Skipped known prefixes: $wildcardSkipped")
-                        appendLine("  No response: $wildcardNoResponse")
-                        if (wildcardResultLines.isNotEmpty()) {
-                            appendLine("  Found:")
-                            wildcardResultLines.forEach(::appendLine)
-                        }
-                    }
-
-                    appendLine()
-                    appendLine(
-                        "Found ${manualFoundCount + wildcardFoundCount} system(s); added ${manualAddedCount + wildcardAddedCount} new system context(s)."
                     )
+                    appendLine("  Skipped known prefixes: $wildcardSkipped")
+                    appendLine("  No response: $wildcardNoResponse")
+                    if (wildcardResultLines.isNotEmpty()) {
+                        appendLine("  Found:")
+                        wildcardResultLines.forEach(::appendLine)
+                    }
                 }
+
+                appendLine()
+                appendLine(
+                    "Found ${manualFoundCount + wildcardFoundCount} system(s); added ${manualAddedCount + wildcardAddedCount} new system context(s)."
+                )
+            }
                 .trim()
         )
     }
