@@ -106,5 +106,11 @@ data class Authentication1DesCommandCapability(
     override val trailingDataSupported: CommandSupport = CommandSupport.UNKNOWN,
     val areaListWithoutNodeImmediateParentAreaSupported: CommandSupport = CommandSupport.UNKNOWN,
     val areaListWithoutRootAreaSupported: CommandSupport = CommandSupport.UNKNOWN,
-    val authenticationRequiredServiceInAreaPathSupported: CommandSupport = CommandSupport.UNKNOWN,
+    val trailingAuthenticationRequiredServiceInAreaListSupported: CommandSupport =
+        CommandSupport.UNKNOWN,
+    val leadingSystemNodeInAreaListSupported: CommandSupport = CommandSupport.UNKNOWN,
+    val leadingAuthenticationRequiredServiceInAreaListSupported: CommandSupport =
+        CommandSupport.UNKNOWN,
+    val leadingAuthenticationNotRequiredServiceInNodeListSupported: CommandSupport =
+        CommandSupport.UNKNOWN,
 ) : CommandCapability

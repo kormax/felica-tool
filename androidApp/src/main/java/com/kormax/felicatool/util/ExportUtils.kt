@@ -544,9 +544,23 @@ object ExportUtils {
                 scanContext.commands.authentication1Des.areaListWithoutRootAreaSupported,
             )
             putBooleanIfKnown(
-                "authentication_required_service_in_area_path_supported",
+                "trailing_authentication_required_service_in_area_list_supported",
                 scanContext.commands.authentication1Des
-                    .authenticationRequiredServiceInAreaPathSupported,
+                    .trailingAuthenticationRequiredServiceInAreaListSupported,
+            )
+            putBooleanIfKnown(
+                "leading_system_node_in_area_list_supported",
+                scanContext.commands.authentication1Des.leadingSystemNodeInAreaListSupported,
+            )
+            putBooleanIfKnown(
+                "leading_authentication_required_service_in_area_list_supported",
+                scanContext.commands.authentication1Des
+                    .leadingAuthenticationRequiredServiceInAreaListSupported,
+            )
+            putBooleanIfKnown(
+                "leading_authentication_not_required_service_in_node_list_supported",
+                scanContext.commands.authentication1Des
+                    .leadingAuthenticationNotRequiredServiceInNodeListSupported,
             )
         }
         commandsJson.putAvailableCommand(

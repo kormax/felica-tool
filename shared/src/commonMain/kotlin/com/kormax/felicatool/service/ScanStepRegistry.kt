@@ -4,9 +4,12 @@ import com.kormax.felicatool.service.steps.Authentication1AesDetermineTrailingDa
 import com.kormax.felicatool.service.steps.Authentication1AesStep
 import com.kormax.felicatool.service.steps.Authentication1DesAreaListWithoutNodeImmediateParentAreaSupportedStep
 import com.kormax.felicatool.service.steps.Authentication1DesAreaListWithoutRootAreaSupportedStep
-import com.kormax.felicatool.service.steps.Authentication1DesAuthenticationRequiredServiceInAreaPathSupportedStep
 import com.kormax.felicatool.service.steps.Authentication1DesDetermineSupportedStep
 import com.kormax.felicatool.service.steps.Authentication1DesDetermineTrailingDataSupportedStep
+import com.kormax.felicatool.service.steps.Authentication1DesLeadingAuthenticationNotRequiredServiceInNodeListSupportedStep
+import com.kormax.felicatool.service.steps.Authentication1DesLeadingAuthenticationRequiredServiceInAreaListSupportedStep
+import com.kormax.felicatool.service.steps.Authentication1DesLeadingSystemNodeInAreaListSupportedStep
+import com.kormax.felicatool.service.steps.Authentication1DesTrailingAuthenticationRequiredServiceInAreaListSupportedStep
 import com.kormax.felicatool.service.steps.DiscoverNodesStep
 import com.kormax.felicatool.service.steps.EchoDetermineMaxPayloadSizeStep
 import com.kormax.felicatool.service.steps.EchoDetermineSupportedStep
@@ -152,7 +155,10 @@ internal object ScanStepRegistry {
             Authentication1DesDetermineTrailingDataSupportedStep,
             Authentication1DesAreaListWithoutRootAreaSupportedStep,
             Authentication1DesAreaListWithoutNodeImmediateParentAreaSupportedStep,
-            Authentication1DesAuthenticationRequiredServiceInAreaPathSupportedStep,
+            Authentication1DesTrailingAuthenticationRequiredServiceInAreaListSupportedStep,
+            Authentication1DesLeadingSystemNodeInAreaListSupportedStep,
+            Authentication1DesLeadingAuthenticationRequiredServiceInAreaListSupportedStep,
+            Authentication1DesLeadingAuthenticationNotRequiredServiceInNodeListSupportedStep,
             Authentication1AesStep,
             Authentication1AesDetermineTrailingDataSupportedStep,
             ScanOverviewStep,
