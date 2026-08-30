@@ -284,34 +284,41 @@ object ExportUtils {
             metadataJson.put("device_manufacturer", Build.MANUFACTURER)
             metadataJson.put("device_model", Build.MODEL)
         }
+        scanContext.scanDurationMillis?.let { metadataJson.put("scan_duration_ms", it) }
         json.put("metadata", metadataJson)
 
         // Primary attributes from CardScanContext
-        scanContext.scanDurationMillis?.let { json.put("scan_duration_ms", it) }
-
         scanContext.primaryIdm?.let {
             val hex = it.toHexString().lowercase()
             json.put("primary_idm", if (privacy) maskIdm(hex) else hex)
         }
 
+        val inferredJson = JSONObject()
+        CardTypeInferrer.infer(scanContext)?.let { inference ->
+            inference.cardId?.let { productType ->
+                inferredJson.put("product_type", productType)
+            }
+            inferredJson.put("medium_type", inference.media.name)
+        }
         ManufacturingDateResolver.resolve(
                 context = scanContext,
                 currentTimeMillis = currentTimeMillis,
                 buildDateEpochMillis = buildDateEpochMillis,
             )
             ?.let { manufacturingDate ->
-                json.put("manufacturing_date", manufacturingDate.toString())
+                inferredJson.put("chip_manufacturing_date", manufacturingDate.toString())
             }
 
         scanContext.pmm?.let { pmm -> json.put("pmm", pmm.toHexString().lowercase()) }
 
         // IC type from PMM data
         scanContext.pmm?.let { pmm ->
-            val icTypeName =
-                IcTypeRegistry.resolveIcType(pmm.icType, pmm.romType)?.let { resolution ->
-                    if (resolution.isUncertain) "${resolution.name}?" else resolution.name
-                }
-            json.put("ic_type_name", icTypeName)
+            IcTypeRegistry.resolveIcType(pmm.icType, pmm.romType)?.let { resolution ->
+                inferredJson.put(
+                    "ic_type_name",
+                    if (resolution.isUncertain) "${resolution.name}?" else resolution.name,
+                )
+            }
         }
 
         scanContext.primarySystemCode?.let { json.put("primary_system_code", it.toHexString()) }
@@ -372,14 +379,17 @@ object ExportUtils {
                 }
             containerJson.put("mobile_phone_model_info", modelString)
             MobileDeviceRegistry.resolve(container)?.let { device ->
-                val deviceJson = JSONObject()
-                deviceJson.put("name", device.name)
-                device.model?.let { model -> deviceJson.put("model", model) }
-                device.carrier?.let { carrier -> deviceJson.put("carrier", carrier) }
-                containerJson.put("device", deviceJson)
+                inferredJson.put("container_device_model_name", device.name)
+                device.model?.let { model ->
+                    inferredJson.put("container_device_model_number", model)
+                }
+                device.carrier?.let { carrier ->
+                    inferredJson.put("container_device_carrier_name", carrier)
+                }
             }
             json.put("container_issue_information", containerJson)
         }
+        json.put("inferred", inferredJson)
 
         // Container property values
         if (scanContext.containerPropertyValues.isNotEmpty()) {
@@ -558,10 +568,13 @@ object ExportUtils {
                 systemJson.put("idm", if (privacy) maskIdm(hex) else hex)
             }
 
-            // System name
+            val inferredSystemJson = JSONObject()
+
+            // System name inferred from the node registry
             val systemName =
                 NodeRegistry.getNodeName(systemCodeHex, systemCodeHex, NodeDefinitionType.SYSTEM)
-            systemName?.let { systemJson.put("name", it) }
+            systemName?.let { inferredSystemJson.put("name", it) }
+            systemJson.put("inferred", inferredSystemJson)
 
             // System status
             systemContext.systemStatus?.let { systemJson.put("status", it.toHexString()) }

@@ -225,7 +225,7 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                             )
                         }
                         manufacturingDate?.let { date ->
-                            InfoChip(label = "Manufacturing Date", value = date.toString())
+                            InfoChip(label = "Chip Manufacturing Date", value = date.toString())
                         }
                     }
                 }
