@@ -1168,7 +1168,12 @@ fun TreeNodeCard(
                         ),
                 ) {
                     Column(
-                        modifier = Modifier.padding(12.dp),
+                        modifier =
+                            if (node is System) {
+                                Modifier.padding(vertical = 12.dp)
+                            } else {
+                                Modifier.padding(12.dp)
+                            },
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         NodeDetailsContent(nodeInfo, context)
@@ -1189,17 +1194,53 @@ private fun NodeDetailsContent(nodeInfo: NodeInformation, context: SystemScanCon
     val node = nodeInfo.node
     // System-specific information
     if (node is System) {
+        val systemContentModifier = Modifier.padding(horizontal = 12.dp)
+
         context.idm?.let { idm ->
-            CompactInfoRow(label = "IDM", value = idm.toHexString().uppercase())
+            CompactInfoRow(
+                label = "IDM",
+                value = idm.toHexString().uppercase(),
+                modifier = systemContentModifier,
+            )
+            HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
         }
 
         context.systemStatus?.let { systemStatus ->
-            CompactInfoRow(label = "System Status", value = systemStatus.toHexString().uppercase())
+            CompactInfoRow(
+                label = "System Status",
+                value = systemStatus.toByteArray().toHexString().uppercase(),
+                modifier = systemContentModifier,
+            )
+
+            if (
+                systemStatus is SystemStatus.V0 &&
+                    (systemStatus.desAuthenticationStrictAreaListValidation ||
+                        systemStatus.desSystemInitializationCommandsDisabled ||
+                        systemStatus.desNodeIssuanceCommandsDisabled)
+            ) {
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    modifier = systemContentModifier.padding(vertical = 4.dp),
+                ) {
+                    if (systemStatus.desAuthenticationStrictAreaListValidation) {
+                        AttributeChip("STRICT AUTH AREA LIST VALIDATION", isInfo = true)
+                    }
+                    if (systemStatus.desSystemInitializationCommandsDisabled) {
+                        AttributeChip("DES SYSTEM INIT DISABLED", isWarning = true)
+                    }
+                    if (systemStatus.desNodeIssuanceCommandsDisabled) {
+                        AttributeChip("DES NODE ISSUANCE DISABLED", isWarning = true)
+                    }
+                }
+            }
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
         }
 
         // Node statistics - Areas and Services side by side
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Row(
@@ -1244,12 +1285,16 @@ private fun NodeDetailsContent(nodeInfo: NodeInformation, context: SystemScanCon
         val hasGenericKeys = context.nodeKeyVersions.isNotEmpty()
 
         if (hasGenericKeys && !hasAesKeys && !hasDesKeys) {
-            CompactInfoRow(label = "Key Versions", value = context.nodeKeyVersions.size.toString())
+            CompactInfoRow(
+                label = "Key Versions",
+                value = context.nodeKeyVersions.size.toString(),
+                modifier = systemContentModifier,
+            )
         } else if (hasAesKeys || hasDesKeys) {
             // Display AES and DES side by side if both are available
             if (hasAesKeys && hasDesKeys) {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Row(
@@ -1293,12 +1338,14 @@ private fun NodeDetailsContent(nodeInfo: NodeInformation, context: SystemScanCon
                     CompactInfoRow(
                         label = "AES Keys",
                         value = context.nodeAesKeyVersions.size.toString(),
+                        modifier = systemContentModifier,
                     )
                 }
                 if (hasDesKeys) {
                     CompactInfoRow(
                         label = "DES Keys",
                         value = context.nodeDesKeyVersions.size.toString(),
+                        modifier = systemContentModifier,
                     )
                 }
             }

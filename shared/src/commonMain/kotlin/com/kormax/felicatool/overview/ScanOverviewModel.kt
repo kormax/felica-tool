@@ -636,7 +636,12 @@ object ScanOverviewModelBuilder {
                     add(ScanOverviewField("IDM", it.toHexString().uppercase()))
                 }
                 systemContext.systemStatus?.let {
-                    add(ScanOverviewField("System Status", it.toHexString().uppercase()))
+                    add(
+                        ScanOverviewField(
+                            "System Status",
+                            it.toByteArray().toHexString().uppercase(),
+                        )
+                    )
                 }
                 add(
                     ScanOverviewField(

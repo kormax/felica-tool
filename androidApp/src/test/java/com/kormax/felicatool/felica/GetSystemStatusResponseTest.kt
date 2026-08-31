@@ -14,47 +14,81 @@ class GetSystemStatusResponseTest {
     fun testGetSystemStatusResponse_creation() {
         val idm = IDM.hexToByteArray()
         val response =
-            GetSystemStatusResponse(idm, 0x00, 0x00, 0x01, byteArrayOf(0x01, 0x02, 0x03, 0x04))
+            GetSystemStatusResponse(
+                idm,
+                0x00,
+                0x00,
+                SystemStatus.UnsupportedVersion(
+                    formatVersion = 0x01,
+                    unknownData = byteArrayOf(0x01, 0x02, 0x03, 0x04),
+                ),
+            )
 
         assertArrayEquals(idm, response.idm)
         assertEquals(0x00.toByte(), response.statusFlag1)
         assertEquals(0x00.toByte(), response.statusFlag2)
-        assertEquals(0x01.toByte(), response.flag)
-        assertEquals(0x04.toByte(), response.data.size.toByte())
-        assertArrayEquals(byteArrayOf(0x01, 0x02, 0x03, 0x04), response.data)
+        assertEquals(0x01.toByte(), response.systemStatus.formatVersion)
+        assertArrayEquals(
+            byteArrayOf(0x01, 0x02, 0x03, 0x04),
+            (response.systemStatus as SystemStatus.UnsupportedVersion).unknownData,
+        )
     }
 
     @Test
     fun testGetSystemStatusResponse_creation_emptyData() {
         val idm = IDM.hexToByteArray()
-        val response = GetSystemStatusResponse(idm, 0x00, 0x00, 0x01, byteArrayOf())
+        val response =
+            GetSystemStatusResponse(
+                idm,
+                0x00,
+                0x00,
+                SystemStatus.UnsupportedVersion(0x01, byteArrayOf()),
+            )
 
         assertArrayEquals(idm, response.idm)
         assertEquals(0x00.toByte(), response.statusFlag1)
         assertEquals(0x00.toByte(), response.statusFlag2)
-        assertEquals(0x01.toByte(), response.flag)
-        assertEquals(0x00.toByte(), response.data.size.toByte())
-        assertArrayEquals(byteArrayOf(), response.data)
+        assertEquals(0x01.toByte(), response.systemStatus.formatVersion)
+        assertArrayEquals(
+            byteArrayOf(),
+            (response.systemStatus as SystemStatus.UnsupportedVersion).unknownData,
+        )
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testGetSystemStatusResponse_invalidIdmSize() {
         val invalidIdm = byteArrayOf(0x01.toByte()) // Too short
-        GetSystemStatusResponse(invalidIdm, 0x00, 0x00, 0x01, byteArrayOf())
+        GetSystemStatusResponse(
+            invalidIdm,
+            0x00,
+            0x00,
+            SystemStatus.UnsupportedVersion(0x01, byteArrayOf()),
+        )
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testGetSystemStatusResponse_dataSizeTooLarge() {
         val idm = IDM.hexToByteArray()
         val largeData = ByteArray(256) // Too large for 1-byte length field
-        GetSystemStatusResponse(idm, 0x00, 0x00, 0x01, largeData)
+        GetSystemStatusResponse(
+            idm,
+            0x00,
+            0x00,
+            SystemStatus.UnsupportedVersion(0x01, largeData),
+        )
     }
 
     @Test
     fun testGetSystemStatusResponse_toByteArray() {
         val idm = IDM.hexToByteArray()
         val data = byteArrayOf(0x01, 0x02, 0x03, 0x04)
-        val response = GetSystemStatusResponse(idm, 0x00, 0x00, 0x01, data)
+        val response =
+            GetSystemStatusResponse(
+                idm,
+                0x00,
+                0x00,
+                SystemStatus.UnsupportedVersion(0x01, data),
+            )
         val bytes = response.toByteArray()
 
         // Check length (1 + 1 + 8 + 1 + 1 + 1 + 1 + 4 = 18 bytes)
@@ -86,7 +120,13 @@ class GetSystemStatusResponseTest {
     @Test
     fun testGetSystemStatusResponse_toByteArray_emptyData() {
         val idm = IDM.hexToByteArray()
-        val response = GetSystemStatusResponse(idm, 0x00, 0x00, 0x01, byteArrayOf())
+        val response =
+            GetSystemStatusResponse(
+                idm,
+                0x00,
+                0x00,
+                SystemStatus.UnsupportedVersion(0x01, byteArrayOf()),
+            )
         val bytes = response.toByteArray()
 
         // Check length (1 + 1 + 8 + 1 + 1 + 1 + 1 = 14 bytes)
@@ -112,9 +152,11 @@ class GetSystemStatusResponseTest {
         assertArrayEquals(IDM.hexToByteArray(), response.idm)
         assertEquals(0x00.toByte(), response.statusFlag1)
         assertEquals(0x00.toByte(), response.statusFlag2)
-        assertEquals(0x01.toByte(), response.flag)
-        assertEquals(0x04.toByte(), response.data.size.toByte())
-        assertArrayEquals(byteArrayOf(0x01, 0x02, 0x03, 0x04), response.data)
+        assertEquals(0x01.toByte(), response.systemStatus.formatVersion)
+        assertArrayEquals(
+            byteArrayOf(0x01, 0x02, 0x03, 0x04),
+            (response.systemStatus as SystemStatus.UnsupportedVersion).unknownData,
+        )
     }
 
     @Test
@@ -129,9 +171,11 @@ class GetSystemStatusResponseTest {
         assertArrayEquals(IDM.hexToByteArray(), response.idm)
         assertEquals(0x00.toByte(), response.statusFlag1)
         assertEquals(0x00.toByte(), response.statusFlag2)
-        assertEquals(0x01.toByte(), response.flag)
-        assertEquals(0x00.toByte(), response.data.size.toByte())
-        assertArrayEquals(byteArrayOf(), response.data)
+        assertEquals(0x01.toByte(), response.systemStatus.formatVersion)
+        assertArrayEquals(
+            byteArrayOf(),
+            (response.systemStatus as SystemStatus.UnsupportedVersion).unknownData,
+        )
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -158,30 +202,38 @@ class GetSystemStatusResponseTest {
     fun testGetSystemStatusResponse_roundTrip() {
         val idm = IDM.hexToByteArray()
         val data = byteArrayOf(0x01, 0x02, 0x03, 0x04)
-        val response = GetSystemStatusResponse(idm, 0x00, 0x00, 0x01, data)
+        val response =
+            GetSystemStatusResponse(
+                idm,
+                0x00,
+                0x00,
+                SystemStatus.UnsupportedVersion(0x01, data),
+            )
         val bytes = response.toByteArray()
         val parsedResponse = GetSystemStatusResponse.fromByteArray(bytes)
 
         assertArrayEquals(response.idm, parsedResponse.idm)
         assertEquals(response.statusFlag1, parsedResponse.statusFlag1)
         assertEquals(response.statusFlag2, parsedResponse.statusFlag2)
-        assertEquals(response.flag, parsedResponse.flag)
-        assertEquals(response.data.size, parsedResponse.data.size)
-        assertArrayEquals(response.data, parsedResponse.data)
+        assertEquals(response.systemStatus, parsedResponse.systemStatus)
     }
 
     @Test
     fun testGetSystemStatusResponse_roundTrip_emptyData() {
         val idm = IDM.hexToByteArray()
-        val response = GetSystemStatusResponse(idm, 0x00, 0x00, 0x01, byteArrayOf())
+        val response =
+            GetSystemStatusResponse(
+                idm,
+                0x00,
+                0x00,
+                SystemStatus.UnsupportedVersion(0x01, byteArrayOf()),
+            )
         val bytes = response.toByteArray()
         val parsedResponse = GetSystemStatusResponse.fromByteArray(bytes)
 
         assertArrayEquals(response.idm, parsedResponse.idm)
         assertEquals(response.statusFlag1, parsedResponse.statusFlag1)
         assertEquals(response.statusFlag2, parsedResponse.statusFlag2)
-        assertEquals(response.flag, parsedResponse.flag)
-        assertEquals(response.data.size, parsedResponse.data.size)
-        assertArrayEquals(response.data, parsedResponse.data)
+        assertEquals(response.systemStatus, parsedResponse.systemStatus)
     }
 }

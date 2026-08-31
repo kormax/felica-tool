@@ -31,7 +31,7 @@ internal object GetSystemStatusDetermineSupportedStep :
             buildString {
                 appendLine("Get System Status command is supported (response received)")
                 appendLine("Status Flags: ${formatStatus(response, prefix = "")}")
-                appendLine("Flag: 0x${byteToHex(response.flag)}")
+                appendLine("Format Version: 0x${byteToHex(response.systemStatus.formatVersion)}")
             }
                 .trim()
         )
@@ -65,7 +65,7 @@ internal object GetSystemStatusDetermineTrailingDataSupportedStep :
     override fun responseLines(response: GetSystemStatusResponse): List<String> =
         listOf(
             "Status Flags: ${formatStatus(response, prefix = "")}",
-            "Flag: 0x${byteToHex(response.flag)}",
+            "Format Version: 0x${byteToHex(response.systemStatus.formatVersion)}",
         )
 }
 
@@ -100,16 +100,8 @@ internal object GetSystemStatusesStep :
                         GetSystemStatusCommand(idm)
                     }
 
-                // Store system status as ByteArray in context
-                val systemStatusData =
-                    byteArrayOf(
-                        getSystemStatusResponse.statusFlag1,
-                        getSystemStatusResponse.statusFlag2,
-                        getSystemStatusResponse.flag,
-                    ) + getSystemStatusResponse.data
-
-                // Update system context with system status
-                val updatedSystemContext = systemContext.copy(systemStatus = systemStatusData)
+                val updatedSystemContext =
+                    systemContext.copy(systemStatus = getSystemStatusResponse.systemStatus)
                 updatedSystemContexts.add(updatedSystemContext)
 
                 // Build result for this system
@@ -118,10 +110,14 @@ internal object GetSystemStatusesStep :
                     appendLine(
                         "  Status Flags: ${formatStatus(getSystemStatusResponse, prefix = "")}"
                     )
-                    appendLine("  Flag: 0x${byteToHex(getSystemStatusResponse.flag)}")
+                    appendLine(
+                        "  Format Version: 0x${byteToHex(getSystemStatusResponse.systemStatus.formatVersion)}"
+                    )
 
-                    if (getSystemStatusResponse.data.isNotEmpty()) {
-                        appendLine("  Data: ${getSystemStatusResponse.data.toHexString()}")
+                    val systemStatusBytes = getSystemStatusResponse.systemStatus.toByteArray()
+                    val statusData = systemStatusBytes.copyOfRange(1, systemStatusBytes.size)
+                    if (statusData.isNotEmpty()) {
+                        appendLine("  Data: ${statusData.toHexString()}")
                     } else {
                         appendLine("  Data: None")
                     }

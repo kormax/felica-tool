@@ -590,8 +590,34 @@ object ExportUtils {
             systemName?.let { inferredSystemJson.put("name", it) }
             systemJson.put("inferred", inferredSystemJson)
 
-            // System status
-            systemContext.systemStatus?.let { systemJson.put("status", it.toHexString()) }
+            systemContext.systemStatus?.let {
+                val bytes = it.toByteArray()
+                val systemStatusJson = JSONObject()
+                systemStatusJson.put(
+                    "format_version",
+                    "%02X".format(it.formatVersion.toUByte().toInt()),
+                )
+                systemStatusJson.put("data", bytes.copyOfRange(1, bytes.size).toHexString())
+                systemJson.put("system_status", systemStatusJson)
+
+                if (it is SystemStatus.V0) {
+                    val inferredSystemStatusJson = JSONObject()
+                    inferredSystemStatusJson.put(
+                        "des_system_initialization_commands_disabled",
+                        it.desSystemInitializationCommandsDisabled,
+                    )
+                    inferredSystemStatusJson.put(
+                        "des_node_issuance_commands_disabled",
+                        it.desNodeIssuanceCommandsDisabled,
+                    )
+                    inferredSystemStatusJson.put(
+                        "des_authentication_strict_area_list_validation",
+                        it.desAuthenticationStrictAreaListValidation,
+                    )
+                    inferredSystemStatusJson.put("unknown_flag", it.unknownFlag)
+                    inferredSystemJson.put("system_status", inferredSystemStatusJson)
+                }
+            }
 
             // System DES and AES key versions
             val systemNode = System

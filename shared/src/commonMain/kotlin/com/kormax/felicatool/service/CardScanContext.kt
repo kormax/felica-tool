@@ -11,6 +11,7 @@ import com.kormax.felicatool.felica.Node
 import com.kormax.felicatool.felica.Pmm
 import com.kormax.felicatool.felica.RequestProductInformationResponse
 import com.kormax.felicatool.felica.SpecificationVersion
+import com.kormax.felicatool.felica.SystemStatus
 import com.kormax.felicatool.felica.ValueLimitedPurseServiceProperty
 import com.kormax.felicatool.service.logging.CommunicationLogEntry
 
@@ -52,7 +53,7 @@ data class SystemScanContext(
     val serviceBlockData: Map<Node, Map<Int, ByteArray>> = emptyMap(),
     val nodeValueLimitedPurseProperties: Map<Node, ValueLimitedPurseServiceProperty> = emptyMap(),
     val nodeMacCommunicationProperties: Map<Node, MacCommunicationProperty> = emptyMap(),
-    val systemStatus: ByteArray? = null,
+    val systemStatus: SystemStatus? = null,
     val idm: ByteArray? = null,
     /** Set of nodes discovered via force discovery that were not found in regular discovery. */
     val hiddenNodes: Set<Node> = emptySet(),
