@@ -381,7 +381,6 @@ internal object ReadWithoutEncryptionDetermineErrorIndicationStep :
                 )
             }
         val statusFlag1 = response.statusFlag1
-        val statusFlag2 = response.statusFlag2
         val fallbackType = ErrorLocationIndication.FLAG
 
         if (response.isStatusSuccessful) {
@@ -399,7 +398,7 @@ internal object ReadWithoutEncryptionDetermineErrorIndicationStep :
             throw StepBehaviorUnexpected(fallbackMessage)
         }
 
-        if ((statusFlag2.toInt() and 0xFF) != 0xA8) {
+        if (response.status !is Status.IllegalBlockNumber) {
             val fallbackMessage =
                 "Error indication fallback to ${fallbackType.name}: unexpected status (${formatStatus(response)})"
             ScanLog.w("CardScanService", fallbackMessage)
@@ -505,8 +504,6 @@ internal object ReadWithoutEncryptionDetermineIllegalNumberErrorPreferenceStep :
                         },
                 )
             }
-        val statusFlag2 = response.statusFlag2
-
         if (response.isStatusSuccessful) {
             ScanLog.w(
                 "CardScanService",
@@ -524,9 +521,9 @@ internal object ReadWithoutEncryptionDetermineIllegalNumberErrorPreferenceStep :
         }
 
         val observedPreference =
-            when (statusFlag2.toByte()) {
-                0xA1.toByte() -> IllegalNumberErrorPreference.SERVICE_ERROR
-                0xA2.toByte() -> IllegalNumberErrorPreference.BLOCK_ERROR
+            when (response.status) {
+                is Status.IllegalNumberOfService -> IllegalNumberErrorPreference.SERVICE_ERROR
+                is Status.IllegalNumberOfBlock -> IllegalNumberErrorPreference.BLOCK_ERROR
                 else -> null
             }
 
@@ -605,11 +602,10 @@ internal object ReadWithoutEncryptionDetermineMaxServicesStep :
                 )
                 break
             }
-            val status2 = response.statusFlag2.toByte()
             observedIllegalNumberPreference =
-                when (status2) {
-                    0xA1.toByte() -> IllegalNumberErrorPreference.SERVICE_ERROR
-                    0xA2.toByte() -> IllegalNumberErrorPreference.BLOCK_ERROR
+                when (response.status) {
+                    is Status.IllegalNumberOfService -> IllegalNumberErrorPreference.SERVICE_ERROR
+                    is Status.IllegalNumberOfBlock -> IllegalNumberErrorPreference.BLOCK_ERROR
                     else -> null
                 }
 
@@ -696,9 +692,9 @@ internal object ReadWithoutEncryptionDetermineMaxBlocksStep :
                     )
                     break
                 }
+                val status = response.status
                 if (
-                    response.statusFlag2.toByte() != 0xA2.toByte() &&
-                        response.statusFlag2.toByte() != 0xA8.toByte()
+                    status !is Status.IllegalNumberOfBlock && status !is Status.IllegalBlockNumber
                 ) {
                     usedFallback = true
                     maxBlocks = 1

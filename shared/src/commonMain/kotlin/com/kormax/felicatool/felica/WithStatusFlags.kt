@@ -13,7 +13,10 @@ interface WithStatusFlags {
     /** Status Flag2 - indicates detailed error information */
     val statusFlag2: Byte
 
-    /** Check if the response indicates success (statusFlag1 == 0x00) */
+    val status: Status
+        get() = Status.from(statusFlag1, statusFlag2)
+
+    /** Whether the response indicates successful processing, including warnings. */
     val isStatusSuccessful: Boolean
-        get() = statusFlag1 == 0x00.toByte()
+        get() = status is Status.Success
 }

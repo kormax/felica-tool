@@ -196,36 +196,22 @@ class ResetModeResponseTest {
 
     @Test
     fun testisStatusSuccessfulProperty() {
-        // Test successful response
-        val successResponse = ResetModeResponse(TEST_IDM, 0x00.toByte(), 0x00.toByte())
-        assertTrue(successResponse.isStatusSuccessful)
+        val successfulResponses =
+            listOf(
+                ResetModeResponse(TEST_IDM, 0x00.toByte(), 0x00.toByte()),
+                ResetModeResponse(TEST_IDM, 0xFF.toByte(), 0x71.toByte()),
+                ResetModeResponse(TEST_IDM, 0x00.toByte(), 0x01.toByte()),
+                ResetModeResponse(TEST_IDM, 0x00.toByte(), 0xFF.toByte()),
+            )
 
-        // Test various error responses
+        successfulResponses.forEach { response -> assertTrue(response.isStatusSuccessful) }
+
         val errorResponses =
             listOf(
                 ResetModeResponse(TEST_IDM, 0x01.toByte(), 0x00.toByte()),
                 ResetModeResponse(TEST_IDM, 0xFF.toByte(), 0x00.toByte()),
-                ResetModeResponse(
-                    TEST_IDM,
-                    0x00.toByte(),
-                    0x01.toByte(),
-                ), // Note: statusFlag2 doesn't affect isStatusSuccessful
-                ResetModeResponse(
-                    TEST_IDM,
-                    0x00.toByte(),
-                    0xFF.toByte(),
-                ), // Note: statusFlag2 doesn't affect isStatusSuccessful
             )
 
-        for (response in errorResponses) {
-            if (response.statusFlag1 == 0x00.toByte()) {
-                assertTrue("Expected successful for statusFlag1=0x00", response.isStatusSuccessful)
-            } else {
-                assertFalse(
-                    "Expected unsuccessful for statusFlag1=${response.statusFlag1}",
-                    response.isStatusSuccessful,
-                )
-            }
-        }
+        errorResponses.forEach { response -> assertFalse(response.isStatusSuccessful) }
     }
 }

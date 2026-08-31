@@ -237,9 +237,9 @@ internal object WriteWithoutEncryptionDetermineMaxBlocksStep :
                     )
                     break
                 }
+                val status = response.status
                 if (
-                    response.statusFlag2.toByte() != 0xA2.toByte() &&
-                        response.statusFlag2.toByte() != 0xA8.toByte()
+                    status !is Status.IllegalNumberOfBlock && status !is Status.IllegalBlockNumber
                 ) {
                     throw RuntimeException(
                         "WriteWithoutEncryption failed with unexpected error (not 0xA2 or 0xA8) at $maxBlocks blocks, ${formatStatus(response)}"
