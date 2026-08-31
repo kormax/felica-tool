@@ -28,10 +28,14 @@
     <string name="card_type_ecomyca">ecomyca</string>
     <string name="card_type_edy">Edy</string>
     <string name="card_type_edy_ampm">am/pm Edy</string>
+    <string name="card_type_edy_club_dam_members_card">CLUB DAM MEMBERS CARD Edy</string>
     <string name="card_type_edy_honda_c_card">Honda C-Card Edy</string>
     <string name="card_type_edy_karuwaza_club">Karuwaza Club Edy</string>
+    <string name="card_type_edy_pokepark">PokéPark Edy</string>
+    <string name="card_type_edy_pronto">PRONTO Edy</string>
     <string name="card_type_edy_rakuten">Rakuten Edy</string>
     <string name="card_type_edy_san_in_shinpan">San-in Shinpan Edy</string>
+    <string name="card_type_edy_sony">Sony Finance Edy</string>
     <string name="card_type_emica">emica</string>
     <string name="card_type_enekey">EneKey</string>
     <string name="card_type_eneos">ENEOS</string>

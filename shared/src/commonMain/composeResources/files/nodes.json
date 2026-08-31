@@ -5852,6 +5852,20 @@
           "CARD"
         ],
         "extra_blocks": {
+          "0000": "S_PAD00",
+          "0001": "S_PAD01",
+          "0002": "S_PAD02",
+          "0003": "S_PAD03",
+          "0004": "S_PAD04",
+          "0005": "S_PAD05",
+          "0006": "S_PAD06",
+          "0007": "S_PAD07",
+          "0008": "S_PAD08",
+          "0009": "S_PAD09",
+          "000A": "S_PAD10",
+          "000B": "S_PAD11",
+          "000C": "S_PAD12",
+          "000D": "S_PAD13",
           "000E": "REG",
           "0080": "RC",
           "0081": "MAC",
@@ -5882,6 +5896,20 @@
           "CARD"
         ],
         "extra_blocks": {
+          "0000": "S_PAD00",
+          "0001": "S_PAD01",
+          "0002": "S_PAD02",
+          "0003": "S_PAD03",
+          "0004": "S_PAD04",
+          "0005": "S_PAD05",
+          "0006": "S_PAD06",
+          "0007": "S_PAD07",
+          "0008": "S_PAD08",
+          "0009": "S_PAD09",
+          "000A": "S_PAD10",
+          "000B": "S_PAD11",
+          "000C": "S_PAD12",
+          "000D": "S_PAD13",
           "000E": "REG",
           "0080": "RC",
           "0081": "MAC",
@@ -5952,7 +5980,8 @@
     "service_provider": "SHENZHEN_TONG",
     "cards": [
       "OCTOPUS_SHENZHEN_TONG",
-      "SHENZHEN_TONG"
+      "SHENZHEN_TONG",
+      "TRANSCARD"
     ],
     "nodes": [
       {
@@ -5962,7 +5991,8 @@
         "service_provider": "SHENZHEN_TONG",
         "cards": [
           "OCTOPUS_SHENZHEN_TONG",
-          "SHENZHEN_TONG"
+          "SHENZHEN_TONG",
+          "TRANSCARD"
         ],
         "mediums": [
           "CARD"
@@ -5975,7 +6005,8 @@
         "service_provider": "SHENZHEN_TONG",
         "cards": [
           "OCTOPUS_SHENZHEN_TONG",
-          "SHENZHEN_TONG"
+          "SHENZHEN_TONG",
+          "TRANSCARD"
         ],
         "mediums": [
           "CARD"
@@ -5988,7 +6019,8 @@
         "service_provider": "SHENZHEN_TONG",
         "cards": [
           "OCTOPUS_SHENZHEN_TONG",
-          "SHENZHEN_TONG"
+          "SHENZHEN_TONG",
+          "TRANSCARD"
         ],
         "mediums": [
           "CARD"
@@ -6001,7 +6033,8 @@
         "service_provider": "SHENZHEN_TONG",
         "cards": [
           "OCTOPUS_SHENZHEN_TONG",
-          "SHENZHEN_TONG"
+          "SHENZHEN_TONG",
+          "TRANSCARD"
         ],
         "mediums": [
           "CARD"
@@ -6014,7 +6047,8 @@
         "service_provider": "SHENZHEN_TONG",
         "cards": [
           "OCTOPUS_SHENZHEN_TONG",
-          "SHENZHEN_TONG"
+          "SHENZHEN_TONG",
+          "TRANSCARD"
         ],
         "mediums": [
           "CARD"
@@ -6027,7 +6061,8 @@
         "service_provider": "SHENZHEN_TONG",
         "cards": [
           "OCTOPUS_SHENZHEN_TONG",
-          "SHENZHEN_TONG"
+          "SHENZHEN_TONG",
+          "TRANSCARD"
         ],
         "mediums": [
           "CARD"
@@ -6040,7 +6075,8 @@
         "service_provider": "SHENZHEN_TONG",
         "cards": [
           "OCTOPUS_SHENZHEN_TONG",
-          "SHENZHEN_TONG"
+          "SHENZHEN_TONG",
+          "TRANSCARD"
         ],
         "mediums": [
           "CARD"
@@ -6053,7 +6089,8 @@
         "service_provider": "SHENZHEN_TONG",
         "cards": [
           "OCTOPUS_SHENZHEN_TONG",
-          "SHENZHEN_TONG"
+          "SHENZHEN_TONG",
+          "TRANSCARD"
         ],
         "mediums": [
           "CARD"
@@ -6066,7 +6103,8 @@
         "service_provider": "SHENZHEN_TONG",
         "cards": [
           "OCTOPUS_SHENZHEN_TONG",
-          "SHENZHEN_TONG"
+          "SHENZHEN_TONG",
+          "TRANSCARD"
         ],
         "mediums": [
           "CARD"
@@ -6079,7 +6117,8 @@
         "service_provider": "SHENZHEN_TONG",
         "cards": [
           "OCTOPUS_SHENZHEN_TONG",
-          "SHENZHEN_TONG"
+          "SHENZHEN_TONG",
+          "TRANSCARD"
         ],
         "mediums": [
           "CARD"
@@ -6092,7 +6131,8 @@
         "service_provider": "SHENZHEN_TONG",
         "cards": [
           "OCTOPUS_SHENZHEN_TONG",
-          "SHENZHEN_TONG"
+          "SHENZHEN_TONG",
+          "TRANSCARD"
         ],
         "mediums": [
           "CARD"
@@ -6105,7 +6145,8 @@
         "service_provider": "SHENZHEN_TONG",
         "cards": [
           "OCTOPUS_SHENZHEN_TONG",
-          "SHENZHEN_TONG"
+          "SHENZHEN_TONG",
+          "TRANSCARD"
         ],
         "mediums": [
           "CARD"
@@ -6118,7 +6159,8 @@
         "service_provider": "SHENZHEN_TONG",
         "cards": [
           "OCTOPUS_SHENZHEN_TONG",
-          "SHENZHEN_TONG"
+          "SHENZHEN_TONG",
+          "TRANSCARD"
         ],
         "mediums": [
           "CARD"
@@ -6131,7 +6173,8 @@
         "service_provider": "SHENZHEN_TONG",
         "cards": [
           "OCTOPUS_SHENZHEN_TONG",
-          "SHENZHEN_TONG"
+          "SHENZHEN_TONG",
+          "TRANSCARD"
         ],
         "mediums": [
           "CARD"
@@ -6144,7 +6187,8 @@
         "service_provider": "SHENZHEN_TONG",
         "cards": [
           "OCTOPUS_SHENZHEN_TONG",
-          "SHENZHEN_TONG"
+          "SHENZHEN_TONG",
+          "TRANSCARD"
         ],
         "mediums": [
           "CARD"
@@ -6157,7 +6201,8 @@
         "service_provider": "SHENZHEN_TONG",
         "cards": [
           "OCTOPUS_SHENZHEN_TONG",
-          "SHENZHEN_TONG"
+          "SHENZHEN_TONG",
+          "TRANSCARD"
         ],
         "mediums": [
           "CARD"
@@ -6170,7 +6215,8 @@
         "service_provider": "SHENZHEN_TONG",
         "cards": [
           "OCTOPUS_SHENZHEN_TONG",
-          "SHENZHEN_TONG"
+          "SHENZHEN_TONG",
+          "TRANSCARD"
         ],
         "mediums": [
           "CARD"
@@ -6183,7 +6229,8 @@
         "service_provider": "SHENZHEN_TONG",
         "cards": [
           "OCTOPUS_SHENZHEN_TONG",
-          "SHENZHEN_TONG"
+          "SHENZHEN_TONG",
+          "TRANSCARD"
         ],
         "mediums": [
           "CARD"
@@ -6196,7 +6243,8 @@
         "service_provider": "SHENZHEN_TONG",
         "cards": [
           "OCTOPUS_SHENZHEN_TONG",
-          "SHENZHEN_TONG"
+          "SHENZHEN_TONG",
+          "TRANSCARD"
         ],
         "mediums": [
           "CARD"
@@ -6209,7 +6257,8 @@
         "service_provider": "SHENZHEN_TONG",
         "cards": [
           "OCTOPUS_SHENZHEN_TONG",
-          "SHENZHEN_TONG"
+          "SHENZHEN_TONG",
+          "TRANSCARD"
         ],
         "mediums": [
           "CARD"
@@ -6222,7 +6271,8 @@
         "service_provider": "SHENZHEN_TONG",
         "cards": [
           "OCTOPUS_SHENZHEN_TONG",
-          "SHENZHEN_TONG"
+          "SHENZHEN_TONG",
+          "TRANSCARD"
         ],
         "mediums": [
           "CARD"
@@ -6235,7 +6285,8 @@
         "service_provider": "SHENZHEN_TONG",
         "cards": [
           "OCTOPUS_SHENZHEN_TONG",
-          "SHENZHEN_TONG"
+          "SHENZHEN_TONG",
+          "TRANSCARD"
         ],
         "mediums": [
           "CARD"
@@ -6248,7 +6299,8 @@
         "service_provider": "SHENZHEN_TONG",
         "cards": [
           "OCTOPUS_SHENZHEN_TONG",
-          "SHENZHEN_TONG"
+          "SHENZHEN_TONG",
+          "TRANSCARD"
         ],
         "mediums": [
           "CARD"
@@ -6871,6 +6923,27 @@
       }
     ]
   },
+  "801d": {
+    "name": "Sony Finance",
+    "service_provider": "SONY_FINANCE",
+    "cards": [
+      "EDY_SONY"
+    ],
+    "nodes": [
+      {
+        "code": "0000feff",
+        "parent": null,
+        "name": null,
+        "service_provider": "SONY_FINANCE",
+        "cards": [
+          "EDY_SONY"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      }
+    ]
+  },
   "801e": {
     "name": "AMPM",
     "service_provider": "AMPM",
@@ -7295,6 +7368,30 @@
       {
         "code": "0000feff",
         "parent": null,
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0800",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "SETAMARU",
+        "cards": [
+          "SETAMARU"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0900",
+        "parent": "0000feff",
         "name": null,
         "service_provider": "SETAMARU",
         "cards": [
@@ -7963,6 +8060,27 @@
       }
     ]
   },
+  "8054": {
+    "name": "PRONTO",
+    "service_provider": "PRONTO",
+    "cards": [
+      "EDY_PRONTO"
+    ],
+    "nodes": [
+      {
+        "code": "0000feff",
+        "parent": null,
+        "name": null,
+        "service_provider": "PRONTO",
+        "cards": [
+          "EDY_PRONTO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      }
+    ]
+  },
   "8082": {
     "name": "ANA",
     "service_provider": "ANA",
@@ -8073,6 +8191,267 @@
         "service_provider": "ANA",
         "cards": [
           "ANA_MILEAGE_CLUB"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      }
+    ]
+  },
+  "80bb": {
+    "name": "CLUB DAM",
+    "service_provider": "CLUB_DAM",
+    "cards": [
+      "EDY_CLUB_DAM_MEMBERS_CARD"
+    ],
+    "nodes": [
+      {
+        "code": "0000feff",
+        "parent": null,
+        "name": null,
+        "service_provider": "CLUB_DAM",
+        "cards": [
+          "EDY_CLUB_DAM_MEMBERS_CARD"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0010ff1f",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "CLUB_DAM",
+        "cards": [
+          "EDY_CLUB_DAM_MEMBERS_CARD"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0810",
+        "parent": "0010ff1f",
+        "name": null,
+        "service_provider": "CLUB_DAM",
+        "cards": [
+          "EDY_CLUB_DAM_MEMBERS_CARD"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0b10",
+        "parent": "0010ff1f",
+        "name": null,
+        "service_provider": "CLUB_DAM",
+        "cards": [
+          "EDY_CLUB_DAM_MEMBERS_CARD"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4910",
+        "parent": "0010ff1f",
+        "name": null,
+        "service_provider": "CLUB_DAM",
+        "cards": [
+          "EDY_CLUB_DAM_MEMBERS_CARD"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8910",
+        "parent": "0010ff1f",
+        "name": null,
+        "service_provider": "CLUB_DAM",
+        "cards": [
+          "EDY_CLUB_DAM_MEMBERS_CARD"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0020ff2f",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "CLUB_DAM",
+        "cards": [
+          "EDY_CLUB_DAM_MEMBERS_CARD"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0920",
+        "parent": "0020ff2f",
+        "name": null,
+        "service_provider": "CLUB_DAM",
+        "cards": [
+          "EDY_CLUB_DAM_MEMBERS_CARD"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "1020",
+        "parent": "0020ff2f",
+        "name": null,
+        "service_provider": "CLUB_DAM",
+        "cards": [
+          "EDY_CLUB_DAM_MEMBERS_CARD"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "1220",
+        "parent": "0020ff2f",
+        "name": null,
+        "service_provider": "CLUB_DAM",
+        "cards": [
+          "EDY_CLUB_DAM_MEMBERS_CARD"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "1620",
+        "parent": "0020ff2f",
+        "name": null,
+        "service_provider": "CLUB_DAM",
+        "cards": [
+          "EDY_CLUB_DAM_MEMBERS_CARD"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0921",
+        "parent": "0020ff2f",
+        "name": null,
+        "service_provider": "CLUB_DAM",
+        "cards": [
+          "EDY_CLUB_DAM_MEMBERS_CARD"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4921",
+        "parent": "0020ff2f",
+        "name": null,
+        "service_provider": "CLUB_DAM",
+        "cards": [
+          "EDY_CLUB_DAM_MEMBERS_CARD"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8921",
+        "parent": "0020ff2f",
+        "name": null,
+        "service_provider": "CLUB_DAM",
+        "cards": [
+          "EDY_CLUB_DAM_MEMBERS_CARD"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c921",
+        "parent": "0020ff2f",
+        "name": null,
+        "service_provider": "CLUB_DAM",
+        "cards": [
+          "EDY_CLUB_DAM_MEMBERS_CARD"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0922",
+        "parent": "0020ff2f",
+        "name": null,
+        "service_provider": "CLUB_DAM",
+        "cards": [
+          "EDY_CLUB_DAM_MEMBERS_CARD"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4922",
+        "parent": "0020ff2f",
+        "name": null,
+        "service_provider": "CLUB_DAM",
+        "cards": [
+          "EDY_CLUB_DAM_MEMBERS_CARD"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0823",
+        "parent": "0020ff2f",
+        "name": null,
+        "service_provider": "CLUB_DAM",
+        "cards": [
+          "EDY_CLUB_DAM_MEMBERS_CARD"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0b23",
+        "parent": "0020ff2f",
+        "name": null,
+        "service_provider": "CLUB_DAM",
+        "cards": [
+          "EDY_CLUB_DAM_MEMBERS_CARD"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4823",
+        "parent": "0020ff2f",
+        "name": null,
+        "service_provider": "CLUB_DAM",
+        "cards": [
+          "EDY_CLUB_DAM_MEMBERS_CARD"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4b23",
+        "parent": "0020ff2f",
+        "name": null,
+        "service_provider": "CLUB_DAM",
+        "cards": [
+          "EDY_CLUB_DAM_MEMBERS_CARD"
         ],
         "mediums": [
           "CARD"
@@ -10084,6 +10463,27 @@
         "service_provider": "QUICPAY",
         "cards": [
           "ANA_FOB"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      }
+    ]
+  },
+  "8188": {
+    "name": "Pok\u00e9Park",
+    "service_provider": "POKEPARK",
+    "cards": [
+      "EDY_POKEPARK"
+    ],
+    "nodes": [
+      {
+        "code": "0000feff",
+        "parent": null,
+        "name": null,
+        "service_provider": "POKEPARK",
+        "cards": [
+          "EDY_POKEPARK"
         ],
         "mediums": [
           "CARD"
@@ -14764,6 +15164,20 @@
           "CARD"
         ],
         "extra_blocks": {
+          "0000": "S_PAD00",
+          "0001": "S_PAD01",
+          "0002": "S_PAD02",
+          "0003": "S_PAD03",
+          "0004": "S_PAD04",
+          "0005": "S_PAD05",
+          "0006": "S_PAD06",
+          "0007": "S_PAD07",
+          "0008": "S_PAD08",
+          "0009": "S_PAD09",
+          "000A": "S_PAD10",
+          "000B": "S_PAD11",
+          "000C": "S_PAD12",
+          "000D": "S_PAD13",
           "000E": "REG",
           "0080": "RC",
           "0081": "MAC",
@@ -14797,6 +15211,20 @@
           "CARD"
         ],
         "extra_blocks": {
+          "0000": "S_PAD00",
+          "0001": "S_PAD01",
+          "0002": "S_PAD02",
+          "0003": "S_PAD03",
+          "0004": "S_PAD04",
+          "0005": "S_PAD05",
+          "0006": "S_PAD06",
+          "0007": "S_PAD07",
+          "0008": "S_PAD08",
+          "0009": "S_PAD09",
+          "000A": "S_PAD10",
+          "000B": "S_PAD11",
+          "000C": "S_PAD12",
+          "000D": "S_PAD13",
           "000E": "REG",
           "0080": "RC",
           "0081": "MAC",
@@ -14830,6 +15258,20 @@
           "CARD"
         ],
         "extra_blocks": {
+          "0000": "S_PAD00",
+          "0001": "S_PAD01",
+          "0002": "S_PAD02",
+          "0003": "S_PAD03",
+          "0004": "S_PAD04",
+          "0005": "S_PAD05",
+          "0006": "S_PAD06",
+          "0007": "S_PAD07",
+          "0008": "S_PAD08",
+          "0009": "S_PAD09",
+          "000A": "S_PAD10",
+          "000B": "S_PAD11",
+          "000C": "S_PAD12",
+          "000D": "S_PAD13",
           "000E": "REG",
           "0080": "RC",
           "0081": "MAC",
@@ -14863,6 +15305,20 @@
           "CARD"
         ],
         "extra_blocks": {
+          "0000": "S_PAD00",
+          "0001": "S_PAD01",
+          "0002": "S_PAD02",
+          "0003": "S_PAD03",
+          "0004": "S_PAD04",
+          "0005": "S_PAD05",
+          "0006": "S_PAD06",
+          "0007": "S_PAD07",
+          "0008": "S_PAD08",
+          "0009": "S_PAD09",
+          "000A": "S_PAD10",
+          "000B": "S_PAD11",
+          "000C": "S_PAD12",
+          "000D": "S_PAD13",
           "000E": "REG",
           "0080": "RC",
           "0081": "MAC",
@@ -14896,6 +15352,20 @@
           "CARD"
         ],
         "extra_blocks": {
+          "0000": "S_PAD00",
+          "0001": "S_PAD01",
+          "0002": "S_PAD02",
+          "0003": "S_PAD03",
+          "0004": "S_PAD04",
+          "0005": "S_PAD05",
+          "0006": "S_PAD06",
+          "0007": "S_PAD07",
+          "0008": "S_PAD08",
+          "0009": "S_PAD09",
+          "000A": "S_PAD10",
+          "000B": "S_PAD11",
+          "000C": "S_PAD12",
+          "000D": "S_PAD13",
           "000E": "REG",
           "0080": "RC",
           "0081": "MAC",
@@ -14929,6 +15399,20 @@
           "CARD"
         ],
         "extra_blocks": {
+          "0000": "S_PAD00",
+          "0001": "S_PAD01",
+          "0002": "S_PAD02",
+          "0003": "S_PAD03",
+          "0004": "S_PAD04",
+          "0005": "S_PAD05",
+          "0006": "S_PAD06",
+          "0007": "S_PAD07",
+          "0008": "S_PAD08",
+          "0009": "S_PAD09",
+          "000A": "S_PAD10",
+          "000B": "S_PAD11",
+          "000C": "S_PAD12",
+          "000D": "S_PAD13",
           "000E": "REG",
           "0080": "RC",
           "0081": "MAC",
@@ -14962,6 +15446,20 @@
           "CARD"
         ],
         "extra_blocks": {
+          "0000": "S_PAD00",
+          "0001": "S_PAD01",
+          "0002": "S_PAD02",
+          "0003": "S_PAD03",
+          "0004": "S_PAD04",
+          "0005": "S_PAD05",
+          "0006": "S_PAD06",
+          "0007": "S_PAD07",
+          "0008": "S_PAD08",
+          "0009": "S_PAD09",
+          "000A": "S_PAD10",
+          "000B": "S_PAD11",
+          "000C": "S_PAD12",
+          "000D": "S_PAD13",
           "000E": "REG",
           "0080": "RC",
           "0081": "MAC",
@@ -15003,6 +15501,20 @@
           "CARD"
         ],
         "extra_blocks": {
+          "0000": "S_PAD00",
+          "0001": "S_PAD01",
+          "0002": "S_PAD02",
+          "0003": "S_PAD03",
+          "0004": "S_PAD04",
+          "0005": "S_PAD05",
+          "0006": "S_PAD06",
+          "0007": "S_PAD07",
+          "0008": "S_PAD08",
+          "0009": "S_PAD09",
+          "000A": "S_PAD10",
+          "000B": "S_PAD11",
+          "000C": "S_PAD12",
+          "000D": "S_PAD13",
           "000E": "REG",
           "0080": "RC",
           "0081": "MAC",
@@ -21645,10 +22157,14 @@
       "CHERICA_YAMAKO",
       "CLAVIS",
       "EDY_AMPM",
+      "EDY_CLUB_DAM_MEMBERS_CARD",
       "EDY_HONDA_C_CARD",
       "EDY_KARUWAZA_CLUB",
+      "EDY_POKEPARK",
+      "EDY_PRONTO",
       "EDY_RAKUTEN",
       "EDY_SAN_IN_SHINPAN",
+      "EDY_SONY",
       "ENEOS",
       "HACHICA",
       "HAYAKAKEN",
@@ -21706,10 +22222,14 @@
           "CHERICA_YAMAKO",
           "CLAVIS",
           "EDY_AMPM",
+          "EDY_CLUB_DAM_MEMBERS_CARD",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
+          "EDY_POKEPARK",
+          "EDY_PRONTO",
           "EDY_RAKUTEN",
           "EDY_SAN_IN_SHINPAN",
+          "EDY_SONY",
           "ENEOS",
           "HACHICA",
           "HAYAKAKEN",
@@ -21763,7 +22283,9 @@
         "name": null,
         "service_provider": "EDY",
         "cards": [
-          "EDY_AMPM"
+          "EDY_AMPM",
+          "EDY_PRONTO",
+          "EDY_SONY"
         ],
         "mediums": [
           "CARD"
@@ -21776,8 +22298,10 @@
         "service_provider": "EDY",
         "cards": [
           "ANA_MILEAGE_CLUB",
+          "EDY_CLUB_DAM_MEMBERS_CARD",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
+          "EDY_POKEPARK",
           "EDY_RAKUTEN",
           "EDY_SAN_IN_SHINPAN"
         ],
@@ -21792,7 +22316,9 @@
         "name": null,
         "service_provider": "EDY",
         "cards": [
-          "EDY_AMPM"
+          "EDY_AMPM",
+          "EDY_PRONTO",
+          "EDY_SONY"
         ],
         "mediums": [
           "CARD"
@@ -21805,8 +22331,10 @@
         "service_provider": "EDY",
         "cards": [
           "ANA_MILEAGE_CLUB",
+          "EDY_CLUB_DAM_MEMBERS_CARD",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
+          "EDY_POKEPARK",
           "EDY_RAKUTEN",
           "EDY_SAN_IN_SHINPAN"
         ],
@@ -21821,7 +22349,9 @@
         "name": null,
         "service_provider": "EDY",
         "cards": [
-          "EDY_AMPM"
+          "EDY_AMPM",
+          "EDY_PRONTO",
+          "EDY_SONY"
         ],
         "mediums": [
           "CARD"
@@ -21834,8 +22364,10 @@
         "service_provider": "EDY",
         "cards": [
           "ANA_MILEAGE_CLUB",
+          "EDY_CLUB_DAM_MEMBERS_CARD",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
+          "EDY_POKEPARK",
           "EDY_RAKUTEN",
           "EDY_SAN_IN_SHINPAN"
         ],
@@ -21850,7 +22382,9 @@
         "name": null,
         "service_provider": "EDY",
         "cards": [
-          "EDY_AMPM"
+          "EDY_AMPM",
+          "EDY_PRONTO",
+          "EDY_SONY"
         ],
         "mediums": [
           "CARD"
@@ -21863,8 +22397,10 @@
         "service_provider": "EDY",
         "cards": [
           "ANA_MILEAGE_CLUB",
+          "EDY_CLUB_DAM_MEMBERS_CARD",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
+          "EDY_POKEPARK",
           "EDY_RAKUTEN",
           "EDY_SAN_IN_SHINPAN"
         ],
@@ -21879,7 +22415,9 @@
         "name": null,
         "service_provider": "EDY",
         "cards": [
-          "EDY_AMPM"
+          "EDY_AMPM",
+          "EDY_PRONTO",
+          "EDY_SONY"
         ],
         "mediums": [
           "CARD"
@@ -21892,8 +22430,10 @@
         "service_provider": "EDY",
         "cards": [
           "ANA_MILEAGE_CLUB",
+          "EDY_CLUB_DAM_MEMBERS_CARD",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
+          "EDY_POKEPARK",
           "EDY_RAKUTEN",
           "EDY_SAN_IN_SHINPAN"
         ],
@@ -21908,7 +22448,9 @@
         "name": null,
         "service_provider": "EDY",
         "cards": [
-          "EDY_AMPM"
+          "EDY_AMPM",
+          "EDY_PRONTO",
+          "EDY_SONY"
         ],
         "mediums": [
           "CARD"
@@ -21921,8 +22463,10 @@
         "service_provider": "EDY",
         "cards": [
           "ANA_MILEAGE_CLUB",
+          "EDY_CLUB_DAM_MEMBERS_CARD",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
+          "EDY_POKEPARK",
           "EDY_RAKUTEN",
           "EDY_SAN_IN_SHINPAN"
         ],
@@ -21937,7 +22481,9 @@
         "name": null,
         "service_provider": "EDY",
         "cards": [
-          "EDY_AMPM"
+          "EDY_AMPM",
+          "EDY_PRONTO",
+          "EDY_SONY"
         ],
         "mediums": [
           "CARD"
@@ -21950,8 +22496,10 @@
         "service_provider": "EDY",
         "cards": [
           "ANA_MILEAGE_CLUB",
+          "EDY_CLUB_DAM_MEMBERS_CARD",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
+          "EDY_POKEPARK",
           "EDY_RAKUTEN",
           "EDY_SAN_IN_SHINPAN"
         ],
@@ -21966,7 +22514,9 @@
         "name": null,
         "service_provider": "EDY",
         "cards": [
-          "EDY_AMPM"
+          "EDY_AMPM",
+          "EDY_PRONTO",
+          "EDY_SONY"
         ],
         "mediums": [
           "CARD"
@@ -21979,8 +22529,10 @@
         "service_provider": "EDY",
         "cards": [
           "ANA_MILEAGE_CLUB",
+          "EDY_CLUB_DAM_MEMBERS_CARD",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
+          "EDY_POKEPARK",
           "EDY_RAKUTEN",
           "EDY_SAN_IN_SHINPAN"
         ],
@@ -21995,7 +22547,9 @@
         "name": null,
         "service_provider": "EDY",
         "cards": [
-          "EDY_AMPM"
+          "EDY_AMPM",
+          "EDY_PRONTO",
+          "EDY_SONY"
         ],
         "mediums": [
           "CARD"
@@ -22008,8 +22562,10 @@
         "service_provider": "EDY",
         "cards": [
           "ANA_MILEAGE_CLUB",
+          "EDY_CLUB_DAM_MEMBERS_CARD",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
+          "EDY_POKEPARK",
           "EDY_RAKUTEN",
           "EDY_SAN_IN_SHINPAN"
         ],
@@ -22024,7 +22580,9 @@
         "name": null,
         "service_provider": "EDY",
         "cards": [
-          "EDY_AMPM"
+          "EDY_AMPM",
+          "EDY_PRONTO",
+          "EDY_SONY"
         ],
         "mediums": [
           "CARD"
@@ -22037,8 +22595,10 @@
         "service_provider": "EDY",
         "cards": [
           "ANA_MILEAGE_CLUB",
+          "EDY_CLUB_DAM_MEMBERS_CARD",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
+          "EDY_POKEPARK",
           "EDY_RAKUTEN",
           "EDY_SAN_IN_SHINPAN"
         ],
@@ -22053,7 +22613,9 @@
         "name": null,
         "service_provider": "EDY",
         "cards": [
-          "EDY_AMPM"
+          "EDY_AMPM",
+          "EDY_PRONTO",
+          "EDY_SONY"
         ],
         "mediums": [
           "CARD"
@@ -22066,8 +22628,10 @@
         "service_provider": "EDY",
         "cards": [
           "ANA_MILEAGE_CLUB",
+          "EDY_CLUB_DAM_MEMBERS_CARD",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
+          "EDY_POKEPARK",
           "EDY_RAKUTEN",
           "EDY_SAN_IN_SHINPAN"
         ],
@@ -22082,7 +22646,9 @@
         "name": null,
         "service_provider": "EDY",
         "cards": [
-          "EDY_AMPM"
+          "EDY_AMPM",
+          "EDY_PRONTO",
+          "EDY_SONY"
         ],
         "mediums": [
           "CARD"
@@ -22095,8 +22661,10 @@
         "service_provider": "EDY",
         "cards": [
           "ANA_MILEAGE_CLUB",
+          "EDY_CLUB_DAM_MEMBERS_CARD",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
+          "EDY_POKEPARK",
           "EDY_RAKUTEN",
           "EDY_SAN_IN_SHINPAN"
         ],
@@ -22111,7 +22679,9 @@
         "name": null,
         "service_provider": "EDY",
         "cards": [
-          "EDY_AMPM"
+          "EDY_AMPM",
+          "EDY_PRONTO",
+          "EDY_SONY"
         ],
         "mediums": [
           "CARD"
@@ -22124,8 +22694,10 @@
         "service_provider": "EDY",
         "cards": [
           "ANA_MILEAGE_CLUB",
+          "EDY_CLUB_DAM_MEMBERS_CARD",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
+          "EDY_POKEPARK",
           "EDY_RAKUTEN",
           "EDY_SAN_IN_SHINPAN"
         ],
@@ -22140,7 +22712,9 @@
         "name": null,
         "service_provider": "EDY",
         "cards": [
-          "EDY_AMPM"
+          "EDY_AMPM",
+          "EDY_PRONTO",
+          "EDY_SONY"
         ],
         "mediums": [
           "CARD"
@@ -22153,8 +22727,10 @@
         "service_provider": "EDY",
         "cards": [
           "ANA_MILEAGE_CLUB",
+          "EDY_CLUB_DAM_MEMBERS_CARD",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
+          "EDY_POKEPARK",
           "EDY_RAKUTEN",
           "EDY_SAN_IN_SHINPAN"
         ],
@@ -22169,7 +22745,9 @@
         "name": null,
         "service_provider": "EDY",
         "cards": [
-          "EDY_AMPM"
+          "EDY_AMPM",
+          "EDY_PRONTO",
+          "EDY_SONY"
         ],
         "mediums": [
           "CARD"
@@ -22182,8 +22760,10 @@
         "service_provider": "EDY",
         "cards": [
           "ANA_MILEAGE_CLUB",
+          "EDY_CLUB_DAM_MEMBERS_CARD",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
+          "EDY_POKEPARK",
           "EDY_RAKUTEN",
           "EDY_SAN_IN_SHINPAN"
         ],
@@ -22198,7 +22778,9 @@
         "name": null,
         "service_provider": "EDY",
         "cards": [
-          "EDY_AMPM"
+          "EDY_AMPM",
+          "EDY_PRONTO",
+          "EDY_SONY"
         ],
         "mediums": [
           "CARD"
@@ -22211,8 +22793,10 @@
         "service_provider": "EDY",
         "cards": [
           "ANA_MILEAGE_CLUB",
+          "EDY_CLUB_DAM_MEMBERS_CARD",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
+          "EDY_POKEPARK",
           "EDY_RAKUTEN",
           "EDY_SAN_IN_SHINPAN"
         ],
@@ -22227,7 +22811,9 @@
         "name": null,
         "service_provider": "EDY",
         "cards": [
-          "EDY_AMPM"
+          "EDY_AMPM",
+          "EDY_PRONTO",
+          "EDY_SONY"
         ],
         "mediums": [
           "CARD"
@@ -22240,8 +22826,10 @@
         "service_provider": "EDY",
         "cards": [
           "ANA_MILEAGE_CLUB",
+          "EDY_CLUB_DAM_MEMBERS_CARD",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
+          "EDY_POKEPARK",
           "EDY_RAKUTEN",
           "EDY_SAN_IN_SHINPAN"
         ],
@@ -22256,7 +22844,9 @@
         "name": null,
         "service_provider": "EDY",
         "cards": [
-          "EDY_AMPM"
+          "EDY_AMPM",
+          "EDY_PRONTO",
+          "EDY_SONY"
         ],
         "mediums": [
           "CARD"
@@ -22269,8 +22859,10 @@
         "service_provider": "EDY",
         "cards": [
           "ANA_MILEAGE_CLUB",
+          "EDY_CLUB_DAM_MEMBERS_CARD",
           "EDY_HONDA_C_CARD",
           "EDY_KARUWAZA_CLUB",
+          "EDY_POKEPARK",
           "EDY_RAKUTEN",
           "EDY_SAN_IN_SHINPAN"
         ],
@@ -23669,16 +24261,7 @@
         "mediums": [
           "CARD",
           "MOBILE"
-        ],
-        "extra_blocks": {
-          "0000": "FKL_UID",
-          "0001": "FKL_FF1",
-          "0002": "FKL_FF2",
-          "0003": "FKL_EXT",
-          "0013": "IEL_ID",
-          "0014": "MOVE_PERM",
-          "0015": "IDM_PASS"
-        }
+        ]
       },
       {
         "code": "083c",
@@ -23749,12 +24332,7 @@
         ],
         "mediums": [
           "CARD"
-        ],
-        "extra_blocks": {
-          "0000": "IEL_ID",
-          "0008": "MOVE_PERM1",
-          "0009": "MOVE_PERM2"
-        }
+        ]
       },
       {
         "code": "8942",
