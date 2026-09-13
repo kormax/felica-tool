@@ -649,6 +649,8 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                                 when (
                                     context.commands.readWithoutEncryption.errorLocationIndication
                                 ) {
+                                    ErrorLocationIndication.UNKNOWN -> "Unknown"
+                                    ErrorLocationIndication.NO_RESPONSE -> "No response"
                                     ErrorLocationIndication.FLAG -> "Flag"
                                     ErrorLocationIndication.INDEX -> "Index"
                                     ErrorLocationIndication.BITMASK -> "Bitmask"
@@ -676,18 +678,19 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                             ->
                             InfoChip(label = "Write Max Blocks", value = maxBlocks.toString())
                         }
-                        context.commands.writeWithoutEncryption.errorLocationIndication?.let {
-                            errorIndication ->
-                            InfoChip(
-                                label = "Write Error Mode",
-                                value =
-                                    when (errorIndication) {
-                                        ErrorLocationIndication.FLAG -> "Flag"
-                                        ErrorLocationIndication.INDEX -> "Index"
-                                        ErrorLocationIndication.BITMASK -> "Bitmask"
-                                    },
-                            )
-                        }
+                        InfoChip(
+                            label = "Write Error Mode",
+                            value =
+                                when (
+                                    context.commands.writeWithoutEncryption.errorLocationIndication
+                                ) {
+                                    ErrorLocationIndication.UNKNOWN -> "Unknown"
+                                    ErrorLocationIndication.NO_RESPONSE -> "No response"
+                                    ErrorLocationIndication.FLAG -> "Flag"
+                                    ErrorLocationIndication.INDEX -> "Index"
+                                    ErrorLocationIndication.BITMASK -> "Bitmask"
+                                },
+                        )
                         CommandSupportChip(
                             "Internal Authenticate and Read",
                             context.commands.internalAuthenticateAndRead.supported,

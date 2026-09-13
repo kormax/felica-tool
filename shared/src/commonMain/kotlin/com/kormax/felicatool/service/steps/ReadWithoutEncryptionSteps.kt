@@ -472,32 +472,61 @@ internal object ReadWithoutEncryptionDetermineErrorIndicationStep :
     ) {
     override suspend fun ScanSession.perform(): StepOutput {
         val testTarget = scanContext.findReadWithoutEncryptionTestTarget()
+        val singleBlockOnly = scanContext.commands.readWithoutEncryption.maxBlocksPerRequest == 1
         val invalidBlockNumber = 127
-
-        val response =
-            executeCommand(withSelectedSystemCode = testTarget.systemContext.systemCode) {
-                ReadWithoutEncryptionCommand(
-                    idm = idm,
-                    serviceCodes = arrayOf(testTarget.service.code),
-                    blockListElements =
-                        arrayOf(
-                            BlockListElement(
-                                serviceCodeListOrder = 0,
-                                blockNumber = testTarget.blockNumber,
-                            ),
-                            BlockListElement(
-                                serviceCodeListOrder = 0,
-                                blockNumber = testTarget.blockNumber,
-                            ),
-                            BlockListElement(
-                                serviceCodeListOrder = 0,
-                                blockNumber = invalidBlockNumber,
-                            ),
-                        ),
+        val blockListElements =
+            if (singleBlockOnly) {
+                arrayOf(
+                    BlockListElement(
+                        serviceCodeListOrder = 0,
+                        blockNumber = invalidBlockNumber,
+                    )
+                )
+            } else {
+                arrayOf(
+                    BlockListElement(
+                        serviceCodeListOrder = 0,
+                        blockNumber = testTarget.blockNumber,
+                    ),
+                    BlockListElement(
+                        serviceCodeListOrder = 0,
+                        blockNumber = testTarget.blockNumber,
+                    ),
+                    BlockListElement(
+                        serviceCodeListOrder = 0,
+                        blockNumber = invalidBlockNumber,
+                    ),
                 )
             }
+
+        val response =
+            try {
+                executeCommand(withSelectedSystemCode = testTarget.systemContext.systemCode) {
+                    ReadWithoutEncryptionCommand(
+                        idm = idm,
+                        serviceCodes = arrayOf(testTarget.service.code),
+                        blockListElements = blockListElements,
+                    )
+                }
+            } catch (error: TransceiveTimeoutException) {
+                if (!singleBlockOnly) throw error
+
+                scanContext = scanContext.withCommands {
+                    copy(
+                        readWithoutEncryption =
+                            readWithoutEncryption.copy(
+                                errorLocationIndication = ErrorLocationIndication.NO_RESPONSE
+                            )
+                    )
+                }
+                ScanLog.d(
+                    "CardScanService",
+                    "Determined NO_RESPONSE error indication using block $invalidBlockNumber",
+                )
+                return StepOutput("Error indication type: NO_RESPONSE")
+            }
         val statusFlag1 = response.statusFlag1
-        val fallbackType = ErrorLocationIndication.FLAG
+        val fallbackType = ErrorLocationIndication.UNKNOWN
 
         if (response.isStatusSuccessful) {
             val fallbackMessage =
@@ -544,14 +573,14 @@ internal object ReadWithoutEncryptionDetermineErrorIndicationStep :
                 statusFlag1.toInt() and 0xFF == 0x04 -> {
                     ScanLog.d(
                         "CardScanService",
-                        "Determined BITMASK error indication (status1=0x03)",
+                        "Determined BITMASK error indication (status1=0x04)",
                     )
                     ErrorLocationIndication.BITMASK
                 }
                 statusFlag1.toInt() and 0xFF == 0x03 -> {
                     ScanLog.d(
                         "CardScanService",
-                        "Determined NUMBER error indication (status1=0x01)",
+                        "Determined INDEX error indication (status1=0x03)",
                     )
                     ErrorLocationIndication.INDEX
                 }
@@ -599,6 +628,15 @@ internal object ReadWithoutEncryptionDetermineIllegalNumberErrorPreferenceStep :
         icon = ScanStepIcon.SEARCH,
     ) {
     override suspend fun ScanSession.perform(): StepOutput {
+        if (
+            scanContext.commands.readWithoutEncryption.errorLocationIndication ==
+                ErrorLocationIndication.NO_RESPONSE
+        ) {
+            throw StepSkipped(
+                "Cannot determine limit error preference when invalid requests receive no response"
+            )
+        }
+
         val testTarget = scanContext.findReadWithoutEncryptionTestTarget()
         val requestedCount =
             minOf(
@@ -691,6 +729,9 @@ internal object ReadWithoutEncryptionDetermineMaxServicesStep :
         val testTarget = scanContext.findReadWithoutEncryptionTestTarget()
 
         var maxServices = ReadWithoutEncryptionCommand.MAX_SERVICE_CODES
+        val maxBlocks =
+            scanContext.commands.readWithoutEncryption.maxBlocksPerRequest
+                ?: ReadWithoutEncryptionCommand.MAX_BLOCKS
         var usedFallback = false
         var fallbackStatus1: Byte? = null
         var fallbackStatus2: Byte? = null
@@ -698,18 +739,33 @@ internal object ReadWithoutEncryptionDetermineMaxServicesStep :
 
         while (maxServices > 0) {
             val response =
-                executeCommand(withSelectedSystemCode = testTarget.systemContext.systemCode) {
-                    ReadWithoutEncryptionCommand(
-                        idm = idm,
-                        serviceCodes = Array(maxServices) { testTarget.service.code },
-                        blockListElements =
-                            Array(maxServices) { serviceIndex ->
-                                BlockListElement(
-                                    serviceCodeListOrder = serviceIndex,
-                                    blockNumber = testTarget.blockNumber,
-                                )
-                            },
+                try {
+                    executeCommand(withSelectedSystemCode = testTarget.systemContext.systemCode) {
+                        ReadWithoutEncryptionCommand(
+                            idm = idm,
+                            serviceCodes = Array(maxServices) { testTarget.service.code },
+                            blockListElements =
+                                Array(minOf(maxServices, maxBlocks)) { serviceIndex ->
+                                    BlockListElement(
+                                        serviceCodeListOrder = serviceIndex,
+                                        blockNumber = testTarget.blockNumber,
+                                    )
+                                },
+                        )
+                    }
+                } catch (error: TransceiveTimeoutException) {
+                    if (
+                        scanContext.commands.readWithoutEncryption.errorLocationIndication !=
+                            ErrorLocationIndication.NO_RESPONSE
+                    ) {
+                        throw error
+                    }
+                    ScanLog.d(
+                        "CardScanService",
+                        "ReadWithoutEncryption got no response with $maxServices services",
                     )
+                    maxServices--
+                    continue
                 }
             if (response.isStatusSuccessful) {
                 ScanLog.d(
@@ -869,6 +925,12 @@ internal object ReadWithoutEncryptionUnusedInvalidServiceSupportedStep :
         icon = ScanStepIcon.SEARCH,
     ) {
     override suspend fun ScanSession.perform(): StepOutput {
+        if (scanContext.commands.readWithoutEncryption.maxServicesPerRequest == 1) {
+            throw StepSkipped(
+                "Cannot test an unused service entry when only one service is allowed per request"
+            )
+        }
+
         val testTarget = scanContext.findReadWithoutEncryptionUnusedInvalidServiceTarget()
 
         val blockListElement =

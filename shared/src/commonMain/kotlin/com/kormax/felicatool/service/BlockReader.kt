@@ -4,6 +4,7 @@ import com.kormax.felicatool.felica.BlockListElement
 import com.kormax.felicatool.felica.ErrorLocationIndication
 import com.kormax.felicatool.felica.Service
 import com.kormax.felicatool.felica.Status
+import com.kormax.felicatool.nfc.TransceiveTimeoutException
 import kotlinx.coroutines.CancellationException
 
 private const val MAX_BLOCK_NUMBER = 0xFFFF
@@ -143,6 +144,8 @@ internal abstract class BlockReader(
                 if (status is Status.IllegalNumberOfBlock) {
                     consecutiveFailures++
                     when (errorLocationIndication) {
+                        ErrorLocationIndication.UNKNOWN,
+                        ErrorLocationIndication.NO_RESPONSE,
                         ErrorLocationIndication.FLAG -> {
                             if (batchBlocks.size == 1) {
                                 throw RuntimeException("Cannot reduce blocks further")
@@ -260,6 +263,21 @@ internal abstract class BlockReader(
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Exception) {
+                if (
+                    error is TransceiveTimeoutException &&
+                        errorLocationIndication == ErrorLocationIndication.NO_RESPONSE &&
+                        batchTargets.size == 1
+                ) {
+                    val failedTarget = batchTargets.single()
+                    states
+                        .getValue(failedTarget.service)
+                        .reject(failedTarget, tryNextCandidate = true)
+                    ScanLog.d(
+                        TAG,
+                        "No response identifies unavailable block ${failedTarget.blockNumber} of ${failedTarget.service}",
+                    )
+                    continue
+                }
                 ScanLog.e(TAG, "Error reading blocks", error)
                 break
             }
@@ -273,6 +291,8 @@ internal abstract class BlockReader(
         targets: List<ReadTarget>,
     ): List<ReadTarget>? =
         when (errorLocationIndication) {
+            ErrorLocationIndication.UNKNOWN,
+            ErrorLocationIndication.NO_RESPONSE,
             ErrorLocationIndication.FLAG -> targets.takeIf { it.size == 1 }
             ErrorLocationIndication.INDEX -> {
                 val index = statusFlag1.toInt() and 0xFF

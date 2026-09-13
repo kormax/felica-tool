@@ -5,6 +5,10 @@ package com.kormax.felicatool.felica
  * to interpret status flags when errors occur.
  */
 enum class ErrorLocationIndication {
+    /** Error location indication has not been determined. */
+    UNKNOWN,
+    /** An error causes the card to not respond. */
+    NO_RESPONSE,
     /** No error location information is provided */
     FLAG,
     /** Error location is indicated by an index */

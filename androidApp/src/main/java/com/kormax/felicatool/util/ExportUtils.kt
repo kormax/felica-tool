@@ -477,10 +477,10 @@ object ExportUtils {
             "read_without_encryption",
             scanContext.commands.readWithoutEncryption,
         ) {
-            put(
-                "error_location_indication",
-                scanContext.commands.readWithoutEncryption.errorLocationIndication.name,
-            )
+            val errorIndication = scanContext.commands.readWithoutEncryption.errorLocationIndication
+            if (errorIndication != ErrorLocationIndication.UNKNOWN) {
+                put("error_location_indication", errorIndication.name)
+            }
             scanContext.commands.readWithoutEncryption.illegalNumberErrorPreference?.let {
                 preference ->
                 put("illegal_number_error_preference", preference.name)
@@ -508,8 +508,9 @@ object ExportUtils {
             "write_without_encryption",
             scanContext.commands.writeWithoutEncryption,
         ) {
-            scanContext.commands.writeWithoutEncryption.errorLocationIndication?.let {
-                errorIndication ->
+            val errorIndication =
+                scanContext.commands.writeWithoutEncryption.errorLocationIndication
+            if (errorIndication != ErrorLocationIndication.UNKNOWN) {
                 put("error_location_indication", errorIndication.name)
             }
             scanContext.commands.writeWithoutEncryption.maxBlocksPerRequest?.let {

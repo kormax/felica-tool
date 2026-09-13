@@ -126,8 +126,6 @@ internal object ReadBlocksWithoutEncryptionStep :
             appendLine("Total services processed: $totalServicesProcessed")
             appendLine()
             contextResults.forEach { result -> appendLine(result) }
-            appendLine("Note: Only services that don't require authentication are processed.")
-            appendLine("Block data is stored per system context for comprehensive analysis.")
         }
             .trim()
 

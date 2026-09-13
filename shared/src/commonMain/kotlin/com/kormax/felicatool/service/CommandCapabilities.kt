@@ -65,7 +65,7 @@ data class ReadWithoutEncryptionCommandCapability(
     override val trailingDataSupported: CommandSupport = CommandSupport.UNKNOWN,
     val serviceCodeAddressingSupported: CommandSupport = CommandSupport.UNKNOWN,
     val extendedBlockListElementSupported: CommandSupport = CommandSupport.UNKNOWN,
-    val errorLocationIndication: ErrorLocationIndication = ErrorLocationIndication.FLAG,
+    val errorLocationIndication: ErrorLocationIndication = ErrorLocationIndication.UNKNOWN,
     val maxBlocksPerRequest: Int? = null,
     val maxServicesPerRequest: Int? = null,
     val illegalNumberErrorPreference: IllegalNumberErrorPreference? = null,
@@ -75,7 +75,7 @@ data class ReadWithoutEncryptionCommandCapability(
 data class WriteWithoutEncryptionCommandCapability(
     override val supported: CommandSupport = CommandSupport.UNKNOWN,
     override val trailingDataSupported: CommandSupport = CommandSupport.UNKNOWN,
-    val errorLocationIndication: ErrorLocationIndication? = null,
+    val errorLocationIndication: ErrorLocationIndication = ErrorLocationIndication.UNKNOWN,
     val maxBlocksPerRequest: Int? = null,
 ) : CommandCapability
 
