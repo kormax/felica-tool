@@ -20,6 +20,9 @@ internal object ProbeSystemCodesManuallyStep :
         description = "Probe known system codes not reported by Request System Code",
         icon = ScanStepIcon.SEARCH,
     ) {
+    override fun commandSupport(context: CardScanContext): CommandSupport =
+        context.commands.polling.systemCodeSupported
+
     override suspend fun ScanSession.perform(): StepOutput {
         val requestSystemCodeSucceeded =
             scanContext.commands.requestSystemCode.supported == CommandSupport.SUPPORTED

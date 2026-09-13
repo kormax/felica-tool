@@ -35,42 +35,16 @@ internal object PollingSystemCodeStep :
                 )
             }
 
-        // Store system code in context
-        if (parsedSystemCodeResponse.hasRequestData) {
-            scanContext = scanContext.copy(primarySystemCode = parsedSystemCodeResponse.systemCode)
-
-            // Handle special system codes and ensure system contexts exist
-            val updatedSystemContexts =
-                handleDiscoveredSystemCodes(listOf(parsedSystemCodeResponse.systemCode))
-
-            // Update scan context with the new system contexts
-            scanContext = scanContext.copy(systemScanContexts = updatedSystemContexts)
-        } else {
-            // Update existing system context or create a placeholder one (fallback for legacy
-            // code)
-            if (scanContext.systemScanContexts.isNotEmpty()) {
-                val updatedSystemContext =
-                    scanContext.systemScanContexts
-                        .first()
-                        .copy(systemCode = parsedSystemCodeResponse.systemCode)
-                scanContext = scanContext.copy(systemScanContexts = listOf(updatedSystemContext))
-            } else {
-                // Create a basic system context if none exists yet
-                val systemContext =
-                    SystemScanContext(
-                        systemCode = parsedSystemCodeResponse.systemCode,
-                        idm = parsedSystemCodeResponse.idm,
-                    )
-                scanContext = scanContext.copy(systemScanContexts = listOf(systemContext))
-            }
+        if (!parsedSystemCodeResponse.hasRequestData) {
+            throw RuntimeException("Polling response received without the requested system code")
         }
 
-        return if (parsedSystemCodeResponse.hasRequestData) {
-            val systemCodeHex = parsedSystemCodeResponse.systemCode.toHexString().uppercase()
-            StepOutput("System Code: $systemCodeHex")
-        } else {
-            throw RuntimeException("Polling: System Code: Not available")
-        }
+        val systemCode = parsedSystemCodeResponse.systemCode
+        scanContext = scanContext.copy(primarySystemCode = systemCode)
+        scanContext =
+            scanContext.copy(systemScanContexts = handleDiscoveredSystemCodes(listOf(systemCode)))
+
+        return StepOutput("System Code: ${systemCode.toHexString().uppercase()}")
     }
 }
 
