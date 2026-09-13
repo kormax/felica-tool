@@ -122,6 +122,10 @@
       {
         "model": "RC-S919",
         "kind": "chip"
+      },
+      {
+        "model": "RC-S890",
+        "kind": "media"
       }
     ]
   },
@@ -215,7 +219,7 @@
   {
     "ic": "16",
     "rom": "01",
-    "name": "Mobile FeliCa 4.0 for Apple Wallet"
+    "name": "Mobile FeliCa for Apple Wallet"
   },
   {
     "ic": "17",
