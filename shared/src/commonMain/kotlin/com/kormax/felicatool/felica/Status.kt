@@ -24,6 +24,9 @@ sealed class Status(
     class IllegalBlockListServiceOrder internal constructor(statusFlag1: Byte) :
         Failure(statusFlag1, ILLEGAL_BLOCK_LIST_SERVICE_ORDER.toByte())
 
+    class IllegalServiceCodeList internal constructor(statusFlag1: Byte) :
+        Failure(statusFlag1, ILLEGAL_SERVICE_CODE_LIST.toByte())
+
     class IllegalBlockNumber internal constructor(statusFlag1: Byte) :
         Failure(statusFlag1, ILLEGAL_BLOCK_NUMBER.toByte())
 
@@ -45,6 +48,7 @@ sealed class Status(
         private const val ILLEGAL_NUMBER_OF_SERVICE = 0xA1
         private const val ILLEGAL_NUMBER_OF_BLOCK = 0xA2
         private const val ILLEGAL_BLOCK_LIST_SERVICE_ORDER = 0xA3
+        private const val ILLEGAL_SERVICE_CODE_LIST = 0xA6
         private const val ILLEGAL_BLOCK_NUMBER = 0xA8
         private const val AUTHENTICATION_REQUIRED = 0xB1
         private const val RANDOM_CHALLENGE_WRITE_REQUIRED = 0xB2
@@ -58,6 +62,7 @@ sealed class Status(
                 statusCode == ILLEGAL_NUMBER_OF_BLOCK -> IllegalNumberOfBlock(statusFlag1)
                 statusCode == ILLEGAL_BLOCK_LIST_SERVICE_ORDER ->
                     IllegalBlockListServiceOrder(statusFlag1)
+                statusCode == ILLEGAL_SERVICE_CODE_LIST -> IllegalServiceCodeList(statusFlag1)
                 statusCode == ILLEGAL_BLOCK_NUMBER -> IllegalBlockNumber(statusFlag1)
                 statusCode == AUTHENTICATION_REQUIRED -> AuthenticationRequired(statusFlag1)
                 statusCode == RANDOM_CHALLENGE_WRITE_REQUIRED ->

@@ -1,6 +1,7 @@
 package com.kormax.felicatool.service.steps
 
 import com.kormax.felicatool.felica.*
+import com.kormax.felicatool.nfc.TransceiveTimeoutException
 import com.kormax.felicatool.service.*
 import com.kormax.felicatool.ui.ScanStepIcon
 import com.kormax.felicatool.util.NodeDefinitionType
@@ -10,6 +11,67 @@ private data class NodeDiscoveryResult(
     val systemContexts: List<SystemScanContext>,
     val details: List<String>,
 )
+
+internal suspend fun ScanSession.discoverNodesWithReadWithoutEncryption(
+    systemContext: SystemScanContext
+): List<Service> {
+    val attributes =
+        ServiceAttribute.entries.filter {
+            !it.authenticationRequired &&
+                !it.pinRequired &&
+                (it.mode == ServiceMode.READ_ONLY || it.mode == ServiceMode.READ_WRITE)
+        }
+    val existingCodes = systemContext.nodes.map { it.code.toHexString() }.toSet()
+    val services = mutableListOf<Service>()
+    var responded = false
+    for (number in 0..1023) {
+        for (attribute in attributes) {
+            val service = Service(number, attribute)
+            if (service.code.toHexString() in existingCodes) continue
+            val response =
+                try {
+                    executeCommand(withSelectedSystemCode = systemContext.systemCode) {
+                        ReadWithoutEncryptionCommand(
+                            idm = idm,
+                            serviceCodes = arrayOf(service.code),
+                            blockListElements =
+                                arrayOf(
+                                    BlockListElement(serviceCodeListOrder = 0, blockNumber = 0)
+                                ),
+                        )
+                    }
+                } catch (e: TransceiveTimeoutException) {
+                    if (
+                        !responded &&
+                            scanContext.commands.readWithoutEncryption.supported !=
+                                CommandSupport.SUPPORTED
+                    ) {
+                        throw StepSkipped("Read Without Encryption did not respond")
+                    }
+                    continue
+                }
+            responded = true
+            when (response.status) {
+                is Status.IllegalServiceCodeList -> continue
+                is Status.Success,
+                is Status.IllegalBlockNumber,
+                is Status.AuthenticationRequired,
+                is Status.RandomChallengeWriteRequired -> {
+                    services.add(service)
+                    ScanLog.d(
+                        "CardScanService",
+                        "Read Without Encryption discovered service ${service.code.toHexString()} in system ${formatSystemCodeLabel(systemContext.systemCode)}: ${formatStatus(response)}",
+                    )
+                }
+                else ->
+                    throw StepBehaviorUnexpected(
+                        "Cannot determine service ${service.code.toHexString()} presence: ${formatStatus(response)}"
+                    )
+            }
+        }
+    }
+    return services
+}
 
 internal object DiscoverNodesStep :
     ScanStep(
@@ -24,6 +86,8 @@ internal object DiscoverNodesStep :
             scanContext.commands.requestCodeList.supported == CommandSupport.SUPPORTED
         val searchServiceCodeSupported =
             scanContext.commands.searchServiceCode.supported == CommandSupport.SUPPORTED
+        val readWithoutEncryptionSupported =
+            scanContext.commands.readWithoutEncryption.supported == CommandSupport.SUPPORTED
         val details = mutableListOf<String>()
 
         val discoveryResult =
@@ -52,6 +116,49 @@ internal object DiscoverNodesStep :
                     details.addAll(searchServiceCodeResult.details)
                     searchServiceCodeResult
                 }
+                readWithoutEncryptionSupported -> {
+                    val (knownSystemContexts, _) =
+                        applyKnownNodeFallbacks(
+                            systemContexts = ensureNodeDiscoverySystemContexts(),
+                            force = false,
+                            details = details,
+                        )
+                    val results = knownSystemContexts.map { systemContext ->
+                        if (hasNonStructuralNodes(systemContext.nodes)) {
+                            details.add(
+                                "System ${formatSystemCodeLabel(systemContext.systemCode)}: using known nodes; skipping Read Without Encryption discovery"
+                            )
+                            NodeDiscoveryResult(
+                                methodLabel = "Known Node Fallback",
+                                systemContexts = listOf(systemContext),
+                                details = emptyList(),
+                            )
+                        } else {
+                            val services = discoverNodesWithReadWithoutEncryption(systemContext)
+                            details.add(
+                                "System ${formatSystemCodeLabel(systemContext.systemCode)}: Read Without Encryption found ${services.size} service(s)"
+                            )
+                            NodeDiscoveryResult(
+                                methodLabel = "Read Without Encryption",
+                                systemContexts =
+                                    listOf(
+                                        systemContext.copy(
+                                            nodes =
+                                                normalizeDiscoveredNodes(
+                                                    systemContext.nodes + services
+                                                )
+                                        )
+                                    ),
+                                details = emptyList(),
+                            )
+                        }
+                    }
+                    NodeDiscoveryResult(
+                        methodLabel = results.map { it.methodLabel }.distinct().joinToString(" / "),
+                        systemContexts = results.flatMap { it.systemContexts },
+                        details = emptyList(),
+                    )
+                }
                 else -> {
                     val systemContexts = ensureNodeDiscoverySystemContexts()
                     details.add(
@@ -65,7 +172,10 @@ internal object DiscoverNodesStep :
                 }
             }
 
-        val fallbackAllowed = !requestCodeListSupported && !searchServiceCodeSupported
+        val fallbackAllowed =
+            !requestCodeListSupported &&
+                !searchServiceCodeSupported &&
+                !readWithoutEncryptionSupported
         val (finalSystemContexts, fallbackSystems) =
             if (fallbackAllowed) {
                 applyKnownNodeFallbacks(
@@ -100,6 +210,9 @@ internal object DiscoverNodesStep :
             )
             appendLine(
                 "Search Service Code support: ${scanContext.commands.searchServiceCode.supported}"
+            )
+            appendLine(
+                "Read Without Encryption support: ${scanContext.commands.readWithoutEncryption.supported}"
             )
             appendLine()
 
@@ -300,12 +413,23 @@ internal object DiscoverNodesStep :
         force: Boolean,
         details: MutableList<String>,
     ): Pair<List<SystemScanContext>, Int> {
+        val requestServiceSupported =
+            scanContext.commands.requestService.supported == CommandSupport.SUPPORTED ||
+                scanContext.commands.requestServiceV2.supported == CommandSupport.SUPPORTED
         var fallbackSystems = 0
         val updatedContexts = systemContexts.map { systemContext ->
             val fallbackNodes =
-                knownNodesForSystemCode(systemContext.systemCode).ifEmpty {
-                    normalizeDiscoveredNodes(emptyList())
-                }
+                knownNodesForSystemCode(systemContext.systemCode)
+                    .ifEmpty { normalizeDiscoveredNodes(emptyList()) }
+                    .filter { node ->
+                        requestServiceSupported ||
+                            node is System ||
+                            (node is Service &&
+                                !node.attribute.authenticationRequired &&
+                                !node.attribute.pinRequired &&
+                                (node.attribute.mode == ServiceMode.READ_ONLY ||
+                                    node.attribute.mode == ServiceMode.READ_WRITE))
+                    }
             val fallbackHasKnownNodes = hasNonStructuralNodes(fallbackNodes)
             val shouldUseFallback =
                 force ||

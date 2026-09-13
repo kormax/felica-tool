@@ -9,7 +9,7 @@ internal object ForceDiscoverNodesStep :
         id = "force_discover_nodes",
         title = "Force Discover All Nodes",
         description =
-            "Exhaustively search for hidden nodes using RequestService by iterating all possible node codes",
+            "Exhaustively search for hidden nodes using Request Service or Read Without Encryption",
         icon = ScanStepIcon.SEARCH,
     ) {
     override fun isEnabled(settings: ScanSettings): Boolean = settings.forceDiscoverAllNodes
@@ -21,12 +21,7 @@ internal object ForceDiscoverNodesStep :
         val requestServiceSupported =
             scanContext.commands.requestService.supported == CommandSupport.SUPPORTED
 
-        if (!requestServiceV2Supported && !requestServiceSupported) {
-            throw StepSkipped(
-                "Force discover requires RequestService or RequestServiceV2 to be supported"
-            )
-        }
-
+        val useReadWithoutEncryption = !requestServiceV2Supported && !requestServiceSupported
         val useV2 = requestServiceV2Supported
         val results = mutableListOf<String>()
         val updatedSystemContexts = mutableListOf<SystemScanContext>()
@@ -49,6 +44,24 @@ internal object ForceDiscoverNodesStep :
 
         // Process each system context
         for (systemContext in scanContext.systemScanContexts) {
+            if (useReadWithoutEncryption) {
+                val services = discoverNodesWithReadWithoutEncryption(systemContext)
+                updatedSystemContexts.add(
+                    systemContext.copy(
+                        nodes = systemContext.nodes + services,
+                        hiddenNodes = systemContext.hiddenNodes + services,
+                    )
+                )
+                totalDiscovered += services.size
+                totalHidden += services.size
+                totalHiddenServices += services.size
+                services.forEach { service ->
+                    results.add(
+                        "${formatSystemCodeLabel(systemContext.systemCode)} - Hidden Service ${service.code.toHexString()}: Read Without Encryption"
+                    )
+                }
+                continue
+            }
             val existingNodes = systemContext.nodes.toSet()
             val existingNodeCodes = existingNodes.map { it.code.toHexString().uppercase() }.toSet()
             val newlyDiscoveredNodes = mutableListOf<Node>()

@@ -245,17 +245,15 @@ private fun CardScanContext.findReadWithoutEncryptionUnusedInvalidServiceTarget(
 internal object ReadWithoutEncryptionDetermineSupportedStep :
     ReadWithoutEncryptionScanStep(
         id = "read_without_encryption_determine_supported",
-        title = "Read: Supported",
+        title = "Read Without Encryption: Supported",
         description =
             "Probe if Read Without Encryption is supported by sending a single-service, single-block read request",
         icon = ScanStepIcon.SEARCH,
     ) {
     override suspend fun ScanSession.perform(): StepOutput {
-        val testTarget =
-            scanContext.findReadWithoutEncryptionTestTarget(
-                allowAuthenticationRequiredFallback = true
-            )
-        val systemCode = testTarget.systemContext.systemCode
+        val systemCode =
+            scanContext.primarySystemCode
+                ?: scanContext.systemScanContexts.firstOrNull()?.systemCode
 
         val response =
             executeCommand(
@@ -264,32 +262,24 @@ internal object ReadWithoutEncryptionDetermineSupportedStep :
             ) {
                 ReadWithoutEncryptionCommand(
                     idm = idm,
-                    serviceCodes = arrayOf(testTarget.service.code),
+                    serviceCodes = arrayOf(Service(0, ServiceAttribute.RandomRwWithoutKey).code),
                     blockListElements =
                         arrayOf(
                             BlockListElement(
                                 serviceCodeListOrder = 0,
-                                blockNumber = testTarget.blockNumber,
+                                blockNumber = 0,
                             )
                         ),
                 )
             }
 
         val systemCodeHex = systemCode?.toHexString() ?: "unknown"
-        val serviceCodeHex = testTarget.service.code.toHexString().uppercase()
 
         return StepOutput(
             buildString {
                 appendLine("Read Without Encryption command is supported (response received)")
-                appendLine(
-                    "System: $systemCodeHex; Service: $serviceCodeHex; Block: ${formatBlockNumberHex(testTarget.blockNumber)}"
-                )
+                appendLine("System: $systemCodeHex; Service: 0900; Block: 0000")
                 appendLine("(${formatStatus(response)})")
-                if (testTarget.service.attribute.authenticationRequired) {
-                    appendLine(
-                        "Note: Used auth-required service fallback because no no-auth service was available."
-                    )
-                }
             }
                 .trim()
         )

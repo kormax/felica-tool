@@ -123,7 +123,7 @@ class ReadWithoutEncryptionCommand(
 
     companion object : CommandCompanion {
         override val COMMAND_CODE: Short = 0x06
-        override val COMMAND_CLASS: CommandClass = CommandClass.VARIABLE_RESPONSE_TIME
+        override val COMMAND_CLASS: CommandClass = CommandClass.DATA_READ
 
         const val MIN_LENGTH: Int =
             BASE_LENGTH +
