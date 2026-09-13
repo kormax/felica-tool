@@ -23,7 +23,10 @@ internal object RequestBlockInformationExDetermineSupportedStep :
 
     override suspend fun ScanSession.perform(): StepOutput {
         val response =
-            executeCommand(withSelectedSystemCode = SYSTEM_CODE_WILDCARD) {
+            executeCommand(
+                attempts = supportCheckAttempts("request_block_information_ex"),
+                withSelectedSystemCode = SYSTEM_CODE_WILDCARD,
+            ) {
                 RequestBlockInformationExCommand(idm, arrayOf(System.code))
             }
 
@@ -45,6 +48,7 @@ internal object RequestBlockInformationExDetermineTrailingDataSupportedStep :
         title = "Request Block Information Ex - Trailing Data Supported",
         description = "Check whether Request Block Information Ex accepts trailing data bytes",
         icon = ScanStepIcon.SEARCH,
+        commandKey = "request_block_information_ex",
         commandName = "Request Block Information Ex",
     ) {
     override fun readSupport(context: CardScanContext): CommandSupport =

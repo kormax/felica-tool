@@ -32,7 +32,7 @@ internal object RequestServiceDetermineSupportedStep :
         val requestServiceResponse =
             executeCommand(
                 withSelectedSystemCode = SYSTEM_CODE_WILDCARD,
-                attempts = ATTEMPTS_DETERMINE_SUPPORTED,
+                attempts = supportCheckAttempts("request_service"),
             ) {
                 requestedNodes =
                     when (attempt) {
@@ -77,6 +77,7 @@ internal object RequestServiceDetermineTrailingDataSupportedStep :
         title = "Request Service - Trailing Data Supported",
         description = "Check whether Request Service accepts trailing data bytes",
         icon = ScanStepIcon.SEARCH,
+        commandKey = "request_service",
         commandName = "Request Service",
     ) {
     override fun readSupport(context: CardScanContext): CommandSupport =
@@ -207,7 +208,7 @@ internal object RequestServiceV2DetermineSupportedStep :
         val requestServiceV2Response =
             executeCommand(
                 withSelectedSystemCode = SYSTEM_CODE_WILDCARD,
-                attempts = ATTEMPTS_DETERMINE_SUPPORTED,
+                attempts = supportCheckAttempts("request_service_v2"),
             ) {
                 RequestServiceV2Command(idm, arrayOf(System.code))
             }
@@ -256,6 +257,7 @@ internal object RequestServiceV2DetermineTrailingDataSupportedStep :
         title = "Request Service V2 - Trailing Data Supported",
         description = "Check whether Request Service V2 accepts trailing data bytes",
         icon = ScanStepIcon.SEARCH,
+        commandKey = "request_service_v2",
         commandName = "Request Service V2",
     ) {
     override fun readSupport(context: CardScanContext): CommandSupport =

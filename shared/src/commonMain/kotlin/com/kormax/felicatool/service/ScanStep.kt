@@ -2,8 +2,6 @@ package com.kormax.felicatool.service
 
 import com.kormax.felicatool.ui.ScanStepIcon
 
-internal const val ATTEMPTS_DETERMINE_SUPPORTED = 5
-
 internal data class ScanStepDescriptor(
     val id: String,
     val title: String,

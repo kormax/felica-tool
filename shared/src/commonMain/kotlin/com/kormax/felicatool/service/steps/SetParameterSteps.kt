@@ -23,7 +23,10 @@ internal object SetParameterStep :
 
     override suspend fun ScanSession.perform(): StepOutput {
         val response =
-            executeCommand(withSelectedSystemCode = SYSTEM_CODE_WILDCARD) {
+            executeCommand(
+                attempts = supportCheckAttempts("set_parameter"),
+                withSelectedSystemCode = SYSTEM_CODE_WILDCARD,
+            ) {
                 SetParameterCommand(
                     idm = idm,
                     encryptionType = SetParameterCommand.EncryptionType.SRM_TYPE1,
@@ -53,6 +56,7 @@ internal object SetParameterDetermineTrailingDataSupportedStep :
         title = "Set Parameter - Trailing Data Supported",
         description = "Check whether Set Parameter accepts trailing data bytes",
         icon = ScanStepIcon.SEARCH,
+        commandKey = "set_parameter",
         commandName = "Set Parameter",
     ) {
     override fun readSupport(context: CardScanContext): CommandSupport =

@@ -24,6 +24,7 @@ internal object RequestSystemCodeDetermineSupportedStep :
     override suspend fun ScanSession.perform(): StepOutput {
         val requestSystemCodeResponse =
             executeCommand(
+                attempts = supportCheckAttempts("request_system_code"),
                 withSelectedSystemCode = SYSTEM_CODE_WILDCARD,
                 // On devices with ST chips, IC 24 seems to struggle, resetting the field helps
                 withResetToMode0 = pmm.icType == 0x24.toByte(),
@@ -67,6 +68,7 @@ internal object RequestSystemCodeDetermineTrailingDataSupportedStep :
         title = "Request System Code - Trailing Data Supported",
         description = "Check whether Request System Code accepts trailing data bytes",
         icon = ScanStepIcon.SEARCH,
+        commandKey = "request_system_code",
         commandName = "Request System Code",
     ) {
     override fun readSupport(context: CardScanContext): CommandSupport =

@@ -30,7 +30,10 @@ internal object GetContainerPropertyDetermineSupportedStep :
     override suspend fun ScanSession.perform(): StepOutput {
         val property = GetContainerPropertyCommand.Property.PROPERTY_1
         val response =
-            executeCommand(withSelectedSystemCode = SYSTEM_CODE_WILDCARD) {
+            executeCommand(
+                attempts = supportCheckAttempts("get_container_property"),
+                withSelectedSystemCode = SYSTEM_CODE_WILDCARD,
+            ) {
                 GetContainerPropertyCommand(property)
             }
 
@@ -52,6 +55,7 @@ internal object GetContainerPropertyDetermineTrailingDataSupportedStep :
         title = "Get Container Property - Trailing Data Supported",
         description = "Check whether Get Container Property accepts trailing data bytes",
         icon = ScanStepIcon.SEARCH,
+        commandKey = "get_container_property",
         commandName = "Get Container Property",
     ) {
     override fun readSupport(context: CardScanContext): CommandSupport =

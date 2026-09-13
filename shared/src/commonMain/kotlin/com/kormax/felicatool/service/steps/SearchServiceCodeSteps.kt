@@ -26,7 +26,7 @@ internal object SearchServiceCodeDetermineSupportedStep :
         val searchServiceCodeResponse =
             executeCommand(
                 withSelectedSystemCode = SYSTEM_CODE_WILDCARD,
-                attempts = ATTEMPTS_DETERMINE_SUPPORTED,
+                attempts = supportCheckAttempts("search_service_code"),
             ) {
                 SearchServiceCodeCommand(idm, index)
             }
@@ -49,6 +49,7 @@ internal object SearchServiceCodeDetermineTrailingDataSupportedStep :
         title = "Search Service Code - Trailing Data Supported",
         description = "Check whether Search Service Code accepts trailing data bytes",
         icon = ScanStepIcon.SEARCH,
+        commandKey = "search_service_code",
         commandName = "Search Service Code",
     ) {
     override fun readSupport(context: CardScanContext): CommandSupport =

@@ -6,6 +6,7 @@ import com.kormax.felicatool.nfc.NfcTargetUnavailableException
 import com.kormax.felicatool.nfc.TransceiveErrorException
 import com.kormax.felicatool.nfc.TransceiveTimeoutException
 import com.kormax.felicatool.service.logging.CommunicationLogEntry
+import com.kormax.felicatool.util.IcTypeRegistry
 import com.kormax.felicatool.util.NodeMetadataProvider
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
@@ -66,6 +67,27 @@ internal constructor(
 
     fun contextSnapshot(): CardScanContext =
         context.copy(communicationLog = communicationLog.toList())
+
+    fun supportCheckAttempts(command: String, property: String = "supported"): Int {
+        if (!settings.enableIcCodeScanHeuristics) return COMMAND_EXECUTION_ATTEMPTS
+
+        val cardPmm = pmm
+        val expected =
+            IcTypeRegistry.getCommandSupport(cardPmm.icType, cardPmm.romType, command, property)
+        val attempts =
+            when (expected) {
+                CommandSupport.SUPPORTED -> 5
+                CommandSupport.UNSUPPORTED -> 2
+                CommandSupport.UNKNOWN -> COMMAND_EXECUTION_ATTEMPTS
+            }
+        if (expected != CommandSupport.UNKNOWN) {
+            ScanLog.d(
+                "CardScanService",
+                "IC ${cardPmm.icCode.toHexString()}: $command.$property expected $expected; up to $attempts attempts",
+            )
+        }
+        return attempts
+    }
 
     suspend fun <T : FelicaResponse> executeCommand(
         withSelectedSystemCode: ByteArray? = null,

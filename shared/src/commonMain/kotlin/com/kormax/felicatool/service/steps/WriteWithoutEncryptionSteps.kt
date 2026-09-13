@@ -16,7 +16,10 @@ internal object WriteWithoutEncryptionDetermineSupportedStep :
         val probeTarget = scanContext.findWritableBlockProbeTarget()
 
         val response =
-            executeCommand(withSelectedSystemCode = probeTarget.systemCode) {
+            executeCommand(
+                attempts = supportCheckAttempts("write_without_encryption"),
+                withSelectedSystemCode = probeTarget.systemCode,
+            ) {
                 WriteWithoutEncryptionCommand(
                     idm = idm,
                     serviceCodes = arrayOf(probeTarget.service.code),
@@ -55,6 +58,7 @@ internal object WriteWithoutEncryptionDetermineTrailingDataSupportedStep :
         title = "Write - Trailing Data Supported",
         description = "Check whether Write Without Encryption accepts trailing data bytes",
         icon = ScanStepIcon.SEARCH,
+        commandKey = "write_without_encryption",
         commandName = "Write Without Encryption",
     ) {
     override fun isEnabled(settings: ScanSettings): Boolean =

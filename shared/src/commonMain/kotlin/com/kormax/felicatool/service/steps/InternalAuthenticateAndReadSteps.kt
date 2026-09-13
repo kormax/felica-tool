@@ -76,6 +76,7 @@ internal object InternalAuthenticateAndReadStep :
 
         val response =
             executeCommand(
+                attempts = supportCheckAttempts("internal_authenticate_and_read"),
                 withSelectedSystemCode = bestSystemContext.systemCode,
                 withResetToMode0 = true,
             ) {
@@ -125,6 +126,7 @@ internal object InternalAuthenticateAndReadDetermineTrailingDataSupportedStep :
         title = "Internal Authenticate and Read - Trailing Data Supported",
         description = "Check whether Internal Authenticate and Read accepts trailing data bytes",
         icon = ScanStepIcon.SEARCH,
+        commandKey = "internal_authenticate_and_read",
         commandName = "Internal Authenticate and Read",
     ) {
     override fun readSupport(context: CardScanContext): CommandSupport =

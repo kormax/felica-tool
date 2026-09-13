@@ -23,7 +23,10 @@ internal object GetContainerIdStep :
 
     override suspend fun ScanSession.perform(): StepOutput {
         val getContainerIdResponse =
-            executeCommand(withSelectedSystemCode = SYSTEM_CODE_WILDCARD) {
+            executeCommand(
+                attempts = supportCheckAttempts("get_container_id"),
+                withSelectedSystemCode = SYSTEM_CODE_WILDCARD,
+            ) {
                 GetContainerIdCommand()
             }
 
@@ -45,6 +48,7 @@ internal object GetContainerIdDetermineTrailingDataSupportedStep :
         title = "Get Container ID - Trailing Data Supported",
         description = "Check whether Get Container ID accepts trailing data bytes",
         icon = ScanStepIcon.SEARCH,
+        commandKey = "get_container_id",
         commandName = "Get Container ID",
     ) {
     override fun readSupport(context: CardScanContext): CommandSupport =

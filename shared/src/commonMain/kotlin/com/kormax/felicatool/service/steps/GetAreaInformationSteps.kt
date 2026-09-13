@@ -39,7 +39,10 @@ internal object GetAreaInformationDetermineSupportedStep :
     override suspend fun ScanSession.perform(): StepOutput {
         val testTarget = scanContext.findGetAreaInformationTestTarget()
         val response =
-            executeCommand(withSelectedSystemCode = testTarget.systemContext.systemCode) {
+            executeCommand(
+                attempts = supportCheckAttempts("get_area_information"),
+                withSelectedSystemCode = testTarget.systemContext.systemCode,
+            ) {
                 GetAreaInformationCommand(idm, testTarget.area)
             }
 
@@ -66,6 +69,7 @@ internal object GetAreaInformationDetermineTrailingDataSupportedStep :
         title = "Get Area Information - Trailing Data Supported",
         description = "Check whether Get Area Information accepts trailing data bytes",
         icon = ScanStepIcon.SEARCH,
+        commandKey = "get_area_information",
         commandName = "Get Area Information",
     ) {
     override fun readSupport(context: CardScanContext): CommandSupport =

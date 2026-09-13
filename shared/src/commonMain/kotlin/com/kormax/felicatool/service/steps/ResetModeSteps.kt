@@ -23,7 +23,12 @@ internal object ResetModeStep :
 
     override suspend fun ScanSession.perform(): StepOutput {
         val resetModeResponse =
-            executeCommand(withSelectedSystemCode = SYSTEM_CODE_WILDCARD) { ResetModeCommand(idm) }
+            executeCommand(
+                attempts = supportCheckAttempts("reset_mode"),
+                withSelectedSystemCode = SYSTEM_CODE_WILDCARD,
+            ) {
+                ResetModeCommand(idm)
+            }
 
         return StepOutput(
             buildString {
@@ -43,6 +48,7 @@ internal object ResetModeDetermineTrailingDataSupportedStep :
         title = "Reset Mode - Trailing Data Supported",
         description = "Check whether Reset Mode accepts trailing data bytes",
         icon = ScanStepIcon.SEARCH,
+        commandKey = "reset_mode",
         commandName = "Reset Mode",
     ) {
     override fun readSupport(context: CardScanContext): CommandSupport =

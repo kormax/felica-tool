@@ -5,6 +5,8 @@ package com.kormax.felicatool.service
  * scan starts.
  */
 data class ScanSettings(
+    /** Use known IC/ROM behavior to choose scan probe attempts. */
+    val enableIcCodeScanHeuristics: Boolean = true,
     /**
      * When enabled, performs an exhaustive search for hidden nodes using
      * RequestService/RequestServiceV2. Iterates through all possible node codes (0-1023) with all

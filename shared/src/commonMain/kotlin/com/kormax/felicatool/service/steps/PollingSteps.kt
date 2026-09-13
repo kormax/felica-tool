@@ -6,7 +6,6 @@ import com.kormax.felicatool.service.*
 import com.kormax.felicatool.ui.ScanStepIcon
 import kotlin.time.Duration.Companion.milliseconds
 
-private const val POLLING_TRAILING_DATA_PROBE_ATTEMPTS = 3
 private val POLLING_TRAILING_DATA_PROBE_BYTES = byteArrayOf(0x00)
 
 internal object PollingSystemCodeStep :
@@ -28,7 +27,10 @@ internal object PollingSystemCodeStep :
 
     override suspend fun ScanSession.perform(): StepOutput {
         val parsedSystemCodeResponse =
-            executeCommand(withPresenceChecking = false) {
+            executeCommand(
+                attempts = supportCheckAttempts("polling", "system_code_request_supported"),
+                withPresenceChecking = false,
+            ) {
                 PollingCommand(
                     systemCode = SYSTEM_CODE_WILDCARD,
                     requestCode = RequestCode.SYSTEM_CODE_REQUEST,
@@ -69,7 +71,11 @@ internal object PollingCommunicationPerformanceStep :
 
     override suspend fun ScanSession.perform(): StepOutput {
         val parsedCommPerfResponse =
-            executeCommand(withPresenceChecking = false) {
+            executeCommand(
+                attempts =
+                    supportCheckAttempts("polling", "communication_performance_request_supported"),
+                withPresenceChecking = false,
+            ) {
                 PollingCommand(
                     systemCode = SYSTEM_CODE_WILDCARD,
                     requestCode = RequestCode.COMMUNICATION_PERFORMANCE_REQUEST,
@@ -125,11 +131,12 @@ internal object PollingDetermineTrailingDataSupportedStep :
                 trailingData = POLLING_TRAILING_DATA_PROBE_BYTES,
             )
         val commandLength = command.toByteArray().size
+        val attempts = supportCheckAttempts("polling", "trailing_data_supported")
 
         val response =
             try {
                 executeCommand(
-                    attempts = POLLING_TRAILING_DATA_PROBE_ATTEMPTS,
+                    attempts = attempts,
                     retryDelay = 50.milliseconds,
                 ) {
                     command
@@ -167,7 +174,7 @@ internal object PollingDetermineTrailingDataSupportedStep :
                 appendLine("Polling with trailing data: not supported")
                 appendLine("Command length: $commandLength bytes")
                 appendLine("Trailing data: ${POLLING_TRAILING_DATA_PROBE_BYTES.toHexString()}")
-                appendLine("No response after $POLLING_TRAILING_DATA_PROBE_ATTEMPTS attempts")
+                appendLine("No response after $attempts attempts")
             }
                 .trim()
         )

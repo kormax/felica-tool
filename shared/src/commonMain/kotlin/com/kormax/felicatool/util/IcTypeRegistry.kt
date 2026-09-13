@@ -1,10 +1,12 @@
 package com.kormax.felicatool.util
 
+import com.kormax.felicatool.service.CommandSupport
 import com.kormax.felicatool.shared.resources.Res
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -44,6 +46,30 @@ object IcTypeRegistry {
     }
 
     fun isReady(): Boolean = initialized
+
+    internal fun getCommandSupport(
+        icType: Byte,
+        romType: Byte,
+        command: String,
+        property: String = "supported",
+    ): CommandSupport {
+        val ic = icType.toHexByte()
+        val definition =
+            fullCodeDefinitions[fullCodeKey(romType.toHexByte(), ic)] ?: icDefinitions[ic]
+        val expected =
+            definition
+                ?.commands
+                ?.get(command)
+                ?.jsonObject
+                ?.get(property)
+                ?.jsonPrimitive
+                ?.booleanOrNull
+        return when (expected) {
+            true -> CommandSupport.SUPPORTED
+            false -> CommandSupport.UNSUPPORTED
+            null -> CommandSupport.UNKNOWN
+        }
+    }
 
     /**
      * Returns the IC name for the given IC type byte.
@@ -102,7 +128,13 @@ object IcTypeRegistry {
             val ic = definitionObject.optionalRegistryString("ic")?.normalizeCode() ?: continue
             val rom = definitionObject.optionalRegistryString("rom")?.normalizeCode()
             val name = definitionObject.optionalRegistryString("name") ?: continue
-            val definition = IcCodeDefinition(ic = ic, rom = rom, name = name)
+            val definition =
+                IcCodeDefinition(
+                    ic = ic,
+                    rom = rom,
+                    name = name,
+                    commands = definitionObject["commands"]?.jsonObject,
+                )
 
             if (rom == null) {
                 icResult[ic] = definition
@@ -129,7 +161,12 @@ object IcTypeRegistry {
     }
 }
 
-private data class IcCodeDefinition(val ic: String, val rom: String?, val name: String)
+private data class IcCodeDefinition(
+    val ic: String,
+    val rom: String?,
+    val name: String,
+    val commands: JsonObject?,
+)
 
 data class IcTypeResolution(val name: String, val confidence: IcTypeResolutionConfidence) {
     val isUncertain: Boolean

@@ -83,6 +83,7 @@ private const val READER_PREFERENCES_NAME = "reader_settings"
 private const val KEY_BACKGROUND_READING = "background_reading"
 private const val KEY_TEST_TRAILING_DATA_COMMANDS = "test_trailing_data_commands"
 private const val KEY_TEST_WRITE_COMMANDS = "test_write_commands"
+private const val KEY_IC_CODE_SCAN_HEURISTICS = "ic_code_scan_heuristics"
 private const val TAG = "MainActivity"
 private val ReaderActionButtonMinHeight = 48.dp
 private val ScanOverviewButtonBottomInset = 16.dp
@@ -178,6 +179,8 @@ class MainActivity : ComponentActivity() {
         isBackgroundReadingEnabled = readerPreferences.getBoolean(KEY_BACKGROUND_READING, false)
         scanSettings =
             scanSettings.copy(
+                enableIcCodeScanHeuristics =
+                    readerPreferences.getBoolean(KEY_IC_CODE_SCAN_HEURISTICS, true),
                 testTrailingDataCommands =
                     readerPreferences.getBoolean(KEY_TEST_TRAILING_DATA_COMMANDS, false),
                 testWriteCommands = readerPreferences.getBoolean(KEY_TEST_WRITE_COMMANDS, false),
@@ -362,6 +365,7 @@ class MainActivity : ComponentActivity() {
         scanSettings = settings
         readerPreferences
             .edit()
+            .putBoolean(KEY_IC_CODE_SCAN_HEURISTICS, settings.enableIcCodeScanHeuristics)
             .putBoolean(KEY_TEST_TRAILING_DATA_COMMANDS, settings.testTrailingDataCommands)
             .putBoolean(KEY_TEST_WRITE_COMMANDS, settings.testWriteCommands)
             .apply()
@@ -773,6 +777,28 @@ private fun MainScreen(
                         expanded = showScanSettingsMenu,
                         onDismissRequest = { showScanSettingsMenu = false },
                     ) {
+                        DropdownMenuItem(
+                            text = { Text("Enable IC code scan heuristics") },
+                            onClick = {
+                                onScanSettingsChange(
+                                    scanSettings.copy(
+                                        enableIcCodeScanHeuristics =
+                                            !scanSettings.enableIcCodeScanHeuristics
+                                    )
+                                )
+                            },
+                            trailingIcon = {
+                                Checkbox(
+                                    checked = scanSettings.enableIcCodeScanHeuristics,
+                                    onCheckedChange = {
+                                        onScanSettingsChange(
+                                            scanSettings.copy(enableIcCodeScanHeuristics = it)
+                                        )
+                                    },
+                                )
+                            },
+                        )
+                        HorizontalDivider()
                         DropdownMenuItem(
                             text = { Text("Test trailing data") },
                             onClick = {

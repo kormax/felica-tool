@@ -23,7 +23,11 @@ internal object GetNodePropertyValueLimitedServiceDetermineSupportedStep :
 
     override suspend fun ScanSession.perform(): StepOutput {
         val response =
-            executeCommand(withSelectedSystemCode = SYSTEM_CODE_WILDCARD) {
+            executeCommand(
+                attempts =
+                    supportCheckAttempts("get_node_property", "value_limited_service_supported"),
+                withSelectedSystemCode = SYSTEM_CODE_WILDCARD,
+            ) {
                 GetNodePropertyCommand(
                     idm = idm,
                     nodePropertyType = NodePropertyType.VALUE_LIMITED_PURSE_SERVICE,
@@ -64,7 +68,10 @@ internal object GetNodePropertyMacCommunicationDetermineSupportedStep :
 
     override suspend fun ScanSession.perform(): StepOutput {
         val response =
-            executeCommand(withSelectedSystemCode = SYSTEM_CODE_WILDCARD) {
+            executeCommand(
+                attempts = supportCheckAttempts("get_node_property", "mac_communication_supported"),
+                withSelectedSystemCode = SYSTEM_CODE_WILDCARD,
+            ) {
                 GetNodePropertyCommand(
                     idm = idm,
                     nodePropertyType = NodePropertyType.MAC_COMMUNICATION,
@@ -90,6 +97,7 @@ internal object GetNodePropertyDetermineTrailingDataSupportedStep :
         title = "Get Node Property - Trailing Data Supported",
         description = "Check whether Get Node Property accepts trailing data bytes",
         icon = ScanStepIcon.SEARCH,
+        commandKey = "get_node_property",
         commandName = "Get Node Property",
     ) {
     override fun readSupport(context: CardScanContext): CommandSupport =

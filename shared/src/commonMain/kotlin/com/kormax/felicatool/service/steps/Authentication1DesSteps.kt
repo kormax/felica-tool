@@ -353,7 +353,7 @@ internal object Authentication1DesDetermineSupportedStep :
             executeCommand(
                 withSelectedSystemCode = testTarget.systemContext.systemCode,
                 withResetToMode0 = true,
-                attempts = ATTEMPTS_DETERMINE_SUPPORTED,
+                attempts = supportCheckAttempts("authentication1_des"),
             ) {
                 Authentication1DesCommand(
                     idm = idm,
@@ -396,6 +396,7 @@ internal object Authentication1DesDetermineTrailingDataSupportedStep :
         title = "Authenticate1 DES - Trailing Data Supported",
         description = "Check whether Authenticate1 DES accepts trailing data bytes",
         icon = ScanStepIcon.SEARCH,
+        commandKey = "authentication1_des",
         commandName = "Authenticate1 DES",
     ) {
     override fun readSupport(context: CardScanContext): CommandSupport =

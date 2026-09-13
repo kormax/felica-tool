@@ -36,7 +36,12 @@ internal object EchoDetermineSupportedStep :
     override suspend fun ScanSession.perform(): StepOutput {
         val payload = ByteArray(0)
         val response =
-            executeCommand(withSelectedSystemCode = SYSTEM_CODE_WILDCARD) { EchoCommand(payload) }
+            executeCommand(
+                attempts = supportCheckAttempts("echo"),
+                withSelectedSystemCode = SYSTEM_CODE_WILDCARD,
+            ) {
+                EchoCommand(payload)
+            }
         if (!response.data.contentEquals(payload)) {
             throw RuntimeException(
                 "Echo mismatch (${response.data.size} bytes returned): ${response.data.toHexString()}"

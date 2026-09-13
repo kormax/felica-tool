@@ -264,7 +264,7 @@ internal object ReadWithoutEncryptionDetermineSupportedStep :
         val response =
             executeCommand(
                 withSelectedSystemCode = systemCode,
-                attempts = ATTEMPTS_DETERMINE_SUPPORTED,
+                attempts = supportCheckAttempts("read_without_encryption"),
             ) {
                 ReadWithoutEncryptionCommand(
                     idm = idm,
@@ -309,7 +309,11 @@ internal object ReadWithoutEncryptionDetermineServiceCodeAddressingSupportedStep
                 withSelectedSystemCode =
                     scanContext.primarySystemCode
                         ?: scanContext.systemScanContexts.firstOrNull()?.systemCode,
-                attempts = ATTEMPTS_DETERMINE_SUPPORTED,
+                attempts =
+                    supportCheckAttempts(
+                        "read_without_encryption",
+                        "service_code_addressing_supported",
+                    ),
             ) {
                 ReadWithoutEncryptionCommand(
                     idm = idm,
@@ -380,7 +384,11 @@ internal object ReadWithoutEncryptionDetermineExtendedBlockListElementSupportedS
         val response =
             executeCommand(
                 withSelectedSystemCode = systemContext.systemCode,
-                attempts = ATTEMPTS_DETERMINE_SUPPORTED,
+                attempts =
+                    supportCheckAttempts(
+                        "read_without_encryption",
+                        "extended_block_list_element_supported",
+                    ),
             ) {
                 ReadWithoutEncryptionCommand(
                     idm = idm,
@@ -418,6 +426,7 @@ internal object ReadWithoutEncryptionDetermineTrailingDataSupportedStep :
         title = "Read - Trailing Data Supported",
         description = "Check whether Read Without Encryption accepts trailing data bytes",
         icon = ScanStepIcon.SEARCH,
+        commandKey = "read_without_encryption",
         commandName = "Read Without Encryption",
     ) {
     override fun readSupport(context: CardScanContext): CommandSupport =

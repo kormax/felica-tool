@@ -3,6 +3,113 @@
     "ic": "00",
     "rom": "02",
     "name": "RC-S914",
+    "commands": {
+      "polling": {
+        "supported": true,
+        "system_code_request_supported": true,
+        "communication_performance_request_supported": false,
+        "trailing_data_supported": true
+      },
+      "request_response": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_service": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_service_v2": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_system_code": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "search_service_code": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_code_list": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_specification_version": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_product_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_system_status": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_block_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_block_information_ex": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_node_property": {
+        "value_limited_service_supported": false,
+        "mac_communication_supported": false,
+        "trailing_data_supported": false
+      },
+      "get_area_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "read_without_encryption": {
+        "supported": true,
+        "service_code_addressing_supported": true,
+        "extended_block_list_element_supported": true,
+        "trailing_data_supported": true
+      },
+      "write_without_encryption": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "authentication1_des": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "authentication1_aes": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "internal_authenticate_and_read": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "reset_mode": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_id": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_issue_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_property": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "set_parameter": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "echo": {
+        "supported": false,
+        "trailing_data_supported": false
+      }
+    },
     "products": [
       {
         "model": "RC-S914",
@@ -18,6 +125,113 @@
     "ic": "00",
     "rom": "03",
     "name": "RC-S914 for export markets",
+    "commands": {
+      "polling": {
+        "supported": true,
+        "system_code_request_supported": true,
+        "communication_performance_request_supported": false,
+        "trailing_data_supported": true
+      },
+      "request_response": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_service": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_service_v2": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_system_code": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "search_service_code": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_code_list": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_specification_version": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_product_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_system_status": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_block_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_block_information_ex": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_node_property": {
+        "value_limited_service_supported": false,
+        "mac_communication_supported": false,
+        "trailing_data_supported": false
+      },
+      "get_area_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "read_without_encryption": {
+        "supported": true,
+        "service_code_addressing_supported": true,
+        "extended_block_list_element_supported": true,
+        "trailing_data_supported": true
+      },
+      "write_without_encryption": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "authentication1_des": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "authentication1_aes": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "internal_authenticate_and_read": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "reset_mode": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_id": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_issue_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_property": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "set_parameter": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "echo": {
+        "supported": false,
+        "trailing_data_supported": false
+      }
+    },
     "products": [
       {
         "model": "RC-S914",
@@ -33,6 +247,113 @@
     "ic": "01",
     "rom": "03",
     "name": "RC-S915",
+    "commands": {
+      "polling": {
+        "supported": true,
+        "system_code_request_supported": true,
+        "communication_performance_request_supported": false,
+        "trailing_data_supported": true
+      },
+      "request_response": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_service": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_service_v2": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_system_code": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "search_service_code": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_code_list": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_specification_version": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_product_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_system_status": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_block_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_block_information_ex": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_node_property": {
+        "value_limited_service_supported": false,
+        "mac_communication_supported": false,
+        "trailing_data_supported": false
+      },
+      "get_area_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "read_without_encryption": {
+        "supported": true,
+        "service_code_addressing_supported": true,
+        "extended_block_list_element_supported": true,
+        "trailing_data_supported": true
+      },
+      "write_without_encryption": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "authentication1_des": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "authentication1_aes": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "internal_authenticate_and_read": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "reset_mode": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_id": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_issue_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_property": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "set_parameter": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "echo": {
+        "supported": true,
+        "trailing_data_supported": true
+      }
+    },
     "products": [
       {
         "model": "RC-S915",
@@ -76,6 +397,113 @@
     "ic": "01",
     "rom": "04",
     "name": "RC-S915",
+    "commands": {
+      "polling": {
+        "supported": true,
+        "system_code_request_supported": true,
+        "communication_performance_request_supported": false,
+        "trailing_data_supported": true
+      },
+      "request_response": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_service": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_service_v2": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_system_code": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "search_service_code": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_code_list": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_specification_version": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_product_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_system_status": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_block_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_block_information_ex": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_node_property": {
+        "value_limited_service_supported": false,
+        "mac_communication_supported": false,
+        "trailing_data_supported": false
+      },
+      "get_area_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "read_without_encryption": {
+        "supported": true,
+        "service_code_addressing_supported": true,
+        "extended_block_list_element_supported": true,
+        "trailing_data_supported": true
+      },
+      "write_without_encryption": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "authentication1_des": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "authentication1_aes": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "internal_authenticate_and_read": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "reset_mode": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_id": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_issue_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_property": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "set_parameter": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "echo": {
+        "supported": true,
+        "trailing_data_supported": true
+      }
+    },
     "products": [
       {
         "model": "RC-S915",
@@ -117,7 +545,93 @@
   },
   {
     "ic": "02",
+    "rom": "00",
     "name": "RC-S919",
+    "commands": {
+      "polling": {
+        "supported": true,
+        "system_code_request_supported": false,
+        "communication_performance_request_supported": false,
+        "trailing_data_supported": false
+      },
+      "request_response": {
+        "supported": false
+      },
+      "request_service": {
+        "supported": false
+      },
+      "request_service_v2": {
+        "supported": false
+      },
+      "request_system_code": {
+        "supported": false
+      },
+      "search_service_code": {
+        "supported": false
+      },
+      "request_code_list": {
+        "supported": false
+      },
+      "request_specification_version": {
+        "supported": false
+      },
+      "request_product_information": {
+        "supported": false
+      },
+      "get_system_status": {
+        "supported": false
+      },
+      "request_block_information": {
+        "supported": false
+      },
+      "request_block_information_ex": {
+        "supported": false
+      },
+      "get_node_property": {
+        "value_limited_service_supported": false,
+        "mac_communication_supported": false
+      },
+      "get_area_information": {
+        "supported": false
+      },
+      "read_without_encryption": {
+        "supported": true,
+        "service_code_addressing_supported": false,
+        "extended_block_list_element_supported": false,
+        "trailing_data_supported": false
+      },
+      "write_without_encryption": {
+        "supported": true,
+        "trailing_data_supported": false
+      },
+      "authentication1_des": {
+        "supported": false
+      },
+      "authentication1_aes": {
+        "supported": false
+      },
+      "internal_authenticate_and_read": {
+        "supported": false
+      },
+      "reset_mode": {
+        "supported": false
+      },
+      "get_container_id": {
+        "supported": false
+      },
+      "get_container_issue_information": {
+        "supported": false
+      },
+      "get_container_property": {
+        "supported": false
+      },
+      "set_parameter": {
+        "supported": false
+      },
+      "echo": {
+        "supported": false
+      }
+    },
     "products": [
       {
         "model": "RC-S919",
@@ -160,7 +674,114 @@
   {
     "ic": "0B",
     "rom": "10",
-    "name": "Unknown RC-S95X"
+    "name": "Unknown RC-S95X",
+    "commands": {
+      "polling": {
+        "supported": true,
+        "system_code_request_supported": true,
+        "communication_performance_request_supported": true,
+        "trailing_data_supported": false
+      },
+      "request_response": {
+        "supported": true,
+        "trailing_data_supported": false
+      },
+      "request_service": {
+        "supported": true,
+        "trailing_data_supported": false
+      },
+      "request_service_v2": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_system_code": {
+        "supported": true,
+        "trailing_data_supported": false
+      },
+      "search_service_code": {
+        "supported": true,
+        "trailing_data_supported": false
+      },
+      "request_code_list": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_specification_version": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_product_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_system_status": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_block_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_block_information_ex": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_node_property": {
+        "value_limited_service_supported": false,
+        "mac_communication_supported": false,
+        "trailing_data_supported": false
+      },
+      "get_area_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "read_without_encryption": {
+        "supported": true,
+        "service_code_addressing_supported": true,
+        "extended_block_list_element_supported": true,
+        "trailing_data_supported": false
+      },
+      "write_without_encryption": {
+        "supported": true,
+        "trailing_data_supported": false
+      },
+      "authentication1_des": {
+        "supported": true,
+        "trailing_data_supported": false
+      },
+      "authentication1_aes": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "internal_authenticate_and_read": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "reset_mode": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_id": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_issue_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_property": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "set_parameter": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "echo": {
+        "supported": true,
+        "trailing_data_supported": true
+      }
+    }
   },
   {
     "ic": "0C",
@@ -219,7 +840,114 @@
   {
     "ic": "16",
     "rom": "01",
-    "name": "Mobile FeliCa for Apple Wallet"
+    "name": "Mobile FeliCa for Apple Wallet",
+    "commands": {
+      "polling": {
+        "supported": true,
+        "system_code_request_supported": true,
+        "communication_performance_request_supported": true,
+        "trailing_data_supported": false
+      },
+      "request_response": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_service": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_service_v2": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_system_code": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "search_service_code": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_code_list": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_specification_version": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_product_information": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "get_system_status": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_block_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_block_information_ex": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_node_property": {
+        "value_limited_service_supported": false,
+        "mac_communication_supported": false,
+        "trailing_data_supported": false
+      },
+      "get_area_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "read_without_encryption": {
+        "supported": true,
+        "service_code_addressing_supported": true,
+        "extended_block_list_element_supported": true,
+        "trailing_data_supported": true
+      },
+      "write_without_encryption": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "authentication1_des": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "authentication1_aes": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "internal_authenticate_and_read": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "reset_mode": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "get_container_id": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_issue_information": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "get_container_property": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "set_parameter": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "echo": {
+        "supported": true,
+        "trailing_data_supported": true
+      }
+    }
   },
   {
     "ic": "17",
@@ -228,7 +956,114 @@
   {
     "ic": "18",
     "rom": "01",
-    "name": "Mobile FeliCa 4.1"
+    "name": "Mobile FeliCa 4.1",
+    "commands": {
+      "polling": {
+        "supported": true,
+        "system_code_request_supported": true,
+        "communication_performance_request_supported": true,
+        "trailing_data_supported": false
+      },
+      "request_response": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_service": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_service_v2": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_system_code": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "search_service_code": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_code_list": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_specification_version": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_product_information": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "get_system_status": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_block_information": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_block_information_ex": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "get_node_property": {
+        "value_limited_service_supported": false,
+        "mac_communication_supported": false,
+        "trailing_data_supported": false
+      },
+      "get_area_information": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "read_without_encryption": {
+        "supported": true,
+        "service_code_addressing_supported": true,
+        "extended_block_list_element_supported": true,
+        "trailing_data_supported": true
+      },
+      "write_without_encryption": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "authentication1_des": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "authentication1_aes": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "internal_authenticate_and_read": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "reset_mode": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "get_container_id": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "get_container_issue_information": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "get_container_property": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "set_parameter": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "echo": {
+        "supported": true,
+        "trailing_data_supported": true
+      }
+    }
   },
   {
     "ic": "19",
@@ -262,6 +1097,113 @@
     "ic": "20",
     "rom": "01",
     "name": "RC-S962",
+    "commands": {
+      "polling": {
+        "supported": true,
+        "system_code_request_supported": true,
+        "communication_performance_request_supported": true,
+        "trailing_data_supported": false
+      },
+      "request_response": {
+        "supported": true,
+        "trailing_data_supported": false
+      },
+      "request_service": {
+        "supported": true,
+        "trailing_data_supported": false
+      },
+      "request_service_v2": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_system_code": {
+        "supported": true,
+        "trailing_data_supported": false
+      },
+      "search_service_code": {
+        "supported": true,
+        "trailing_data_supported": false
+      },
+      "request_code_list": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_specification_version": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_product_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_system_status": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_block_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_block_information_ex": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_node_property": {
+        "value_limited_service_supported": false,
+        "mac_communication_supported": false,
+        "trailing_data_supported": false
+      },
+      "get_area_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "read_without_encryption": {
+        "supported": true,
+        "service_code_addressing_supported": true,
+        "extended_block_list_element_supported": true,
+        "trailing_data_supported": false
+      },
+      "write_without_encryption": {
+        "supported": true,
+        "trailing_data_supported": false
+      },
+      "authentication1_des": {
+        "supported": true,
+        "trailing_data_supported": false
+      },
+      "authentication1_aes": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "internal_authenticate_and_read": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "reset_mode": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_id": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_issue_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_property": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "set_parameter": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "echo": {
+        "supported": true,
+        "trailing_data_supported": true
+      }
+    },
     "products": [
       {
         "model": "RC-S962",
@@ -301,23 +1243,451 @@
     "ic": "24",
     "rom": "02",
     "name": "Unknown China/Hong Kong version",
+    "commands": {
+      "polling": {
+        "supported": true,
+        "system_code_request_supported": true,
+        "communication_performance_request_supported": true,
+        "trailing_data_supported": false
+      },
+      "request_response": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_service": {
+        "supported": true,
+        "trailing_data_supported": false
+      },
+      "request_service_v2": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_system_code": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "search_service_code": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_code_list": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_specification_version": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_product_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_system_status": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_block_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_block_information_ex": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_node_property": {
+        "value_limited_service_supported": false,
+        "mac_communication_supported": false,
+        "trailing_data_supported": false
+      },
+      "get_area_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "read_without_encryption": {
+        "supported": true,
+        "service_code_addressing_supported": true,
+        "extended_block_list_element_supported": true,
+        "trailing_data_supported": false
+      },
+      "write_without_encryption": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "authentication1_des": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "authentication1_aes": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "internal_authenticate_and_read": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "reset_mode": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_id": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_issue_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_property": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "set_parameter": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "echo": {
+        "supported": false,
+        "trailing_data_supported": false
+      }
+    },
     "note": "Found on some Octopus cards."
   },
   {
     "ic": "31",
     "rom": "05",
-    "name": "Unknown RC-SA SD1"
+    "name": "Unknown RC-SA SD1",
+    "commands": {
+      "polling": {
+        "supported": true,
+        "system_code_request_supported": true,
+        "communication_performance_request_supported": true,
+        "trailing_data_supported": true
+      },
+      "request_response": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_service": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_service_v2": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_system_code": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "search_service_code": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_code_list": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_specification_version": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_product_information": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "get_system_status": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_block_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_block_information_ex": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_node_property": {
+        "value_limited_service_supported": false,
+        "mac_communication_supported": false,
+        "trailing_data_supported": false
+      },
+      "get_area_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "read_without_encryption": {
+        "supported": true,
+        "service_code_addressing_supported": true,
+        "extended_block_list_element_supported": true,
+        "trailing_data_supported": true
+      },
+      "write_without_encryption": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "authentication1_des": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "authentication1_aes": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "internal_authenticate_and_read": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "reset_mode": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "get_container_id": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_issue_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_property": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "set_parameter": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "echo": {
+        "supported": true,
+        "trailing_data_supported": true
+      }
+    }
   },
   {
     "ic": "31",
     "rom": "06",
     "name": "Unknown RC-SA SD1 for regional collaboration",
+    "commands": {
+      "polling": {
+        "supported": true,
+        "system_code_request_supported": true,
+        "communication_performance_request_supported": true,
+        "trailing_data_supported": true
+      },
+      "request_response": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_service": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_service_v2": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_system_code": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "search_service_code": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_code_list": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_specification_version": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_product_information": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "get_system_status": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_block_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_block_information_ex": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_node_property": {
+        "value_limited_service_supported": false,
+        "mac_communication_supported": false,
+        "trailing_data_supported": false
+      },
+      "get_area_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "read_without_encryption": {
+        "supported": true,
+        "service_code_addressing_supported": true,
+        "extended_block_list_element_supported": true,
+        "trailing_data_supported": true
+      },
+      "write_without_encryption": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "authentication1_des": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "authentication1_aes": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "internal_authenticate_and_read": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "reset_mode": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "get_container_id": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_issue_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_property": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "set_parameter": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "echo": {
+        "supported": true,
+        "trailing_data_supported": true
+      }
+    },
     "note": "Found on Suica 2-in-1 regional collaboration cards that support Extended Overlap."
   },
   {
     "ic": "32",
     "rom": "03",
     "name": "RC-SA00/1",
+    "commands": {
+      "polling": {
+        "supported": true,
+        "system_code_request_supported": true,
+        "communication_performance_request_supported": true,
+        "trailing_data_supported": true
+      },
+      "request_response": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_service": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_service_v2": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_system_code": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "search_service_code": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_code_list": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_specification_version": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_product_information": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "get_system_status": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_block_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_block_information_ex": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_node_property": {
+        "value_limited_service_supported": false,
+        "mac_communication_supported": false,
+        "trailing_data_supported": false
+      },
+      "get_area_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "read_without_encryption": {
+        "supported": true,
+        "service_code_addressing_supported": true,
+        "extended_block_list_element_supported": true,
+        "trailing_data_supported": true
+      },
+      "write_without_encryption": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "authentication1_des": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "authentication1_aes": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "internal_authenticate_and_read": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "reset_mode": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "get_container_id": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_issue_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_property": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "set_parameter": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "echo": {
+        "supported": true,
+        "trailing_data_supported": true
+      }
+    },
     "products": [
       {
         "model": "RC-SA00/1A",
@@ -447,6 +1817,71 @@
     "ic": "35",
     "rom": "03",
     "name": "RC-SA01/2",
+    "commands": {
+      "polling": {
+        "supported": true,
+        "system_code_request_supported": true,
+        "communication_performance_request_supported": true,
+        "trailing_data_supported": true
+      },
+      "request_response": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_service": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_service_v2": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_system_code": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "search_service_code": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_specification_version": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_product_information": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "get_system_status": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "read_without_encryption": {
+        "supported": true,
+        "service_code_addressing_supported": true,
+        "extended_block_list_element_supported": true,
+        "trailing_data_supported": true
+      },
+      "write_without_encryption": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "authentication1_des": {
+        "supported": null
+      },
+      "authentication1_aes": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "reset_mode": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "echo": {
+        "supported": true,
+        "trailing_data_supported": true
+      }
+    },
     "products": [
       {
         "model": "RC-SA01/2A",
@@ -478,6 +1913,113 @@
     "ic": "36",
     "rom": "01",
     "name": "RC-SA04/1",
+    "commands": {
+      "polling": {
+        "supported": true,
+        "system_code_request_supported": true,
+        "communication_performance_request_supported": true,
+        "trailing_data_supported": true
+      },
+      "request_response": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_service": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_service_v2": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_system_code": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "search_service_code": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_code_list": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_specification_version": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_product_information": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "get_system_status": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_block_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_block_information_ex": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_node_property": {
+        "value_limited_service_supported": false,
+        "mac_communication_supported": false,
+        "trailing_data_supported": false
+      },
+      "get_area_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "read_without_encryption": {
+        "supported": true,
+        "service_code_addressing_supported": true,
+        "extended_block_list_element_supported": true,
+        "trailing_data_supported": true
+      },
+      "write_without_encryption": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "authentication1_des": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "authentication1_aes": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "internal_authenticate_and_read": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "reset_mode": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "get_container_id": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_issue_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_property": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "set_parameter": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "echo": {
+        "supported": true,
+        "trailing_data_supported": true
+      }
+    },
     "products": [
       {
         "model": "RC-SA04/1A",
@@ -501,12 +2043,226 @@
     "ic": "38",
     "rom": "02",
     "name": "Unknown SD2",
+    "commands": {
+      "polling": {
+        "supported": true,
+        "system_code_request_supported": true,
+        "communication_performance_request_supported": true,
+        "trailing_data_supported": true
+      },
+      "request_response": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_service": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_service_v2": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_system_code": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "search_service_code": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_code_list": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_specification_version": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_product_information": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "get_system_status": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_block_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_block_information_ex": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_node_property": {
+        "value_limited_service_supported": false,
+        "mac_communication_supported": false,
+        "trailing_data_supported": false
+      },
+      "get_area_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "read_without_encryption": {
+        "supported": true,
+        "service_code_addressing_supported": true,
+        "extended_block_list_element_supported": true,
+        "trailing_data_supported": true
+      },
+      "write_without_encryption": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "authentication1_des": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "authentication1_aes": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "internal_authenticate_and_read": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "reset_mode": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "get_container_id": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_issue_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_property": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "set_parameter": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "echo": {
+        "supported": true,
+        "trailing_data_supported": true
+      }
+    },
     "note": "Found on new Octopus cards."
   },
   {
     "ic": "3B",
     "rom": "04",
     "name": "Unknown SD2",
+    "commands": {
+      "polling": {
+        "supported": true,
+        "system_code_request_supported": true,
+        "communication_performance_request_supported": true,
+        "trailing_data_supported": true
+      },
+      "request_response": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_service": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_service_v2": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_system_code": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "search_service_code": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_code_list": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_specification_version": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_product_information": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "get_system_status": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_block_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_block_information_ex": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_node_property": {
+        "value_limited_service_supported": true,
+        "mac_communication_supported": true,
+        "trailing_data_supported": true
+      },
+      "get_area_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "read_without_encryption": {
+        "supported": true,
+        "service_code_addressing_supported": true,
+        "extended_block_list_element_supported": true,
+        "trailing_data_supported": true
+      },
+      "write_without_encryption": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "authentication1_des": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "authentication1_aes": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "internal_authenticate_and_read": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "reset_mode": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "get_container_id": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_issue_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_property": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "set_parameter": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "echo": {
+        "supported": true,
+        "trailing_data_supported": true
+      }
+    },
     "note": "Found on new Octopus + T-Union dual-interface cards."
   },
   {
@@ -557,6 +2313,113 @@
     "ic": "44",
     "rom": "01",
     "name": "RC-SA20/1",
+    "commands": {
+      "polling": {
+        "supported": true,
+        "system_code_request_supported": true,
+        "communication_performance_request_supported": true,
+        "trailing_data_supported": true
+      },
+      "request_response": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_service": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_service_v2": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_system_code": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "search_service_code": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_code_list": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_specification_version": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_product_information": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "get_system_status": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_block_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_block_information_ex": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_node_property": {
+        "value_limited_service_supported": true,
+        "mac_communication_supported": true,
+        "trailing_data_supported": true
+      },
+      "get_area_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "read_without_encryption": {
+        "supported": true,
+        "service_code_addressing_supported": true,
+        "extended_block_list_element_supported": true,
+        "trailing_data_supported": true
+      },
+      "write_without_encryption": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "authentication1_des": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "authentication1_aes": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "internal_authenticate_and_read": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "reset_mode": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "get_container_id": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_issue_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_property": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "set_parameter": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "echo": {
+        "supported": true,
+        "trailing_data_supported": true
+      }
+    },
     "products": [
       {
         "model": "RC-SA20/1x",
@@ -611,6 +2474,112 @@
     "ic": "46",
     "rom": "01",
     "name": "RC-SA21/2",
+    "commands": {
+      "polling": {
+        "supported": true,
+        "system_code_request_supported": true,
+        "communication_performance_request_supported": true,
+        "trailing_data_supported": true
+      },
+      "request_response": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_service": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_service_v2": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_system_code": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "search_service_code": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_code_list": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_specification_version": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_product_information": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "get_system_status": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "request_block_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_block_information_ex": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_node_property": {
+        "value_limited_service_supported": true,
+        "mac_communication_supported": true,
+        "trailing_data_supported": true
+      },
+      "get_area_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "read_without_encryption": {
+        "supported": true,
+        "service_code_addressing_supported": true,
+        "extended_block_list_element_supported": true,
+        "trailing_data_supported": true
+      },
+      "write_without_encryption": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "authentication1_des": {
+        "supported": null
+      },
+      "authentication1_aes": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "internal_authenticate_and_read": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "reset_mode": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "get_container_id": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_issue_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_property": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "set_parameter": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "echo": {
+        "supported": true,
+        "trailing_data_supported": true
+      }
+    },
     "products": [
       {
         "model": "RC-SA21/2x",
@@ -767,6 +2736,113 @@
     "ic": "F1",
     "rom": "00",
     "name": "RC-S966 FeliCa Lite-S",
+    "commands": {
+      "polling": {
+        "supported": true,
+        "system_code_request_supported": true,
+        "communication_performance_request_supported": true,
+        "trailing_data_supported": true
+      },
+      "request_response": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_service": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_service_v2": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_system_code": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "search_service_code": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_code_list": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_specification_version": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_product_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_system_status": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_block_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "request_block_information_ex": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_node_property": {
+        "value_limited_service_supported": false,
+        "mac_communication_supported": false,
+        "trailing_data_supported": false
+      },
+      "get_area_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "read_without_encryption": {
+        "supported": true,
+        "service_code_addressing_supported": true,
+        "extended_block_list_element_supported": true,
+        "trailing_data_supported": true
+      },
+      "write_without_encryption": {
+        "supported": true,
+        "trailing_data_supported": true
+      },
+      "authentication1_des": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "authentication1_aes": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "internal_authenticate_and_read": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "reset_mode": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_id": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_issue_information": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "get_container_property": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "set_parameter": {
+        "supported": false,
+        "trailing_data_supported": false
+      },
+      "echo": {
+        "supported": true,
+        "trailing_data_supported": true
+      }
+    },
     "products": [
       {
         "model": "RC-S966",

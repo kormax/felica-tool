@@ -23,7 +23,10 @@ internal object RequestSpecificationVersionDetermineSupportedStep :
 
     override suspend fun ScanSession.perform(): StepOutput {
         val requestSpecVersionResponse =
-            executeCommand(withSelectedSystemCode = SYSTEM_CODE_WILDCARD) {
+            executeCommand(
+                attempts = supportCheckAttempts("request_specification_version"),
+                withSelectedSystemCode = SYSTEM_CODE_WILDCARD,
+            ) {
                 RequestSpecificationVersionCommand(idm)
             }
 
@@ -104,6 +107,7 @@ internal object RequestSpecificationVersionDetermineTrailingDataSupportedStep :
         title = "Request Specification Version - Trailing Data Supported",
         description = "Check whether Request Specification Version accepts trailing data bytes",
         icon = ScanStepIcon.SEARCH,
+        commandKey = "request_specification_version",
         commandName = "Request Specification Version",
     ) {
     override fun readSupport(context: CardScanContext): CommandSupport =

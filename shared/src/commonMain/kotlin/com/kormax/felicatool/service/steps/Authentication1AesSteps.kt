@@ -98,6 +98,7 @@ internal object Authentication1AesStep :
         // Up to 16 nodes in total
         val authenticateResponse =
             executeCommand(
+                attempts = supportCheckAttempts("authentication1_aes"),
                 withSelectedSystemCode = selectedSystemContext.systemCode,
                 withResetToMode0 = true,
             ) {
@@ -140,6 +141,7 @@ internal object Authentication1AesDetermineTrailingDataSupportedStep :
         title = "Authenticate1 AES - Trailing Data Supported",
         description = "Check whether Authenticate1 AES accepts trailing data bytes",
         icon = ScanStepIcon.SEARCH,
+        commandKey = "authentication1_aes",
         commandName = "Authenticate1 AES",
     ) {
     override fun readSupport(context: CardScanContext): CommandSupport =

@@ -23,7 +23,10 @@ internal object GetSystemStatusDetermineSupportedStep :
 
     override suspend fun ScanSession.perform(): StepOutput {
         val response =
-            executeCommand(withSelectedSystemCode = SYSTEM_CODE_WILDCARD) {
+            executeCommand(
+                attempts = supportCheckAttempts("get_system_status"),
+                withSelectedSystemCode = SYSTEM_CODE_WILDCARD,
+            ) {
                 GetSystemStatusCommand(idm)
             }
 
@@ -44,6 +47,7 @@ internal object GetSystemStatusDetermineTrailingDataSupportedStep :
         title = "Get System Status - Trailing Data Supported",
         description = "Check whether Get System Status accepts trailing data bytes",
         icon = ScanStepIcon.SEARCH,
+        commandKey = "get_system_status",
         commandName = "Get System Status",
     ) {
     override fun readSupport(context: CardScanContext): CommandSupport =

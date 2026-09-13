@@ -21,6 +21,7 @@ internal abstract class CommandTrailingDataSupportedScanStep<T : FelicaResponse>
     title: String,
     description: String,
     icon: ScanStepIcon,
+    private val commandKey: String,
     private val commandName: String,
 ) :
     ScanStep(
@@ -64,6 +65,7 @@ internal abstract class CommandTrailingDataSupportedScanStep<T : FelicaResponse>
                 executeCommand(
                     withSelectedSystemCode = selectedSystemCode(),
                     withResetToMode0 = resetToMode0AfterCommand(),
+                    attempts = supportCheckAttempts(commandKey, "trailing_data_supported"),
                 ) {
                     val command = createCommand(this, COMMAND_TRAILING_DATA_PROBE_BYTES)
                     commandLength = command.toByteArray().size

@@ -245,8 +245,8 @@ android {
         applicationId = "com.kormax.felicatool"
         minSdk = 31
         targetSdk = 37
-        versionCode = 30
-        versionName = "0.30.0"
+        versionCode = 31
+        versionName = "0.31.0"
 
         buildConfigField(
             "long",
