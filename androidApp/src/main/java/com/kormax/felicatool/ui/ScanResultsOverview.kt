@@ -191,20 +191,23 @@ private fun SystemHeader(systemScanContext: SystemScanContext, modifier: Modifie
     val systemCodeHex =
         systemScanContext.systemCode
             ?.let { it.joinToString("") { byte -> "%02X".format(byte) } }
-            ?.uppercase() ?: "Unknown"
+            ?.uppercase()
 
     // Get system name from registry
     val systemName =
         remember(systemCodeHex) {
-            NodeRegistry.getNodeName(systemCodeHex, systemCodeHex, NodeDefinitionType.SYSTEM)
+            systemCodeHex?.let {
+                NodeRegistry.getNodeName(it, it, NodeDefinitionType.SYSTEM)
+            }
         }
 
     // Get provider icons
     val providerIconResIds =
         remember(systemCodeHex) {
-            NodeRegistry.getSystemProviders(systemCodeHex).mapNotNull {
-                ServiceIconMapper.iconFor(it)
-            }
+            systemCodeHex
+                ?.let { NodeRegistry.getSystemProviders(it) }
+                .orEmpty()
+                .mapNotNull { ServiceIconMapper.iconFor(it) }
         }
 
     Row(
@@ -234,7 +237,7 @@ private fun SystemHeader(systemScanContext: SystemScanContext, modifier: Modifie
             if (systemName != null) {
                 "System $systemCodeHex - $systemName"
             } else {
-                "System $systemCodeHex"
+                "System ${systemCodeHex ?: "Unknown"}"
             }
 
         Text(

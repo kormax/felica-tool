@@ -569,11 +569,11 @@ object ExportUtils {
         )
         json.put("commands", commandsJson)
 
-        // Systems array - organize nodes per system
+        // Organize nodes per system code; an empty key represents an unknown code.
         val systemsJson = JSONObject()
 
         scanContext.systemScanContexts.forEach { systemContext ->
-            val systemCodeHex = systemContext.systemCode?.toHexString() ?: "UNKNOWN"
+            val systemCodeHex = systemContext.systemCode?.toHexString()
             val systemJson = JSONObject()
 
             // System IDM
@@ -585,8 +585,9 @@ object ExportUtils {
             val inferredSystemJson = JSONObject()
 
             // System name inferred from the node registry
-            val systemName =
-                NodeRegistry.getNodeName(systemCodeHex, systemCodeHex, NodeDefinitionType.SYSTEM)
+            val systemName = systemCodeHex?.let {
+                NodeRegistry.getNodeName(it, it, NodeDefinitionType.SYSTEM)
+            }
             systemName?.let { inferredSystemJson.put("name", it) }
             systemJson.put("inferred", inferredSystemJson)
 
@@ -652,7 +653,7 @@ object ExportUtils {
             }
 
             systemJson.put("nodes", nodesArray)
-            systemsJson.put(systemCodeHex, systemJson)
+            systemsJson.put(systemCodeHex.orEmpty(), systemJson)
         }
 
         json.put("systems", systemsJson)
@@ -685,7 +686,7 @@ object ExportUtils {
     private fun buildNodeJson(
         node: Node,
         systemContext: SystemScanContext,
-        systemCodeHex: String,
+        systemCodeHex: String?,
         privacy: Boolean = false,
         parentArea: Area? = null,
     ): JSONObject {
@@ -700,13 +701,14 @@ object ExportUtils {
 
                 // Area name
                 val parentCode = parentArea?.fullCode?.toHexString()?.uppercase()
-                val areaName =
+                val areaName = systemCodeHex?.let {
                     NodeRegistry.getNodeName(
-                        systemCodeHex,
+                        it,
                         node.fullCode.toHexString().uppercase(),
                         parentCode,
                         NodeDefinitionType.AREA,
                     )
+                }
                 areaName?.let { nodeJson.put("name", it) }
 
                 // Area attribute
@@ -726,14 +728,15 @@ object ExportUtils {
 
                 // Service name
                 val parentCode = parentArea?.fullCode?.toHexString()?.uppercase()
-                val serviceName =
+                val serviceName = systemCodeHex?.let {
                     NodeRegistry.getNodeName(
-                        systemCodeHex,
+                        it,
                         node.fullCode.toHexString().uppercase(),
                         parentCode,
                         NodeDefinitionType.SERVICE,
                         blockData = systemContext.serviceBlockData[node],
                     )
+                }
                 serviceName?.let { nodeJson.put("name", it) }
 
                 // Service attribute

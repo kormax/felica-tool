@@ -36,6 +36,7 @@ internal object PollingSystemCodeStep :
             }
 
         if (!parsedSystemCodeResponse.hasRequestData) {
+            scanContext = scanContext.copy(primarySystemCode = null)
             throw RuntimeException("Polling response received without the requested system code")
         }
 
