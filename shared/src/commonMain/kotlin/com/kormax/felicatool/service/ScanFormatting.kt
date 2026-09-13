@@ -1,5 +1,6 @@
 package com.kormax.felicatool.service
 
+import com.kormax.felicatool.felica.AnonymousService
 import com.kormax.felicatool.felica.Area
 import com.kormax.felicatool.felica.Node
 import com.kormax.felicatool.felica.Service
@@ -72,6 +73,7 @@ internal fun describeNode(
                 } else {
                     "Area"
                 }
+            is AnonymousService -> if (includeCode) "Service (No code)" else "Service"
             is Service ->
                 if (includeNodeNumber) {
                     "Service ${node.number}"
@@ -82,7 +84,7 @@ internal fun describeNode(
             else -> "Node"
         }
 
-    return if (includeCode) {
+    return if (includeCode && node !is AnonymousService) {
         "$label (${node.code.toHexString().uppercase()})"
     } else {
         label

@@ -7,13 +7,31 @@ package com.kormax.felicatool.felica
  * @property number The Service Number (upper 10 bits of Service Code)
  * @property attribute The Service Attribute (lower 6 bits of Service Code)
  */
-data class Service(override val number: Int, override val attribute: ServiceAttribute) : Node {
+open class Service : Node {
+    final override val number: Int
+    final override val attribute: ServiceAttribute
 
-    init {
+    constructor(number: Int, attribute: ServiceAttribute) {
         require(number in 0..1023) {
             "Service number must be in range 0-1023 (10 bits), got: $number"
         }
+        this.number = number
+        this.attribute = attribute
     }
+
+    protected constructor(attribute: ServiceAttribute) {
+        number = -1
+        this.attribute = attribute
+    }
+
+    override fun equals(other: Any?): Boolean =
+        this === other ||
+            (other is Service &&
+                this::class == other::class &&
+                number == other.number &&
+                attribute == other.attribute)
+
+    override fun hashCode(): Int = 31 * number + attribute.hashCode()
 
     /** Returns the service code as a byte array (2 bytes, big-endian). */
     override val code: ByteArray
@@ -23,7 +41,7 @@ data class Service(override val number: Int, override val attribute: ServiceAttr
         }
 
     /** Returns the Service Code (2 bytes) combining number and attribute. */
-    fun getServiceCode(): Short {
+    open fun getServiceCode(): Short {
         return ((number shl 6) or attribute.value).toShort()
     }
 

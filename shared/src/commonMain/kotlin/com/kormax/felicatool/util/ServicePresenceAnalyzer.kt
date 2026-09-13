@@ -1,5 +1,6 @@
 package com.kormax.felicatool.util
 
+import com.kormax.felicatool.felica.AnonymousService
 import com.kormax.felicatool.felica.Area
 import com.kormax.felicatool.felica.Node
 import com.kormax.felicatool.felica.Service
@@ -46,13 +47,15 @@ object ServicePresenceAnalyzer {
                 val parentCode = findContainingArea(service, systemContext)?.fullCode?.toHexString()
                 val blockData = systemContext.serviceBlockData[service]
                 val names =
-                    NodeRegistry.getProvidersForNode(
-                        systemCode,
-                        service.code.toHexString(),
-                        parentCode,
-                        NodeDefinitionType.SERVICE,
-                        blockData = blockData,
-                    )
+                    if (service is AnonymousService) emptySet()
+                    else
+                        NodeRegistry.getProvidersForNode(
+                            systemCode,
+                            service.code.toHexString(),
+                            parentCode,
+                            NodeDefinitionType.SERVICE,
+                            blockData = blockData,
+                        )
                 if (names.isEmpty()) {
                     unknownServiceCount++
                 } else {

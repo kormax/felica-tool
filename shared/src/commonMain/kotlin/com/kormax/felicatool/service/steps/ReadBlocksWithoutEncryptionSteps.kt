@@ -47,6 +47,7 @@ internal object ReadBlocksWithoutEncryptionStep :
             val systemCode = systemContext.systemCode?.toHexString()
             if (systemCode != null) {
                 for (service in servicesWithoutAuth) {
+                    if (service is AnonymousService) continue
                     val blockIndices =
                         nodeMetadataProvider
                             .getExtraBlocks(systemCode, service.code.toHexString())
@@ -94,7 +95,7 @@ internal object ReadBlocksWithoutEncryptionStep :
                     val regularBlocks = blockData.keys.count { it < 0x80 }
                     val extraBlocks = blockData.keys.count { it >= 0x80 }
                     appendLine(
-                        "  Service ${service.code.toHexString()}: ${blockData.size} blocks ($regularBlocks regular, $extraBlocks extra)"
+                        "  Service ${service.code.toHexString().ifEmpty { "Anonymous" }}: ${blockData.size} blocks ($regularBlocks regular, $extraBlocks extra)"
                     )
                     if (blockData.isNotEmpty()) {
                         blockData.entries

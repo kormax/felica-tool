@@ -31,7 +31,8 @@ private fun serviceCodeValue(service: Service): Int =
     (service.code[1].toInt() and 0xFF) shl 8 or (service.code[0].toInt() and 0xFF)
 
 private fun isReadableWithoutEncryptionService(service: Service): Boolean =
-    !service.attribute.authenticationRequired &&
+    service !is AnonymousService &&
+        !service.attribute.authenticationRequired &&
         (service.attribute.mode == ServiceMode.READ_ONLY ||
             service.attribute.mode == ServiceMode.READ_WRITE)
 
@@ -102,6 +103,11 @@ private fun findUnusedAbsentService(
 private fun CardScanContext.findReadWithoutEncryptionTestTarget(
     allowAuthenticationRequiredFallback: Boolean = false
 ): ReadWithoutEncryptionTestTarget {
+    systemScanContexts
+        .firstOrNull { AnonymousService in it.nodes }
+        ?.let {
+            return ReadWithoutEncryptionTestTarget(it, AnonymousService, 0)
+        }
     val allServices = systemScanContexts.flatMap { context ->
         context.nodes.filterIsInstance<Service>()
     }
@@ -282,6 +288,54 @@ internal object ReadWithoutEncryptionDetermineSupportedStep :
                 appendLine("(${formatStatus(response)})")
             }
                 .trim()
+        )
+    }
+}
+
+internal object ReadWithoutEncryptionDetermineServiceCodeAddressingSupportedStep :
+    ScanStep(
+        id = "read_without_encryption_determine_service_code_addressing_supported",
+        title = "Read Without Encryption: Service Code Addressing Supported",
+        description =
+            "Check whether Read Without Encryption uses service codes to select a service",
+        icon = ScanStepIcon.SEARCH,
+    ) {
+    override fun commandSupport(context: CardScanContext): CommandSupport =
+        context.commands.readWithoutEncryption.supported
+
+    override suspend fun ScanSession.perform(): StepOutput {
+        val response =
+            executeCommand(
+                withSelectedSystemCode =
+                    scanContext.primarySystemCode
+                        ?: scanContext.systemScanContexts.firstOrNull()?.systemCode,
+                attempts = ATTEMPTS_DETERMINE_SUPPORTED,
+            ) {
+                ReadWithoutEncryptionCommand(
+                    idm = idm,
+                    serviceCodes = arrayOf(System.code),
+                    blockListElements =
+                        arrayOf(BlockListElement(serviceCodeListOrder = 0, blockNumber = 0)),
+                )
+            }
+        val addressingSupported =
+            when (response.status) {
+                is Status.IllegalServiceCodeList -> CommandSupport.SUPPORTED
+                is Status.Success -> CommandSupport.UNSUPPORTED
+                else ->
+                    throw StepBehaviorUnexpected(
+                        "Cannot determine service code addressing support: ${formatStatus(response)}"
+                    )
+            }
+        scanContext = scanContext.withCommands {
+            copy(
+                readWithoutEncryption =
+                    readWithoutEncryption.copy(serviceCodeAddressingSupported = addressingSupported)
+            )
+        }
+        return StepOutput(
+            "Probe service code: FFFF\nStatus: ${formatStatus(response)}\n" +
+                "Service code addressing: ${if (addressingSupported == CommandSupport.SUPPORTED) "supported" else "not supported"}"
         )
     }
 }

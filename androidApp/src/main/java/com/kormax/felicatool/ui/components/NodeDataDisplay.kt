@@ -631,6 +631,10 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                             InfoChip(label = "Read Max Services", value = maxServices.toString())
                         }
                         CommandSupportChip(
+                            "Read Service Code Addressing",
+                            context.commands.readWithoutEncryption.serviceCodeAddressingSupported,
+                        )
+                        CommandSupportChip(
                             "Read Unused Invalid Service",
                             context.commands.readWithoutEncryption.unusedInvalidServiceSupported,
                         )
@@ -1381,7 +1385,7 @@ private fun NodeDetailsContent(nodeInfo: NodeInformation, context: SystemScanCon
             val systemCodeHex = context.systemCode?.toHexString()?.uppercase()
             val nodeCodeHex = (node as? Service)?.code?.toHexString()?.uppercase()
             val extraBlockNames =
-                if (systemCodeHex != null && nodeCodeHex != null) {
+                if (systemCodeHex != null && nodeCodeHex != null && node !is AnonymousService) {
                     NodeRegistry.getExtraBlocks(systemCodeHex, nodeCodeHex)
                 } else {
                     emptyMap()
@@ -1625,6 +1629,7 @@ private fun resolveProviderIconResIds(
     context: SystemScanContext,
 ): List<Int> {
     val node = nodeInfo.node
+    if (node is AnonymousService) return emptyList()
     val systemCode = context.systemCode?.toHexString()?.uppercase() ?: return emptyList()
 
     val (nodeCode, parentCode, type) =
@@ -1722,6 +1727,7 @@ private fun getServiceNameFromNodeInfo(
     parentArea: Area?,
 ): String? {
     val systemCode = context.systemCode?.toHexString()?.uppercase() ?: return null
+    if (service is AnonymousService) return null
     val serviceCode = service.code.toHexString().uppercase()
     val parentCode = parentArea?.fullCode?.toHexString()?.uppercase()
 
@@ -1760,6 +1766,7 @@ private fun getNodeDisplayText(
                 baseText
             }
         }
+        is AnonymousService -> "Service (No code)"
         is Service -> {
             val service = node
             val baseText =

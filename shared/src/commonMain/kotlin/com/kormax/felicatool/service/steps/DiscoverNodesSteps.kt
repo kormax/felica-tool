@@ -92,6 +92,34 @@ internal object DiscoverNodesStep :
 
         val discoveryResult =
             when {
+                scanContext.commands.readWithoutEncryption.serviceCodeAddressingSupported ==
+                    CommandSupport.UNSUPPORTED -> {
+                    val systemContexts =
+                        ensureNodeDiscoverySystemContexts().map { context ->
+                            val response =
+                                executeCommand(withSelectedSystemCode = context.systemCode) {
+                                    ReadWithoutEncryptionCommand(
+                                        idm = idm,
+                                        serviceCodes = arrayOf(byteArrayOf(0x09, 0x00)),
+                                        blockListElements =
+                                            arrayOf(
+                                                BlockListElement(
+                                                    serviceCodeListOrder = 0,
+                                                    blockNumber = 0,
+                                                )
+                                            ),
+                                    )
+                                }
+                            if (response.status !is Status.Success) {
+                                throw StepBehaviorUnexpected(
+                                    "Cannot read anonymous service: ${formatStatus(response)}"
+                                )
+                            }
+                            context.copy(nodes = listOf(System, AnonymousService))
+                        }
+                    details.add("Service codes are not validated; using a single anonymous service")
+                    NodeDiscoveryResult("Read Without Encryption", systemContexts, emptyList())
+                }
                 requestCodeListSupported -> {
                     val requestCodeListResult = discoverNodesWithRequestCodeList()
                     details.addAll(requestCodeListResult.details)

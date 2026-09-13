@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.kormax.felicatool.felica.AnonymousService
 import com.kormax.felicatool.felica.Area
 import com.kormax.felicatool.felica.AreaAttribute
 import com.kormax.felicatool.felica.Service
@@ -260,7 +261,8 @@ fun ServiceGroupCard(
                         if (serviceName != null) {
                             "Service #${group.number} - $serviceName"
                         } else {
-                            "Service #${group.number}"
+                            if (group.primaryService is AnonymousService) "Service"
+                            else "Service #${group.number}"
                         }
 
                     Text(
@@ -357,7 +359,7 @@ fun ServiceGroupCard(
                                 val systemCodeHex = context.systemCode?.toHexString()?.uppercase()
                                 val nodeCodeHex = service.code.toHexString().uppercase()
                                 val extraBlockNames =
-                                    if (systemCodeHex != null) {
+                                    if (systemCodeHex != null && service !is AnonymousService) {
                                         NodeRegistry.getExtraBlocks(systemCodeHex, nodeCodeHex)
                                     } else {
                                         emptyMap()
@@ -453,7 +455,9 @@ private fun ServiceVariantChip(
         ) {
             // Service code in hex
             Text(
-                text = service.code.toHexString().uppercase(),
+                text =
+                    if (service is AnonymousService) "—"
+                    else service.code.toHexString().uppercase(),
                 style =
                     MaterialTheme.typography.labelSmall.copy(
                         fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.85f
@@ -520,7 +524,7 @@ private fun ServiceDetailRow(
     ) {
         // Service code
         Text(
-            text = service.code.toHexString().uppercase(),
+            text = if (service is AnonymousService) "—" else service.code.toHexString().uppercase(),
             style = MaterialTheme.typography.bodySmall,
             fontFamily = FontFamily.Monospace,
             fontWeight = FontWeight.Medium,
@@ -785,6 +789,7 @@ private fun resolveServiceGroupProviderIcons(
 
     // Try to get provider from any service in the group
     for (service in group.services) {
+        if (service is AnonymousService) continue
         val serviceCode = service.fullCode.toHexString().uppercase()
         val parentCode = parentArea?.fullCode?.toHexString()?.uppercase()
 
@@ -815,6 +820,7 @@ private fun getServiceGroupName(
 
     // Try to get name from any service in the group, using the group's parent area
     for (service in group.services) {
+        if (service is AnonymousService) continue
         val serviceCode = service.code.toHexString().uppercase()
         val name =
             NodeRegistry.getNodeName(

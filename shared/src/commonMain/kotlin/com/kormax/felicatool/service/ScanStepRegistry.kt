@@ -46,6 +46,7 @@ import com.kormax.felicatool.service.steps.ReadWithoutEncryptionDetermineErrorIn
 import com.kormax.felicatool.service.steps.ReadWithoutEncryptionDetermineIllegalNumberErrorPreferenceStep
 import com.kormax.felicatool.service.steps.ReadWithoutEncryptionDetermineMaxBlocksStep
 import com.kormax.felicatool.service.steps.ReadWithoutEncryptionDetermineMaxServicesStep
+import com.kormax.felicatool.service.steps.ReadWithoutEncryptionDetermineServiceCodeAddressingSupportedStep
 import com.kormax.felicatool.service.steps.ReadWithoutEncryptionDetermineSupportedStep
 import com.kormax.felicatool.service.steps.ReadWithoutEncryptionDetermineTrailingDataSupportedStep
 import com.kormax.felicatool.service.steps.ReadWithoutEncryptionUnusedInvalidServiceSupportedStep
@@ -109,6 +110,7 @@ internal object ScanStepRegistry {
             RequestServiceV2DetermineSupportedStep,
             RequestServiceV2DetermineTrailingDataSupportedStep,
             ReadWithoutEncryptionDetermineSupportedStep,
+            ReadWithoutEncryptionDetermineServiceCodeAddressingSupportedStep,
             DiscoverNodesStep,
             GetNodeKeyVersionsStep,
             ForceDiscoverNodesStep,

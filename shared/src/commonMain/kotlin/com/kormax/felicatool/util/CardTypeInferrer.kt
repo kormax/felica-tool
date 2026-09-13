@@ -1,5 +1,6 @@
 package com.kormax.felicatool.util
 
+import com.kormax.felicatool.felica.AnonymousService
 import com.kormax.felicatool.felica.Area
 import com.kormax.felicatool.felica.Node
 import com.kormax.felicatool.felica.Pmm
@@ -257,6 +258,7 @@ object CardTypeInferrer {
             val system = context.systemCodeHex() ?: return@flatMap emptyList()
             context.serviceBlockData.mapNotNull { (node, blocks) ->
                 val service = node as? Service ?: return@mapNotNull null
+                if (service is AnonymousService) return@mapNotNull null
                 ServiceData(system, service.code.hex(), service.parentCode(context), blocks)
             }
         }
@@ -264,6 +266,7 @@ object CardTypeInferrer {
     private fun Node.toNodeKey(system: String, context: SystemScanContext): NodeKey? =
         when (this) {
             is Area -> NodeKey(system, NodeDefinitionType.AREA, fullCode.hex(), parentCode(context))
+            is AnonymousService -> null
             is Service ->
                 NodeKey(system, NodeDefinitionType.SERVICE, code.hex(), parentCode(context))
             else -> null
@@ -275,6 +278,7 @@ object CardTypeInferrer {
     ): FilesystemNodeId? =
         when (this) {
             is Area -> FilesystemNodeId(system, parentCode(context), fullCode.hex())
+            is AnonymousService -> null
             is Service -> FilesystemNodeId(system, parentCode(context), code.hex())
             else -> null
         }

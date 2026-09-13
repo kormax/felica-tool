@@ -1,5 +1,6 @@
 package com.kormax.felicatool.overview
 
+import com.kormax.felicatool.felica.AnonymousService
 import com.kormax.felicatool.felica.Area
 import com.kormax.felicatool.felica.AreaAttribute
 import com.kormax.felicatool.felica.Node
@@ -312,7 +313,7 @@ object ScanOverviewModelBuilder {
                     val primaryServiceBlockData =
                         systemContext.serviceBlockData[group.primaryService]
                     val serviceName =
-                        if (systemCode == "Unknown") {
+                        if (systemCode == "Unknown" || group.primaryService is AnonymousService) {
                             null
                         } else {
                             NodeRegistry.getNodeName(
@@ -328,16 +329,23 @@ object ScanOverviewModelBuilder {
                             if (serviceName != null) {
                                 "Service #${group.number} - $serviceName"
                             } else {
-                                "Service #${group.number}"
+                                if (group.primaryService is AnonymousService) "Service"
+                                else "Service #${group.number}"
                             },
                         subtitle = "",
                         chips =
                             listOf(ScanOverviewChip(group.type.name, ScanOverviewChipRole.INFO)),
-                        serviceCodes = group.services.map { it.code.toHexString().uppercase() },
+                        serviceCodes =
+                            group.services.map {
+                                if (it is AnonymousService) "—"
+                                else it.code.toHexString().uppercase()
+                            },
                         variants =
                             group.services.map { service ->
                                 ScanOverviewServiceVariant(
-                                    code = service.code.toHexString().uppercase(),
+                                    code =
+                                        if (service is AnonymousService) "—"
+                                        else service.code.toHexString().uppercase(),
                                     mode = serviceModeToken(service.attribute.mode.name),
                                     authenticationRequired =
                                         service.attribute.authenticationRequired,
@@ -348,13 +356,15 @@ object ScanOverviewModelBuilder {
                             },
                         providerIcons =
                             providerIconsFor(
-                                nodeProviderNames(
-                                    systemCode,
-                                    primaryServiceCode,
-                                    parentCode,
-                                    NodeDefinitionType.SERVICE,
-                                    blockData = primaryServiceBlockData,
-                                )
+                                if (group.primaryService is AnonymousService) emptySet()
+                                else
+                                    nodeProviderNames(
+                                        systemCode,
+                                        primaryServiceCode,
+                                        parentCode,
+                                        NodeDefinitionType.SERVICE,
+                                        blockData = primaryServiceBlockData,
+                                    )
                             ),
                         areaHeader = emittedAreaHeader,
                         groupedUnderArea = areaHeader != null,
@@ -444,7 +454,7 @@ object ScanOverviewModelBuilder {
                 val parentCode = findContainingArea(node, systemContext)?.fullCode?.toHexString()
                 val blockData = systemContext.serviceBlockData[node]
                 val nodeName =
-                    if (systemCode == "Unknown") {
+                    if (systemCode == "Unknown" || node is AnonymousService) {
                         null
                     } else {
                         NodeRegistry.getNodeName(
@@ -456,29 +466,34 @@ object ScanOverviewModelBuilder {
                         )
                     }
                 ScanOverviewNode(
-                    code = node.code.toHexString().uppercase(),
+                    code =
+                        if (node is AnonymousService) "—" else node.code.toHexString().uppercase(),
                     title =
-                        buildString {
-                            append(
-                                "Service ${node.fullCode.toHexString().uppercase()} (#${node.number})"
-                            )
-                            if (nodeName != null) {
-                                append(" - ")
-                                append(nodeName)
-                            }
-                        },
+                        if (node is AnonymousService) "Service (No code)"
+                        else
+                            buildString {
+                                append(
+                                    "Service ${node.fullCode.toHexString().uppercase()} (#${node.number})"
+                                )
+                                if (nodeName != null) {
+                                    append(" - ")
+                                    append(nodeName)
+                                }
+                            },
                     subtitle = "",
                     kind = ScanOverviewNodeKind.SERVICE,
                     source = source,
                     providerIcons =
                         providerIconsFor(
-                            nodeProviderNames(
-                                systemCode,
-                                node.code.toHexString(),
-                                parentCode,
-                                NodeDefinitionType.SERVICE,
-                                blockData = blockData,
-                            )
+                            if (node is AnonymousService) emptySet()
+                            else
+                                nodeProviderNames(
+                                    systemCode,
+                                    node.code.toHexString(),
+                                    parentCode,
+                                    NodeDefinitionType.SERVICE,
+                                    blockData = blockData,
+                                )
                         ),
                     chips = buildNodeChips(systemContext, node),
                     detailChips = buildNodeDetailChips(systemContext, node),
@@ -1086,6 +1101,7 @@ object ScanOverviewModelBuilder {
     }
 
     private fun nodeTreeKey(node: Node): String {
+        if (node is AnonymousService) return "anonymous"
         return if (node is System) SYSTEM_TREE_KEY else node.fullCode.toHexString().uppercase()
     }
 

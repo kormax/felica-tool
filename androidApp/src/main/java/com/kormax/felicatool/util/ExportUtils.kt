@@ -492,6 +492,10 @@ object ExportUtils {
                 put("max_blocks_per_request", it)
             }
             putBooleanIfKnown(
+                "service_code_addressing_supported",
+                scanContext.commands.readWithoutEncryption.serviceCodeAddressingSupported,
+            )
+            putBooleanIfKnown(
                 "unused_invalid_service_supported",
                 scanContext.commands.readWithoutEncryption.unusedInvalidServiceSupported,
             )
@@ -723,20 +727,26 @@ object ExportUtils {
 
             is Service -> {
                 nodeJson.put("type", "service")
-                nodeJson.put("code", node.code.toHexString())
-                nodeJson.put("number", node.number)
+                nodeJson.put(
+                    "code",
+                    if (node is AnonymousService) JSONObject.NULL else node.code.toHexString(),
+                )
+                if (node !is AnonymousService) nodeJson.put("number", node.number)
 
                 // Service name
                 val parentCode = parentArea?.fullCode?.toHexString()?.uppercase()
-                val serviceName = systemCodeHex?.let {
-                    NodeRegistry.getNodeName(
-                        it,
-                        node.fullCode.toHexString().uppercase(),
-                        parentCode,
-                        NodeDefinitionType.SERVICE,
-                        blockData = systemContext.serviceBlockData[node],
-                    )
-                }
+                val serviceName =
+                    systemCodeHex
+                        ?.takeUnless { node is AnonymousService }
+                        ?.let {
+                            NodeRegistry.getNodeName(
+                                it,
+                                node.fullCode.toHexString().uppercase(),
+                                parentCode,
+                                NodeDefinitionType.SERVICE,
+                                blockData = systemContext.serviceBlockData[node],
+                            )
+                        }
                 serviceName?.let { nodeJson.put("name", it) }
 
                 // Service attribute
