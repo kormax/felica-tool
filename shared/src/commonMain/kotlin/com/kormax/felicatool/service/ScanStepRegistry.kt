@@ -43,6 +43,7 @@ import com.kormax.felicatool.service.steps.PollingSystemCodeStep
 import com.kormax.felicatool.service.steps.ProbeSystemCodesManuallyStep
 import com.kormax.felicatool.service.steps.ReadBlocksWithoutEncryptionStep
 import com.kormax.felicatool.service.steps.ReadWithoutEncryptionDetermineErrorIndicationStep
+import com.kormax.felicatool.service.steps.ReadWithoutEncryptionDetermineExtendedBlockListElementSupportedStep
 import com.kormax.felicatool.service.steps.ReadWithoutEncryptionDetermineIllegalNumberErrorPreferenceStep
 import com.kormax.felicatool.service.steps.ReadWithoutEncryptionDetermineMaxBlocksStep
 import com.kormax.felicatool.service.steps.ReadWithoutEncryptionDetermineMaxServicesStep
@@ -123,6 +124,7 @@ internal object ScanStepRegistry {
             GetNodePropertyMacCommunicationDetermineSupportedStep,
             GetNodePropertyDetermineTrailingDataSupportedStep,
             GetNodePropertyStep,
+            ReadWithoutEncryptionDetermineExtendedBlockListElementSupportedStep,
             ReadWithoutEncryptionDetermineTrailingDataSupportedStep,
             ReadWithoutEncryptionDetermineErrorIndicationStep,
             ReadWithoutEncryptionDetermineIllegalNumberErrorPreferenceStep,

@@ -635,6 +635,11 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                             context.commands.readWithoutEncryption.serviceCodeAddressingSupported,
                         )
                         CommandSupportChip(
+                            "Read Extended BLE",
+                            context.commands.readWithoutEncryption
+                                .extendedBlockListElementSupported,
+                        )
+                        CommandSupportChip(
                             "Read Unused Invalid Service",
                             context.commands.readWithoutEncryption.unusedInvalidServiceSupported,
                         )

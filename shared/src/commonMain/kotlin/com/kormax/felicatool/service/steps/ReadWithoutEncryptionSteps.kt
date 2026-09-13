@@ -340,6 +340,78 @@ internal object ReadWithoutEncryptionDetermineServiceCodeAddressingSupportedStep
     }
 }
 
+internal object ReadWithoutEncryptionDetermineExtendedBlockListElementSupportedStep :
+    CommandSupportScanStep(
+        id = "read_without_encryption_determine_extended_block_list_element_supported",
+        title = "Read Without Encryption: Extended BLE Supported",
+        description =
+            "Check whether Read Without Encryption accepts a three-byte block list element",
+        icon = ScanStepIcon.SEARCH,
+    ) {
+    override fun readSupport(context: CardScanContext): CommandSupport =
+        if (context.commands.readWithoutEncryption.supported == CommandSupport.UNSUPPORTED) {
+            CommandSupport.UNSUPPORTED
+        } else {
+            context.commands.readWithoutEncryption.extendedBlockListElementSupported
+        }
+
+    override fun writeSupport(context: CardScanContext, support: CommandSupport): CardScanContext =
+        context.withCommands {
+            copy(
+                readWithoutEncryption =
+                    readWithoutEncryption.copy(extendedBlockListElementSupported = support)
+            )
+        }
+
+    override suspend fun ScanSession.perform(): StepOutput {
+        val (systemContext, service) =
+            scanContext.systemScanContexts.firstNotNullOfOrNull { context ->
+                context.nodes
+                    .filterIsInstance<Service>()
+                    .firstOrNull {
+                        (it is AnonymousService || isReadableWithoutEncryptionService(it)) &&
+                            !it.attribute.pinRequired
+                    }
+                    ?.let { context to it }
+            } ?: throw StepSkipped("No readable services available")
+        val blockNumber =
+            if (service is AnonymousService) 0
+            else resolveReadWithoutEncryptionTestBlockNumber(systemContext.systemCode, service.code)
+        val response =
+            executeCommand(
+                withSelectedSystemCode = systemContext.systemCode,
+                attempts = ATTEMPTS_DETERMINE_SUPPORTED,
+            ) {
+                ReadWithoutEncryptionCommand(
+                    idm = idm,
+                    serviceCodes = arrayOf(service.code),
+                    blockListElements =
+                        arrayOf(
+                            BlockListElement(
+                                serviceCodeListOrder = 0,
+                                blockNumber = blockNumber,
+                                extended = true,
+                            )
+                        ),
+                )
+            }
+        when (response.status) {
+            is Status.Success,
+            is Status.IllegalBlockNumber,
+            is Status.AuthenticationRequired,
+            is Status.RandomChallengeWriteRequired -> Unit
+            else ->
+                throw RuntimeException(
+                    "Extended block list element was not accepted: ${formatStatus(response)}"
+                )
+        }
+        return StepOutput(
+            "${describeNode(service)}, block ${formatBlockNumberHex(blockNumber)}\n" +
+                "Extended block list element accepted\nStatus: ${formatStatus(response)}"
+        )
+    }
+}
+
 internal object ReadWithoutEncryptionDetermineTrailingDataSupportedStep :
     CommandTrailingDataSupportedScanStep<ReadWithoutEncryptionResponse>(
         id = "read_without_encryption_determine_trailing_data_supported",

@@ -496,6 +496,10 @@ object ExportUtils {
                 scanContext.commands.readWithoutEncryption.serviceCodeAddressingSupported,
             )
             putBooleanIfKnown(
+                "extended_block_list_element_supported",
+                scanContext.commands.readWithoutEncryption.extendedBlockListElementSupported,
+            )
+            putBooleanIfKnown(
                 "unused_invalid_service_supported",
                 scanContext.commands.readWithoutEncryption.unusedInvalidServiceSupported,
             )

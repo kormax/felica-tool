@@ -1018,6 +1018,11 @@ object ScanOverviewModelBuilder {
                             scanContext.commands.readWithoutEncryption.trailingDataSupported,
                         ),
                         commandSupport(
+                            "Read Extended BLE",
+                            scanContext.commands.readWithoutEncryption
+                                .extendedBlockListElementSupported,
+                        ),
+                        commandSupport(
                             "Write Without Encryption",
                             scanContext.commands.writeWithoutEncryption.supported,
                             scanContext.commands.writeWithoutEncryption.trailingDataSupported,
