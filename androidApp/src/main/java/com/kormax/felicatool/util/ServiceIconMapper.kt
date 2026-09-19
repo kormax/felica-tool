@@ -28,6 +28,7 @@ object ServiceIconMapper {
             "service_nesica" to R.drawable.service_nesica,
             "service_hayakaken" to R.drawable.service_hayakaken,
             "service_icoca" to R.drawable.service_icoca,
+            "service_icousa" to R.drawable.service_icousa,
             "service_iruca" to R.drawable.service_iruca,
             "service_kitaca" to R.drawable.service_kitaca,
             "service_kumamon" to R.drawable.service_kumamon,

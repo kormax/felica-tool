@@ -26,6 +26,7 @@ object ServiceIconCatalog {
             "SHIBATA_BUSDOKOPAY" to "service_busdokopay",
             "HAYAKAKEN" to "service_hayakaken",
             "ICOCA" to "service_icoca",
+            "ICOUSA" to "service_icousa",
             "IRUCA" to "service_iruca",
             "KITACA" to "service_kitaca",
             "KUMAMON" to "service_kumamon",

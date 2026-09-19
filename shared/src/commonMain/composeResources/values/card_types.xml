@@ -57,6 +57,7 @@
     <string name="card_type_icoca_fukui">Fukui ICOCA</string>
     <string name="card_type_icoca_ishikawa">Ishikawa ICOCA</string>
     <string name="card_type_icoca_shikoku">Shikoku ICOCA</string>
+    <string name="card_type_icousa">ICOUSA</string>
     <string name="card_type_icsca">icsca</string>
     <string name="card_type_iguca">iGUCA</string>
     <string name="card_type_iruca">IruCa</string>
