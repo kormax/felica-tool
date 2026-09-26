@@ -140,7 +140,7 @@ class WriteWithoutEncryptionCommand(
 
     companion object : CommandCompanion {
         override val COMMAND_CODE: Short = 0x08
-        override val COMMAND_CLASS: CommandClass = CommandClass.VARIABLE_RESPONSE_TIME
+        override val COMMAND_CLASS: CommandClass = CommandClass.DATA_WRITE
 
         const val BLOCK_SIZE: Int = 16
         const val MIN_LENGTH: Int =
