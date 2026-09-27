@@ -89,6 +89,46 @@ internal constructor(
         return attempts
     }
 
+    suspend fun determineCommandLimit(
+        command: String,
+        property: String,
+        maximum: Int,
+        probe: suspend (Int) -> Boolean,
+    ): Int {
+        val cardPmm = pmm
+        val hint =
+            if (settings.enableIcCodeScanHeuristics) {
+                IcTypeRegistry.getCommandLimit(cardPmm.icType, cardPmm.romType, command, property)
+                    ?.takeIf { it in 1..maximum }
+            } else null
+        if (hint != null) {
+            ScanLog.d(
+                "CardScanService",
+                "IC ${cardPmm.icCode.toHexString()}: $command.$property expected $hint; verifying limit",
+            )
+        }
+
+        // Zero means no positive value has succeeded. maximum + 1 is the protocol boundary.
+        var lowerBound = 0
+        var upperBound = maximum + 1
+        var candidate = hint ?: maximum
+        while (upperBound - lowerBound > 1) {
+            val success = probe(candidate)
+            ScanLog.d(
+                "CardScanService",
+                "$command.$property: $candidate ${if (success) "succeeded" else "failed"}",
+            )
+            if (success) {
+                lowerBound = candidate
+            } else {
+                upperBound = candidate
+            }
+            candidate =
+                if (success && candidate == hint) candidate + 1 else (lowerBound + upperBound) / 2
+        }
+        return lowerBound
+    }
+
     suspend fun <T : FelicaResponse> executeCommand(
         withSelectedSystemCode: ByteArray? = null,
         withResetToMode0: Boolean = false,

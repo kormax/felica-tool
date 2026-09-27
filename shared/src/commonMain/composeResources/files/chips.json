@@ -67,7 +67,9 @@
         "supported": true,
         "service_code_addressing_supported": true,
         "extended_block_list_element_supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_services_per_request": 16,
+        "max_blocks_per_request": 12
       },
       "write_without_encryption": {
         "supported": true,
@@ -189,7 +191,9 @@
         "supported": true,
         "service_code_addressing_supported": true,
         "extended_block_list_element_supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_services_per_request": 16,
+        "max_blocks_per_request": 1
       },
       "write_without_encryption": {
         "supported": true,
@@ -311,11 +315,14 @@
         "supported": true,
         "service_code_addressing_supported": true,
         "extended_block_list_element_supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_services_per_request": 16,
+        "max_blocks_per_request": 12
       },
       "write_without_encryption": {
         "supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_blocks_per_request": 8
       },
       "authentication1_des": {
         "supported": true,
@@ -351,7 +358,8 @@
       },
       "echo": {
         "supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_payload_size": 252
       }
     },
     "products": [
@@ -461,7 +469,9 @@
         "supported": true,
         "service_code_addressing_supported": true,
         "extended_block_list_element_supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_services_per_request": 16,
+        "max_blocks_per_request": 12
       },
       "write_without_encryption": {
         "supported": true,
@@ -501,7 +511,8 @@
       },
       "echo": {
         "supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_payload_size": 252
       }
     },
     "products": [
@@ -598,11 +609,14 @@
         "supported": true,
         "service_code_addressing_supported": false,
         "extended_block_list_element_supported": false,
-        "trailing_data_supported": false
+        "trailing_data_supported": false,
+        "max_services_per_request": 1,
+        "max_blocks_per_request": 1
       },
       "write_without_encryption": {
         "supported": true,
-        "trailing_data_supported": false
+        "trailing_data_supported": false,
+        "max_blocks_per_request": 1
       },
       "authentication1_des": {
         "supported": false
@@ -739,11 +753,14 @@
         "supported": true,
         "service_code_addressing_supported": true,
         "extended_block_list_element_supported": true,
-        "trailing_data_supported": false
+        "trailing_data_supported": false,
+        "max_services_per_request": 16,
+        "max_blocks_per_request": 12
       },
       "write_without_encryption": {
         "supported": true,
-        "trailing_data_supported": false
+        "trailing_data_supported": false,
+        "max_blocks_per_request": 10
       },
       "authentication1_des": {
         "supported": true,
@@ -779,7 +796,8 @@
       },
       "echo": {
         "supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_payload_size": 238
       }
     }
   },
@@ -905,11 +923,14 @@
         "supported": true,
         "service_code_addressing_supported": true,
         "extended_block_list_element_supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_services_per_request": 16,
+        "max_blocks_per_request": 15
       },
       "write_without_encryption": {
         "supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_blocks_per_request": 13
       },
       "authentication1_des": {
         "supported": true,
@@ -945,7 +966,8 @@
       },
       "echo": {
         "supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_payload_size": 252
       }
     }
   },
@@ -1021,11 +1043,14 @@
         "supported": true,
         "service_code_addressing_supported": true,
         "extended_block_list_element_supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_services_per_request": 16,
+        "max_blocks_per_request": 15
       },
       "write_without_encryption": {
         "supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_blocks_per_request": 13
       },
       "authentication1_des": {
         "supported": true,
@@ -1061,7 +1086,8 @@
       },
       "echo": {
         "supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_payload_size": 252
       }
     }
   },
@@ -1161,11 +1187,14 @@
         "supported": true,
         "service_code_addressing_supported": true,
         "extended_block_list_element_supported": true,
-        "trailing_data_supported": false
+        "trailing_data_supported": false,
+        "max_services_per_request": 16,
+        "max_blocks_per_request": 12
       },
       "write_without_encryption": {
         "supported": true,
-        "trailing_data_supported": false
+        "trailing_data_supported": false,
+        "max_blocks_per_request": 10
       },
       "authentication1_des": {
         "supported": true,
@@ -1201,7 +1230,8 @@
       },
       "echo": {
         "supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_payload_size": 252
       }
     },
     "products": [
@@ -1307,7 +1337,9 @@
         "supported": true,
         "service_code_addressing_supported": true,
         "extended_block_list_element_supported": true,
-        "trailing_data_supported": false
+        "trailing_data_supported": false,
+        "max_services_per_request": 16,
+        "max_blocks_per_request": 12
       },
       "write_without_encryption": {
         "supported": true,
@@ -1420,11 +1452,14 @@
         "supported": true,
         "service_code_addressing_supported": true,
         "extended_block_list_element_supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_services_per_request": 16,
+        "max_blocks_per_request": 15
       },
       "write_without_encryption": {
         "supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_blocks_per_request": 13
       },
       "authentication1_des": {
         "supported": true,
@@ -1460,7 +1495,8 @@
       },
       "echo": {
         "supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_payload_size": 252
       }
     }
   },
@@ -1532,11 +1568,14 @@
         "supported": true,
         "service_code_addressing_supported": true,
         "extended_block_list_element_supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_services_per_request": 16,
+        "max_blocks_per_request": 15
       },
       "write_without_encryption": {
         "supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_blocks_per_request": 13
       },
       "authentication1_des": {
         "supported": true,
@@ -1572,7 +1611,8 @@
       },
       "echo": {
         "supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_payload_size": 252
       }
     },
     "note": "Found on Suica 2-in-1 regional collaboration cards that support Extended Overlap."
@@ -1645,11 +1685,14 @@
         "supported": true,
         "service_code_addressing_supported": true,
         "extended_block_list_element_supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_services_per_request": 16,
+        "max_blocks_per_request": 15
       },
       "write_without_encryption": {
         "supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_blocks_per_request": 13
       },
       "authentication1_des": {
         "supported": true,
@@ -1685,7 +1728,8 @@
       },
       "echo": {
         "supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_payload_size": 252
       }
     },
     "products": [
@@ -1860,11 +1904,14 @@
         "supported": true,
         "service_code_addressing_supported": true,
         "extended_block_list_element_supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_services_per_request": 16,
+        "max_blocks_per_request": 15
       },
       "write_without_encryption": {
         "supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_blocks_per_request": 13
       },
       "authentication1_des": {
         "supported": null
@@ -1879,7 +1926,8 @@
       },
       "echo": {
         "supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_payload_size": 252
       }
     },
     "products": [
@@ -1977,11 +2025,14 @@
         "supported": true,
         "service_code_addressing_supported": true,
         "extended_block_list_element_supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_services_per_request": 16,
+        "max_blocks_per_request": 15
       },
       "write_without_encryption": {
         "supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_blocks_per_request": 13
       },
       "authentication1_des": {
         "supported": true,
@@ -2017,7 +2068,8 @@
       },
       "echo": {
         "supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_payload_size": 252
       }
     },
     "products": [
@@ -2107,11 +2159,14 @@
         "supported": true,
         "service_code_addressing_supported": true,
         "extended_block_list_element_supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_services_per_request": 16,
+        "max_blocks_per_request": 15
       },
       "write_without_encryption": {
         "supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_blocks_per_request": 13
       },
       "authentication1_des": {
         "supported": true,
@@ -2147,7 +2202,8 @@
       },
       "echo": {
         "supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_payload_size": 252
       }
     },
     "note": "Found on new Octopus cards."
@@ -2220,11 +2276,14 @@
         "supported": true,
         "service_code_addressing_supported": true,
         "extended_block_list_element_supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_services_per_request": 16,
+        "max_blocks_per_request": 15
       },
       "write_without_encryption": {
         "supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_blocks_per_request": 13
       },
       "authentication1_des": {
         "supported": true,
@@ -2260,7 +2319,8 @@
       },
       "echo": {
         "supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_payload_size": 252
       }
     },
     "note": "Found on new Octopus + T-Union dual-interface cards."
@@ -2377,11 +2437,14 @@
         "supported": true,
         "service_code_addressing_supported": true,
         "extended_block_list_element_supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_services_per_request": 16,
+        "max_blocks_per_request": 15
       },
       "write_without_encryption": {
         "supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_blocks_per_request": 13
       },
       "authentication1_des": {
         "supported": true,
@@ -2417,7 +2480,8 @@
       },
       "echo": {
         "supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_payload_size": 252
       }
     },
     "products": [
@@ -2538,11 +2602,14 @@
         "supported": true,
         "service_code_addressing_supported": true,
         "extended_block_list_element_supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_services_per_request": 16,
+        "max_blocks_per_request": 15
       },
       "write_without_encryption": {
         "supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_blocks_per_request": 13
       },
       "authentication1_des": {
         "supported": null
@@ -2577,7 +2644,8 @@
       },
       "echo": {
         "supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_payload_size": 252
       }
     },
     "products": [
@@ -2800,11 +2868,14 @@
         "supported": true,
         "service_code_addressing_supported": true,
         "extended_block_list_element_supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_services_per_request": 1,
+        "max_blocks_per_request": 4
       },
       "write_without_encryption": {
         "supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_blocks_per_request": 2
       },
       "authentication1_des": {
         "supported": false,
@@ -2840,7 +2911,8 @@
       },
       "echo": {
         "supported": true,
-        "trailing_data_supported": true
+        "trailing_data_supported": true,
+        "max_payload_size": 75
       }
     },
     "products": [

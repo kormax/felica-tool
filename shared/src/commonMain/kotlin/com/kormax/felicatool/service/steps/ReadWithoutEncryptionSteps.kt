@@ -736,78 +736,62 @@ internal object ReadWithoutEncryptionDetermineMaxServicesStep :
     ) {
     override suspend fun ScanSession.perform(): StepOutput {
         val testTarget = scanContext.findReadWithoutEncryptionTestTarget()
-
-        var maxServices = ReadWithoutEncryptionCommand.MAX_SERVICE_CODES
         val maxBlocks =
             scanContext.commands.readWithoutEncryption.maxBlocksPerRequest
                 ?: ReadWithoutEncryptionCommand.MAX_BLOCKS
-        var usedFallback = false
-        var fallbackStatus1: Byte? = null
-        var fallbackStatus2: Byte? = null
-        var observedIllegalNumberPreference: IllegalNumberErrorPreference? = null
-
-        while (maxServices > 0) {
-            val response =
-                try {
-                    executeCommand(withSelectedSystemCode = testTarget.systemContext.systemCode) {
-                        ReadWithoutEncryptionCommand(
-                            idm = idm,
-                            serviceCodes = Array(maxServices) { testTarget.service.code },
-                            blockListElements =
-                                Array(minOf(maxServices, maxBlocks)) { serviceIndex ->
-                                    BlockListElement(
-                                        serviceCodeListOrder = serviceIndex,
-                                        blockNumber = testTarget.blockNumber,
-                                    )
-                                },
+        val maxServices =
+            determineCommandLimit(
+                "read_without_encryption",
+                "max_services_per_request",
+                ReadWithoutEncryptionCommand.MAX_SERVICE_CODES,
+            ) { count ->
+                val blockCount = minOf(count, maxBlocks)
+                val response =
+                    try {
+                        executeCommand(
+                            withSelectedSystemCode = testTarget.systemContext.systemCode
+                        ) {
+                            ReadWithoutEncryptionCommand(
+                                idm = idm,
+                                serviceCodes = Array(count) { testTarget.service.code },
+                                blockListElements =
+                                    Array(blockCount) { serviceIndex ->
+                                        BlockListElement(
+                                            serviceCodeListOrder = serviceIndex,
+                                            blockNumber = testTarget.blockNumber,
+                                        )
+                                    },
+                            )
+                        }
+                    } catch (error: TransceiveTimeoutException) {
+                        if (
+                            scanContext.commands.readWithoutEncryption.errorLocationIndication !=
+                                ErrorLocationIndication.NO_RESPONSE
+                        ) {
+                            throw error
+                        }
+                        return@determineCommandLimit false
+                    }
+                if (response.isStatusSuccessful) {
+                    return@determineCommandLimit response.blockData.size == blockCount
+                }
+                when (response.status) {
+                    is Status.IllegalNumberOfService,
+                    is Status.IllegalNumberOfBlock -> false
+                    else -> {
+                        scanContext = scanContext.withCommands {
+                            copy(
+                                readWithoutEncryption =
+                                    readWithoutEncryption.copy(maxServicesPerRequest = 1)
+                            )
+                        }
+                        scanContext = withCommandSupport(scanContext, CommandSupport.SUPPORTED)
+                        throw StepBehaviorUnexpected(
+                            "Maximum services fallback to 1: unexpected status (${formatStatus(response)})"
                         )
                     }
-                } catch (error: TransceiveTimeoutException) {
-                    if (
-                        scanContext.commands.readWithoutEncryption.errorLocationIndication !=
-                            ErrorLocationIndication.NO_RESPONSE
-                    ) {
-                        throw error
-                    }
-                    ScanLog.d(
-                        "CardScanService",
-                        "ReadWithoutEncryption got no response with $maxServices services",
-                    )
-                    maxServices--
-                    continue
                 }
-            if (response.isStatusSuccessful) {
-                ScanLog.d(
-                    "CardScanService",
-                    "ReadWithoutEncryption succeeded with $maxServices services",
-                )
-                break
             }
-            observedIllegalNumberPreference =
-                when (response.status) {
-                    is Status.IllegalNumberOfService -> IllegalNumberErrorPreference.SERVICE_ERROR
-                    is Status.IllegalNumberOfBlock -> IllegalNumberErrorPreference.BLOCK_ERROR
-                    else -> null
-                }
-
-            if (observedIllegalNumberPreference == null) {
-                usedFallback = true
-                maxServices = 1
-                fallbackStatus1 = response.statusFlag1
-                fallbackStatus2 = response.statusFlag2
-                ScanLog.w(
-                    "CardScanService",
-                    "ReadWithoutEncryption returned unexpected status while determining max services, falling back to 1 service (${formatStatus(fallbackStatus1, fallbackStatus2)})",
-                )
-                break
-            }
-
-            ScanLog.d(
-                "CardScanService",
-                "ReadWithoutEncryption failed with $maxServices services, ${formatStatus(response)} (${observedIllegalNumberPreference.name})",
-            )
-            maxServices--
-        }
 
         if (maxServices == 0) {
             throw RuntimeException(
@@ -821,17 +805,7 @@ internal object ReadWithoutEncryptionDetermineMaxServicesStep :
                     readWithoutEncryption.copy(maxServicesPerRequest = maxServices)
             )
         }
-
-        if (usedFallback) {
-            scanContext = withCommandSupport(scanContext, CommandSupport.SUPPORTED)
-            throw StepBehaviorUnexpected(
-                "Maximum services fallback to 1: unexpected status (${formatStatus(fallbackStatus1, fallbackStatus2)})"
-            )
-        }
-
-        return StepOutput(
-            buildString { appendLine("Maximum services per request: $maxServices") }.trim()
-        )
+        return StepOutput("Maximum services per request: $maxServices")
     }
 }
 
@@ -844,61 +818,52 @@ internal object ReadWithoutEncryptionDetermineMaxBlocksStep :
     ) {
     override suspend fun ScanSession.perform(): StepOutput {
         val testTarget = scanContext.findReadWithoutEncryptionTestTarget()
-
-        var maxBlocks = ReadWithoutEncryptionCommand.MAX_BLOCKS
-        var usedFallback = false
-        var fallbackStatus1: Byte? = null
-        var fallbackStatus2: Byte? = null
-
-        while (maxBlocks > 0) {
-            try {
+        val maxBlocks =
+            determineCommandLimit(
+                "read_without_encryption",
+                "max_blocks_per_request",
+                ReadWithoutEncryptionCommand.MAX_BLOCKS,
+            ) { count ->
                 val response =
-                    executeCommand(withSelectedSystemCode = testTarget.systemContext.systemCode) {
-                        ReadWithoutEncryptionCommand(
-                            idm = idm,
-                            serviceCodes = arrayOf(testTarget.service.code),
-                            blockListElements =
-                                Array(maxBlocks) {
-                                    BlockListElement(
-                                        serviceCodeListOrder = 0,
-                                        blockNumber = testTarget.blockNumber,
-                                    )
-                                },
-                        )
+                    try {
+                        executeCommand(
+                            withSelectedSystemCode = testTarget.systemContext.systemCode
+                        ) {
+                            ReadWithoutEncryptionCommand(
+                                idm = idm,
+                                serviceCodes = arrayOf(testTarget.service.code),
+                                blockListElements =
+                                    Array(count) {
+                                        BlockListElement(
+                                            serviceCodeListOrder = 0,
+                                            blockNumber = testTarget.blockNumber,
+                                        )
+                                    },
+                            )
+                        }
+                    } catch (error: TransceiveTimeoutException) {
+                        return@determineCommandLimit false
                     }
                 if (response.isStatusSuccessful) {
-                    ScanLog.d(
-                        "CardScanService",
-                        "ReadWithoutEncryption succeeded with $maxBlocks blocks",
-                    )
-                    break
+                    return@determineCommandLimit response.blockData.size == count
                 }
-                val status = response.status
-                if (
-                    status !is Status.IllegalNumberOfBlock && status !is Status.IllegalBlockNumber
-                ) {
-                    usedFallback = true
-                    maxBlocks = 1
-                    fallbackStatus1 = response.statusFlag1
-                    fallbackStatus2 = response.statusFlag2
-                    ScanLog.w(
-                        "CardScanService",
-                        "ReadWithoutEncryption returned unexpected status while determining max blocks, falling back to 1 block (${formatStatus(fallbackStatus1, fallbackStatus2)})",
-                    )
-                    break
+                when (response.status) {
+                    is Status.IllegalNumberOfBlock,
+                    is Status.IllegalBlockNumber -> false
+                    else -> {
+                        scanContext = scanContext.withCommands {
+                            copy(
+                                readWithoutEncryption =
+                                    readWithoutEncryption.copy(maxBlocksPerRequest = 1)
+                            )
+                        }
+                        scanContext = withCommandSupport(scanContext, CommandSupport.SUPPORTED)
+                        throw StepBehaviorUnexpected(
+                            "Maximum blocks fallback to 1: unexpected status (${formatStatus(response)})"
+                        )
+                    }
                 }
-                ScanLog.d(
-                    "CardScanService",
-                    "ReadWithoutEncryption failed with $maxBlocks blocks, ${formatStatus(response)}",
-                )
-            } catch (e: TransceiveTimeoutException) {
-                ScanLog.d(
-                    "CardScanService",
-                    "ReadWithoutEncryption got no response with $maxBlocks blocks: ${e.message}",
-                )
             }
-            maxBlocks--
-        }
 
         if (maxBlocks == 0) {
             throw RuntimeException(
@@ -911,17 +876,7 @@ internal object ReadWithoutEncryptionDetermineMaxBlocksStep :
                 readWithoutEncryption = readWithoutEncryption.copy(maxBlocksPerRequest = maxBlocks)
             )
         }
-
-        if (usedFallback) {
-            scanContext = withCommandSupport(scanContext, CommandSupport.SUPPORTED)
-            throw StepBehaviorUnexpected(
-                "Maximum blocks fallback to 1: unexpected status (${formatStatus(fallbackStatus1, fallbackStatus2)})"
-            )
-        }
-
-        return StepOutput(
-            buildString { appendLine("Maximum blocks per request: $maxBlocks") }.trim()
-        )
+        return StepOutput("Maximum blocks per request: $maxBlocks")
     }
 }
 

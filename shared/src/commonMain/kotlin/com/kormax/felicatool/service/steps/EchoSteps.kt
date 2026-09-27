@@ -69,34 +69,13 @@ internal object EchoDetermineMaxPayloadSizeStep :
         if (scanContext.commands.echo.supported != CommandSupport.SUPPORTED) {
             throw StepSkipped("Echo support must be confirmed before determining max payload size")
         }
-        val knownSupportedLength = 0
-        val maxLength = 252
         val attempts = mutableListOf<EchoAttemptResult>()
-
-        val maxAttempt = attemptEcho(maxLength)
-        attempts += maxAttempt
-        if (maxAttempt.success) {
-            scanContext = scanContext.withCommands {
-                copy(echo = echo.copy(maxPayloadSize = maxLength))
+        val bestLength =
+            determineCommandLimit("echo", "max_payload_size", 252) { candidate ->
+                val attempt = attemptEcho(candidate)
+                attempts += attempt
+                attempt.success
             }
-            return formatResult(maxLength, attempts)
-        }
-
-        var lowerBound = knownSupportedLength
-        var upperBound = maxLength
-        var bestLength = knownSupportedLength
-
-        while ((upperBound - lowerBound) > 1) {
-            val candidate = (lowerBound + upperBound) / 2
-            val attempt = attemptEcho(candidate)
-            attempts += attempt
-            if (attempt.success) {
-                lowerBound = candidate
-                bestLength = maxOf(bestLength, candidate)
-            } else {
-                upperBound = candidate
-            }
-        }
 
         scanContext = scanContext.withCommands {
             copy(echo = echo.copy(maxPayloadSize = bestLength))

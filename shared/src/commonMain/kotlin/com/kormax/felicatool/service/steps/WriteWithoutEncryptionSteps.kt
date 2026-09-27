@@ -334,56 +334,60 @@ internal object WriteWithoutEncryptionDetermineMaxBlocksStep :
 
         val probeTarget = scanContext.findWritableBlockProbeTarget()
 
-        var maxBlocks = WriteWithoutEncryptionCommand.MAX_BLOCKS
-
-        while (maxBlocks > 0) {
-            try {
-                val response =
-                    executeCommand(withSelectedSystemCode = probeTarget.systemCode) {
-                        WriteWithoutEncryptionCommand(
-                            idm = idm,
-                            serviceCodes = arrayOf(probeTarget.service.code),
-                            blockListElements =
-                                Array(maxBlocks) {
-                                    BlockListElement(
-                                        serviceCodeListOrder = 0,
-                                        blockNumber = probeTarget.safeBlockNumber,
-                                    )
-                                },
-                            blockData = Array(maxBlocks) { probeTarget.safeBlockData.copyOf() },
+        val maxBlocks =
+            determineCommandLimit(
+                "write_without_encryption",
+                "max_blocks_per_request",
+                WriteWithoutEncryptionCommand.MAX_BLOCKS,
+            ) { count ->
+                try {
+                    val response =
+                        executeCommand(withSelectedSystemCode = probeTarget.systemCode) {
+                            WriteWithoutEncryptionCommand(
+                                idm = idm,
+                                serviceCodes = arrayOf(probeTarget.service.code),
+                                blockListElements =
+                                    Array(count) {
+                                        BlockListElement(
+                                            serviceCodeListOrder = 0,
+                                            blockNumber = probeTarget.safeBlockNumber,
+                                        )
+                                    },
+                                blockData = Array(count) { probeTarget.safeBlockData.copyOf() },
+                            )
+                        }
+                    val status = response.status
+                    if (
+                        status is Status.Success
+                        // FeliCa Lite tags may require authentication even for valid block counts.
+                        || status is Status.AuthenticationRequired
+                    ) {
+                        ScanLog.d(
+                            "CardScanService",
+                            "WriteWithoutEncryption accepted $count blocks, ${formatStatus(response)}",
+                        )
+                        return@determineCommandLimit true
+                    }
+                    if (
+                        status !is Status.IllegalNumberOfBlock &&
+                            status !is Status.IllegalBlockNumber
+                    ) {
+                        throw RuntimeException(
+                            "WriteWithoutEncryption failed with unexpected error (not 0xA2 or 0xA8) at $count blocks, ${formatStatus(response)}"
                         )
                     }
-                val status = response.status
-                if (
-                    status is Status.Success
-                    // FeliCa Lite tags may require authentication even for valid block counts.
-                    || status is Status.AuthenticationRequired
-                ) {
                     ScanLog.d(
                         "CardScanService",
-                        "WriteWithoutEncryption accepted $maxBlocks blocks, ${formatStatus(response)}",
+                        "WriteWithoutEncryption failed with $count blocks, ${formatStatus(response)}",
                     )
-                    break
-                }
-                if (
-                    status !is Status.IllegalNumberOfBlock && status !is Status.IllegalBlockNumber
-                ) {
-                    throw RuntimeException(
-                        "WriteWithoutEncryption failed with unexpected error (not 0xA2 or 0xA8) at $maxBlocks blocks, ${formatStatus(response)}"
+                } catch (e: TransceiveTimeoutException) {
+                    ScanLog.d(
+                        "CardScanService",
+                        "WriteWithoutEncryption got no response with $count blocks: ${e.message}",
                     )
                 }
-                ScanLog.d(
-                    "CardScanService",
-                    "WriteWithoutEncryption failed with $maxBlocks blocks, ${formatStatus(response)}",
-                )
-            } catch (e: TransceiveTimeoutException) {
-                ScanLog.d(
-                    "CardScanService",
-                    "WriteWithoutEncryption got no response with $maxBlocks blocks: ${e.message}",
-                )
+                false
             }
-            maxBlocks--
-        }
 
         if (maxBlocks == 0) {
             throw RuntimeException(
