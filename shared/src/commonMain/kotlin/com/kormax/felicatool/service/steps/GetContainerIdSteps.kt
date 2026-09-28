@@ -22,6 +22,11 @@ internal object GetContainerIdStep :
     }
 
     override suspend fun ScanSession.perform(): StepOutput {
+        skipIfUnsupportedBySpecificationVersion(
+            "Get Container ID requires the Special option to be reported as supported in the specification version."
+        ) {
+            it.specialOptionVersion == null || it.specialOptionVersion == OptionVersion.MISSING
+        }
         val getContainerIdResponse =
             executeCommand(
                 attempts = supportCheckAttempts("get_container_id"),

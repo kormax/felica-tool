@@ -84,6 +84,8 @@ private const val KEY_BACKGROUND_READING = "background_reading"
 private const val KEY_TEST_TRAILING_DATA_COMMANDS = "test_trailing_data_commands"
 private const val KEY_TEST_WRITE_COMMANDS = "test_write_commands"
 private const val KEY_IC_CODE_SCAN_HEURISTICS = "ic_code_scan_heuristics"
+private const val KEY_SPECIFICATION_VERSION_SCAN_HEURISTICS =
+    "specification_version_scan_heuristics"
 private const val TAG = "MainActivity"
 private val ReaderActionButtonMinHeight = 48.dp
 private val ScanOverviewButtonBottomInset = 16.dp
@@ -181,6 +183,8 @@ class MainActivity : ComponentActivity() {
             scanSettings.copy(
                 enableIcCodeScanHeuristics =
                     readerPreferences.getBoolean(KEY_IC_CODE_SCAN_HEURISTICS, true),
+                enableSpecificationVersionScanHeuristics =
+                    readerPreferences.getBoolean(KEY_SPECIFICATION_VERSION_SCAN_HEURISTICS, true),
                 testTrailingDataCommands =
                     readerPreferences.getBoolean(KEY_TEST_TRAILING_DATA_COMMANDS, false),
                 testWriteCommands = readerPreferences.getBoolean(KEY_TEST_WRITE_COMMANDS, false),
@@ -366,6 +370,10 @@ class MainActivity : ComponentActivity() {
         readerPreferences
             .edit()
             .putBoolean(KEY_IC_CODE_SCAN_HEURISTICS, settings.enableIcCodeScanHeuristics)
+            .putBoolean(
+                KEY_SPECIFICATION_VERSION_SCAN_HEURISTICS,
+                settings.enableSpecificationVersionScanHeuristics,
+            )
             .putBoolean(KEY_TEST_TRAILING_DATA_COMMANDS, settings.testTrailingDataCommands)
             .putBoolean(KEY_TEST_WRITE_COMMANDS, settings.testWriteCommands)
             .apply()
@@ -793,6 +801,29 @@ private fun MainScreen(
                                     onCheckedChange = {
                                         onScanSettingsChange(
                                             scanSettings.copy(enableIcCodeScanHeuristics = it)
+                                        )
+                                    },
+                                )
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Enable Specification Version scan heuristics") },
+                            onClick = {
+                                onScanSettingsChange(
+                                    scanSettings.copy(
+                                        enableSpecificationVersionScanHeuristics =
+                                            !scanSettings.enableSpecificationVersionScanHeuristics
+                                    )
+                                )
+                            },
+                            trailingIcon = {
+                                Checkbox(
+                                    checked = scanSettings.enableSpecificationVersionScanHeuristics,
+                                    onCheckedChange = {
+                                        onScanSettingsChange(
+                                            scanSettings.copy(
+                                                enableSpecificationVersionScanHeuristics = it
+                                            )
                                         )
                                     },
                                 )

@@ -24,6 +24,11 @@ internal object GetContainerIssueInformationStep :
     }
 
     override suspend fun ScanSession.perform(): StepOutput {
+        skipIfUnsupportedBySpecificationVersion(
+            "Get Container Issue Information requires the Special option to be reported as supported in the specification version."
+        ) {
+            it.specialOptionVersion == null || it.specialOptionVersion == OptionVersion.MISSING
+        }
         val getContainerIssueInformationResponse =
             executeCommand(
                 attempts = supportCheckAttempts("get_container_issue_information"),

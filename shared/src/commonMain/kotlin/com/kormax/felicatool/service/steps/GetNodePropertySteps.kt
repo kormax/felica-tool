@@ -22,6 +22,12 @@ internal object GetNodePropertyValueLimitedServiceDetermineSupportedStep :
     }
 
     override suspend fun ScanSession.perform(): StepOutput {
+        skipIfUnsupportedBySpecificationVersion(
+            "Get Node Property requires the Value-Limited Purse Service option to be reported as supported in the specification version."
+        ) {
+            it.valueLimitedPurseServiceOptionVersion == null ||
+                it.valueLimitedPurseServiceOptionVersion == OptionVersion.MISSING
+        }
         val response =
             executeCommand(
                 attempts =
@@ -67,6 +73,12 @@ internal object GetNodePropertyMacCommunicationDetermineSupportedStep :
     }
 
     override suspend fun ScanSession.perform(): StepOutput {
+        skipIfUnsupportedBySpecificationVersion(
+            "Get Node Property requires the Communication with MAC option to be reported as supported in the specification version."
+        ) {
+            it.communicationWithMacOptionVersion == null ||
+                it.communicationWithMacOptionVersion == OptionVersion.MISSING
+        }
         val response =
             executeCommand(
                 attempts = supportCheckAttempts("get_node_property", "mac_communication_supported"),

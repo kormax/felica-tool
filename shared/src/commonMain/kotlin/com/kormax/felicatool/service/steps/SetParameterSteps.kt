@@ -22,6 +22,11 @@ internal object SetParameterStep :
     }
 
     override suspend fun ScanSession.perform(): StepOutput {
+        skipIfUnsupportedBySpecificationVersion(
+            "Set Parameter requires the Special option to be reported as supported in the specification version."
+        ) {
+            it.specialOptionVersion == null || it.specialOptionVersion == OptionVersion.MISSING
+        }
         val response =
             executeCommand(
                 attempts = supportCheckAttempts("set_parameter"),

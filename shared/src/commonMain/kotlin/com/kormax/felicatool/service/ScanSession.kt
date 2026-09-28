@@ -89,6 +89,21 @@ internal constructor(
         return attempts
     }
 
+    /** Call after the step's normal prerequisites so their results take precedence. */
+    fun skipIfUnsupportedBySpecificationVersion(
+        reason: String,
+        condition: (SpecificationVersion) -> Boolean,
+    ) {
+        if (!settings.enableSpecificationVersionScanHeuristics) return
+        if (context.commands.requestSpecificationVersion.supported != CommandSupport.SUPPORTED) {
+            return
+        }
+        val version = context.specificationVersion ?: return
+        if (condition(version)) {
+            throw StepSkipped(reason)
+        }
+    }
+
     suspend fun determineCommandLimit(
         command: String,
         property: String,

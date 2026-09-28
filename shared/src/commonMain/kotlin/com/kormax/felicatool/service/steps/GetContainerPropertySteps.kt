@@ -28,6 +28,11 @@ internal object GetContainerPropertyDetermineSupportedStep :
     }
 
     override suspend fun ScanSession.perform(): StepOutput {
+        skipIfUnsupportedBySpecificationVersion(
+            "Get Container Property requires the Special option to be reported as supported in the specification version."
+        ) {
+            it.specialOptionVersion == null || it.specialOptionVersion == OptionVersion.MISSING
+        }
         val property = GetContainerPropertyCommand.Property.PROPERTY_1
         val response =
             executeCommand(
@@ -95,6 +100,11 @@ internal object GetContainerPropertiesStep :
         context.commands.getContainerProperty.supported
 
     override suspend fun ScanSession.perform(): StepOutput {
+        skipIfUnsupportedBySpecificationVersion(
+            "Get Container Property requires the Special option to be reported as supported in the specification version."
+        ) {
+            it.specialOptionVersion == null || it.specialOptionVersion == OptionVersion.MISSING
+        }
         val containerPropertyValues =
             mutableMapOf<GetContainerPropertyCommand.Property, ByteArray>()
         val results = mutableListOf<String>()

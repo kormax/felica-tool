@@ -57,6 +57,11 @@ internal object InternalAuthenticateAndReadStep :
                     "Internal Authenticate and Read requires at least one service with MAC enabled."
             )
         }
+        skipIfUnsupportedBySpecificationVersion(
+            "Internal Authenticate and Read requires the Communication with MAC option to be reported as supported in the specification version."
+        ) {
+            it.communicationWithMacOptionVersion == null
+        }
         val bestSystemContext = testTarget.systemContext
         val bestMacService = testTarget.service
 
