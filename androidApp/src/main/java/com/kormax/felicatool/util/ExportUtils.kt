@@ -1,12 +1,11 @@
 package com.kormax.felicatool.util
 
-import android.content.ContentValues
+import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
-import android.os.Environment
-import android.provider.MediaStore
+import androidx.core.content.FileProvider
 import com.kormax.felicatool.BuildConfig
 import com.kormax.felicatool.felica.*
 import com.kormax.felicatool.service.CardScanContext
@@ -14,6 +13,7 @@ import com.kormax.felicatool.service.CommandCapability
 import com.kormax.felicatool.service.CommandSupport
 import com.kormax.felicatool.service.SystemScanContext
 import com.kormax.felicatool.service.logging.CommunicationLogEntry
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 import org.json.JSONArray
@@ -160,21 +160,7 @@ object ExportUtils {
             val fileName = "felicatools_communication_$timestamp.json"
             val jsonContent = jsonArray.toString(2)
 
-            val values =
-                ContentValues().apply {
-                    put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
-                    put(MediaStore.MediaColumns.MIME_TYPE, "application/json")
-                    put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-                }
-
-            val uri =
-                context.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
-            uri?.let { fileUri ->
-                context.contentResolver.openOutputStream(fileUri)?.use { output ->
-                    output.write(jsonContent.toByteArray())
-                }
-                shareJsonFile(context, fileUri, fileName)
-            }
+            shareJson(context, fileName, jsonContent)
         } catch (e: Exception) {
             android.util.Log.e("ExportUtils", "Failed to export communication log", e)
         }
@@ -217,26 +203,32 @@ object ExportUtils {
             val fileName = "felicatools_scan_${primaryIdmPrefix}$timestamp.json"
             val jsonContent = json.toString(2)
 
-            val values =
-                ContentValues().apply {
-                    put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
-                    put(MediaStore.MediaColumns.MIME_TYPE, "application/json")
-                    put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-                }
-
-            val uri =
-                context.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
-            uri?.let { fileUri ->
-                context.contentResolver.openOutputStream(fileUri)?.use { output ->
-                    output.write(jsonContent.toByteArray())
-                }
-
-                // Share the actual file
-                shareJsonFile(context, fileUri, fileName)
-            }
+            shareJson(context, fileName, jsonContent)
         } catch (e: Exception) {
             // Handle error - could show a toast or error dialog
             android.util.Log.e("ExportUtils", "Failed to export flat list", e)
+        }
+    }
+
+    private fun shareJson(context: Context, fileName: String, json: String) {
+        val root = File(context.cacheDir, "exports")
+        check(root.mkdirs() || root.isDirectory)
+        val cutoff = java.lang.System.currentTimeMillis() - 24 * 60 * 60 * 1000L
+        root
+            .listFiles()
+            ?.filter { it.isDirectory && it.lastModified() < cutoff }
+            ?.forEach { it.deleteRecursively() }
+        val directory = File(root, UUID.randomUUID().toString())
+        check(directory.mkdirs())
+        try {
+            val file = File(directory, fileName)
+            file.writeText(json, Charsets.UTF_8)
+            val uri =
+                FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+            shareJsonFile(context, uri, fileName)
+        } catch (e: Exception) {
+            directory.deleteRecursively()
+            throw e
         }
     }
 
@@ -247,6 +239,7 @@ object ExportUtils {
                 action = Intent.ACTION_SEND
                 type = "application/json"
                 putExtra(Intent.EXTRA_STREAM, fileUri)
+                clipData = ClipData.newUri(context.contentResolver, fileName, fileUri)
                 putExtra(Intent.EXTRA_SUBJECT, "FeliCa Tools File")
                 putExtra(Intent.EXTRA_TITLE, fileName) // Add explicit title
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
