@@ -86,7 +86,10 @@ internal object EchoDetermineMaxPayloadSizeStep :
     private suspend fun ScanSession.attemptEcho(length: Int): EchoAttemptResult {
         val payload = ByteArray(length) { index -> (index and 0xFF).toByte() }
         return try {
-            val response = executeCommand { EchoCommand(payload) }
+            val response =
+                executeCommand(attempts = STANDARD_COMMAND_EXECUTION_ATTEMPTS) {
+                    EchoCommand(payload)
+                }
             if (response.data.contentEquals(payload)) {
                 EchoAttemptResult(length, success = true, error = null)
             } else {

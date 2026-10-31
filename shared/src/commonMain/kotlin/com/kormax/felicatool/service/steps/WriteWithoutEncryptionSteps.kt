@@ -238,7 +238,10 @@ internal object WriteWithoutEncryptionDetermineErrorIndicationStep :
 
         val response =
             try {
-                executeCommand(withSelectedSystemCode = probeTarget.systemCode) {
+                executeCommand(
+                    withSelectedSystemCode = probeTarget.systemCode,
+                    attempts = STANDARD_COMMAND_EXECUTION_ATTEMPTS,
+                ) {
                     WriteWithoutEncryptionCommand(
                         idm = idm,
                         serviceCodes = arrayOf(probeTarget.service.code),
@@ -342,7 +345,10 @@ internal object WriteWithoutEncryptionDetermineMaxBlocksStep :
             ) { count ->
                 try {
                     val response =
-                        executeCommand(withSelectedSystemCode = probeTarget.systemCode) {
+                        executeCommand(
+                            withSelectedSystemCode = probeTarget.systemCode,
+                            attempts = STANDARD_COMMAND_EXECUTION_ATTEMPTS,
+                        ) {
                             WriteWithoutEncryptionCommand(
                                 idm = idm,
                                 serviceCodes = arrayOf(probeTarget.service.code),

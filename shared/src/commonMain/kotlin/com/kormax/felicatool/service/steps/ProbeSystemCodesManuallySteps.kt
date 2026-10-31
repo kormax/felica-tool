@@ -58,7 +58,10 @@ internal object ProbeSystemCodesManuallyStep :
             val systemCodeHex = systemCode.toHexString().uppercase()
             try {
                 val pollingResponse =
-                    executeCommand(withPresenceChecking = false) {
+                    executeCommand(
+                        withPresenceChecking = false,
+                        attempts = STANDARD_COMMAND_EXECUTION_ATTEMPTS,
+                    ) {
                         PollingCommand(
                             systemCode = systemCode,
                             requestCode = RequestCode.NO_REQUEST,
@@ -113,7 +116,10 @@ internal object ProbeSystemCodesManuallyStep :
 
                 try {
                     val pollingResponse =
-                        executeCommand(withPresenceChecking = false) {
+                        executeCommand(
+                            withPresenceChecking = false,
+                            attempts = STANDARD_COMMAND_EXECUTION_ATTEMPTS,
+                        ) {
                             PollingCommand(
                                 systemCode = probeSystemCode,
                                 requestCode = RequestCode.SYSTEM_CODE_REQUEST,

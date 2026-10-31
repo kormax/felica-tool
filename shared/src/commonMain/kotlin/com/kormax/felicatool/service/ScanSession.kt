@@ -20,7 +20,9 @@ private const val PRESENCE_CHECK_RETRY_DELAY_STEP_MS = 50L
 private const val PRESENCE_CHECK_REDISCOVERY_TIMEOUT_MILLIS = 600
 private const val FIELD_RESET_REDISCOVERY_TIMEOUT_MILLIS = 600
 
-internal const val COMMAND_EXECUTION_ATTEMPTS = 3
+private const val REDUCED_COMMAND_EXECUTION_ATTEMPTS = 2
+internal const val STANDARD_COMMAND_EXECUTION_ATTEMPTS = 3
+private const val SUPPORTED_COMMAND_EXECUTION_ATTEMPTS = 5
 internal val COMMAND_EXECUTION_RETRY_DELAY: Duration = 5.milliseconds
 internal val SYSTEM_CODE_WILDCARD: ByteArray = byteArrayOf(0xFF.toByte(), 0xFF.toByte())
 
@@ -68,17 +70,53 @@ internal constructor(
     fun contextSnapshot(): CardScanContext =
         context.copy(communicationLog = communicationLog.toList())
 
+    private fun commandExecutionAttempts(command: FelicaCommand<*>): Int {
+        val commands = scanContext.commands
+        val capability =
+            when (command) {
+                is PollingCommand -> commands.polling
+                is RequestResponseCommand -> commands.requestResponse
+                is RequestSystemCodeCommand -> commands.requestSystemCode
+                is RequestSpecificationVersionCommand -> commands.requestSpecificationVersion
+                is GetSystemStatusCommand -> commands.getSystemStatus
+                is RequestCodeListCommand -> commands.requestCodeList
+                is SearchServiceCodeCommand -> commands.searchServiceCode
+                is RequestServiceCommand -> commands.requestService
+                is RequestServiceV2Command -> commands.requestServiceV2
+                is SetParameterCommand -> commands.setParameter
+                is GetContainerIssueInformationCommand -> commands.getContainerIssueInformation
+                is RequestProductInformationCommand -> commands.requestProductInformation
+                is GetContainerIdCommand -> commands.getContainerId
+                is EchoCommand -> commands.echo
+                is ResetModeCommand -> commands.resetMode
+                is GetNodePropertyCommand -> commands.getNodeProperty
+                is RequestBlockInformationCommand -> commands.requestBlockInformation
+                is RequestBlockInformationExCommand -> commands.requestBlockInformationEx
+                is ReadWithoutEncryptionCommand -> commands.readWithoutEncryption
+                is WriteWithoutEncryptionCommand -> commands.writeWithoutEncryption
+                is GetAreaInformationCommand -> commands.getAreaInformation
+                is GetContainerPropertyCommand -> commands.getContainerProperty
+                is Authentication1DesCommand -> commands.authentication1Des
+                is Authentication1AesCommand -> commands.authentication1Aes
+                is InternalAuthenticateAndReadCommand -> commands.internalAuthenticateAndRead
+                else -> null
+            }
+        return if (capability?.supported == CommandSupport.SUPPORTED)
+            SUPPORTED_COMMAND_EXECUTION_ATTEMPTS
+        else STANDARD_COMMAND_EXECUTION_ATTEMPTS
+    }
+
     fun supportCheckAttempts(command: String, property: String = "supported"): Int {
-        if (!settings.enableIcCodeScanHeuristics) return COMMAND_EXECUTION_ATTEMPTS
+        if (!settings.enableIcCodeScanHeuristics) return STANDARD_COMMAND_EXECUTION_ATTEMPTS
 
         val cardPmm = pmm
         val expected =
             IcTypeRegistry.getCommandSupport(cardPmm.icType, cardPmm.romType, command, property)
         val attempts =
             when (expected) {
-                CommandSupport.SUPPORTED -> 5
-                CommandSupport.UNSUPPORTED -> 2
-                CommandSupport.UNKNOWN -> COMMAND_EXECUTION_ATTEMPTS
+                CommandSupport.SUPPORTED -> SUPPORTED_COMMAND_EXECUTION_ATTEMPTS
+                CommandSupport.UNSUPPORTED -> REDUCED_COMMAND_EXECUTION_ATTEMPTS
+                CommandSupport.UNKNOWN -> STANDARD_COMMAND_EXECUTION_ATTEMPTS
             }
         if (expected != CommandSupport.UNKNOWN) {
             ScanLog.d(
@@ -148,7 +186,7 @@ internal constructor(
         withSelectedSystemCode: ByteArray? = null,
         withResetToMode0: Boolean = false,
         withPresenceChecking: Boolean = true,
-        attempts: Int = COMMAND_EXECUTION_ATTEMPTS,
+        attempts: Int? = null,
         retryDelay: Duration = COMMAND_EXECUTION_RETRY_DELAY,
         createCommand: CommandExecutionScope.() -> FelicaCommand<T>,
     ): T =
@@ -165,11 +203,13 @@ internal constructor(
         withSelectedSystemCode: ByteArray? = null,
         withResetToMode0: Boolean = false,
         withPresenceChecking: Boolean = true,
-        attempts: Int = COMMAND_EXECUTION_ATTEMPTS,
+        attempts: Int? = null,
         retryDelay: CommandExecutionScope.() -> Duration,
         createCommand: CommandExecutionScope.() -> FelicaCommand<T>,
     ): T {
-        require(attempts >= 1) { "Command execution attempts must be at least 1" }
+        require(attempts == null || attempts >= 1) {
+            "Command execution attempts must be at least 1"
+        }
         val selectedSystemCode = withSelectedSystemCode?.copyOf()
         selectedSystemCode?.let {
             require(it.size == 2) { "Selected system code must be exactly 2 bytes" }
@@ -179,7 +219,10 @@ internal constructor(
         var lastCommandLabel = "FeliCa command"
         var commandWasSent = false
 
-        for (attempt in 1..attempts) {
+        var maxAttempts = attempts ?: STANDARD_COMMAND_EXECUTION_ATTEMPTS
+        var attempt = 0
+        while (attempt < maxAttempts) {
+            attempt++
             var attemptCommandLabel = "system activation"
             var attemptCommandWasSent = false
             var attemptCommandIdm: ByteArray? = null
@@ -200,6 +243,7 @@ internal constructor(
                         attempt = attempt,
                     )
                 val command = scope.createCommand()
+                if (attempts == null) maxAttempts = commandExecutionAttempts(command)
                 lastCommandLabel = command::class.simpleName ?: "FeliCa command"
                 attemptCommandLabel = lastCommandLabel
                 attemptCommandIdm = (command as? FelicaCommandWithIdm<*>)?.idm?.copyOf()
@@ -239,7 +283,7 @@ internal constructor(
             }
 
             lastException = attemptFailure
-            if (attempt >= attempts) {
+            if (attempt >= maxAttempts) {
                 break
             }
 
@@ -275,7 +319,7 @@ internal constructor(
         }
 
         throw TransceiveTimeoutException(
-            message = "No response from target after $attempts attempt(s)",
+            message = "No response from target after $attempt attempt(s)",
             cause = cause,
         )
     }

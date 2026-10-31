@@ -510,7 +510,10 @@ internal object ReadWithoutEncryptionDetermineErrorIndicationStep :
 
         val response =
             try {
-                executeCommand(withSelectedSystemCode = testTarget.systemContext.systemCode) {
+                executeCommand(
+                    withSelectedSystemCode = testTarget.systemContext.systemCode,
+                    attempts = STANDARD_COMMAND_EXECUTION_ATTEMPTS,
+                ) {
                     ReadWithoutEncryptionCommand(
                         idm = idm,
                         serviceCodes = arrayOf(testTarget.service.code),
@@ -654,7 +657,10 @@ internal object ReadWithoutEncryptionDetermineIllegalNumberErrorPreferenceStep :
             )
 
         val response =
-            executeCommand(withSelectedSystemCode = testTarget.systemContext.systemCode) {
+            executeCommand(
+                withSelectedSystemCode = testTarget.systemContext.systemCode,
+                attempts = STANDARD_COMMAND_EXECUTION_ATTEMPTS,
+            ) {
                 ReadWithoutEncryptionCommand(
                     idm = idm,
                     serviceCodes = Array(requestedCount) { testTarget.service.code },
@@ -749,7 +755,8 @@ internal object ReadWithoutEncryptionDetermineMaxServicesStep :
                 val response =
                     try {
                         executeCommand(
-                            withSelectedSystemCode = testTarget.systemContext.systemCode
+                            withSelectedSystemCode = testTarget.systemContext.systemCode,
+                            attempts = STANDARD_COMMAND_EXECUTION_ATTEMPTS,
                         ) {
                             ReadWithoutEncryptionCommand(
                                 idm = idm,
@@ -827,7 +834,8 @@ internal object ReadWithoutEncryptionDetermineMaxBlocksStep :
                 val response =
                     try {
                         executeCommand(
-                            withSelectedSystemCode = testTarget.systemContext.systemCode
+                            withSelectedSystemCode = testTarget.systemContext.systemCode,
+                            attempts = STANDARD_COMMAND_EXECUTION_ATTEMPTS,
                         ) {
                             ReadWithoutEncryptionCommand(
                                 idm = idm,

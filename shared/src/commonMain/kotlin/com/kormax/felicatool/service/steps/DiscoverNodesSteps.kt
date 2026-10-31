@@ -23,7 +23,6 @@ internal suspend fun ScanSession.discoverNodesWithReadWithoutEncryption(
         }
     val existingCodes = systemContext.nodes.map { it.code.toHexString() }.toSet()
     val services = mutableListOf<Service>()
-    var responded = false
     for (number in 0..1023) {
         for (attribute in attributes) {
             val service = Service(number, attribute)
@@ -42,15 +41,21 @@ internal suspend fun ScanSession.discoverNodesWithReadWithoutEncryption(
                     }
                 } catch (e: TransceiveTimeoutException) {
                     if (
-                        !responded &&
-                            scanContext.commands.readWithoutEncryption.supported !=
-                                CommandSupport.SUPPORTED
+                        scanContext.commands.readWithoutEncryption.supported !=
+                            CommandSupport.SUPPORTED
                     ) {
                         throw StepSkipped("Read Without Encryption did not respond")
                     }
                     continue
                 }
-            responded = true
+            if (scanContext.commands.readWithoutEncryption.supported != CommandSupport.SUPPORTED) {
+                scanContext = scanContext.withCommands {
+                    copy(
+                        readWithoutEncryption =
+                            readWithoutEncryption.copy(supported = CommandSupport.SUPPORTED)
+                    )
+                }
+            }
             when (response.status) {
                 is Status.IllegalServiceCodeList -> continue
                 is Status.Success,
