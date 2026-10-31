@@ -807,7 +807,52 @@
   },
   {
     "ic": "0D",
+    "rom": "0F",
     "name": "RC-S960",
+    "commands": {
+      "polling": {
+        "supported": true,
+        "system_code_request_supported": true,
+        "communication_performance_request_supported": true,
+        "trailing_data_supported": false
+      },
+      "request_response": {
+        "supported": true,
+        "trailing_data_supported": false
+      },
+      "request_service": {
+        "supported": true,
+        "trailing_data_supported": false
+      },
+      "request_system_code": {
+        "supported": true,
+        "trailing_data_supported": false
+      },
+      "search_service_code": {
+        "supported": true,
+        "trailing_data_supported": false
+      },
+      "read_without_encryption": {
+        "supported": true,
+        "extended_block_list_element_supported": true,
+        "trailing_data_supported": false,
+        "max_services_per_request": 16,
+        "max_blocks_per_request": 12
+      },
+      "write_without_encryption": {
+        "supported": true,
+        "trailing_data_supported": false,
+        "max_blocks_per_request": 10
+      },
+      "authentication1_des": {
+        "supported": true,
+        "trailing_data_supported": false
+      },
+      "echo": {
+        "supported": true,
+        "max_payload_size": 252
+      }
+    },
     "products": [
       {
         "model": "RC-S960",
