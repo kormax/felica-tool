@@ -25,6 +25,7 @@
     <string name="card_type_dhaka_single">Dhaka Single Journey Ticket</string>
     <string name="card_type_dmtcl">DMTCL</string>
     <string name="card_type_docard">DoCARD</string>
+    <string name="card_type_docard_old">DoCARD (Old)</string>
     <string name="card_type_ecomyca">ecomyca</string>
     <string name="card_type_edy">Edy</string>
     <string name="card_type_edy_ampm">am/pm Edy</string>
@@ -65,6 +66,7 @@
     <string name="card_type_iwasaki">Iwasaki IC Card</string>
     <string name="card_type_iwate_green">Iwate Green Pass</string>
     <string name="card_type_iyotetsu">IC-E-Card</string>
+    <string name="card_type_k_touch">K-Touch</string>
     <string name="card_type_kartu_single_trip">Kartu Single Trip</string>
     <string name="card_type_kagoshima">Kagoshima</string>
     <string name="card_type_kinoca">kinoca</string>
@@ -74,6 +76,7 @@
     <string name="card_type_kmt_jelajah">Kartu Multi Trip Jelajah</string>
     <string name="card_type_konami_e_amusement">Konami e-amusement pass</string>
     <string name="card_type_kumamon">Kumamon no IC Card</string>
+    <string name="card_type_kuroneko_members">Kuroneko Members</string>
     <string name="card_type_kururu">Kururu</string>
     <string name="card_type_kururu_new">Kururu (New)</string>
     <string name="card_type_lococa">LOCOCA</string>
@@ -89,14 +92,15 @@
     <string name="card_type_mobiry_days">MOBIRY DAYS</string>
     <string name="card_type_mrt_pass">MRT Pass</string>
     <string name="card_type_mtr_ticket">MTR Ticket</string>
-    <string name="card_type_nacchi">Nacchi</string>
+    <string name="card_type_nacchi">Natch</string>
     <string name="card_type_nagasaki_smart">Nagasaki Smart Card</string>
     <string name="card_type_nanaco">Nanaco</string>
-    <string name="card_type_nankai">Nacchi</string>
+    <string name="card_type_nankai">Natch</string>
     <string name="card_type_nesica">NESiCA</string>
     <string name="card_type_nicepass">NicePass</string>
     <string name="card_type_nicopa">NicoPa</string>
     <string name="card_type_nimoca">nimoca</string>
+    <string name="card_type_nimoca_commemorative">nimoca (Commemorative)</string>
     <string name="card_type_nimoca_icas">ICAS nimoca</string>
     <string name="card_type_nimoca_kumamoto">Kumamoto nimoca</string>
     <string name="card_type_nimoca_tsutsu">tsu-tsu-nimoca</string>
@@ -131,10 +135,12 @@
     <string name="card_type_suica_mono">Suica Monorail</string>
     <string name="card_type_suica_plus">Suica Regional Collaboration</string>
     <string name="card_type_suica_welcome">Welcome Suica</string>
+    <string name="card_type_sz_tong">SZ Tong</string>
     <string name="card_type_toica">TOICA</string>
     <string name="card_type_totra">totra</string>
     <string name="card_type_towada_skyblue">Towada SkyBlue Pass</string>
     <string name="card_type_toyama">Toyama</string>
+    <string name="card_type_transcard">TransCard</string>
     <string name="card_type_tsukica">Tsukica</string>
     <string name="card_type_unfused">Unfused FeliCa</string>
     <string name="card_type_waon">WAON</string>

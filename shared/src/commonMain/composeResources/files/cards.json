@@ -40,6 +40,7 @@
     },
     "HAYAKAKEN": {},
     "NIMOCA": {
+      "NIMOCA_COMMEMORATIVE": {},
       "NIMOCA_TSUTSU": {},
       "NIMOCA_ICAS": {},
       "NIMOCA_HIROSHIMA": {},
@@ -53,6 +54,11 @@
     "KITACA": {},
     "ICSCA": {}
   },
+  "DOCARD_OLD": {},
+  "SHENZHEN_TONG": {
+    "TRANSCARD": {}
+  },
+  "K_TOUCH": {},
   "SHIKOKU": {
     "IC_E_CARD": {},
     "DESUCA": {}
@@ -69,6 +75,11 @@
     "NORUCA": {
       "AIZU_NORUCA": {}
     }
+  },
+  "KURONEKO_MEMBERS": {
+    "KURONEKO_MEMBERS_EDY": {},
+    "KURONEKO_MEMBERS_NANACO": {},
+    "KURONEKO_MEMBERS_WAON": {}
   },
   "FELICA_LITE": {
     "DHAKA_SINGLE": {},
@@ -107,6 +118,7 @@
     "EDY_PRONTO": {},
     "EDY_SONY": {}
   },
+  "ELIO": {},
   "NANACO": {},
   "WAON": {
     "WAON_LOCAL": {}

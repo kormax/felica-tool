@@ -26,6 +26,7 @@
       "MANACA_USTAR",
       "MEGOICA",
       "NIMOCA",
+      "NIMOCA_COMMEMORATIVE",
       "NIMOCA_ICAS",
       "NIMOCA_KUMAMOTO",
       "NIMOCA_TSUTSU",
@@ -73,6 +74,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -148,6 +150,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -199,6 +202,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -250,6 +254,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -301,6 +306,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -352,6 +358,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -790,6 +797,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -841,6 +849,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -892,6 +901,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -943,6 +953,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -994,6 +1005,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -1045,6 +1057,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -1096,6 +1109,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -1147,6 +1161,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -1198,6 +1213,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -1249,6 +1265,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -1300,6 +1317,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -1351,6 +1369,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -1397,6 +1416,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -1447,6 +1467,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -1498,6 +1519,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -1549,6 +1571,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -1600,6 +1623,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -1651,6 +1675,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -1702,6 +1727,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -1753,6 +1779,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -1804,6 +1831,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -1855,6 +1883,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -1906,6 +1935,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -1957,6 +1987,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -2008,6 +2039,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -2059,6 +2091,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -2110,6 +2143,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -2161,6 +2195,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -2212,6 +2247,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -2258,6 +2294,7 @@
           "LOCOCA",
           "MEGOICA",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -3013,6 +3050,7 @@
         "cards": [
           "HAYAKAKEN",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -3030,6 +3068,7 @@
         "service_provider": "NIMOCA",
         "cards": [
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU"
@@ -3045,6 +3084,7 @@
         "service_provider": "NIMOCA",
         "cards": [
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU"
@@ -3061,6 +3101,7 @@
         "cards": [
           "HAYAKAKEN",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -3079,6 +3120,7 @@
         "cards": [
           "HAYAKAKEN",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -3096,6 +3138,7 @@
         "service_provider": "NIMOCA",
         "cards": [
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU"
@@ -3111,6 +3154,7 @@
         "service_provider": "NIMOCA",
         "cards": [
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU"
@@ -3126,6 +3170,7 @@
         "service_provider": "NIMOCA",
         "cards": [
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU"
@@ -3141,6 +3186,7 @@
         "service_provider": "NIMOCA",
         "cards": [
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU"
@@ -3157,6 +3203,7 @@
         "cards": [
           "HAYAKAKEN",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -3175,6 +3222,7 @@
         "cards": [
           "HAYAKAKEN",
           "NIMOCA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NIMOCA_TSUTSU",
@@ -5819,6 +5867,39 @@
       }
     ]
   },
+  "0801": {
+    "name": "DoCARD (old)",
+    "service_provider": "DOCARD_OLD",
+    "cards": [
+      "DOCARD_OLD"
+    ],
+    "nodes": [
+      {
+        "code": "0000feff",
+        "parent": null,
+        "name": null,
+        "service_provider": "DOCARD_OLD",
+        "cards": [
+          "DOCARD_OLD"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0810",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "DOCARD_OLD",
+        "cards": [
+          "DOCARD_OLD"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      }
+    ]
+  },
   "12fc": {
     "name": "NDEF Type 3 Tag",
     "service_provider": "NDEF",
@@ -6916,6 +6997,303 @@
         "service_provider": "NAGASAKI_SMART",
         "cards": [
           "NAGASAKI_SMART"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      }
+    ]
+  },
+  "8019": {
+    "name": "K-Touch",
+    "service_provider": "SONY_FINANCE",
+    "cards": [
+      "K_TOUCH"
+    ],
+    "nodes": [
+      {
+        "code": "0000feff",
+        "parent": null,
+        "name": null,
+        "service_provider": "SONY_FINANCE",
+        "cards": [
+          "K_TOUCH"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "01110b33",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "SONY_FINANCE",
+        "cards": [
+          "K_TOUCH"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0811",
+        "parent": "01110b33",
+        "name": null,
+        "service_provider": "SONY_FINANCE",
+        "cards": [
+          "K_TOUCH"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0b11",
+        "parent": "01110b33",
+        "name": null,
+        "service_provider": "SONY_FINANCE",
+        "cards": [
+          "K_TOUCH"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0812",
+        "parent": "01110b33",
+        "name": null,
+        "service_provider": "SONY_FINANCE",
+        "cards": [
+          "K_TOUCH"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0b12",
+        "parent": "01110b33",
+        "name": null,
+        "service_provider": "SONY_FINANCE",
+        "cards": [
+          "K_TOUCH"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0813",
+        "parent": "01110b33",
+        "name": null,
+        "service_provider": "SONY_FINANCE",
+        "cards": [
+          "K_TOUCH"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0b13",
+        "parent": "01110b33",
+        "name": null,
+        "service_provider": "SONY_FINANCE",
+        "cards": [
+          "K_TOUCH"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0814",
+        "parent": "01110b33",
+        "name": null,
+        "service_provider": "SONY_FINANCE",
+        "cards": [
+          "K_TOUCH"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0b14",
+        "parent": "01110b33",
+        "name": null,
+        "service_provider": "SONY_FINANCE",
+        "cards": [
+          "K_TOUCH"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0821",
+        "parent": "01110b33",
+        "name": null,
+        "service_provider": "SONY_FINANCE",
+        "cards": [
+          "K_TOUCH"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0921",
+        "parent": "01110b33",
+        "name": null,
+        "service_provider": "SONY_FINANCE",
+        "cards": [
+          "K_TOUCH"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0822",
+        "parent": "01110b33",
+        "name": null,
+        "service_provider": "SONY_FINANCE",
+        "cards": [
+          "K_TOUCH"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0922",
+        "parent": "01110b33",
+        "name": null,
+        "service_provider": "SONY_FINANCE",
+        "cards": [
+          "K_TOUCH"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0823",
+        "parent": "01110b33",
+        "name": null,
+        "service_provider": "SONY_FINANCE",
+        "cards": [
+          "K_TOUCH"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0923",
+        "parent": "01110b33",
+        "name": null,
+        "service_provider": "SONY_FINANCE",
+        "cards": [
+          "K_TOUCH"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0824",
+        "parent": "01110b33",
+        "name": null,
+        "service_provider": "SONY_FINANCE",
+        "cards": [
+          "K_TOUCH"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0924",
+        "parent": "01110b33",
+        "name": null,
+        "service_provider": "SONY_FINANCE",
+        "cards": [
+          "K_TOUCH"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0831",
+        "parent": "01110b33",
+        "name": null,
+        "service_provider": "SONY_FINANCE",
+        "cards": [
+          "K_TOUCH"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0b31",
+        "parent": "01110b33",
+        "name": null,
+        "service_provider": "SONY_FINANCE",
+        "cards": [
+          "K_TOUCH"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0832",
+        "parent": "01110b33",
+        "name": null,
+        "service_provider": "SONY_FINANCE",
+        "cards": [
+          "K_TOUCH"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0b32",
+        "parent": "01110b33",
+        "name": null,
+        "service_provider": "SONY_FINANCE",
+        "cards": [
+          "K_TOUCH"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0833",
+        "parent": "01110b33",
+        "name": null,
+        "service_provider": "SONY_FINANCE",
+        "cards": [
+          "K_TOUCH"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0b33",
+        "parent": "01110b33",
+        "name": null,
+        "service_provider": "SONY_FINANCE",
+        "cards": [
+          "K_TOUCH"
         ],
         "mediums": [
           "CARD"
@@ -8935,6 +9313,18 @@
         ]
       },
       {
+        "code": "00c838c8",
+        "parent": "0080feff",
+        "name": null,
+        "service_provider": "IRUCA",
+        "cards": [
+          "IRUCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
         "code": "00c83fc8",
         "parent": "0080feff",
         "name": null,
@@ -8948,7 +9338,31 @@
       },
       {
         "code": "08c8",
+        "parent": "00c838c8",
+        "name": null,
+        "service_provider": "IRUCA",
+        "cards": [
+          "IRUCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "08c8",
         "parent": "00c83fc8",
+        "name": null,
+        "service_provider": "IRUCA",
+        "cards": [
+          "IRUCA"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0ac8",
+        "parent": "00c838c8",
         "name": null,
         "service_provider": "IRUCA",
         "cards": [
@@ -9751,7 +10165,8 @@
     "name": "Karuwaza Club",
     "service_provider": "KARUWAZA_CLUB",
     "cards": [
-      "EDY_KARUWAZA_CLUB"
+      "EDY_KARUWAZA_CLUB",
+      "KARUWAZA_CLUB"
     ],
     "nodes": [
       {
@@ -9760,7 +10175,8 @@
         "name": null,
         "service_provider": "KARUWAZA_CLUB",
         "cards": [
-          "EDY_KARUWAZA_CLUB"
+          "EDY_KARUWAZA_CLUB",
+          "KARUWAZA_CLUB"
         ],
         "mediums": [
           "CARD"
@@ -9772,7 +10188,8 @@
         "name": null,
         "service_provider": "KARUWAZA_CLUB",
         "cards": [
-          "EDY_KARUWAZA_CLUB"
+          "EDY_KARUWAZA_CLUB",
+          "KARUWAZA_CLUB"
         ],
         "mediums": [
           "CARD"
@@ -9784,7 +10201,8 @@
         "name": null,
         "service_provider": "KARUWAZA_CLUB",
         "cards": [
-          "EDY_KARUWAZA_CLUB"
+          "EDY_KARUWAZA_CLUB",
+          "KARUWAZA_CLUB"
         ],
         "mediums": [
           "CARD"
@@ -9796,7 +10214,8 @@
         "name": null,
         "service_provider": "KARUWAZA_CLUB",
         "cards": [
-          "EDY_KARUWAZA_CLUB"
+          "EDY_KARUWAZA_CLUB",
+          "KARUWAZA_CLUB"
         ],
         "mediums": [
           "CARD"
@@ -9808,7 +10227,8 @@
         "name": null,
         "service_provider": "KARUWAZA_CLUB",
         "cards": [
-          "EDY_KARUWAZA_CLUB"
+          "EDY_KARUWAZA_CLUB",
+          "KARUWAZA_CLUB"
         ],
         "mediums": [
           "CARD"
@@ -9820,7 +10240,8 @@
         "name": null,
         "service_provider": "KARUWAZA_CLUB",
         "cards": [
-          "EDY_KARUWAZA_CLUB"
+          "EDY_KARUWAZA_CLUB",
+          "KARUWAZA_CLUB"
         ],
         "mediums": [
           "CARD"
@@ -9832,7 +10253,8 @@
         "name": null,
         "service_provider": "KARUWAZA_CLUB",
         "cards": [
-          "EDY_KARUWAZA_CLUB"
+          "EDY_KARUWAZA_CLUB",
+          "KARUWAZA_CLUB"
         ],
         "mediums": [
           "CARD"
@@ -9844,7 +10266,8 @@
         "name": null,
         "service_provider": "KARUWAZA_CLUB",
         "cards": [
-          "EDY_KARUWAZA_CLUB"
+          "EDY_KARUWAZA_CLUB",
+          "KARUWAZA_CLUB"
         ],
         "mediums": [
           "CARD"
@@ -9856,7 +10279,8 @@
         "name": null,
         "service_provider": "KARUWAZA_CLUB",
         "cards": [
-          "EDY_KARUWAZA_CLUB"
+          "EDY_KARUWAZA_CLUB",
+          "KARUWAZA_CLUB"
         ],
         "mediums": [
           "CARD"
@@ -9868,7 +10292,8 @@
         "name": null,
         "service_provider": "KARUWAZA_CLUB",
         "cards": [
-          "EDY_KARUWAZA_CLUB"
+          "EDY_KARUWAZA_CLUB",
+          "KARUWAZA_CLUB"
         ],
         "mediums": [
           "CARD"
@@ -9880,7 +10305,8 @@
         "name": null,
         "service_provider": "KARUWAZA_CLUB",
         "cards": [
-          "EDY_KARUWAZA_CLUB"
+          "EDY_KARUWAZA_CLUB",
+          "KARUWAZA_CLUB"
         ],
         "mediums": [
           "CARD"
@@ -9892,7 +10318,8 @@
         "name": null,
         "service_provider": "KARUWAZA_CLUB",
         "cards": [
-          "EDY_KARUWAZA_CLUB"
+          "EDY_KARUWAZA_CLUB",
+          "KARUWAZA_CLUB"
         ],
         "mediums": [
           "CARD"
@@ -9904,7 +10331,8 @@
         "name": null,
         "service_provider": "KARUWAZA_CLUB",
         "cards": [
-          "EDY_KARUWAZA_CLUB"
+          "EDY_KARUWAZA_CLUB",
+          "KARUWAZA_CLUB"
         ],
         "mediums": [
           "CARD"
@@ -16423,6 +16851,615 @@
       }
     ]
   },
+  "8b61": {
+    "name": "Kuroneko Members",
+    "service_provider": "KURONEKO_MEMBERS",
+    "cards": [
+      "KURONEKO_MEMBERS_NANACO"
+    ],
+    "nodes": [
+      {
+        "code": "0000feff",
+        "parent": null,
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0010ff13",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0810",
+        "parent": "0010ff13",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0b10",
+        "parent": "0010ff13",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4810",
+        "parent": "0010ff13",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4a10",
+        "parent": "0010ff13",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8810",
+        "parent": "0010ff13",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8a10",
+        "parent": "0010ff13",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c810",
+        "parent": "0010ff13",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "ca10",
+        "parent": "0010ff13",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0811",
+        "parent": "0010ff13",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0a11",
+        "parent": "0010ff13",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4811",
+        "parent": "0010ff13",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4a11",
+        "parent": "0010ff13",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8811",
+        "parent": "0010ff13",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8a11",
+        "parent": "0010ff13",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c811",
+        "parent": "0010ff13",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "ca11",
+        "parent": "0010ff13",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0812",
+        "parent": "0010ff13",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0a12",
+        "parent": "0010ff13",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4812",
+        "parent": "0010ff13",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4a12",
+        "parent": "0010ff13",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8812",
+        "parent": "0010ff13",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8a12",
+        "parent": "0010ff13",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c812",
+        "parent": "0010ff13",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "ca12",
+        "parent": "0010ff13",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0813",
+        "parent": "0010ff13",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0a13",
+        "parent": "0010ff13",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4813",
+        "parent": "0010ff13",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4a13",
+        "parent": "0010ff13",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8813",
+        "parent": "0010ff13",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8a13",
+        "parent": "0010ff13",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c813",
+        "parent": "0010ff13",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "ca13",
+        "parent": "0010ff13",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0020ff21",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0820",
+        "parent": "0020ff21",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0a20",
+        "parent": "0020ff21",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4820",
+        "parent": "0020ff21",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4a20",
+        "parent": "0020ff21",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8820",
+        "parent": "0020ff21",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8a20",
+        "parent": "0020ff21",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c820",
+        "parent": "0020ff21",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "ca20",
+        "parent": "0020ff21",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0821",
+        "parent": "0020ff21",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0a21",
+        "parent": "0020ff21",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4821",
+        "parent": "0020ff21",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4a21",
+        "parent": "0020ff21",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "08fc",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0bfc",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "49fc",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "KURONEKO_MEMBERS",
+        "cards": [
+          "KURONEKO_MEMBERS_NANACO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      }
+    ]
+  },
   "8b98": {
     "name": "RANDEN",
     "service_provider": "RANDEN",
@@ -16787,7 +17824,7 @@
     ]
   },
   "8c37": {
-    "name": null,
+    "name": "ICOUSA",
     "service_provider": "ICOUSA",
     "cards": [
       "ICOUSA"
@@ -16856,7 +17893,7 @@
       {
         "code": "4b80",
         "parent": "40803f88",
-        "name": null,
+        "name": "ICOUSA issuance information",
         "service_provider": "ICOUSA",
         "cards": [
           "ICOUSA"
@@ -16928,7 +17965,7 @@
       {
         "code": "4b88",
         "parent": "40887f89",
-        "name": null,
+        "name": "ICOUSA balance",
         "service_provider": "ICOUSA",
         "cards": [
           "ICOUSA"
@@ -16976,7 +18013,7 @@
       {
         "code": "8f89",
         "parent": "8089bf8a",
-        "name": null,
+        "name": "ICOUSA usage history",
         "service_provider": "ICOUSA",
         "cards": [
           "ICOUSA"
@@ -18255,7 +19292,7 @@
     ]
   },
   "8f18": {
-    "name": "Nankai",
+    "name": "Natch",
     "service_provider": "NANKAI",
     "cards": [
       "NACCHI"
@@ -21381,7 +22418,7 @@
     ]
   },
   "93ec": {
-    "name": null,
+    "name": "Ntasu",
     "service_provider": "NTASU",
     "cards": [
       "NTASU"
@@ -22418,14 +23455,135 @@
   "957A": {
     "name": "FeliCa Secure ID",
     "service_provider": "FELICA_SECURE_ID",
-    "cards": [],
+    "cards": [
+      "FELICA_SECURE_ID"
+    ],
     "nodes": [
       {
         "code": "0000feff",
         "parent": null,
         "name": null,
         "service_provider": "FELICA_SECURE_ID",
-        "cards": [],
+        "cards": [
+          "FELICA_SECURE_ID"
+        ],
+        "mediums": []
+      },
+      {
+        "code": "0900",
+        "parent": "0000feff",
+        "name": "FeliCa Secure ID",
+        "service_provider": "FELICA_SECURE_ID",
+        "cards": [
+          "FELICA_SECURE_ID"
+        ],
+        "mediums": [],
+        "extra_blocks": {
+          "0000": "S_PAD00",
+          "0001": "S_PAD01",
+          "0002": "S_PAD02",
+          "0003": "S_PAD03",
+          "0004": "S_PAD04",
+          "0005": "S_PAD05",
+          "0006": "S_PAD06",
+          "0007": "S_PAD07",
+          "0008": "S_PAD08",
+          "0009": "S_PAD09",
+          "000A": "S_PAD10",
+          "000B": "S_PAD11",
+          "000C": "S_PAD12",
+          "000D": "S_PAD13",
+          "000E": "REG",
+          "0080": "RC",
+          "0081": "MAC",
+          "0082": "ID",
+          "0083": "D_ID",
+          "0084": "SER_C",
+          "0085": "SYS_C",
+          "0086": "CKV",
+          "0087": "CK",
+          "0088": "MC",
+          "0090": "WCNT",
+          "0091": "MAC_A",
+          "0092": "STATE",
+          "0093": "EXKV",
+          "0094": "EXK",
+          "00A0": "CRC_CHECK",
+          "00C0": "RC_A",
+          "00C1": "RC_B",
+          "00C2": "MAC_B",
+          "00C3": "ID_S",
+          "00C4": "CK_A",
+          "00C5": "MC_A",
+          "00C8": "DATA"
+        }
+      },
+      {
+        "code": "0b00",
+        "parent": "0000feff",
+        "name": "FeliCa Secure ID",
+        "service_provider": "FELICA_SECURE_ID",
+        "cards": [
+          "FELICA_SECURE_ID"
+        ],
+        "mediums": [],
+        "extra_blocks": {
+          "0000": "S_PAD00",
+          "0001": "S_PAD01",
+          "0002": "S_PAD02",
+          "0003": "S_PAD03",
+          "0004": "S_PAD04",
+          "0005": "S_PAD05",
+          "0006": "S_PAD06",
+          "0007": "S_PAD07",
+          "0008": "S_PAD08",
+          "0009": "S_PAD09",
+          "000A": "S_PAD10",
+          "000B": "S_PAD11",
+          "000C": "S_PAD12",
+          "000D": "S_PAD13",
+          "000E": "REG",
+          "0080": "RC",
+          "0081": "MAC",
+          "0082": "ID",
+          "0083": "D_ID",
+          "0084": "SER_C",
+          "0085": "SYS_C",
+          "0086": "CKV",
+          "0087": "CK",
+          "0088": "MC",
+          "0090": "WCNT",
+          "0091": "MAC_A",
+          "0092": "STATE",
+          "0093": "EXKV",
+          "0094": "EXK",
+          "00A0": "CRC_CHECK",
+          "00C0": "RC_A",
+          "00C1": "RC_B",
+          "00C2": "MAC_B",
+          "00C3": "ID_S",
+          "00C4": "CK_A",
+          "00C5": "MC_A",
+          "00C8": "DATA"
+        }
+      }
+    ]
+  },
+  "966F": {
+    "name": "Oshiharai",
+    "service_provider": "OSHIHARAI",
+    "cards": [
+      "OSHIHARAI"
+    ],
+    "nodes": [
+      {
+        "code": "0000feff",
+        "parent": null,
+        "name": null,
+        "service_provider": "OSHIHARAI",
+        "cards": [
+          "OSHIHARAI"
+        ],
         "mediums": []
       }
     ]
@@ -22458,8 +23616,12 @@
       "IRUCA",
       "ITAPPY",
       "IWATE_GREEN",
+      "KARUWAZA_CLUB",
       "KUMAMON",
+      "KURONEKO_MEMBERS",
+      "KURONEKO_MEMBERS_NANACO",
       "KURURU_NEW",
+      "K_TOUCH",
       "LOCOCA",
       "MANACA",
       "MANACA_DO",
@@ -22470,6 +23632,7 @@
       "MIWA_IEL",
       "NANACO",
       "NICOPA",
+      "NIMOCA_COMMEMORATIVE",
       "NIMOCA_ICAS",
       "NIMOCA_KUMAMOTO",
       "NOLBE",
@@ -22523,8 +23686,11 @@
           "IRUCA",
           "ITAPPY",
           "IWATE_GREEN",
+          "KARUWAZA_CLUB",
           "KUMAMON",
+          "KURONEKO_MEMBERS_NANACO",
           "KURURU_NEW",
+          "K_TOUCH",
           "LOCOCA",
           "MANACA",
           "MANACA_DO",
@@ -22535,6 +23701,7 @@
           "MIWA_IEL",
           "NANACO",
           "NICOPA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NOLBE",
@@ -22565,12 +23732,14 @@
       {
         "code": "00101717",
         "parent": "0000feff",
-        "name": null,
+        "name": "Edy",
         "service_provider": "EDY",
         "cards": [
           "EDY_AMPM",
           "EDY_PRONTO",
-          "EDY_SONY"
+          "EDY_SONY",
+          "KARUWAZA_CLUB",
+          "K_TOUCH"
         ],
         "mediums": [
           "CARD"
@@ -22598,12 +23767,14 @@
       {
         "code": "01101717",
         "parent": "00101717",
-        "name": null,
+        "name": "Edy",
         "service_provider": "EDY",
         "cards": [
           "EDY_AMPM",
           "EDY_PRONTO",
-          "EDY_SONY"
+          "EDY_SONY",
+          "KARUWAZA_CLUB",
+          "K_TOUCH"
         ],
         "mediums": [
           "CARD"
@@ -22636,7 +23807,9 @@
         "cards": [
           "EDY_AMPM",
           "EDY_PRONTO",
-          "EDY_SONY"
+          "EDY_SONY",
+          "KARUWAZA_CLUB",
+          "K_TOUCH"
         ],
         "mediums": [
           "CARD"
@@ -22669,7 +23842,9 @@
         "cards": [
           "EDY_AMPM",
           "EDY_PRONTO",
-          "EDY_SONY"
+          "EDY_SONY",
+          "KARUWAZA_CLUB",
+          "K_TOUCH"
         ],
         "mediums": [
           "CARD"
@@ -22702,7 +23877,9 @@
         "cards": [
           "EDY_AMPM",
           "EDY_PRONTO",
-          "EDY_SONY"
+          "EDY_SONY",
+          "KARUWAZA_CLUB",
+          "K_TOUCH"
         ],
         "mediums": [
           "CARD"
@@ -22735,7 +23912,9 @@
         "cards": [
           "EDY_AMPM",
           "EDY_PRONTO",
-          "EDY_SONY"
+          "EDY_SONY",
+          "KARUWAZA_CLUB",
+          "K_TOUCH"
         ],
         "mediums": [
           "CARD"
@@ -22768,7 +23947,9 @@
         "cards": [
           "EDY_AMPM",
           "EDY_PRONTO",
-          "EDY_SONY"
+          "EDY_SONY",
+          "KARUWAZA_CLUB",
+          "K_TOUCH"
         ],
         "mediums": [
           "CARD"
@@ -22801,7 +23982,9 @@
         "cards": [
           "EDY_AMPM",
           "EDY_PRONTO",
-          "EDY_SONY"
+          "EDY_SONY",
+          "KARUWAZA_CLUB",
+          "K_TOUCH"
         ],
         "mediums": [
           "CARD"
@@ -22834,7 +24017,9 @@
         "cards": [
           "EDY_AMPM",
           "EDY_PRONTO",
-          "EDY_SONY"
+          "EDY_SONY",
+          "KARUWAZA_CLUB",
+          "K_TOUCH"
         ],
         "mediums": [
           "CARD"
@@ -22867,7 +24052,9 @@
         "cards": [
           "EDY_AMPM",
           "EDY_PRONTO",
-          "EDY_SONY"
+          "EDY_SONY",
+          "KARUWAZA_CLUB",
+          "K_TOUCH"
         ],
         "mediums": [
           "CARD"
@@ -22900,7 +24087,9 @@
         "cards": [
           "EDY_AMPM",
           "EDY_PRONTO",
-          "EDY_SONY"
+          "EDY_SONY",
+          "KARUWAZA_CLUB",
+          "K_TOUCH"
         ],
         "mediums": [
           "CARD"
@@ -22933,7 +24122,9 @@
         "cards": [
           "EDY_AMPM",
           "EDY_PRONTO",
-          "EDY_SONY"
+          "EDY_SONY",
+          "KARUWAZA_CLUB",
+          "K_TOUCH"
         ],
         "mediums": [
           "CARD"
@@ -22966,7 +24157,9 @@
         "cards": [
           "EDY_AMPM",
           "EDY_PRONTO",
-          "EDY_SONY"
+          "EDY_SONY",
+          "KARUWAZA_CLUB",
+          "K_TOUCH"
         ],
         "mediums": [
           "CARD"
@@ -22999,7 +24192,9 @@
         "cards": [
           "EDY_AMPM",
           "EDY_PRONTO",
-          "EDY_SONY"
+          "EDY_SONY",
+          "KARUWAZA_CLUB",
+          "K_TOUCH"
         ],
         "mediums": [
           "CARD"
@@ -23032,7 +24227,9 @@
         "cards": [
           "EDY_AMPM",
           "EDY_PRONTO",
-          "EDY_SONY"
+          "EDY_SONY",
+          "KARUWAZA_CLUB",
+          "K_TOUCH"
         ],
         "mediums": [
           "CARD"
@@ -23065,7 +24262,9 @@
         "cards": [
           "EDY_AMPM",
           "EDY_PRONTO",
-          "EDY_SONY"
+          "EDY_SONY",
+          "KARUWAZA_CLUB",
+          "K_TOUCH"
         ],
         "mediums": [
           "CARD"
@@ -23098,7 +24297,9 @@
         "cards": [
           "EDY_AMPM",
           "EDY_PRONTO",
-          "EDY_SONY"
+          "EDY_SONY",
+          "KARUWAZA_CLUB",
+          "K_TOUCH"
         ],
         "mediums": [
           "CARD"
@@ -23131,7 +24332,9 @@
         "cards": [
           "EDY_AMPM",
           "EDY_PRONTO",
-          "EDY_SONY"
+          "EDY_SONY",
+          "KARUWAZA_CLUB",
+          "K_TOUCH"
         ],
         "mediums": [
           "CARD"
@@ -23369,10 +24572,11 @@
       {
         "code": "801aff1a",
         "parent": "0000feff",
-        "name": null,
-        "service_provider": "KUMAMON",
+        "name": "Unknown Kumamoto Loyalty",
+        "service_provider": "UNKNOWN_LOYALTY",
         "cards": [
-          "KUMAMON"
+          "KUMAMON",
+          "NIMOCA_COMMEMORATIVE"
         ],
         "mediums": [
           "CARD"
@@ -23381,10 +24585,11 @@
       {
         "code": "811aff1a",
         "parent": "801aff1a",
-        "name": null,
-        "service_provider": "KUMAMON",
+        "name": "Unknown Kumamoto Loyalty",
+        "service_provider": "UNKNOWN_LOYALTY",
         "cards": [
-          "KUMAMON"
+          "KUMAMON",
+          "NIMOCA_COMMEMORATIVE"
         ],
         "mediums": [
           "CARD"
@@ -23394,9 +24599,10 @@
         "code": "881a",
         "parent": "811aff1a",
         "name": null,
-        "service_provider": "KUMAMON",
+        "service_provider": "UNKNOWN_LOYALTY",
         "cards": [
-          "KUMAMON"
+          "KUMAMON",
+          "NIMOCA_COMMEMORATIVE"
         ],
         "mediums": [
           "CARD"
@@ -23406,9 +24612,226 @@
         "code": "8b1a",
         "parent": "811aff1a",
         "name": null,
-        "service_provider": "KUMAMON",
+        "service_provider": "UNKNOWN_LOYALTY",
         "cards": [
-          "KUMAMON"
+          "KUMAMON",
+          "NIMOCA_COMMEMORATIVE"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "001b3f1b",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "UNKNOWN_LOYALTY",
+        "cards": [
+          "NIMOCA_COMMEMORATIVE"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "011b3f1b",
+        "parent": "001b3f1b",
+        "name": null,
+        "service_provider": "UNKNOWN_LOYALTY",
+        "cards": [
+          "NIMOCA_COMMEMORATIVE"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "081b",
+        "parent": "011b3f1b",
+        "name": null,
+        "service_provider": "UNKNOWN_LOYALTY",
+        "cards": [
+          "NIMOCA_COMMEMORATIVE"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0a1b",
+        "parent": "011b3f1b",
+        "name": null,
+        "service_provider": "UNKNOWN_LOYALTY",
+        "cards": [
+          "NIMOCA_COMMEMORATIVE"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "401b7f1b",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "UNKNOWN_LOYALTY",
+        "cards": [
+          "NIMOCA_COMMEMORATIVE"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "411b7f1b",
+        "parent": "401b7f1b",
+        "name": null,
+        "service_provider": "UNKNOWN_LOYALTY",
+        "cards": [
+          "NIMOCA_COMMEMORATIVE"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "481b",
+        "parent": "411b7f1b",
+        "name": null,
+        "service_provider": "UNKNOWN_LOYALTY",
+        "cards": [
+          "NIMOCA_COMMEMORATIVE"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4a1b",
+        "parent": "411b7f1b",
+        "name": null,
+        "service_provider": "UNKNOWN_LOYALTY",
+        "cards": [
+          "NIMOCA_COMMEMORATIVE"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "00233f26",
+        "parent": "0000feff",
+        "name": "ELIO",
+        "service_provider": "ELIO",
+        "cards": [
+          "K_TOUCH"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "01233f26",
+        "parent": "00233f26",
+        "name": "ELIO",
+        "service_provider": "ELIO",
+        "cards": [
+          "K_TOUCH"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0823",
+        "parent": "01233f26",
+        "name": null,
+        "service_provider": "ELIO",
+        "cards": [
+          "K_TOUCH"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0a23",
+        "parent": "01233f26",
+        "name": null,
+        "service_provider": "ELIO",
+        "cards": [
+          "K_TOUCH"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0824",
+        "parent": "01233f26",
+        "name": null,
+        "service_provider": "ELIO",
+        "cards": [
+          "K_TOUCH"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0a24",
+        "parent": "01233f26",
+        "name": null,
+        "service_provider": "ELIO",
+        "cards": [
+          "K_TOUCH"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0825",
+        "parent": "01233f26",
+        "name": null,
+        "service_provider": "ELIO",
+        "cards": [
+          "K_TOUCH"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0a25",
+        "parent": "01233f26",
+        "name": null,
+        "service_provider": "ELIO",
+        "cards": [
+          "K_TOUCH"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0826",
+        "parent": "01233f26",
+        "name": null,
+        "service_provider": "ELIO",
+        "cards": [
+          "K_TOUCH"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0a26",
+        "parent": "01233f26",
+        "name": null,
+        "service_provider": "ELIO",
+        "cards": [
+          "K_TOUCH"
         ],
         "mediums": [
           "CARD"
@@ -23451,12 +24874,36 @@
         ]
       },
       {
+        "code": "8026d726",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "KARUWAZA_CLUB",
+        "cards": [
+          "KARUWAZA_CLUB"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
         "code": "8026ff26",
         "parent": "0000feff",
         "name": null,
         "service_provider": "KARUWAZA_CLUB",
         "cards": [
           "EDY_KARUWAZA_CLUB"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8126d726",
+        "parent": "8026d726",
+        "name": null,
+        "service_provider": "KARUWAZA_CLUB",
+        "cards": [
+          "KARUWAZA_CLUB"
         ],
         "mediums": [
           "CARD"
@@ -23476,11 +24923,35 @@
       },
       {
         "code": "8826",
+        "parent": "8126d726",
+        "name": null,
+        "service_provider": "KARUWAZA_CLUB",
+        "cards": [
+          "KARUWAZA_CLUB"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8826",
         "parent": "8126ff26",
         "name": null,
         "service_provider": "KARUWAZA_CLUB",
         "cards": [
           "EDY_KARUWAZA_CLUB"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8b26",
+        "parent": "8126d726",
+        "name": null,
+        "service_provider": "KARUWAZA_CLUB",
+        "cards": [
+          "KARUWAZA_CLUB"
         ],
         "mediums": [
           "CARD"
@@ -23500,11 +24971,35 @@
       },
       {
         "code": "8c26",
+        "parent": "8126d726",
+        "name": null,
+        "service_provider": "KARUWAZA_CLUB",
+        "cards": [
+          "KARUWAZA_CLUB"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8c26",
         "parent": "8126ff26",
         "name": null,
         "service_provider": "KARUWAZA_CLUB",
         "cards": [
           "EDY_KARUWAZA_CLUB"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "8f26",
+        "parent": "8126d726",
+        "name": null,
+        "service_provider": "KARUWAZA_CLUB",
+        "cards": [
+          "KARUWAZA_CLUB"
         ],
         "mediums": [
           "CARD"
@@ -23524,11 +25019,35 @@
       },
       {
         "code": "c826",
+        "parent": "8126d726",
+        "name": null,
+        "service_provider": "KARUWAZA_CLUB",
+        "cards": [
+          "KARUWAZA_CLUB"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c826",
         "parent": "8126ff26",
         "name": null,
         "service_provider": "KARUWAZA_CLUB",
         "cards": [
           "EDY_KARUWAZA_CLUB"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "cb26",
+        "parent": "8126d726",
+        "name": null,
+        "service_provider": "KARUWAZA_CLUB",
+        "cards": [
+          "KARUWAZA_CLUB"
         ],
         "mediums": [
           "CARD"
@@ -24130,6 +25649,7 @@
           "ITAPPY",
           "IWATE_GREEN",
           "KUMAMON",
+          "KURONEKO_MEMBERS_NANACO",
           "KURURU_NEW",
           "LOCOCA",
           "MANACA",
@@ -24138,6 +25658,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NICOPA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NOLBE",
@@ -24180,6 +25701,7 @@
           "ITAPPY",
           "IWATE_GREEN",
           "KUMAMON",
+          "KURONEKO_MEMBERS_NANACO",
           "KURURU_NEW",
           "LOCOCA",
           "MANACA",
@@ -24188,6 +25710,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NICOPA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NOLBE",
@@ -24230,6 +25753,7 @@
           "ITAPPY",
           "IWATE_GREEN",
           "KUMAMON",
+          "KURONEKO_MEMBERS_NANACO",
           "KURURU_NEW",
           "LOCOCA",
           "MANACA",
@@ -24238,6 +25762,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NICOPA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NOLBE",
@@ -24302,8 +25827,24 @@
         "name": "Pocket capabilities",
         "service_provider": "FELICA_POCKET",
         "cards": [
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4b39",
+        "parent": "4139ff39",
+        "data": {
+          "0000": "^..........0000f3................$"
+        },
+        "name": "Pocket capabilities",
+        "service_provider": "FELICA_POCKET",
+        "cards": [
+          "KURONEKO_MEMBERS"
         ],
         "mediums": [
           "CARD"
@@ -24328,6 +25869,7 @@
           "ITAPPY",
           "IWATE_GREEN",
           "KUMAMON",
+          "KURONEKO_MEMBERS_NANACO",
           "KURURU_NEW",
           "LOCOCA",
           "MANACA",
@@ -24336,6 +25878,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NICOPA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NOLBE",
@@ -24378,6 +25921,7 @@
           "ITAPPY",
           "IWATE_GREEN",
           "KUMAMON",
+          "KURONEKO_MEMBERS_NANACO",
           "KURURU_NEW",
           "LOCOCA",
           "MANACA",
@@ -24386,6 +25930,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NICOPA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NOLBE",
@@ -24428,6 +25973,7 @@
           "ITAPPY",
           "IWATE_GREEN",
           "KUMAMON",
+          "KURONEKO_MEMBERS_NANACO",
           "KURURU_NEW",
           "LOCOCA",
           "MANACA",
@@ -24436,6 +25982,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NICOPA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NOLBE",
@@ -24478,6 +26025,7 @@
           "ITAPPY",
           "IWATE_GREEN",
           "KUMAMON",
+          "KURONEKO_MEMBERS_NANACO",
           "KURURU_NEW",
           "LOCOCA",
           "MANACA",
@@ -24486,6 +26034,7 @@
           "MANACA_USTAR",
           "MEGOICA",
           "NICOPA",
+          "NIMOCA_COMMEMORATIVE",
           "NIMOCA_ICAS",
           "NIMOCA_KUMAMOTO",
           "NOLBE",
@@ -24633,6 +26182,150 @@
         ]
       },
       {
+        "code": "c042ff42",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "UNKNOWN_LOYALTY",
+        "cards": [
+          "NIMOCA_COMMEMORATIVE"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c142ff42",
+        "parent": "c042ff42",
+        "name": null,
+        "service_provider": "UNKNOWN_LOYALTY",
+        "cards": [
+          "NIMOCA_COMMEMORATIVE"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "c842",
+        "parent": "c142ff42",
+        "name": null,
+        "service_provider": "UNKNOWN_LOYALTY",
+        "cards": [
+          "NIMOCA_COMMEMORATIVE"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "ca42",
+        "parent": "c142ff42",
+        "name": null,
+        "service_provider": "UNKNOWN_LOYALTY",
+        "cards": [
+          "NIMOCA_COMMEMORATIVE"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "00433f43",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "UNKNOWN_LOYALTY",
+        "cards": [
+          "NIMOCA_COMMEMORATIVE"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "01433f43",
+        "parent": "00433f43",
+        "name": null,
+        "service_provider": "UNKNOWN_LOYALTY",
+        "cards": [
+          "NIMOCA_COMMEMORATIVE"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0843",
+        "parent": "01433f43",
+        "name": null,
+        "service_provider": "UNKNOWN_LOYALTY",
+        "cards": [
+          "NIMOCA_COMMEMORATIVE"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "0a43",
+        "parent": "01433f43",
+        "name": null,
+        "service_provider": "UNKNOWN_LOYALTY",
+        "cards": [
+          "NIMOCA_COMMEMORATIVE"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "40437f43",
+        "parent": "0000feff",
+        "name": null,
+        "service_provider": "UNKNOWN_LOYALTY",
+        "cards": [
+          "NIMOCA_COMMEMORATIVE"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "41437f43",
+        "parent": "40437f43",
+        "name": null,
+        "service_provider": "UNKNOWN_LOYALTY",
+        "cards": [
+          "NIMOCA_COMMEMORATIVE"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4843",
+        "parent": "41437f43",
+        "name": null,
+        "service_provider": "UNKNOWN_LOYALTY",
+        "cards": [
+          "NIMOCA_COMMEMORATIVE"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
+        "code": "4b43",
+        "parent": "41437f43",
+        "name": null,
+        "service_provider": "UNKNOWN_LOYALTY",
+        "cards": [
+          "NIMOCA_COMMEMORATIVE"
+        ],
+        "mediums": [
+          "CARD"
+        ]
+      },
+      {
         "code": "8055bf56",
         "parent": "0000feff",
         "name": "Nanaco",
@@ -24640,6 +26333,7 @@
         "cards": [
           "ANA_FOB",
           "ENEOS",
+          "KURONEKO_MEMBERS_NANACO",
           "NANACO",
           "SPEEDPASS"
         ],
@@ -24656,6 +26350,7 @@
         "cards": [
           "ANA_FOB",
           "ENEOS",
+          "KURONEKO_MEMBERS_NANACO",
           "NANACO",
           "SPEEDPASS"
         ],
@@ -24672,6 +26367,7 @@
         "cards": [
           "ANA_FOB",
           "ENEOS",
+          "KURONEKO_MEMBERS_NANACO",
           "NANACO",
           "SPEEDPASS"
         ],
@@ -24688,6 +26384,7 @@
         "cards": [
           "ANA_FOB",
           "ENEOS",
+          "KURONEKO_MEMBERS_NANACO",
           "NANACO",
           "SPEEDPASS"
         ],
@@ -24704,6 +26401,7 @@
         "cards": [
           "ANA_FOB",
           "ENEOS",
+          "KURONEKO_MEMBERS_NANACO",
           "NANACO",
           "SPEEDPASS"
         ],
@@ -24720,6 +26418,7 @@
         "cards": [
           "ANA_FOB",
           "ENEOS",
+          "KURONEKO_MEMBERS_NANACO",
           "NANACO",
           "SPEEDPASS"
         ],
@@ -24736,6 +26435,7 @@
         "cards": [
           "ANA_FOB",
           "ENEOS",
+          "KURONEKO_MEMBERS_NANACO",
           "NANACO",
           "SPEEDPASS"
         ],
@@ -24752,6 +26452,7 @@
         "cards": [
           "ANA_FOB",
           "ENEOS",
+          "KURONEKO_MEMBERS_NANACO",
           "NANACO",
           "SPEEDPASS"
         ],
@@ -24768,6 +26469,7 @@
         "cards": [
           "ANA_FOB",
           "ENEOS",
+          "KURONEKO_MEMBERS_NANACO",
           "NANACO",
           "SPEEDPASS"
         ],
@@ -24784,6 +26486,7 @@
         "cards": [
           "ANA_FOB",
           "ENEOS",
+          "KURONEKO_MEMBERS_NANACO",
           "NANACO",
           "SPEEDPASS"
         ],
@@ -24800,6 +26503,7 @@
         "cards": [
           "ANA_FOB",
           "ENEOS",
+          "KURONEKO_MEMBERS_NANACO",
           "NANACO",
           "SPEEDPASS"
         ],
@@ -24816,6 +26520,7 @@
         "cards": [
           "ANA_FOB",
           "ENEOS",
+          "KURONEKO_MEMBERS_NANACO",
           "NANACO",
           "SPEEDPASS"
         ],
@@ -24832,6 +26537,7 @@
         "cards": [
           "ANA_FOB",
           "ENEOS",
+          "KURONEKO_MEMBERS_NANACO",
           "NANACO",
           "SPEEDPASS"
         ],
@@ -24848,6 +26554,7 @@
         "cards": [
           "ANA_FOB",
           "ENEOS",
+          "KURONEKO_MEMBERS_NANACO",
           "NANACO",
           "SPEEDPASS"
         ],
@@ -24864,6 +26571,7 @@
         "cards": [
           "ANA_FOB",
           "ENEOS",
+          "KURONEKO_MEMBERS_NANACO",
           "NANACO",
           "SPEEDPASS"
         ],
@@ -24880,6 +26588,7 @@
         "cards": [
           "ANA_FOB",
           "ENEOS",
+          "KURONEKO_MEMBERS_NANACO",
           "NANACO",
           "SPEEDPASS"
         ],
@@ -24896,6 +26605,7 @@
         "cards": [
           "ANA_FOB",
           "ENEOS",
+          "KURONEKO_MEMBERS_NANACO",
           "NANACO",
           "SPEEDPASS"
         ],

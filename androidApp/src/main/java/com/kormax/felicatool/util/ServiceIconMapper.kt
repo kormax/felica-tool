@@ -20,6 +20,7 @@ object ServiceIconMapper {
             "service_felica_networks" to R.drawable.service_felica_networks,
             "service_felica_pocket" to R.drawable.service_felica_pocket,
             "service_felica_secure_id" to R.drawable.service_felica_secure_id,
+            "service_oshiharai" to R.drawable.service_oshiharai,
             "service_aime" to R.drawable.service_aime,
             "service_bandai_namco_passport" to R.drawable.service_bandai_namco_passport,
             "service_enekey" to R.drawable.service_enekey,
@@ -32,6 +33,7 @@ object ServiceIconMapper {
             "service_iruca" to R.drawable.service_iruca,
             "service_kitaca" to R.drawable.service_kitaca,
             "service_kumamon" to R.drawable.service_kumamon,
+            "service_kuroneko" to R.drawable.service_kuroneko,
             "service_manaca" to R.drawable.service_manaca,
             "service_nanaco" to R.drawable.service_nanaco,
             "service_ndef" to R.drawable.service_ndef,
@@ -44,6 +46,7 @@ object ServiceIconMapper {
             "service_pokemon" to R.drawable.service_pokemon,
             "service_pronto" to R.drawable.service_pronto,
             "service_sony_finance" to R.drawable.service_sony_finance,
+            "service_elio" to R.drawable.service_elio,
             "service_club_dam" to R.drawable.service_club_dam,
             "service_rakuten_point" to R.drawable.service_rakuten_point,
             "service_sapica" to R.drawable.service_sapica,
@@ -55,6 +58,7 @@ object ServiceIconMapper {
             "service_waon" to R.drawable.service_waon,
             "service_asaca" to R.drawable.service_asaca,
             "service_docard" to R.drawable.service_docard,
+            "service_docard_old" to R.drawable.service_docard_old,
             "service_asahikawa" to R.drawable.service_asahikawa,
             "service_aizu_noruca" to R.drawable.service_aizu_noruca,
             "service_noruca" to R.drawable.service_noruca,
@@ -112,6 +116,7 @@ object ServiceIconMapper {
             "service_clavis" to R.drawable.service_clavis,
             "service_hcmc" to R.drawable.service_hcmc,
             "service_luluca" to R.drawable.service_luluca,
+            "service_unknown_loyalty" to R.drawable.service_unknown_loyalty,
         )
 
     @DrawableRes

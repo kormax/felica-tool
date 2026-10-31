@@ -17,6 +17,7 @@ object ServiceIconCatalog {
             "FELICA_NETWORKS" to "service_felica_networks",
             "FELICA_POCKET" to "service_felica_pocket",
             "FELICA_SECURE_ID" to "service_felica_secure_id",
+            "OSHIHARAI" to "service_oshiharai",
             "AIME" to "service_aime",
             "BANDAI_NAMCO_PASSPORT" to "service_bandai_namco_passport",
             "ENEKEY" to "service_enekey",
@@ -30,6 +31,7 @@ object ServiceIconCatalog {
             "IRUCA" to "service_iruca",
             "KITACA" to "service_kitaca",
             "KUMAMON" to "service_kumamon",
+            "KURONEKO_MEMBERS" to "service_kuroneko",
             "MANACA" to "service_manaca",
             "NANACO" to "service_nanaco",
             "NDEF" to "service_ndef",
@@ -42,6 +44,7 @@ object ServiceIconCatalog {
             "POKEPARK" to "service_pokemon",
             "PRONTO" to "service_pronto",
             "SONY_FINANCE" to "service_sony_finance",
+            "ELIO" to "service_elio",
             "CLUB_DAM" to "service_club_dam",
             "RAKUTEN_POINT" to "service_rakuten_point",
             "SAPICA" to "service_sapica",
@@ -53,6 +56,7 @@ object ServiceIconCatalog {
             "WAON" to "service_waon",
             "ASACA" to "service_asaca",
             "DOCARD" to "service_docard",
+            "DOCARD_OLD" to "service_docard_old",
             "ASAHIKAWA" to "service_asahikawa",
             "AIZU_NORUCA" to "service_aizu_noruca",
             "NORUCA" to "service_noruca",
@@ -110,6 +114,7 @@ object ServiceIconCatalog {
             "CLAVIS" to "service_clavis",
             "HCMC" to "service_hcmc",
             "LULUCA" to "service_luluca",
+            "UNKNOWN_LOYALTY" to "service_unknown_loyalty",
         )
 
     fun iconNameFor(providerName: String): String? {
