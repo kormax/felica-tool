@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.core.content.FileProvider
 import com.kormax.felicatool.BuildConfig
 import com.kormax.felicatool.R
+import com.kormax.felicatool.device.OsaifuKeitaiInfo
 import com.kormax.felicatool.felica.*
 import com.kormax.felicatool.service.CardScanContext
 import com.kormax.felicatool.service.CommandCapability
@@ -17,6 +18,8 @@ import com.kormax.felicatool.service.CommandSupport
 import com.kormax.felicatool.service.SystemScanContext
 import com.kormax.felicatool.service.logging.CommunicationLogEntry
 import java.io.File
+import java.nio.ByteBuffer
+import java.nio.charset.CodingErrorAction
 import java.text.SimpleDateFormat
 import java.util.*
 import org.json.JSONArray
@@ -213,7 +216,7 @@ object ExportUtils {
         }
     }
 
-    internal fun shareDeviceInfo(context: Context) {
+    internal fun shareDeviceInfo(context: Context, osaifuKeitai: OsaifuKeitaiInfo) {
         val report =
             JSONObject()
                 .put(
@@ -246,12 +249,47 @@ object ExportUtils {
                         )
                         .put("security_patch", Build.VERSION.SECURITY_PATCH),
                 )
+                .put(
+                    "osaifu_keitai",
+                    JSONObject()
+                        .put("status", osaifuKeitai.status.name.lowercase())
+                        .put(
+                            "configuration_files",
+                            JSONArray(
+                                osaifuKeitai.configurationFiles.map { (path, content) ->
+                                    JSONObject()
+                                        .put("path", path)
+                                        .put(
+                                            "content",
+                                            content?.let(::fileContent) ?: JSONObject.NULL,
+                                        )
+                                },
+                            ),
+                        ),
+                )
         try {
-            shareJson(context, "felica_tool_info.json", report.toString(2))
+            shareJson(context, "felica_tool_info.json", report.toString(2).replace("\\/", "/"))
         } catch (e: Exception) {
             Log.e("ExportUtils", "Failed to share device info", e)
             Toast.makeText(context, "Couldn’t share device info", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun fileContent(bytes: ByteArray): JSONObject {
+        val text = runCatching {
+            Charsets.UTF_8.newDecoder()
+                .onMalformedInput(CodingErrorAction.REPORT)
+                .onUnmappableCharacter(CodingErrorAction.REPORT)
+                .decode(ByteBuffer.wrap(bytes))
+                .toString()
+        }
+            .getOrNull()
+        return if (text != null && text.none { it.isISOControl() && it !in "\t\n\r" })
+            JSONObject().put("encoding", "utf8").put("data", text)
+        else
+            JSONObject()
+                .put("encoding", "base64")
+                .put("data", Base64.getEncoder().encodeToString(bytes))
     }
 
     private fun shareJson(context: Context, fileName: String, json: String) {
