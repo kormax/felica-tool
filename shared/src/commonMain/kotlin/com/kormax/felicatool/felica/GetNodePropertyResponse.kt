@@ -81,18 +81,18 @@ class GetNodePropertyResponse(
                         numberOfNodes * ValueLimitedPurseServiceProperty.SIZE_BYTES ->
                             List(numberOfNodes) {
                                 ValueLimitedPurseServiceProperty.fromByteArray(
-                                    bytes(ValueLimitedPurseServiceProperty.SIZE_BYTES)
+                                    bytes(ValueLimitedPurseServiceProperty.SIZE_BYTES),
                                 )
                             }
                         numberOfNodes * MacCommunicationProperty.SIZE_BYTES ->
                             List(numberOfNodes) {
                                 MacCommunicationProperty.fromByteArray(
-                                    bytes(MacCommunicationProperty.SIZE_BYTES)
+                                    bytes(MacCommunicationProperty.SIZE_BYTES),
                                 )
                             }
                         else ->
                             throw IllegalArgumentException(
-                                "Cannot determine node property type from response data size. Expected ${numberOfNodes * ValueLimitedPurseServiceProperty.SIZE_BYTES} or ${numberOfNodes * MacCommunicationProperty.SIZE_BYTES} bytes, got $remainingBytes"
+                                "Cannot determine node property type from response data size. Expected ${numberOfNodes * ValueLimitedPurseServiceProperty.SIZE_BYTES} or ${numberOfNodes * MacCommunicationProperty.SIZE_BYTES} bytes, got $remainingBytes",
                             )
                     }
 

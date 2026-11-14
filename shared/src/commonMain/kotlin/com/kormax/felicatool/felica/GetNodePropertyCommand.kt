@@ -72,7 +72,7 @@ class GetNodePropertyCommand(
                 val nodePropertyType =
                     NodePropertyType.fromValue(nodePropertyTypeValue)
                         ?: throw IllegalArgumentException(
-                            "Unknown node property type: 0x${nodePropertyTypeValue.toString(16)}"
+                            "Unknown node property type: 0x${nodePropertyTypeValue.toString(16)}",
                         )
 
                 val numberOfNodes = uByte()

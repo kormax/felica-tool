@@ -74,7 +74,7 @@ internal object Authentication1AesStep :
         val testTarget = scanContext.findBestAuthentication1AesTarget()
         if (testTarget == null) {
             throw StepSkipped(
-                "No system found with AES-compatible nodes. AES authentication requires nodes with AES key versions."
+                "No system found with AES-compatible nodes. AES authentication requires nodes with AES key versions.",
             )
         }
         val selectedSystemContext = testTarget.systemContext
@@ -119,18 +119,18 @@ internal object Authentication1AesStep :
                     appendLine("  ${index + 1}. ${describeNode(node)}")
                 }
                 appendLine(
-                    "Challenge1A (reader challenge): ${challenge1A.toHexString().uppercase()}"
+                    "Challenge1A (reader challenge): ${challenge1A.toHexString().uppercase()}",
                 )
                 appendLine(
-                    "Challenge1B (reader challenge response): ${authenticateResponse.challenge1B.toHexString().uppercase()}"
+                    "Challenge1B (reader challenge response): ${authenticateResponse.challenge1B.toHexString().uppercase()}",
                 )
                 appendLine(
-                    "Challenge2A (card challenge): ${authenticateResponse.challenge2A.toHexString().uppercase()}"
+                    "Challenge2A (card challenge): ${authenticateResponse.challenge2A.toHexString().uppercase()}",
                 )
                 appendLine("Nonce: ${authenticateResponse.nonce.toHexString().uppercase()}")
                 appendLine("Authenticate1 AES: ${CommandSupport.SUPPORTED.toOutputLabel()}")
             }
-                .trim()
+                .trim(),
         )
     }
 }
@@ -157,7 +157,7 @@ internal object Authentication1AesDetermineTrailingDataSupportedStep :
     override fun ScanSession.selectedSystemCode(): ByteArray? =
         scanContext.findBestAuthentication1AesTarget()?.systemContext?.systemCode
             ?: throw StepSkipped(
-                "No system found with AES-compatible nodes. AES authentication requires nodes with AES key versions."
+                "No system found with AES-compatible nodes. AES authentication requires nodes with AES key versions.",
             )
 
     override fun ScanSession.resetToMode0AfterCommand(): Boolean = true
@@ -169,7 +169,7 @@ internal object Authentication1AesDetermineTrailingDataSupportedStep :
         val testTarget =
             scanContext.findBestAuthentication1AesTarget()
                 ?: throw StepSkipped(
-                    "No system found with AES-compatible nodes. AES authentication requires nodes with AES key versions."
+                    "No system found with AES-compatible nodes. AES authentication requires nodes with AES key versions.",
                 )
         return Authentication1AesCommand(
             idm = scope.idm,

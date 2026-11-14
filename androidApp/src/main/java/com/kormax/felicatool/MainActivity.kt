@@ -26,19 +26,31 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.offset
 import androidx.lifecycle.lifecycleScope
 import com.kormax.felicatool.felica.FeliCaTarget
 import com.kormax.felicatool.felica.PollingCommand
@@ -240,7 +252,7 @@ class MainActivity : ComponentActivity() {
                                 if (isBackgroundReadingEnabled) {
                                     stopReaderSession {
                                         startAutomaticReaderAfterDelay(
-                                            AUTOMATIC_READER_START_DELAY_SECONDS
+                                            AUTOMATIC_READER_START_DELAY_SECONDS,
                                         )
                                     }
                                 }
@@ -706,6 +718,99 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@Composable
+internal fun AppBarMenu(
+    icon: ImageVector,
+    label: String,
+    content: @Composable ColumnScope.(dismiss: () -> Unit) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    Box {
+        IconButton(onClick = { expanded = true }, shapes = IconButtonDefaults.shapes()) {
+            Icon(icon, contentDescription = label)
+        }
+        DropdownMenuPopup(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            // Leave room inside the scroll viewport for the menu groups' elevation shadows.
+            modifier =
+                Modifier.verticalScroll(rememberScrollState())
+                    .padding(MenuDefaults.ShadowElevation * 2),
+        ) {
+            content { expanded = false }
+        }
+    }
+}
+
+@Composable
+internal fun AppBarMenuGroup(
+    shapes: MenuGroupShapes,
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    DropdownMenuGroup(
+        shapes = shapes,
+        modifier = modifier,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        content = content,
+    )
+}
+
+@Composable
+internal fun CheckableMenuOption(
+    label: String,
+    icon: ImageVector,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    shapes: MenuItemShapes,
+    enabled: Boolean = true,
+) {
+    val checkmarkSize = MenuDefaults.TrailingIconSize
+    val trailingSpace = checkmarkSize + MenuDefaults.DropdownMenuItemHorizontalArrangement.spacing
+    CheckableDropdownMenuItem(
+        text = {
+            // Material measures the label before the trailing slot. Leave room for the checkmark.
+            Text(
+                label,
+                modifier =
+                    Modifier.layout { measurable, constraints ->
+                        val labelConstraints =
+                            constraints.offset(horizontal = -trailingSpace.roundToPx())
+                        val placeable = measurable.measure(labelConstraints)
+                        layout(placeable.width, placeable.height) { placeable.placeRelative(0, 0) }
+                    },
+            )
+        },
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        shapes = shapes,
+        contentPadding = MenuDefaults.DropdownMenuItemContentPadding,
+        colors =
+            MenuDefaults.selectableItemColors(
+                containerColor = Color.Transparent,
+                disabledContainerColor = Color.Transparent,
+            ),
+        leadingIcon = {
+            Icon(
+                icon,
+                contentDescription = null,
+                modifier = Modifier.size(MenuDefaults.LeadingIconSize),
+            )
+        },
+        trailingContent = {
+            if (checked) {
+                Icon(
+                    Icons.Filled.Check,
+                    contentDescription = null,
+                    modifier = Modifier.size(checkmarkSize),
+                )
+            }
+        },
+        enabled = enabled,
+    )
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainScreen(
@@ -724,8 +829,6 @@ private fun MainScreen(
     onStartAutomaticReaderNow: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
-    var showReaderSettingsMenu by remember { mutableStateOf(false) }
-    var showScanSettingsMenu by remember { mutableStateOf(false) }
     val isManualReaderActive =
         readerControlState.isReaderActive && !readerControlState.isAutomaticReadingEnabled
     val isBackgroundReadingToggleEnabled =
@@ -739,201 +842,107 @@ private fun MainScreen(
             TopAppBar(
                 title = { Text("FeliCa Tool") },
                 actions = {
-                    IconButton(
-                        onClick = {
-                            showReaderSettingsMenu = true
-                            showScanSettingsMenu = false
+                    AppBarMenu(icon = Icons.Filled.Settings, label = "Reader settings") {
+                        AppBarMenuGroup(
+                            shapes = MenuDefaults.groupShape(0, 1),
+                            modifier = Modifier.widthIn(min = 200.dp),
+                        ) {
+                            CheckableMenuOption(
+                                label = "Background reading",
+                                icon = Icons.Filled.Refresh,
+                                checked = isBackgroundReadingEnabled,
+                                enabled = isBackgroundReadingToggleEnabled,
+                                onCheckedChange = onBackgroundReadingChange,
+                                shapes = MenuDefaults.itemShape(0, 1),
+                            )
                         }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Settings,
-                            contentDescription = "Reader settings",
-                        )
                     }
-
-                    DropdownMenu(
-                        expanded = showReaderSettingsMenu,
-                        onDismissRequest = { showReaderSettingsMenu = false },
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("Background reading") },
-                            enabled = isBackgroundReadingToggleEnabled,
-                            onClick = { onBackgroundReadingChange(!isBackgroundReadingEnabled) },
-                            trailingIcon = {
-                                Checkbox(
-                                    checked = isBackgroundReadingEnabled,
-                                    enabled = isBackgroundReadingToggleEnabled,
-                                    onCheckedChange = onBackgroundReadingChange,
-                                )
-                            },
-                        )
-                    }
-
-                    IconButton(
-                        onClick = {
-                            showScanSettingsMenu = true
-                            showReaderSettingsMenu = false
+                    AppBarMenu(icon = Icons.Default.MoreVert, label = "Scan settings") {
+                        AppBarMenuGroup(shapes = MenuDefaults.groupShape(0, 3)) {
+                            CheckableMenuOption(
+                                label = "Enable IC code scan heuristics",
+                                icon = ImageVector.vectorResource(R.drawable.ic_lightbulb),
+                                checked = scanSettings.enableIcCodeScanHeuristics,
+                                onCheckedChange = {
+                                    onScanSettingsChange(
+                                        scanSettings.copy(enableIcCodeScanHeuristics = it),
+                                    )
+                                },
+                                shapes = MenuDefaults.itemShape(0, 2),
+                            )
+                            CheckableMenuOption(
+                                label = "Enable Specification Version scan heuristics",
+                                icon = ImageVector.vectorResource(R.drawable.ic_lightbulb),
+                                checked = scanSettings.enableSpecificationVersionScanHeuristics,
+                                onCheckedChange = {
+                                    onScanSettingsChange(
+                                        scanSettings.copy(
+                                            enableSpecificationVersionScanHeuristics = it,
+                                        ),
+                                    )
+                                },
+                                shapes = MenuDefaults.itemShape(1, 2),
+                            )
                         }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.MoreVert,
-                            contentDescription = "Scan settings",
-                        )
-                    }
-
-                    DropdownMenu(
-                        expanded = showScanSettingsMenu,
-                        onDismissRequest = { showScanSettingsMenu = false },
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("Enable IC code scan heuristics") },
-                            onClick = {
-                                onScanSettingsChange(
-                                    scanSettings.copy(
-                                        enableIcCodeScanHeuristics =
-                                            !scanSettings.enableIcCodeScanHeuristics
+                        Spacer(Modifier.height(MenuDefaults.GroupSpacing))
+                        AppBarMenuGroup(shapes = MenuDefaults.groupShape(1, 3)) {
+                            CheckableMenuOption(
+                                label = "Test trailing data",
+                                icon = ImageVector.vectorResource(R.drawable.ic_data_array),
+                                checked = scanSettings.testTrailingDataCommands,
+                                onCheckedChange = {
+                                    onScanSettingsChange(
+                                        scanSettings.copy(testTrailingDataCommands = it),
                                     )
-                                )
-                            },
-                            trailingIcon = {
-                                Checkbox(
-                                    checked = scanSettings.enableIcCodeScanHeuristics,
-                                    onCheckedChange = {
-                                        onScanSettingsChange(
-                                            scanSettings.copy(enableIcCodeScanHeuristics = it)
-                                        )
-                                    },
-                                )
-                            },
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Enable Specification Version scan heuristics") },
-                            onClick = {
-                                onScanSettingsChange(
-                                    scanSettings.copy(
-                                        enableSpecificationVersionScanHeuristics =
-                                            !scanSettings.enableSpecificationVersionScanHeuristics
+                                },
+                                shapes = MenuDefaults.itemShape(0, 2),
+                            )
+                            CheckableMenuOption(
+                                label = "Test write commands",
+                                icon = Icons.Filled.Edit,
+                                checked = scanSettings.testWriteCommands,
+                                onCheckedChange = {
+                                    onScanSettingsChange(scanSettings.copy(testWriteCommands = it))
+                                },
+                                shapes = MenuDefaults.itemShape(1, 2),
+                            )
+                        }
+                        Spacer(Modifier.height(MenuDefaults.GroupSpacing))
+                        AppBarMenuGroup(shapes = MenuDefaults.groupShape(2, 3)) {
+                            CheckableMenuOption(
+                                label = "Force discover all nodes",
+                                icon = Icons.Filled.Search,
+                                checked = scanSettings.forceDiscoverAllNodes,
+                                onCheckedChange = {
+                                    onScanSettingsChange(
+                                        scanSettings.copy(forceDiscoverAllNodes = it),
                                     )
-                                )
-                            },
-                            trailingIcon = {
-                                Checkbox(
-                                    checked = scanSettings.enableSpecificationVersionScanHeuristics,
-                                    onCheckedChange = {
-                                        onScanSettingsChange(
-                                            scanSettings.copy(
-                                                enableSpecificationVersionScanHeuristics = it
-                                            )
-                                        )
-                                    },
-                                )
-                            },
-                        )
-                        HorizontalDivider()
-                        DropdownMenuItem(
-                            text = { Text("Test trailing data") },
-                            onClick = {
-                                onScanSettingsChange(
-                                    scanSettings.copy(
-                                        testTrailingDataCommands =
-                                            !scanSettings.testTrailingDataCommands
+                                },
+                                shapes = MenuDefaults.itemShape(0, 3),
+                            )
+                            CheckableMenuOption(
+                                label = "Force discover all blocks",
+                                icon = Icons.Filled.Search,
+                                checked = scanSettings.forceDiscoverAllBlocks,
+                                onCheckedChange = {
+                                    onScanSettingsChange(
+                                        scanSettings.copy(forceDiscoverAllBlocks = it),
                                     )
-                                )
-                            },
-                            trailingIcon = {
-                                Checkbox(
-                                    checked = scanSettings.testTrailingDataCommands,
-                                    onCheckedChange = {
-                                        onScanSettingsChange(
-                                            scanSettings.copy(testTrailingDataCommands = it)
-                                        )
-                                    },
-                                )
-                            },
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Test write commands") },
-                            onClick = {
-                                onScanSettingsChange(
-                                    scanSettings.copy(
-                                        testWriteCommands = !scanSettings.testWriteCommands
+                                },
+                                shapes = MenuDefaults.itemShape(1, 3),
+                            )
+                            CheckableMenuOption(
+                                label = "Brute-force system codes",
+                                icon = Icons.Filled.Search,
+                                checked = scanSettings.bruteForceSystemCodePrefixes,
+                                onCheckedChange = {
+                                    onScanSettingsChange(
+                                        scanSettings.copy(bruteForceSystemCodePrefixes = it),
                                     )
-                                )
-                            },
-                            trailingIcon = {
-                                Checkbox(
-                                    checked = scanSettings.testWriteCommands,
-                                    onCheckedChange = {
-                                        onScanSettingsChange(
-                                            scanSettings.copy(testWriteCommands = it)
-                                        )
-                                    },
-                                )
-                            },
-                        )
-                        HorizontalDivider()
-                        DropdownMenuItem(
-                            text = { Text("Force discover all nodes") },
-                            onClick = {
-                                onScanSettingsChange(
-                                    scanSettings.copy(
-                                        forceDiscoverAllNodes = !scanSettings.forceDiscoverAllNodes
-                                    )
-                                )
-                            },
-                            trailingIcon = {
-                                Checkbox(
-                                    checked = scanSettings.forceDiscoverAllNodes,
-                                    onCheckedChange = {
-                                        onScanSettingsChange(
-                                            scanSettings.copy(forceDiscoverAllNodes = it)
-                                        )
-                                    },
-                                )
-                            },
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Force discover all blocks") },
-                            onClick = {
-                                onScanSettingsChange(
-                                    scanSettings.copy(
-                                        forceDiscoverAllBlocks =
-                                            !scanSettings.forceDiscoverAllBlocks
-                                    )
-                                )
-                            },
-                            trailingIcon = {
-                                Checkbox(
-                                    checked = scanSettings.forceDiscoverAllBlocks,
-                                    onCheckedChange = {
-                                        onScanSettingsChange(
-                                            scanSettings.copy(forceDiscoverAllBlocks = it)
-                                        )
-                                    },
-                                )
-                            },
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Brute-force system codes") },
-                            onClick = {
-                                onScanSettingsChange(
-                                    scanSettings.copy(
-                                        bruteForceSystemCodePrefixes =
-                                            !scanSettings.bruteForceSystemCodePrefixes
-                                    )
-                                )
-                            },
-                            trailingIcon = {
-                                Checkbox(
-                                    checked = scanSettings.bruteForceSystemCodePrefixes,
-                                    onCheckedChange = {
-                                        onScanSettingsChange(
-                                            scanSettings.copy(bruteForceSystemCodePrefixes = it)
-                                        )
-                                    },
-                                )
-                            },
-                        )
+                                },
+                                shapes = MenuDefaults.itemShape(2, 3),
+                            )
+                        }
                     }
                 },
                 colors =
@@ -1011,6 +1020,8 @@ private fun FeliCaReaderScreen(
                 if (isScanCompleted) {
                     Button(
                         onClick = { onToggleCollapse("scan_overview") },
+                        shapes = ButtonDefaults.shapes(),
+                        contentPadding = ButtonDefaults.ContentPadding,
                         modifier =
                             Modifier.align(Alignment.BottomCenter)
                                 .fillMaxWidth()
@@ -1142,6 +1153,8 @@ private fun ReaderBottomBar(
 
             Button(
                 onClick = onReaderButtonClick,
+                shapes = ButtonDefaults.shapes(),
+                contentPadding = ButtonDefaults.ContentPadding,
                 enabled = buttonEnabled,
                 modifier = Modifier.fillMaxWidth().heightIn(min = ReaderActionButtonMinHeight),
             ) {

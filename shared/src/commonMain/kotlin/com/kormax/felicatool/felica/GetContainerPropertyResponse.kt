@@ -8,7 +8,7 @@ package com.kormax.felicatool.felica
  */
 class GetContainerPropertyResponse(
     /** Property data array (at least 1 byte) */
-    val data: ByteArray
+    val data: ByteArray,
 ) : FelicaResponseWithoutIdm() {
 
     init {

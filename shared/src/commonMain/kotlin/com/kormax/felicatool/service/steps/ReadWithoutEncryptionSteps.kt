@@ -101,7 +101,7 @@ private fun findUnusedAbsentService(
 }
 
 private fun CardScanContext.findReadWithoutEncryptionTestTarget(
-    allowAuthenticationRequiredFallback: Boolean = false
+    allowAuthenticationRequiredFallback: Boolean = false,
 ): ReadWithoutEncryptionTestTarget {
     systemScanContexts
         .firstOrNull { AnonymousService in it.nodes }
@@ -185,7 +185,7 @@ private fun CardScanContext.findReadWithoutEncryptionUnusedInvalidServiceTarget(
                 }
                 .thenByDescending { systemContext ->
                     if (systemContext.systemCode != null) 1 else 0
-                }
+                },
         )
 
     for (systemContext in systemsByPreference) {
@@ -201,7 +201,7 @@ private fun CardScanContext.findReadWithoutEncryptionUnusedInvalidServiceTarget(
                         .thenByDescending {
                             if (it.attribute.mode == ServiceMode.READ_ONLY) 1 else 0
                         }
-                        .thenBy { it.number }
+                        .thenBy { it.number },
                 )
 
         for (presentService in presentServices) {
@@ -244,7 +244,7 @@ private fun CardScanContext.findReadWithoutEncryptionUnusedInvalidServiceTarget(
     }
 
     throw StepSkipped(
-        "No readable no-auth service found with an unused invalid service code candidate."
+        "No readable no-auth service found with an unused invalid service code candidate.",
     )
 }
 
@@ -274,7 +274,7 @@ internal object ReadWithoutEncryptionDetermineSupportedStep :
                             BlockListElement(
                                 serviceCodeListOrder = 0,
                                 blockNumber = 0,
-                            )
+                            ),
                         ),
                 )
             }
@@ -287,7 +287,7 @@ internal object ReadWithoutEncryptionDetermineSupportedStep :
                 appendLine("System: $systemCodeHex; Service: 0900; Block: 0000")
                 appendLine("(${formatStatus(response)})")
             }
-                .trim()
+                .trim(),
         )
     }
 }
@@ -328,18 +328,20 @@ internal object ReadWithoutEncryptionDetermineServiceCodeAddressingSupportedStep
                 is Status.Success -> CommandSupport.UNSUPPORTED
                 else ->
                     throw StepBehaviorUnexpected(
-                        "Cannot determine service code addressing support: ${formatStatus(response)}"
+                        "Cannot determine service code addressing support: ${formatStatus(response)}",
                     )
             }
         scanContext = scanContext.withCommands {
             copy(
                 readWithoutEncryption =
-                    readWithoutEncryption.copy(serviceCodeAddressingSupported = addressingSupported)
+                    readWithoutEncryption.copy(
+                        serviceCodeAddressingSupported = addressingSupported,
+                    ),
             )
         }
         return StepOutput(
             "Probe service code: FFFF\nStatus: ${formatStatus(response)}\n" +
-                "Service code addressing: ${if (addressingSupported == CommandSupport.SUPPORTED) "supported" else "not supported"}"
+                "Service code addressing: ${if (addressingSupported == CommandSupport.SUPPORTED) "supported" else "not supported"}",
         )
     }
 }
@@ -363,7 +365,7 @@ internal object ReadWithoutEncryptionDetermineExtendedBlockListElementSupportedS
         context.withCommands {
             copy(
                 readWithoutEncryption =
-                    readWithoutEncryption.copy(extendedBlockListElementSupported = support)
+                    readWithoutEncryption.copy(extendedBlockListElementSupported = support),
             )
         }
 
@@ -399,7 +401,7 @@ internal object ReadWithoutEncryptionDetermineExtendedBlockListElementSupportedS
                                 serviceCodeListOrder = 0,
                                 blockNumber = blockNumber,
                                 extended = true,
-                            )
+                            ),
                         ),
                 )
             }
@@ -410,12 +412,12 @@ internal object ReadWithoutEncryptionDetermineExtendedBlockListElementSupportedS
             is Status.RandomChallengeWriteRequired -> Unit
             else ->
                 throw RuntimeException(
-                    "Extended block list element was not accepted: ${formatStatus(response)}"
+                    "Extended block list element was not accepted: ${formatStatus(response)}",
                 )
         }
         return StepOutput(
             "${describeNode(service)}, block ${formatBlockNumberHex(blockNumber)}\n" +
-                "Extended block list element accepted\nStatus: ${formatStatus(response)}"
+                "Extended block list element accepted\nStatus: ${formatStatus(response)}",
         )
     }
 }
@@ -451,7 +453,7 @@ internal object ReadWithoutEncryptionDetermineTrailingDataSupportedStep :
     ): FelicaCommand<ReadWithoutEncryptionResponse> {
         val testTarget =
             scanContext.findReadWithoutEncryptionTestTarget(
-                allowAuthenticationRequiredFallback = true
+                allowAuthenticationRequiredFallback = true,
             )
 
         return ReadWithoutEncryptionCommand(
@@ -462,7 +464,7 @@ internal object ReadWithoutEncryptionDetermineTrailingDataSupportedStep :
                     BlockListElement(
                         serviceCodeListOrder = 0,
                         blockNumber = testTarget.blockNumber,
-                    )
+                    ),
                 ),
             trailingData = trailingData,
         )
@@ -489,7 +491,7 @@ internal object ReadWithoutEncryptionDetermineErrorIndicationStep :
                     BlockListElement(
                         serviceCodeListOrder = 0,
                         blockNumber = invalidBlockNumber,
-                    )
+                    ),
                 )
             } else {
                 arrayOf(
@@ -527,8 +529,8 @@ internal object ReadWithoutEncryptionDetermineErrorIndicationStep :
                     copy(
                         readWithoutEncryption =
                             readWithoutEncryption.copy(
-                                errorLocationIndication = ErrorLocationIndication.NO_RESPONSE
-                            )
+                                errorLocationIndication = ErrorLocationIndication.NO_RESPONSE,
+                            ),
                     )
                 }
                 ScanLog.d(
@@ -547,7 +549,7 @@ internal object ReadWithoutEncryptionDetermineErrorIndicationStep :
             scanContext = scanContext.withCommands {
                 copy(
                     readWithoutEncryption =
-                        readWithoutEncryption.copy(errorLocationIndication = fallbackType)
+                        readWithoutEncryption.copy(errorLocationIndication = fallbackType),
                 )
             }
 
@@ -563,7 +565,7 @@ internal object ReadWithoutEncryptionDetermineErrorIndicationStep :
             scanContext = scanContext.withCommands {
                 copy(
                     readWithoutEncryption =
-                        readWithoutEncryption.copy(errorLocationIndication = fallbackType)
+                        readWithoutEncryption.copy(errorLocationIndication = fallbackType),
                 )
             }
 
@@ -607,14 +609,14 @@ internal object ReadWithoutEncryptionDetermineErrorIndicationStep :
         scanContext = scanContext.withCommands {
             copy(
                 readWithoutEncryption =
-                    readWithoutEncryption.copy(errorLocationIndication = errorIndicationType)
+                    readWithoutEncryption.copy(errorLocationIndication = errorIndicationType),
             )
         }
 
         if (usedFallback) {
             scanContext = withCommandSupport(scanContext, CommandSupport.SUPPORTED)
             throw StepBehaviorUnexpected(
-                fallbackMessage ?: "Error indication fallback to ${fallbackType.name}"
+                fallbackMessage ?: "Error indication fallback to ${fallbackType.name}",
             )
         }
 
@@ -623,10 +625,10 @@ internal object ReadWithoutEncryptionDetermineErrorIndicationStep :
         return StepOutput(
             buildString {
                 appendLine(
-                    "Error indication type: ${errorIndicationType.name} (${formatStatus(response)})"
+                    "Error indication type: ${errorIndicationType.name} (${formatStatus(response)})",
                 )
             }
-                .trim()
+                .trim(),
         )
     }
 }
@@ -645,7 +647,7 @@ internal object ReadWithoutEncryptionDetermineIllegalNumberErrorPreferenceStep :
                 ErrorLocationIndication.NO_RESPONSE
         ) {
             throw StepSkipped(
-                "Cannot determine limit error preference when invalid requests receive no response"
+                "Cannot determine limit error preference when invalid requests receive no response",
             )
         }
 
@@ -681,11 +683,11 @@ internal object ReadWithoutEncryptionDetermineIllegalNumberErrorPreferenceStep :
             return StepOutput(
                 buildString {
                     appendLine(
-                        "Card accepted $requestedCount services and $requestedCount blocks (${formatStatus(response)})"
+                        "Card accepted $requestedCount services and $requestedCount blocks (${formatStatus(response)})",
                     )
                     appendLine("Limit error preference unchanged")
                 }
-                    .trim()
+                    .trim(),
             )
         }
 
@@ -709,7 +711,7 @@ internal object ReadWithoutEncryptionDetermineIllegalNumberErrorPreferenceStep :
         scanContext = scanContext.withCommands {
             copy(
                 readWithoutEncryption =
-                    readWithoutEncryption.copy(illegalNumberErrorPreference = observedPreference)
+                    readWithoutEncryption.copy(illegalNumberErrorPreference = observedPreference),
             )
         }
 
@@ -728,7 +730,7 @@ internal object ReadWithoutEncryptionDetermineIllegalNumberErrorPreferenceStep :
             buildString {
                 appendLine("Limit error preference: $preferenceLabel (${formatStatus(response)})")
             }
-                .trim()
+                .trim(),
         )
     }
 }
@@ -789,12 +791,12 @@ internal object ReadWithoutEncryptionDetermineMaxServicesStep :
                         scanContext = scanContext.withCommands {
                             copy(
                                 readWithoutEncryption =
-                                    readWithoutEncryption.copy(maxServicesPerRequest = 1)
+                                    readWithoutEncryption.copy(maxServicesPerRequest = 1),
                             )
                         }
                         scanContext = withCommandSupport(scanContext, CommandSupport.SUPPORTED)
                         throw StepBehaviorUnexpected(
-                            "Maximum services fallback to 1: unexpected status (${formatStatus(response)})"
+                            "Maximum services fallback to 1: unexpected status (${formatStatus(response)})",
                         )
                     }
                 }
@@ -802,14 +804,14 @@ internal object ReadWithoutEncryptionDetermineMaxServicesStep :
 
         if (maxServices == 0) {
             throw RuntimeException(
-                "Unable to determine maximum services per request - even 1 service failed"
+                "Unable to determine maximum services per request - even 1 service failed",
             )
         }
 
         scanContext = scanContext.withCommands {
             copy(
                 readWithoutEncryption =
-                    readWithoutEncryption.copy(maxServicesPerRequest = maxServices)
+                    readWithoutEncryption.copy(maxServicesPerRequest = maxServices),
             )
         }
         return StepOutput("Maximum services per request: $maxServices")
@@ -862,12 +864,12 @@ internal object ReadWithoutEncryptionDetermineMaxBlocksStep :
                         scanContext = scanContext.withCommands {
                             copy(
                                 readWithoutEncryption =
-                                    readWithoutEncryption.copy(maxBlocksPerRequest = 1)
+                                    readWithoutEncryption.copy(maxBlocksPerRequest = 1),
                             )
                         }
                         scanContext = withCommandSupport(scanContext, CommandSupport.SUPPORTED)
                         throw StepBehaviorUnexpected(
-                            "Maximum blocks fallback to 1: unexpected status (${formatStatus(response)})"
+                            "Maximum blocks fallback to 1: unexpected status (${formatStatus(response)})",
                         )
                     }
                 }
@@ -875,13 +877,13 @@ internal object ReadWithoutEncryptionDetermineMaxBlocksStep :
 
         if (maxBlocks == 0) {
             throw RuntimeException(
-                "Unable to determine maximum blocks per request - even 1 block failed"
+                "Unable to determine maximum blocks per request - even 1 block failed",
             )
         }
 
         scanContext = scanContext.withCommands {
             copy(
-                readWithoutEncryption = readWithoutEncryption.copy(maxBlocksPerRequest = maxBlocks)
+                readWithoutEncryption = readWithoutEncryption.copy(maxBlocksPerRequest = maxBlocks),
             )
         }
         return StepOutput("Maximum blocks per request: $maxBlocks")
@@ -899,7 +901,7 @@ internal object ReadWithoutEncryptionUnusedInvalidServiceSupportedStep :
     override suspend fun ScanSession.perform(): StepOutput {
         if (scanContext.commands.readWithoutEncryption.maxServicesPerRequest == 1) {
             throw StepSkipped(
-                "Cannot test an unused service entry when only one service is allowed per request"
+                "Cannot test an unused service entry when only one service is allowed per request",
             )
         }
 
@@ -938,7 +940,7 @@ internal object ReadWithoutEncryptionUnusedInvalidServiceSupportedStep :
         scanContext = scanContext.withCommands {
             copy(
                 readWithoutEncryption =
-                    readWithoutEncryption.copy(unusedInvalidServiceSupported = support)
+                    readWithoutEncryption.copy(unusedInvalidServiceSupported = support),
             )
         }
 
@@ -957,24 +959,24 @@ internal object ReadWithoutEncryptionUnusedInvalidServiceSupportedStep :
                             else -> "unknown"
                         }
                     appendLine(
-                        "  ${index + 1}. ${describeNode(service)} (${service.code.toHexString().uppercase()}) - $presence"
+                        "  ${index + 1}. ${describeNode(service)} (${service.code.toHexString().uppercase()}) - $presence",
                     )
                 }
                 appendLine("Block list:")
                 appendLine(
-                    "  1. service list index ${testTarget.referencedServiceIndex + 1}, block ${formatBlockNumberHex(testTarget.blockNumber)}"
+                    "  1. service list index ${testTarget.referencedServiceIndex + 1}, block ${formatBlockNumberHex(testTarget.blockNumber)}",
                 )
                 if (response != null) {
                     appendLine("Status: ${formatStatus(response)}")
                     appendLine("Returned blocks: ${response.blockData.size}")
                 } else {
                     appendLine(
-                        "No response after $READ_WITHOUT_ENCRYPTION_UNUSED_INVALID_SERVICE_ATTEMPTS attempts; card presence confirmed"
+                        "No response after $READ_WITHOUT_ENCRYPTION_UNUSED_INVALID_SERVICE_ATTEMPTS attempts; card presence confirmed",
                     )
                 }
                 appendLine("Result: ${support.toOutputLabel()}")
             }
-                .trim()
+                .trim(),
         )
     }
 }

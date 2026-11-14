@@ -239,7 +239,7 @@ private class AndroidNfcReaderSession(
         if (replacedTarget != null) {
             Log.i(TAG, "Marking previous NFC tag unavailable after rediscovery")
             replacedTarget.markUnavailable(
-                NfcTargetUnavailableException("NFC target was replaced by a rediscovered target")
+                NfcTargetUnavailableException("NFC target was replaced by a rediscovered target"),
             )
         }
 
@@ -270,7 +270,7 @@ private class AndroidNfcReaderSession(
         val nfcF = NfcF.get(tag)
         if (nfcF == null) {
             discovery.resumeWithException(
-                IllegalStateException("Discovered tag does not support FeliCa")
+                IllegalStateException("Discovered tag does not support FeliCa"),
             )
             return
         }
@@ -305,7 +305,7 @@ private class AndroidNfcReaderSession(
                         }
                     }
                     target.markUnavailable(
-                        NfcTargetUnavailableException("NFC target discovery was cancelled")
+                        NfcTargetUnavailableException("NFC target discovery was cancelled"),
                     )
                 }
             } catch (e: Exception) {

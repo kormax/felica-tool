@@ -6,7 +6,7 @@ package com.kormax.felicatool.felica
  */
 abstract class FelicaMessageWithIdm(
     /** The 8-byte IDM (card identifier) */
-    val idm: ByteArray
+    val idm: ByteArray,
 ) : FelicaMessage() {
 
     init {

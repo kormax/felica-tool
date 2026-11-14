@@ -70,7 +70,7 @@ object MobileDeviceRegistry {
     }
 
     private fun parseDefinitions(
-        jsonText: String
+        jsonText: String,
     ): Map<ContainerIssueInformationKey, MobileDeviceResolution> = buildMap {
         for (definitionElement in json.parseToJsonElement(jsonText).jsonArray) {
             val definition = definitionElement.jsonObject

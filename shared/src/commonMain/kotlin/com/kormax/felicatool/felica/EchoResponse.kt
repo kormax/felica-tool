@@ -8,7 +8,7 @@ package com.kormax.felicatool.felica
  */
 class EchoResponse(
     /** The echoed data received from the card */
-    val data: ByteArray
+    val data: ByteArray,
 ) : FelicaResponseWithoutIdm() {
 
     init {

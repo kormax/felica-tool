@@ -130,7 +130,7 @@ class RequestServiceV2Response(
                 val encryptionIdentifier =
                     EncryptionIdentifier.values().find { it.value == encryptionIdentifierValue }
                         ?: throw IllegalArgumentException(
-                            "Unknown encryption identifier: 0x${encryptionIdentifierValue.toString(16)}"
+                            "Unknown encryption identifier: 0x${encryptionIdentifierValue.toString(16)}",
                         )
 
                 val numberOfNodes = uByte()

@@ -325,7 +325,7 @@ internal constructor(
     }
 
     suspend fun handleDiscoveredSystemCodes(
-        discoveredSystemCodes: List<ByteArray>
+        discoveredSystemCodes: List<ByteArray>,
     ): List<SystemScanContext> {
         val allSystemCodes = discoveredSystemCodes.toUniqueByteArrays()
         val updatedSystemContexts = mutableListOf<SystemScanContext>()
@@ -357,7 +357,7 @@ internal constructor(
                             systemCode = systemCode.copyOf(),
                             nodes = emptyList(),
                             idm = activeTarget.idm.copyOf(),
-                        )
+                        ),
                     )
                 }
             }
@@ -518,7 +518,7 @@ internal constructor(
                 }
 
                 selectSystemCode(
-                    withSelectedSystemCode ?: activeTarget.systemCode ?: SYSTEM_CODE_WILDCARD
+                    withSelectedSystemCode ?: activeTarget.systemCode ?: SYSTEM_CODE_WILDCARD,
                 )
                 return
             } catch (e: CancellationException) {

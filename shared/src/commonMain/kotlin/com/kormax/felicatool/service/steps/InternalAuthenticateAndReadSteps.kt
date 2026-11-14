@@ -54,11 +54,11 @@ internal object InternalAuthenticateAndReadStep :
         if (testTarget == null) {
             throw StepSkipped(
                 "No services with MAC communication enabled found. " +
-                    "Internal Authenticate and Read requires at least one service with MAC enabled."
+                    "Internal Authenticate and Read requires at least one service with MAC enabled.",
             )
         }
         skipIfUnsupportedBySpecificationVersion(
-            "Internal Authenticate and Read requires the Communication with MAC option to be reported as supported in the specification version."
+            "Internal Authenticate and Read requires the Communication with MAC option to be reported as supported in the specification version.",
         ) {
             it.communicationWithMacOptionVersion == null
         }
@@ -108,7 +108,7 @@ internal object InternalAuthenticateAndReadStep :
                     appendLine("Challenge response: ${response.challenge.toHexString()}")
                     appendLine("MAC: ${response.mac.toHexString()}")
                 }
-                    .trim()
+                    .trim(),
             )
         } else {
             StepOutput(
@@ -119,7 +119,7 @@ internal object InternalAuthenticateAndReadStep :
                     appendLine("Challenge sent: ${challenge.toHexString()}")
                     appendLine("Status: Failed (${formatStatus(response)})")
                 }
-                    .trim()
+                    .trim(),
             )
         }
     }
@@ -143,7 +143,7 @@ internal object InternalAuthenticateAndReadDetermineTrailingDataSupportedStep :
     ): CardScanContext = context.withCommands {
         copy(
             internalAuthenticateAndRead =
-                internalAuthenticateAndRead.copy(trailingDataSupported = support)
+                internalAuthenticateAndRead.copy(trailingDataSupported = support),
         )
     }
 
@@ -151,7 +151,7 @@ internal object InternalAuthenticateAndReadDetermineTrailingDataSupportedStep :
         scanContext.findInternalAuthenticateAndReadTestTarget()?.systemContext?.systemCode
             ?: throw StepSkipped(
                 "No services with MAC communication enabled found. " +
-                    "Internal Authenticate and Read requires at least one service with MAC enabled."
+                    "Internal Authenticate and Read requires at least one service with MAC enabled.",
             )
 
     override fun ScanSession.resetToMode0AfterCommand(): Boolean = true
@@ -164,7 +164,7 @@ internal object InternalAuthenticateAndReadDetermineTrailingDataSupportedStep :
             scanContext.findInternalAuthenticateAndReadTestTarget()
                 ?: throw StepSkipped(
                     "No services with MAC communication enabled found. " +
-                        "Internal Authenticate and Read requires at least one service with MAC enabled."
+                        "Internal Authenticate and Read requires at least one service with MAC enabled.",
                 )
         return InternalAuthenticateAndReadCommand(
             idm = scope.idm,

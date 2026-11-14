@@ -99,14 +99,14 @@ object ServicePresenceAnalyzer {
                         largestProviderGroupNodeCounts[systemCode] ?: 0
                     }
                     .thenByDescending { systemCode -> totalProviderNodeCounts[systemCode] ?: 0 }
-                    .thenBy { it }
+                    .thenBy { it },
             )
             .mapIndexed { index, systemCode -> systemCode to index }
             .toMap()
     }
 
     private fun providerComparator(
-        systemPriorities: Map<String, Int>
+        systemPriorities: Map<String, Int>,
     ): Comparator<MutableProviderPresence> =
         compareBy<MutableProviderPresence> { provider ->
                 provider.primarySystem(systemPriorities)?.let { systemPriorities[it] }
@@ -161,7 +161,7 @@ object ServicePresenceAnalyzer {
             val orderedSystemCodes =
                 systemCodes
                     .sortedWith(
-                        compareBy<String> { systemPriorities[it] ?: Int.MAX_VALUE }.thenBy { it }
+                        compareBy<String> { systemPriorities[it] ?: Int.MAX_VALUE }.thenBy { it },
                     )
                     .toCollection(linkedSetOf())
             return ProviderPresence(
@@ -175,7 +175,7 @@ object ServicePresenceAnalyzer {
             systemNodeCounts.keys.minWithOrNull(
                 compareBy<String> { systemPriorities[it] ?: Int.MAX_VALUE }
                     .thenByDescending { systemNodeCounts[it] ?: 0 }
-                    .thenBy { it }
+                    .thenBy { it },
             )
     }
 }

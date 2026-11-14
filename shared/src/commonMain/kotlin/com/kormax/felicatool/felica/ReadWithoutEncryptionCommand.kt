@@ -45,7 +45,7 @@ class ReadWithoutEncryptionCommand(
                 1 +
                 (serviceCodes.size * 2) +
                 1 +
-                blockListElements.sumOf { it.toByteArray().size }
+                blockListElements.sumOf { it.toByteArray().size },
         )
 
         // Validate service code list order - service codes must be in ascending order

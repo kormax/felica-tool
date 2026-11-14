@@ -33,7 +33,7 @@ data class CardScanContext(
     val communicationLog: List<CommunicationLogEntry> = emptyList(),
 ) {
     inline fun withCommands(
-        transform: CommandCapabilities.() -> CommandCapabilities
+        transform: CommandCapabilities.() -> CommandCapabilities,
     ): CardScanContext = copy(commands = commands.transform())
 }
 

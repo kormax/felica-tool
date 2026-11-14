@@ -60,6 +60,7 @@ fun StepCard(
                     StepStatus.COMPLETED -> MaterialTheme.colorScheme.tertiaryContainer
                     StepStatus.ERROR -> MaterialTheme.colorScheme.errorContainer
                 },
+            animationSpec = MaterialTheme.motionScheme.fastEffectsSpec(),
             label = "cardColor",
         )
 
@@ -187,6 +188,7 @@ fun StepCard(
                 IconButton(
                     onClick = { onToggleCollapse(step.id) },
                     enabled = isCollapseEnabled,
+                    shapes = IconButtonDefaults.shapes(),
                     modifier = Modifier.size(24.dp),
                 ) {
                     Icon(

@@ -131,7 +131,7 @@ object IcTypeRegistry {
     }
 
     private fun parseDefinitions(
-        jsonText: String
+        jsonText: String,
     ): Triple<
         Map<String, IcCodeDefinition>,
         Map<String, IcCodeDefinition>,

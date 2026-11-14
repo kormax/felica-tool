@@ -19,7 +19,7 @@ internal object GetNodeKeyVersionsStep :
                 requestServiceKeyVersions()
             else ->
                 throw StepSkipped(
-                    "Get node key versions requires Request Service or Request Service V2 support"
+                    "Get node key versions requires Request Service or Request Service V2 support",
                 )
         }
     }
@@ -33,7 +33,7 @@ internal object GetNodeKeyVersionsStep :
         // Check if no areas are known - consider this a failure
         if (allDiscoveredNodes.isEmpty()) {
             throw StepPreconditionNotMet(
-                "No nodes found. Request service key versions require at least one area to be discovered."
+                "No nodes found. Request service key versions require at least one area to be discovered.",
             )
         }
         // Get key versions in batches (max 32 nodes per request)
@@ -64,7 +64,7 @@ internal object GetNodeKeyVersionsStep :
                         describeNode(node, includeNodeNumber = false, includeCode = false)
                     val status = if (exists) "Key Version: ${keyVersion.toInt()}" else "Not found"
                     keyVersionResults.add(
-                        "${systemContext.systemCode?.toHexString() ?: "unknown"} - $nodeType ${node.code.toHexString()}: $status"
+                        "${systemContext.systemCode?.toHexString() ?: "unknown"} - $nodeType ${node.code.toHexString()}: $status",
                     )
 
                     // Store key version in map
@@ -122,7 +122,7 @@ internal object GetNodeKeyVersionsStep :
         // Check if no areas are known - consider this a failure
         if (allDiscoveredNodes.isEmpty()) {
             throw StepPreconditionNotMet(
-                "No nodes found. Request service key versions require at least one area to be discovered."
+                "No nodes found. Request service key versions require at least one area to be discovered.",
             )
         }
         // Get key versions in batches (max 32 nodes per request)
@@ -166,13 +166,13 @@ internal object GetNodeKeyVersionsStep :
                         val aesKeyVersion = requestServiceV2Response.aesKeyVersions.getOrNull(index)
                         if (aesKeyVersion == null && supportsAes) {
                             throw RuntimeException(
-                                "AES key version missing for node at index $index"
+                                "AES key version missing for node at index $index",
                             )
                         }
                         val desKeyVersion = requestServiceV2Response.desKeyVersions.getOrNull(index)
                         if (desKeyVersion == null && supportsDes) {
                             throw RuntimeException(
-                                "DES key version missing for node at index $index"
+                                "DES key version missing for node at index $index",
                             )
                         }
                         val aesExists = aesKeyVersion?.isMissing == false
@@ -195,7 +195,7 @@ internal object GetNodeKeyVersionsStep :
                             } else "DES: Not supported"
 
                         keyVersionResults.add(
-                            "${systemContext.systemCode?.toHexString() ?: "unknown"} - $nodeType $nodeCodeHex$encryptionInfo: $aesStatus, $desStatus"
+                            "${systemContext.systemCode?.toHexString() ?: "unknown"} - $nodeType $nodeCodeHex$encryptionInfo: $aesStatus, $desStatus",
                         )
 
                         aesKeyVersion
@@ -207,7 +207,7 @@ internal object GetNodeKeyVersionsStep :
                     }
                 } else {
                     keyVersionResults.add(
-                        "${systemContext.systemCode?.toHexString() ?: "unknown"} - Batch ${batchIndex + 1}: Error - Status: ${requestServiceV2Response.statusFlag1.toInt() and 0xFF}"
+                        "${systemContext.systemCode?.toHexString() ?: "unknown"} - Batch ${batchIndex + 1}: Error - Status: ${requestServiceV2Response.statusFlag1.toInt() and 0xFF}",
                     )
                 }
             }

@@ -58,7 +58,7 @@ class InternalAuthenticateAndReadCommand(
                 (serviceCodes.size * 2) +
                 1 + // NumBlocks
                 blockListElements.sumOf { it.toByteArray().size } +
-                CHALLENGE_LENGTH
+                CHALLENGE_LENGTH,
         )
 
         // Unlike ReadWithoutEncryption, there are no constraints upon

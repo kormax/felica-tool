@@ -190,7 +190,7 @@ object ScanOverviewModelBuilder {
                     ScanOverviewField(
                         "IC",
                         "0x${byteToHex(pmm.icType)}",
-                    )
+                    ),
                 )
                 IcTypeRegistry.resolveIcType(pmm.icType, pmm.romType)?.let { resolution ->
                     add(
@@ -202,7 +202,7 @@ object ScanOverviewModelBuilder {
                             } else {
                                 ScanOverviewChipRole.DEFAULT
                             },
-                        )
+                        ),
                     )
                 }
             }
@@ -218,7 +218,7 @@ object ScanOverviewModelBuilder {
                         ScanOverviewField(
                             "Product Information",
                             productInformation.productInformationData.toHexString().uppercase(),
-                        )
+                        ),
                     )
                 }
             }
@@ -230,13 +230,13 @@ object ScanOverviewModelBuilder {
                         containerInformation.formatVersionCarrierInformation
                             .toHexString()
                             .uppercase(),
-                    )
+                    ),
                 )
                 add(
                     ScanOverviewField(
                         "Mobile Phone Model Info",
                         printableOrHex(containerInformation.mobilePhoneModelInformation),
-                    )
+                    ),
                 )
                 mobileDevice?.let { device ->
                     add(ScanOverviewField("Device Model", device.name))
@@ -256,7 +256,7 @@ object ScanOverviewModelBuilder {
                     ScanOverviewField(
                         "Basic Version",
                         "${specificationVersion.basicVersion.major}.${specificationVersion.basicVersion.minor}",
-                    )
+                    ),
                 )
             }
         }
@@ -364,7 +364,7 @@ object ScanOverviewModelBuilder {
                                         parentCode,
                                         NodeDefinitionType.SERVICE,
                                         blockData = primaryServiceBlockData,
-                                    )
+                                    ),
                             ),
                         areaHeader = emittedAreaHeader,
                         groupedUnderArea = areaHeader != null,
@@ -426,7 +426,7 @@ object ScanOverviewModelBuilder {
                     title =
                         buildString {
                             append(
-                                "Area ${node.fullCode.toHexString().uppercase()} (${node.number}-${node.endNumber})"
+                                "Area ${node.fullCode.toHexString().uppercase()} (${node.number}-${node.endNumber})",
                             )
                             if (nodeName != null) {
                                 append(" - ")
@@ -443,7 +443,7 @@ object ScanOverviewModelBuilder {
                                 node.fullCode.toHexString(),
                                 parentCode,
                                 NodeDefinitionType.AREA,
-                            )
+                            ),
                         ),
                     chips = buildNodeChips(systemContext, node),
                     detailChips = buildNodeDetailChips(systemContext, node),
@@ -473,7 +473,7 @@ object ScanOverviewModelBuilder {
                         else
                             buildString {
                                 append(
-                                    "Service ${node.fullCode.toHexString().uppercase()} (#${node.number})"
+                                    "Service ${node.fullCode.toHexString().uppercase()} (#${node.number})",
                                 )
                                 if (nodeName != null) {
                                     append(" - ")
@@ -493,7 +493,7 @@ object ScanOverviewModelBuilder {
                                     parentCode,
                                     NodeDefinitionType.SERVICE,
                                     blockData = blockData,
-                                )
+                                ),
                         ),
                     chips = buildNodeChips(systemContext, node),
                     detailChips = buildNodeDetailChips(systemContext, node),
@@ -536,19 +536,22 @@ object ScanOverviewModelBuilder {
                                 } else {
                                     ScanOverviewChipRole.HIGHLIGHT
                                 },
-                            )
+                            ),
                         )
                         if (node.attribute.pinRequired) {
                             add(ScanOverviewChip("PIN", ScanOverviewChipRole.WARNING))
                         }
                         add(
-                            ScanOverviewChip(node.attribute.type.name, ScanOverviewChipRole.DEFAULT)
+                            ScanOverviewChip(
+                                node.attribute.type.name,
+                                ScanOverviewChipRole.DEFAULT,
+                            ),
                         )
                         add(
                             ScanOverviewChip(
                                 serviceModeToken(node.attribute.mode.name),
                                 ScanOverviewChipRole.DEFAULT,
-                            )
+                            ),
                         )
                     }
                 }
@@ -585,7 +588,7 @@ object ScanOverviewModelBuilder {
                         ScanOverviewChip(
                             "${encryptionIdentifier.aesKeyType.name}: v${it.toInt()}",
                             ScanOverviewChipRole.INFO,
-                        )
+                        ),
                     )
                 }
                 systemContext.nodeDesKeyVersions[node]?.let {
@@ -593,7 +596,7 @@ object ScanOverviewModelBuilder {
                         ScanOverviewChip(
                             "${encryptionIdentifier.desKeyType.name}: v${it.toInt()}",
                             ScanOverviewChipRole.INFO,
-                        )
+                        ),
                     )
                 }
             } else {
@@ -655,20 +658,20 @@ object ScanOverviewModelBuilder {
                         ScanOverviewField(
                             "System Status",
                             it.toByteArray().toHexString().uppercase(),
-                        )
+                        ),
                     )
                 }
                 add(
                     ScanOverviewField(
                         "Total Areas",
                         systemContext.nodes.filterIsInstance<Area>().size.toString(),
-                    )
+                    ),
                 )
                 add(
                     ScanOverviewField(
                         "Total Services",
                         systemContext.nodes.filterIsInstance<Service>().size.toString(),
-                    )
+                    ),
                 )
 
                 val hasAesKeys = systemContext.nodeAesKeyVersions.isNotEmpty()
@@ -679,7 +682,7 @@ object ScanOverviewModelBuilder {
                         ScanOverviewField(
                             "Key Versions",
                             systemContext.nodeKeyVersions.size.toString(),
-                        )
+                        ),
                     )
                 } else {
                     if (hasAesKeys) {
@@ -687,7 +690,7 @@ object ScanOverviewModelBuilder {
                             ScanOverviewField(
                                 "AES Keys",
                                 systemContext.nodeAesKeyVersions.size.toString(),
-                            )
+                            ),
                         )
                     }
                     if (hasDesKeys) {
@@ -695,7 +698,7 @@ object ScanOverviewModelBuilder {
                             ScanOverviewField(
                                 "DES Keys",
                                 systemContext.nodeDesKeyVersions.size.toString(),
-                            )
+                            ),
                         )
                     }
                 }
@@ -797,7 +800,7 @@ object ScanOverviewModelBuilder {
                             area.fullCode.toHexString().uppercase(),
                             parentCode,
                             NodeDefinitionType.AREA,
-                        )
+                        ),
                     )
                     .takeIf { it.isNotEmpty() }
             } ?: emptyList()
@@ -847,7 +850,7 @@ object ScanOverviewModelBuilder {
                             compareByDescending<Area> { it.isRoot }
                                 .thenByDescending { it.attribute.canCreateSubArea }
                                 .thenBy { it.attribute.value }
-                                .thenBy { it.fullCode.toHexString() }
+                                .thenBy { it.fullCode.toHexString() },
                         )
                     val headerGroup =
                         AreaHeaderGroup(
@@ -906,7 +909,7 @@ object ScanOverviewModelBuilder {
     }
 
     private fun buildCommandSupport(
-        scanContext: CardScanContext
+        scanContext: CardScanContext,
     ): List<ScanOverviewCommandSection> {
         fun commandSupport(
             title: String,

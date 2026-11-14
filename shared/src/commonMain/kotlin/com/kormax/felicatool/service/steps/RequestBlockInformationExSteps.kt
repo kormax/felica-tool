@@ -37,7 +37,7 @@ internal object RequestBlockInformationExDetermineSupportedStep :
                 appendLine("Status: ${formatStatus(response)}")
                 appendLine("Returned ${response.assignedBlockCount.size} block count entries")
             }
-                .trim()
+                .trim(),
         )
     }
 }
@@ -60,7 +60,7 @@ internal object RequestBlockInformationExDetermineTrailingDataSupportedStep :
     ): CardScanContext = context.withCommands {
         copy(
             requestBlockInformationEx =
-                requestBlockInformationEx.copy(trailingDataSupported = support)
+                requestBlockInformationEx.copy(trailingDataSupported = support),
         )
     }
 

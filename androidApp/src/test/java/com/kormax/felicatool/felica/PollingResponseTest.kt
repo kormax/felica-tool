@@ -71,7 +71,7 @@ class PollingResponseTest {
             PMM_01188B868FBECBFF,
             REQUEST_DATA_FE00,
             ByteArray(
-                PollingResponse.MAX_FRAME_LENGTH - PollingResponse.LENGTH_WITH_REQUEST_DATA + 1
+                PollingResponse.MAX_FRAME_LENGTH - PollingResponse.LENGTH_WITH_REQUEST_DATA + 1,
             ),
         )
     }

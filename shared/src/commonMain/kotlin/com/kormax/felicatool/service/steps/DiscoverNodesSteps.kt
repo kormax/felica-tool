@@ -13,7 +13,7 @@ private data class NodeDiscoveryResult(
 )
 
 internal suspend fun ScanSession.discoverNodesWithReadWithoutEncryption(
-    systemContext: SystemScanContext
+    systemContext: SystemScanContext,
 ): List<Service> {
     val attributes =
         ServiceAttribute.entries.filter {
@@ -35,7 +35,7 @@ internal suspend fun ScanSession.discoverNodesWithReadWithoutEncryption(
                             serviceCodes = arrayOf(service.code),
                             blockListElements =
                                 arrayOf(
-                                    BlockListElement(serviceCodeListOrder = 0, blockNumber = 0)
+                                    BlockListElement(serviceCodeListOrder = 0, blockNumber = 0),
                                 ),
                         )
                     }
@@ -52,7 +52,7 @@ internal suspend fun ScanSession.discoverNodesWithReadWithoutEncryption(
                 scanContext = scanContext.withCommands {
                     copy(
                         readWithoutEncryption =
-                            readWithoutEncryption.copy(supported = CommandSupport.SUPPORTED)
+                            readWithoutEncryption.copy(supported = CommandSupport.SUPPORTED),
                     )
                 }
             }
@@ -70,7 +70,7 @@ internal suspend fun ScanSession.discoverNodesWithReadWithoutEncryption(
                 }
                 else ->
                     throw StepBehaviorUnexpected(
-                        "Cannot determine service ${service.code.toHexString()} presence: ${formatStatus(response)}"
+                        "Cannot determine service ${service.code.toHexString()} presence: ${formatStatus(response)}",
                     )
             }
         }
@@ -111,13 +111,13 @@ internal object DiscoverNodesStep :
                                                 BlockListElement(
                                                     serviceCodeListOrder = 0,
                                                     blockNumber = 0,
-                                                )
+                                                ),
                                             ),
                                     )
                                 }
                             if (response.status !is Status.Success) {
                                 throw StepBehaviorUnexpected(
-                                    "Cannot read anonymous service: ${formatStatus(response)}"
+                                    "Cannot read anonymous service: ${formatStatus(response)}",
                                 )
                             }
                             context.copy(nodes = listOf(System, AnonymousService))
@@ -135,7 +135,7 @@ internal object DiscoverNodesStep :
                         } && searchServiceCodeSupported
                     ) {
                         details.add(
-                            "Request Code List did not find non-structural nodes; retrying with Search Service Code"
+                            "Request Code List did not find non-structural nodes; retrying with Search Service Code",
                         )
                         val searchServiceCodeResult = discoverNodesWithSearchServiceCode()
                         details.addAll(searchServiceCodeResult.details)
@@ -159,7 +159,7 @@ internal object DiscoverNodesStep :
                     val results = knownSystemContexts.map { systemContext ->
                         if (hasNonStructuralNodes(systemContext.nodes)) {
                             details.add(
-                                "System ${formatSystemCodeLabel(systemContext.systemCode)}: using known nodes; skipping Read Without Encryption discovery"
+                                "System ${formatSystemCodeLabel(systemContext.systemCode)}: using known nodes; skipping Read Without Encryption discovery",
                             )
                             NodeDiscoveryResult(
                                 methodLabel = "Known Node Fallback",
@@ -169,7 +169,7 @@ internal object DiscoverNodesStep :
                         } else {
                             val services = discoverNodesWithReadWithoutEncryption(systemContext)
                             details.add(
-                                "System ${formatSystemCodeLabel(systemContext.systemCode)}: Read Without Encryption found ${services.size} service(s)"
+                                "System ${formatSystemCodeLabel(systemContext.systemCode)}: Read Without Encryption found ${services.size} service(s)",
                             )
                             NodeDiscoveryResult(
                                 methodLabel = "Read Without Encryption",
@@ -178,9 +178,9 @@ internal object DiscoverNodesStep :
                                         systemContext.copy(
                                             nodes =
                                                 normalizeDiscoveredNodes(
-                                                    systemContext.nodes + services
-                                                )
-                                        )
+                                                    systemContext.nodes + services,
+                                                ),
+                                        ),
                                     ),
                                 details = emptyList(),
                             )
@@ -195,7 +195,7 @@ internal object DiscoverNodesStep :
                 else -> {
                     val systemContexts = ensureNodeDiscoverySystemContexts()
                     details.add(
-                        "No supported node discovery command; using known-node fallback where available"
+                        "No supported node discovery command; using known-node fallback where available",
                     )
                     NodeDiscoveryResult(
                         methodLabel = "Known Node Fallback",
@@ -239,13 +239,13 @@ internal object DiscoverNodesStep :
             appendLine("Discover Nodes Results:")
             appendLine("Method: ${discoveryResult.methodLabel}")
             appendLine(
-                "Request Code List support: ${scanContext.commands.requestCodeList.supported}"
+                "Request Code List support: ${scanContext.commands.requestCodeList.supported}",
             )
             appendLine(
-                "Search Service Code support: ${scanContext.commands.searchServiceCode.supported}"
+                "Search Service Code support: ${scanContext.commands.searchServiceCode.supported}",
             )
             appendLine(
-                "Read Without Encryption support: ${scanContext.commands.readWithoutEncryption.supported}"
+                "Read Without Encryption support: ${scanContext.commands.readWithoutEncryption.supported}",
             )
             appendLine()
 
@@ -261,12 +261,12 @@ internal object DiscoverNodesStep :
                 val contextSystems = context.nodes.filterIsInstance<System>()
 
                 appendLine(
-                    "System Context ${index + 1} (${formatSystemCodeLabel(context.systemCode)}):"
+                    "System Context ${index + 1} (${formatSystemCodeLabel(context.systemCode)}):",
                 )
                 appendLine("  Areas (${contextAreas.size}):")
                 contextAreas.forEach { area ->
                     appendLine(
-                        "    - ${describeNode(area)}: Range ${area.number}-${area.endNumber}"
+                        "    - ${describeNode(area)}: Range ${area.number}-${area.endNumber}",
                     )
                 }
                 if (contextAreas.isEmpty()) appendLine("    - None")
@@ -274,7 +274,7 @@ internal object DiscoverNodesStep :
                 appendLine("  Services (${contextServices.size}):")
                 contextServices.forEach { service ->
                     appendLine(
-                        "    - ${describeNode(service)}: ${service.attribute::class.simpleName}"
+                        "    - ${describeNode(service)}: ${service.attribute::class.simpleName}",
                     )
                 }
                 if (contextServices.isEmpty()) appendLine("    - None")
@@ -340,10 +340,10 @@ internal object DiscoverNodesStep :
 
                 val nodes = normalizeDiscoveredNodes(areas + services)
                 updatedSystemContexts.add(
-                    systemContext.copy(nodes = nodes, registryPopulatedNodes = emptySet())
+                    systemContext.copy(nodes = nodes, registryPopulatedNodes = emptySet()),
                 )
                 details.add(
-                    "System ${contextIndex + 1} ($systemCodeHex): Request Code List found ${areas.size} area(s), ${services.size} service(s) in $requestCount request(s); $stopReason"
+                    "System ${contextIndex + 1} ($systemCodeHex): Request Code List found ${areas.size} area(s), ${services.size} service(s) in $requestCount request(s); $stopReason",
                 )
             } catch (e: Exception) {
                 ScanLog.w(
@@ -353,7 +353,7 @@ internal object DiscoverNodesStep :
                 )
                 updatedSystemContexts.add(systemContext)
                 details.add(
-                    "System ${contextIndex + 1} ($systemCodeHex): Request Code List discovery failed (${e.message ?: e::class.simpleName ?: "Unknown error"})"
+                    "System ${contextIndex + 1} ($systemCodeHex): Request Code List discovery failed (${e.message ?: e::class.simpleName ?: "Unknown error"})",
                 )
             }
         }
@@ -416,10 +416,10 @@ internal object DiscoverNodesStep :
                     systemContext.copy(
                         nodes = normalizedNodes,
                         registryPopulatedNodes = emptySet(),
-                    )
+                    ),
                 )
                 details.add(
-                    "System ${contextIndex + 1} ($systemCodeHex): Search Service Code found $areaCount area(s), $serviceCount service(s) in $requestCount request(s); $stopReason"
+                    "System ${contextIndex + 1} ($systemCodeHex): Search Service Code found $areaCount area(s), $serviceCount service(s) in $requestCount request(s); $stopReason",
                 )
             } catch (e: Exception) {
                 ScanLog.w(
@@ -429,7 +429,7 @@ internal object DiscoverNodesStep :
                 )
                 updatedSystemContexts.add(systemContext)
                 details.add(
-                    "System ${contextIndex + 1} ($systemCodeHex): Search Service Code discovery failed (${e.message ?: e::class.simpleName ?: "Unknown error"})"
+                    "System ${contextIndex + 1} ($systemCodeHex): Search Service Code discovery failed (${e.message ?: e::class.simpleName ?: "Unknown error"})",
                 )
             }
         }
@@ -480,7 +480,7 @@ internal object DiscoverNodesStep :
                         "default structural nodes"
                     }
                 details.add(
-                    "System ${formatSystemCodeLabel(systemContext.systemCode)}: populated ${fallbackNodes.size} fallback node(s) from $source"
+                    "System ${formatSystemCodeLabel(systemContext.systemCode)}: populated ${fallbackNodes.size} fallback node(s) from $source",
                 )
                 systemContext.copy(
                     nodes = fallbackNodes,

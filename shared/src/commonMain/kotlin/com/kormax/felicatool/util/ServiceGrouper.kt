@@ -99,7 +99,7 @@ object ServiceGrouper {
                                 { it.attribute.authenticationRequired },
                                 { it.attribute.mode.ordinal },
                                 { it.attribute.value },
-                            )
+                            ),
                         ),
                     parentArea = key.parentArea,
                 )
@@ -110,7 +110,7 @@ object ServiceGrouper {
                     { it.primaryService.attribute.value },
                     { it.type.ordinal },
                     { it.parentArea?.number ?: -1 },
-                )
+                ),
             )
     }
 
@@ -134,13 +134,17 @@ object ServiceGrouper {
                                 { it.attribute.authenticationRequired },
                                 { it.attribute.mode.ordinal },
                                 { it.attribute.value },
-                            )
+                            ),
                         ),
                     parentArea = null,
                 )
             }
             .sortedWith(
-                compareBy({ it.number }, { it.primaryService.attribute.value }, { it.type.ordinal })
+                compareBy(
+                    { it.number },
+                    { it.primaryService.attribute.value },
+                    { it.type.ordinal },
+                ),
             )
     }
 

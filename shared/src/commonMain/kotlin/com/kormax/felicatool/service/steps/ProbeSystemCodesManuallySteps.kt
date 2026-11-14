@@ -182,7 +182,7 @@ internal object ProbeSystemCodesManuallyStep :
                                     byteToHex(WILDCARD_SYSTEM_PROBE_FIRST_PREFIX)
                                 }FF-${
                                     byteToHex(WILDCARD_SYSTEM_PROBE_LAST_PREFIX)
-                                }FF"
+                                }FF",
                     )
                     appendLine("  Skipped known prefixes: $wildcardSkipped")
                     appendLine("  No response: $wildcardNoResponse")
@@ -194,10 +194,10 @@ internal object ProbeSystemCodesManuallyStep :
 
                 appendLine()
                 appendLine(
-                    "Found ${manualFoundCount + wildcardFoundCount} system(s); added ${manualAddedCount + wildcardAddedCount} new system context(s)."
+                    "Found ${manualFoundCount + wildcardFoundCount} system(s); added ${manualAddedCount + wildcardAddedCount} new system context(s).",
                 )
             }
-                .trim()
+                .trim(),
         )
     }
 
@@ -227,7 +227,7 @@ internal object ProbeSystemCodesManuallyStep :
                 scanContext.copy(
                     systemScanContexts =
                         scanContext.systemScanContexts +
-                            SystemScanContext(systemCode = systemCode, idm = idm)
+                            SystemScanContext(systemCode = systemCode, idm = idm),
                 )
             } else if (idmUpdated) {
                 scanContext.copy(systemScanContexts = updatedContexts)

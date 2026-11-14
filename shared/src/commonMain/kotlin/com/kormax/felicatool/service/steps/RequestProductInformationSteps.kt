@@ -36,18 +36,18 @@ internal object RequestProductInformationDetermineSupportedStep :
         return StepOutput(
             buildString {
                 appendLine(
-                    "Status Flags: ${formatStatus(requestProductInformationResponse, prefix = "")}"
+                    "Status Flags: ${formatStatus(requestProductInformationResponse, prefix = "")}",
                 )
 
                 if (requestProductInformationResponse.isStatusSuccessful) {
                     appendLine(
-                        "Product information: ${requestProductInformationResponse.productInformationData.toHexString()}"
+                        "Product information: ${requestProductInformationResponse.productInformationData.toHexString()}",
                     )
                 } else {
                     appendLine("Failed to request product information")
                 }
             }
-                .trim()
+                .trim(),
         )
     }
 }
@@ -70,7 +70,7 @@ internal object RequestProductInformationDetermineTrailingDataSupportedStep :
     ): CardScanContext = context.withCommands {
         copy(
             requestProductInformation =
-                requestProductInformation.copy(trailingDataSupported = support)
+                requestProductInformation.copy(trailingDataSupported = support),
         )
     }
 

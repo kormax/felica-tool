@@ -133,7 +133,11 @@ private fun createTree(
 fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifier) {
     var isExpanded by remember { mutableStateOf(true) }
     val rotationAngle by
-        animateFloatAsState(targetValue = if (isExpanded) 0f else 180f, label = "cardInfoRotation")
+        animateFloatAsState(
+            targetValue = if (isExpanded) 0f else 180f,
+            animationSpec = MaterialTheme.motionScheme.fastSpatialSpec(),
+            label = "cardInfoRotation",
+        )
 
     val providerDetectionResult =
         remember(context.systemScanContexts) { ServicePresenceAnalyzer.detectProviders(context) }
@@ -448,6 +452,7 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                 val commandRotationAngle by
                     animateFloatAsState(
                         targetValue = if (commandSupportExpanded) 0f else 180f,
+                        animationSpec = MaterialTheme.motionScheme.fastSpatialSpec(),
                         label = "commandSupportRotation",
                     )
 
@@ -930,7 +935,11 @@ fun TreeNodeCard(
 
     var isExpanded by remember { mutableStateOf(depth == 0) }
     val rotationAngle by
-        animateFloatAsState(targetValue = if (isExpanded) 0f else 180f, label = "nodeRotation")
+        animateFloatAsState(
+            targetValue = if (isExpanded) 0f else 180f,
+            animationSpec = MaterialTheme.motionScheme.fastSpatialSpec(),
+            label = "nodeRotation",
+        )
 
     val indentWidth = (depth * 6).dp
     val hasChildren = nodeInfo.hasChildren
@@ -1176,7 +1185,7 @@ fun TreeNodeCard(
                     colors =
                         CardDefaults.cardColors(
                             containerColor =
-                                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
                         ),
                 ) {
                     Column(
@@ -1719,7 +1728,7 @@ private fun AttributeChip(
             style =
                 if (isCompact)
                     MaterialTheme.typography.labelSmall.copy(
-                        fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.85f
+                        fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.85f,
                     )
                 else MaterialTheme.typography.labelSmall,
             color = contentColor,

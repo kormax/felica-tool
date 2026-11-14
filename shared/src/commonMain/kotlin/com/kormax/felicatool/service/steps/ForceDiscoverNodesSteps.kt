@@ -50,14 +50,14 @@ internal object ForceDiscoverNodesStep :
                     systemContext.copy(
                         nodes = systemContext.nodes + services,
                         hiddenNodes = systemContext.hiddenNodes + services,
-                    )
+                    ),
                 )
                 totalDiscovered += services.size
                 totalHidden += services.size
                 totalHiddenServices += services.size
                 services.forEach { service ->
                     results.add(
-                        "${formatSystemCodeLabel(systemContext.systemCode)} - Hidden Service ${service.code.toHexString()}: Read Without Encryption"
+                        "${formatSystemCodeLabel(systemContext.systemCode)} - Hidden Service ${service.code.toHexString()}: Read Without Encryption",
                     )
                 }
                 continue
@@ -147,13 +147,13 @@ internal object ForceDiscoverNodesStep :
                                     is Service -> {
                                         totalHiddenServices++
                                         results.add(
-                                            "${systemContext.systemCode?.toHexString() ?: "unknown"} - Hidden Service $codeHex: $keyLabel v${keyVersion.toInt()}"
+                                            "${systemContext.systemCode?.toHexString() ?: "unknown"} - Hidden Service $codeHex: $keyLabel v${keyVersion.toInt()}",
                                         )
                                     }
                                     is Area -> {
                                         totalHiddenAreas++
                                         results.add(
-                                            "${systemContext.systemCode?.toHexString() ?: "unknown"} - Hidden Area $codeHex: $keyLabel v${keyVersion.toInt()}"
+                                            "${systemContext.systemCode?.toHexString() ?: "unknown"} - Hidden Area $codeHex: $keyLabel v${keyVersion.toInt()}",
                                         )
                                     }
                                     else -> {}

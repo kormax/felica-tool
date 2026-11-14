@@ -8,7 +8,7 @@ package com.kormax.felicatool.felica
  */
 class GetContainerIdResponse(
     /** The container's IDM (8 bytes) - unique identifier */
-    val containerIdm: ByteArray
+    val containerIdm: ByteArray,
 ) : FelicaResponseWithoutIdm() {
 
     init {

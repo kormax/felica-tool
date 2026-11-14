@@ -17,11 +17,11 @@ value class KeyVersion(val value: Short) {
      * @param bytes The 2-byte array representing the key version in little-endian format
      */
     constructor(
-        byteArray: ByteArray
+        byteArray: ByteArray,
     ) : this(
         byteArray
             .also { require(it.size == 2) { "KeyVersion must be exactly 2 bytes, got ${it.size}" } }
-            .let { ((it[1].toInt() and 0xFF) shl 8 or (it[0].toInt() and 0xFF)).toShort() }
+            .let { ((it[1].toInt() and 0xFF) shl 8 or (it[0].toInt() and 0xFF)).toShort() },
     )
 
     /** Returns the key version as an integer value. */

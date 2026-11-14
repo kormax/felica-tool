@@ -90,7 +90,7 @@ private fun CardScanContext.findWritableBlockProbeTarget(): WritableBlockProbeTa
 
         if (availableBlocks.isNotEmpty()) {
             serviceCandidates.add(
-                ServiceCandidate(service, systemContext, availableBlocks, unavailableBlocks)
+                ServiceCandidate(service, systemContext, availableBlocks, unavailableBlocks),
             )
         }
     }
@@ -98,7 +98,7 @@ private fun CardScanContext.findWritableBlockProbeTarget(): WritableBlockProbeTa
     if (serviceCandidates.isEmpty()) {
         throw StepSkipped(
             "No empty blocks (all 0x00 or 0xFF) found in any writable service. " +
-                "Cannot safely test write commands without risking data modification."
+                "Cannot safely test write commands without risking data modification.",
         )
     }
 
@@ -143,7 +143,7 @@ internal object WriteWithoutEncryptionDetermineSupportedStep :
                             BlockListElement(
                                 serviceCodeListOrder = 0,
                                 blockNumber = probeTarget.safeBlockNumber,
-                            )
+                            ),
                         ),
                     blockData = arrayOf(probeTarget.safeBlockData.copyOf()),
                 )
@@ -156,7 +156,7 @@ internal object WriteWithoutEncryptionDetermineSupportedStep :
                 appendLine("Block: 0x${formatBlockNumberHex(probeTarget.safeBlockNumber)}")
                 appendLine("Status: ${formatStatus(response)}")
             }
-                .trim()
+                .trim(),
         )
     }
 }
@@ -199,7 +199,7 @@ internal object WriteWithoutEncryptionDetermineTrailingDataSupportedStep :
                     BlockListElement(
                         serviceCodeListOrder = 0,
                         blockNumber = probeTarget.safeBlockNumber,
-                    )
+                    ),
                 ),
             blockData = arrayOf(probeTarget.safeBlockData.copyOf()),
             trailingData = trailingData,
@@ -220,7 +220,7 @@ internal object WriteWithoutEncryptionDetermineErrorIndicationStep :
     override suspend fun ScanSession.perform(): StepOutput {
         if (scanContext.commands.writeWithoutEncryption.supported != CommandSupport.SUPPORTED) {
             throw StepSkipped(
-                "Write Without Encryption support must be confirmed before determining error indication"
+                "Write Without Encryption support must be confirmed before determining error indication",
             )
         }
 
@@ -255,8 +255,8 @@ internal object WriteWithoutEncryptionDetermineErrorIndicationStep :
                     copy(
                         writeWithoutEncryption =
                             writeWithoutEncryption.copy(
-                                errorLocationIndication = ErrorLocationIndication.NO_RESPONSE
-                            )
+                                errorLocationIndication = ErrorLocationIndication.NO_RESPONSE,
+                            ),
                     )
                 }
                 ScanLog.d("CardScanService", "Determined NO_RESPONSE write error indication")
@@ -267,7 +267,7 @@ internal object WriteWithoutEncryptionDetermineErrorIndicationStep :
 
         if (response.isStatusSuccessful) {
             throw RuntimeException(
-                "WriteWithoutEncryption failed to determine error indication, ${formatStatus(statusFlag1, statusFlag2)}"
+                "WriteWithoutEncryption failed to determine error indication, ${formatStatus(statusFlag1, statusFlag2)}",
             )
         }
 
@@ -296,7 +296,7 @@ internal object WriteWithoutEncryptionDetermineErrorIndicationStep :
                 }
                 else -> {
                     throw RuntimeException(
-                        "Unexpected response status for error indication determination: ${formatStatus(statusFlag1, statusFlag2)}"
+                        "Unexpected response status for error indication determination: ${formatStatus(statusFlag1, statusFlag2)}",
                     )
                 }
             }
@@ -304,7 +304,7 @@ internal object WriteWithoutEncryptionDetermineErrorIndicationStep :
         scanContext = scanContext.withCommands {
             copy(
                 writeWithoutEncryption =
-                    writeWithoutEncryption.copy(errorLocationIndication = errorIndicationType)
+                    writeWithoutEncryption.copy(errorLocationIndication = errorIndicationType),
             )
         }
 
@@ -313,10 +313,10 @@ internal object WriteWithoutEncryptionDetermineErrorIndicationStep :
         return StepOutput(
             buildString {
                 appendLine(
-                    "Error indication type: ${errorIndicationType.name} (${formatStatus(statusFlag1, statusFlag2)})"
+                    "Error indication type: ${errorIndicationType.name} (${formatStatus(statusFlag1, statusFlag2)})",
                 )
             }
-                .trim()
+                .trim(),
         )
     }
 }
@@ -331,7 +331,7 @@ internal object WriteWithoutEncryptionDetermineMaxBlocksStep :
     override suspend fun ScanSession.perform(): StepOutput {
         if (scanContext.commands.writeWithoutEncryption.supported != CommandSupport.SUPPORTED) {
             throw StepSkipped(
-                "Write Without Encryption support must be confirmed before determining max blocks"
+                "Write Without Encryption support must be confirmed before determining max blocks",
             )
         }
 
@@ -379,7 +379,7 @@ internal object WriteWithoutEncryptionDetermineMaxBlocksStep :
                             status !is Status.IllegalBlockNumber
                     ) {
                         throw RuntimeException(
-                            "WriteWithoutEncryption failed with unexpected error (not 0xA2 or 0xA8) at $count blocks, ${formatStatus(response)}"
+                            "WriteWithoutEncryption failed with unexpected error (not 0xA2 or 0xA8) at $count blocks, ${formatStatus(response)}",
                         )
                     }
                     ScanLog.d(
@@ -397,19 +397,19 @@ internal object WriteWithoutEncryptionDetermineMaxBlocksStep :
 
         if (maxBlocks == 0) {
             throw RuntimeException(
-                "Unable to determine maximum blocks per request - even 1 block failed"
+                "Unable to determine maximum blocks per request - even 1 block failed",
             )
         }
 
         scanContext = scanContext.withCommands {
             copy(
                 writeWithoutEncryption =
-                    writeWithoutEncryption.copy(maxBlocksPerRequest = maxBlocks)
+                    writeWithoutEncryption.copy(maxBlocksPerRequest = maxBlocks),
             )
         }
 
         return StepOutput(
-            buildString { appendLine("Maximum blocks per request: $maxBlocks") }.trim()
+            buildString { appendLine("Maximum blocks per request: $maxBlocks") }.trim(),
         )
     }
 }

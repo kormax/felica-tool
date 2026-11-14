@@ -55,7 +55,7 @@ internal abstract class CommandTrailingDataSupportedScanStep<T : FelicaResponse>
     override suspend fun ScanSession.perform(): StepOutput {
         if (readSupport(scanContext) != CommandSupport.SUPPORTED) {
             throw StepSkipped(
-                "$commandName support must be confirmed before checking trailing data"
+                "$commandName support must be confirmed before checking trailing data",
             )
         }
 
@@ -91,7 +91,7 @@ internal abstract class CommandTrailingDataSupportedScanStep<T : FelicaResponse>
                     appendLine("No response")
                 }
             }
-                .trim()
+                .trim(),
         )
     }
 }

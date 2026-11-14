@@ -97,14 +97,14 @@ data class CommunicationPerformance(
                 throw IllegalArgumentException(
                     "Reserved bits D0[4-6] should be 000b but got: 0x${
                         reservedBitsD0.toInt().and(0xFF).toString(16).uppercase().padStart(2, '0')
-                    }"
+                    }",
                 )
             }
             if (reservedBitsD1 != 0.toByte()) {
                 throw IllegalArgumentException(
                     "Reserved byte D1 should be 0x00 but got: 0x${
                         reservedBitsD1.toInt().and(0xFF).toString(16).uppercase().padStart(2, '0')
-                    }"
+                    }",
                 )
             }
 

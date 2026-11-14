@@ -36,7 +36,7 @@ internal object RequestBlockInformationDetermineSupportedStep :
                 appendLine("Node: ${System.code.toHexString().uppercase()} (System)")
                 appendLine("Returned ${response.blockCountInformation.size} block count entries")
             }
-                .trim()
+                .trim(),
         )
     }
 }
@@ -58,7 +58,7 @@ internal object RequestBlockInformationDetermineTrailingDataSupportedStep :
         support: CommandSupport,
     ): CardScanContext = context.withCommands {
         copy(
-            requestBlockInformation = requestBlockInformation.copy(trailingDataSupported = support)
+            requestBlockInformation = requestBlockInformation.copy(trailingDataSupported = support),
         )
     }
 

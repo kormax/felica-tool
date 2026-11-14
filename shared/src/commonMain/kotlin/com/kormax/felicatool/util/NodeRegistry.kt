@@ -335,7 +335,7 @@ object NodeRegistry : NodeMetadataProvider {
     }
 
     private fun parseDefinitions(
-        jsonText: String
+        jsonText: String,
     ): Pair<Map<String, List<NodeDefinition>>, Map<String, SystemDefinition>> {
         val nodeResult = mutableMapOf<String, List<NodeDefinition>>()
         val systemResult = mutableMapOf<String, SystemDefinition>()
@@ -436,7 +436,7 @@ object NodeRegistry : NodeMetadataProvider {
         }
 
         return FilesystemIndex(
-            snapshotsByCard = snapshotsByCard.mapValues { (_, snapshots) -> snapshots.toList() }
+            snapshotsByCard = snapshotsByCard.mapValues { (_, snapshots) -> snapshots.toList() },
         )
     }
 
@@ -539,7 +539,7 @@ object NodeRegistry : NodeMetadataProvider {
             .thenBy { it.fullCode.toHexString() }
 
     private data class FilesystemIndex(
-        val snapshotsByCard: Map<String, List<Set<FilesystemNodeId>>>
+        val snapshotsByCard: Map<String, List<Set<FilesystemNodeId>>>,
     )
 
     private fun JsonObject.extraBlocks(): Map<Int, String> {

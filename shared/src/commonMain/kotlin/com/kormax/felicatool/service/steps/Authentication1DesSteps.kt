@@ -101,7 +101,7 @@ private fun CardScanContext.findBestAuthentication1DesAuthRequiredServiceTarget(
         compareBy<Authentication1DesServiceTestTarget>(
             { it.service.number },
             { it.service.attribute.value },
-        )
+        ),
     )
 }
 
@@ -232,7 +232,7 @@ private fun CardScanContext.findAuthentication1DesNonImmediateNodeTarget():
             { it.systemIndex },
             { it.node.number },
             { it.node.attribute.value },
-        )
+        ),
     )
 }
 
@@ -302,7 +302,7 @@ private suspend fun ScanSession.executeAuthentication1DesBehaviorCommand(
     }
 
 private fun authentication1DesBehaviorSupport(
-    response: Authentication1DesResponse?
+    response: Authentication1DesResponse?,
 ): CommandSupport =
     if (response != null) {
         CommandSupport.SUPPORTED
@@ -331,7 +331,7 @@ internal object Authentication1DesDetermineSupportedStep :
         val testTarget = scanContext.findBestAuthentication1DesTarget()
         if (testTarget == null) {
             throw StepSkipped(
-                "No suitable system found for DES authentication (root area with valid DES key is required)."
+                "No suitable system found for DES authentication (root area with valid DES key is required).",
             )
         }
         val systemCodeHex =
@@ -378,14 +378,14 @@ internal object Authentication1DesDetermineSupportedStep :
                 }
                 appendLine("Challenge1A: ${challenge1A.toHexString().uppercase()}")
                 appendLine(
-                    "Challenge1B: ${authenticateResponse.challenge1B.toHexString().uppercase()}"
+                    "Challenge1B: ${authenticateResponse.challenge1B.toHexString().uppercase()}",
                 )
                 appendLine(
-                    "Challenge2A: ${authenticateResponse.challenge2A.toHexString().uppercase()}"
+                    "Challenge2A: ${authenticateResponse.challenge2A.toHexString().uppercase()}",
                 )
                 appendLine("Authenticate1 DES: ${CommandSupport.SUPPORTED.toOutputLabel()}")
             }
-                .trim()
+                .trim(),
         )
     }
 }
@@ -412,7 +412,7 @@ internal object Authentication1DesDetermineTrailingDataSupportedStep :
     override fun ScanSession.selectedSystemCode(): ByteArray? =
         scanContext.findBestAuthentication1DesTarget()?.systemContext?.systemCode
             ?: throw StepSkipped(
-                "No suitable system found for DES authentication (root area with valid DES key is required)."
+                "No suitable system found for DES authentication (root area with valid DES key is required).",
             )
 
     override fun ScanSession.resetToMode0AfterCommand(): Boolean = true
@@ -424,7 +424,7 @@ internal object Authentication1DesDetermineTrailingDataSupportedStep :
         val testTarget =
             scanContext.findBestAuthentication1DesTarget()
                 ?: throw StepSkipped(
-                    "No suitable system found for DES authentication (root area with valid DES key is required)."
+                    "No suitable system found for DES authentication (root area with valid DES key is required).",
                 )
         val challenge1A = ByteArray(8) { 0x00.toByte() }
         return Authentication1DesCommand(
@@ -457,7 +457,7 @@ internal object Authentication1DesAreaListWithoutNodeImmediateParentAreaSupporte
         val preferredTarget = scanContext.findAuthentication1DesNonImmediateNodeTarget()
         if (preferredTarget == null) {
             throw StepSkipped(
-                "No DES-keyed node found under a non-root area; cannot check Authenticate1 DES area list without node immediate parent area support."
+                "No DES-keyed node found under a non-root area; cannot check Authenticate1 DES area list without node immediate parent area support.",
             )
         }
 
@@ -483,18 +483,18 @@ internal object Authentication1DesAreaListWithoutNodeImmediateParentAreaSupporte
                 authentication1Des =
                     authentication1Des.copy(
                         areaListWithoutNodeImmediateParentAreaSupported =
-                            areaListWithoutNodeImmediateParentAreaSupported
-                    )
+                            areaListWithoutNodeImmediateParentAreaSupported,
+                    ),
             )
         }
 
         return StepOutput(
             buildString {
                 appendLine(
-                    "Authenticate1 DES area list without node immediate parent area support check:"
+                    "Authenticate1 DES area list without node immediate parent area support check:",
                 )
                 appendLine(
-                    "System: ${preferredTarget.systemContext.systemCode?.toHexString()?.uppercase() ?: "unknown"}"
+                    "System: ${preferredTarget.systemContext.systemCode?.toHexString()?.uppercase() ?: "unknown"}",
                 )
                 appendLine("Mode before check: $modeBeforeCheck")
                 appendLine("Area list:")
@@ -510,10 +510,10 @@ internal object Authentication1DesAreaListWithoutNodeImmediateParentAreaSupporte
                     appendLine("No response after $AUTHENTICATION1_DES_BEHAVIOR_ATTEMPTS attempts")
                 }
                 appendLine(
-                    "Area list without node immediate parent area: ${areaListWithoutNodeImmediateParentAreaSupported.toOutputLabel()}"
+                    "Area list without node immediate parent area: ${areaListWithoutNodeImmediateParentAreaSupported.toOutputLabel()}",
                 )
             }
-                .trim()
+                .trim(),
         )
     }
 }
@@ -532,7 +532,7 @@ internal abstract class Authentication1DesBehaviorStep(
     protected abstract fun ScanSession.resolveTarget(): Authentication1DesBehaviorCommandTarget
 
     protected abstract fun CommandCapabilities.writeSupport(
-        support: CommandSupport
+        support: CommandSupport,
     ): CommandCapabilities
 
     final override suspend fun ScanSession.perform(): StepOutput {
@@ -556,7 +556,7 @@ internal abstract class Authentication1DesBehaviorStep(
             buildString {
                 appendLine("${descriptor.title}:")
                 appendLine(
-                    "System: ${testTarget.systemContext.systemCode?.toHexString()?.uppercase() ?: "unknown"}"
+                    "System: ${testTarget.systemContext.systemCode?.toHexString()?.uppercase() ?: "unknown"}",
                 )
                 appendLine("Mode before check: $modeBeforeCheck")
                 appendLine("Area list:")
@@ -576,7 +576,7 @@ internal abstract class Authentication1DesBehaviorStep(
                 }
                 appendLine("Result: ${support.toOutputLabel()}")
             }
-                .trim()
+                .trim(),
         )
     }
 }
@@ -591,12 +591,13 @@ internal object Authentication1DesAreaListWithoutRootAreaSupportedStep :
     override fun ScanSession.resolveTarget(): Authentication1DesBehaviorCommandTarget =
         scanContext.findAuthentication1DesAreaListWithoutRootAreaTarget()
             ?: throw StepSkipped(
-                "No authentication-required DES service with a complete DES-keyed path and a non-root parent was found."
+                "No authentication-required DES service with a complete DES-keyed path and a non-root parent was found.",
             )
 
     override fun CommandCapabilities.writeSupport(support: CommandSupport): CommandCapabilities =
         copy(
-            authentication1Des = authentication1Des.copy(areaListWithoutRootAreaSupported = support)
+            authentication1Des =
+                authentication1Des.copy(areaListWithoutRootAreaSupported = support),
         )
 }
 
@@ -612,7 +613,7 @@ internal object Authentication1DesTrailingAuthenticationRequiredServiceInAreaLis
         val target =
             scanContext.findBestAuthentication1DesAuthRequiredServiceTarget()
                 ?: throw StepSkipped(
-                    "No DES-keyed authentication-required service found; cannot check trailing area-list placement support."
+                    "No DES-keyed authentication-required service found; cannot check trailing area-list placement support.",
                 )
         return Authentication1DesBehaviorCommandTarget(
             systemContext = target.systemContext,
@@ -625,8 +626,8 @@ internal object Authentication1DesTrailingAuthenticationRequiredServiceInAreaLis
         copy(
             authentication1Des =
                 authentication1Des.copy(
-                    trailingAuthenticationRequiredServiceInAreaListSupported = support
-                )
+                    trailingAuthenticationRequiredServiceInAreaListSupported = support,
+                ),
         )
 }
 
@@ -641,7 +642,7 @@ internal object Authentication1DesLeadingSystemNodeInAreaListSupportedStep :
         val target =
             scanContext.findBestAuthentication1DesTarget()
                 ?: throw StepSkipped(
-                    "No suitable system found for leading System-node area-list testing."
+                    "No suitable system found for leading System-node area-list testing.",
                 )
         return Authentication1DesBehaviorCommandTarget(
             systemContext = target.systemContext,
@@ -653,7 +654,7 @@ internal object Authentication1DesLeadingSystemNodeInAreaListSupportedStep :
     override fun CommandCapabilities.writeSupport(support: CommandSupport): CommandCapabilities =
         copy(
             authentication1Des =
-                authentication1Des.copy(leadingSystemNodeInAreaListSupported = support)
+                authentication1Des.copy(leadingSystemNodeInAreaListSupported = support),
         )
 }
 
@@ -669,7 +670,7 @@ internal object Authentication1DesLeadingAuthenticationRequiredServiceInAreaList
         val target =
             scanContext.findBestAuthentication1DesAuthRequiredServiceTarget()
                 ?: throw StepSkipped(
-                    "No DES-keyed authentication-required service found for leading area-list testing."
+                    "No DES-keyed authentication-required service found for leading area-list testing.",
                 )
         return Authentication1DesBehaviorCommandTarget(
             systemContext = target.systemContext,
@@ -682,8 +683,8 @@ internal object Authentication1DesLeadingAuthenticationRequiredServiceInAreaList
         copy(
             authentication1Des =
                 authentication1Des.copy(
-                    leadingAuthenticationRequiredServiceInAreaListSupported = support
-                )
+                    leadingAuthenticationRequiredServiceInAreaListSupported = support,
+                ),
         )
 }
 
@@ -698,14 +699,14 @@ internal object Authentication1DesLeadingAuthenticationNotRequiredServiceInNodeL
     override fun ScanSession.resolveTarget(): Authentication1DesBehaviorCommandTarget =
         scanContext.findAuthentication1DesLeadingAuthNotRequiredServiceNodeListTarget()
             ?: throw StepSkipped(
-                "No authentication-not-required service with a complete DES-keyed parent-area path found for leading node-list testing."
+                "No authentication-not-required service with a complete DES-keyed parent-area path found for leading node-list testing.",
             )
 
     override fun CommandCapabilities.writeSupport(support: CommandSupport): CommandCapabilities =
         copy(
             authentication1Des =
                 authentication1Des.copy(
-                    leadingAuthenticationNotRequiredServiceInNodeListSupported = support
-                )
+                    leadingAuthenticationNotRequiredServiceInNodeListSupported = support,
+                ),
         )
 }

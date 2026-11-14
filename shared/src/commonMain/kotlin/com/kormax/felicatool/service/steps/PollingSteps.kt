@@ -85,7 +85,7 @@ internal object PollingCommunicationPerformanceStep :
         if (parsedCommPerfResponse.hasRequestData) {
             scanContext =
                 scanContext.copy(
-                    communicationPerformance = parsedCommPerfResponse.communicationPerformance
+                    communicationPerformance = parsedCommPerfResponse.communicationPerformance,
                 )
         }
 
@@ -97,14 +97,14 @@ internal object PollingCommunicationPerformanceStep :
                     appendLine("424 kbps: ${if (commPerf.supports424kbps) "✓" else "✗"}")
                     appendLine("848 kbps: ${if (commPerf.supports848kbps) "✓" else "✗"} (reserved)")
                     appendLine(
-                        "1696 kbps: ${if (commPerf.supports1696kbps) "✓" else "✗"} (reserved)"
+                        "1696 kbps: ${if (commPerf.supports1696kbps) "✓" else "✗"} (reserved)",
                     )
                     appendLine(
-                        "Auto Detection: ${if (commPerf.isAutomaticDetectionCompliant) "✓" else "✗"}"
+                        "Auto Detection: ${if (commPerf.isAutomaticDetectionCompliant) "✓" else "✗"}",
                     )
                     appendLine("Highest Rate: ${commPerf.getHighestSupportedRate()}")
                 }
-                    .trim()
+                    .trim(),
             )
         } else {
             throw RuntimeException("Polling: Communication Performance: Not available")
@@ -161,7 +161,7 @@ internal object PollingDetermineTrailingDataSupportedStep :
                     appendLine("Response IDM: $responseIdmHex")
                     appendLine("Response PMM: $responsePmmHex")
                 }
-                    .trim()
+                    .trim(),
             )
         }
 
@@ -176,7 +176,7 @@ internal object PollingDetermineTrailingDataSupportedStep :
                 appendLine("Trailing data: ${POLLING_TRAILING_DATA_PROBE_BYTES.toHexString()}")
                 appendLine("No response after $attempts attempts")
             }
-                .trim()
+                .trim(),
         )
     }
 }

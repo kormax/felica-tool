@@ -65,7 +65,7 @@ class RequestResponseCommandTest {
         RequestResponseCommand(
             IDM.hexToByteArray(),
             ByteArray(
-                RequestResponseCommand.MAX_FRAME_LENGTH - RequestResponseCommand.MIN_LENGTH + 1
+                RequestResponseCommand.MAX_FRAME_LENGTH - RequestResponseCommand.MIN_LENGTH + 1,
             ),
         )
     }

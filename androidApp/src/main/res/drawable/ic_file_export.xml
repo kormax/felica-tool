@@ -1,0 +1,12 @@
+<!-- Material Symbols, file_export (filled). Copyright Google LLC. Apache-2.0. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="960"
+    android:viewportHeight="960">
+    <group android:translateY="960">
+        <path
+            android:fillColor="#FF000000"
+            android:pathData="m202,-65 -56,-57 118,-118h-90v-80h226v226h-80v-89L202,-65ZM480,-80v-320H160v-400q0,-33 23.5,-56.5T240,-880h320l240,240v480q0,33 -23.5,56.5T720,-80H480ZM520,-600h200L520,-800l200,200 -200,-200v200Z" />
+    </group>
+</vector>

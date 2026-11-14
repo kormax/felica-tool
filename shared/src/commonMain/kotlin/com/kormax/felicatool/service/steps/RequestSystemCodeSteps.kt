@@ -47,7 +47,7 @@ internal object RequestSystemCodeDetermineSupportedStep :
             if (requestSystemCodeResponse.systemCodes.isNotEmpty()) {
                 buildString {
                     appendLine(
-                        "Discovered System Codes (${requestSystemCodeResponse.systemCodes.size}):"
+                        "Discovered System Codes (${requestSystemCodeResponse.systemCodes.size}):",
                     )
                     requestSystemCodeResponse.systemCodes.forEachIndexed { index, systemCode ->
                         val systemCodeHex = systemCode.toHexString().uppercase()
@@ -57,7 +57,7 @@ internal object RequestSystemCodeDetermineSupportedStep :
                     .trim()
             } else {
                 "No system codes discovered"
-            }
+            },
         )
     }
 }

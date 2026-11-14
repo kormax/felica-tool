@@ -36,7 +36,7 @@ internal object GetSystemStatusDetermineSupportedStep :
                 appendLine("Status Flags: ${formatStatus(response, prefix = "")}")
                 appendLine("Format Version: 0x${byteToHex(response.systemStatus.formatVersion)}")
             }
-                .trim()
+                .trim(),
         )
     }
 }
@@ -86,7 +86,7 @@ internal object GetSystemStatusesStep :
     override suspend fun ScanSession.perform(): StepOutput {
         if (scanContext.systemScanContexts.isEmpty()) {
             throw StepPreconditionNotMet(
-                "No systems have been discovered. Please run system discovery first."
+                "No systems have been discovered. Please run system discovery first.",
             )
         }
 
@@ -112,10 +112,10 @@ internal object GetSystemStatusesStep :
                 val systemResult = buildString {
                     appendLine("System ${contextIndex + 1} ($systemCodeHex):")
                     appendLine(
-                        "  Status Flags: ${formatStatus(getSystemStatusResponse, prefix = "")}"
+                        "  Status Flags: ${formatStatus(getSystemStatusResponse, prefix = "")}",
                     )
                     appendLine(
-                        "  Format Version: 0x${byteToHex(getSystemStatusResponse.systemStatus.formatVersion)}"
+                        "  Format Version: 0x${byteToHex(getSystemStatusResponse.systemStatus.formatVersion)}",
                     )
 
                     val systemStatusBytes = getSystemStatusResponse.systemStatus.toByteArray()
@@ -132,7 +132,7 @@ internal object GetSystemStatusesStep :
                 errors++
                 updatedSystemContexts.add(systemContext) // Keep original context
                 results.add(
-                    "System ${contextIndex + 1} ($systemCodeHex): Failed to get system status - ${e.message}"
+                    "System ${contextIndex + 1} ($systemCodeHex): Failed to get system status - ${e.message}",
                 )
             }
         }
@@ -151,7 +151,7 @@ internal object GetSystemStatusesStep :
                 appendLine()
                 results.forEach { result -> appendLine(result) }
             }
-                .trim()
+                .trim(),
         )
     }
 }

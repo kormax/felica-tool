@@ -53,25 +53,25 @@ internal object InitialInfoStep :
                 appendLine()
                 appendLine("Timeout Multipliers (ms):")
                 appendLine(
-                    "  Variable Response Time: ${formatTimeoutFormula(cardPmm.variableResponseTimeConstant, cardPmm.variableResponseTimePerUnit, cardPmm.variableResponseTimeCommandSupported)}"
+                    "  Variable Response Time: ${formatTimeoutFormula(cardPmm.variableResponseTimeConstant, cardPmm.variableResponseTimePerUnit, cardPmm.variableResponseTimeCommandSupported)}",
                 )
                 appendLine(
-                    "  Fixed Response Time: ${formatTimeoutFormula(cardPmm.fixedResponseTimeConstant, cardPmm.fixedResponseTimePerUnit, cardPmm.fixedResponseTimeCommandSupported)}"
+                    "  Fixed Response Time: ${formatTimeoutFormula(cardPmm.fixedResponseTimeConstant, cardPmm.fixedResponseTimePerUnit, cardPmm.fixedResponseTimeCommandSupported)}",
                 )
                 appendLine(
-                    "  Mutual Auth: ${formatTimeoutFormula(cardPmm.mutualAuthConstant, cardPmm.mutualAuthPerUnit, cardPmm.mutualAuthCommandSupported)}"
+                    "  Mutual Auth: ${formatTimeoutFormula(cardPmm.mutualAuthConstant, cardPmm.mutualAuthPerUnit, cardPmm.mutualAuthCommandSupported)}",
                 )
                 appendLine(
-                    "  Data Read: ${formatTimeoutFormula(cardPmm.dataReadConstant, cardPmm.dataReadPerUnit, cardPmm.dataReadCommandSupported)}"
+                    "  Data Read: ${formatTimeoutFormula(cardPmm.dataReadConstant, cardPmm.dataReadPerUnit, cardPmm.dataReadCommandSupported)}",
                 )
                 appendLine(
-                    "  Data Write: ${formatTimeoutFormula(cardPmm.dataWriteConstant, cardPmm.dataWritePerUnit, cardPmm.dataWriteCommandSupported)}"
+                    "  Data Write: ${formatTimeoutFormula(cardPmm.dataWriteConstant, cardPmm.dataWritePerUnit, cardPmm.dataWriteCommandSupported)}",
                 )
                 appendLine(
-                    "  Other: ${formatTimeoutFormula(cardPmm.otherConstant, cardPmm.otherPerUnit, cardPmm.otherCommandSupported)}"
+                    "  Other: ${formatTimeoutFormula(cardPmm.otherConstant, cardPmm.otherPerUnit, cardPmm.otherCommandSupported)}",
                 )
             }
-                .trimEnd()
+                .trimEnd(),
         )
     }
 }

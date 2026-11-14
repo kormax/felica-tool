@@ -13,7 +13,7 @@ private fun CardScanContext.findGetAreaInformationTestTarget(): GetAreaInformati
     val systemContext =
         systemScanContexts.firstOrNull { context -> context.nodes.any { node -> node is Area } }
             ?: throw StepSkipped(
-                "No areas discovered. Get Area Information requires discovered areas from Discover Nodes step."
+                "No areas discovered. Get Area Information requires discovered areas from Discover Nodes step.",
             )
     val area = systemContext.nodes.filterIsInstance<Area>().first()
     return GetAreaInformationTestTarget(systemContext = systemContext, area = area)
@@ -50,7 +50,7 @@ internal object GetAreaInformationDetermineSupportedStep :
             buildString {
                 appendLine("Get Area Information command is supported (response received)")
                 appendLine(
-                    "Area: ${testTarget.area.number} (${testTarget.area.code.toHexString()})"
+                    "Area: ${testTarget.area.number} (${testTarget.area.code.toHexString()})",
                 )
                 appendLine("Status: ${formatStatus(response)}")
                 if (response.isStatusSuccessful) {
@@ -58,7 +58,7 @@ internal object GetAreaInformationDetermineSupportedStep :
                     appendLine("Data: ${response.data.toHexString()}")
                 }
             }
-                .trim()
+                .trim(),
         )
     }
 }
@@ -116,7 +116,7 @@ internal object GetAreaInformationStep :
 
         if (allAreas.isEmpty()) {
             throw StepSkipped(
-                "No areas discovered. Get Area Information requires discovered areas from Discover Nodes step."
+                "No areas discovered. Get Area Information requires discovered areas from Discover Nodes step.",
             )
         }
         val results = mutableListOf<String>()
@@ -153,12 +153,12 @@ internal object GetAreaInformationStep :
                                 appendLine("  Area ${area.number} (${area.code.toHexString()}):")
                                 appendLine("    Status: SUCCESS")
                                 appendLine(
-                                    "    Node Code: ${getAreaInformationResponse.nodeCode.toHexString()}"
+                                    "    Node Code: ${getAreaInformationResponse.nodeCode.toHexString()}",
                                 )
                                 appendLine(
-                                    "    Data: ${getAreaInformationResponse.data.toHexString()}"
+                                    "    Data: ${getAreaInformationResponse.data.toHexString()}",
                                 )
-                            }
+                            },
                         )
                     } else {
                         val status1Hex = byteToHex(getAreaInformationResponse.statusFlag1)
@@ -181,9 +181,9 @@ internal object GetAreaInformationStep :
                             buildString {
                                 appendLine("  Area ${area.number} (${area.code.toHexString()}):")
                                 appendLine(
-                                    "    Status: ERROR (0x$status1Hex 0x$status2Hex - $statusDescription)"
+                                    "    Status: ERROR (0x$status1Hex 0x$status2Hex - $statusDescription)",
                                 )
-                            }
+                            },
                         )
                     }
                 }
@@ -197,10 +197,10 @@ internal object GetAreaInformationStep :
                 results.add(
                     buildString {
                         appendLine(
-                            "System Context ${contextIndex + 1} ($systemCodeHex): $systemSuccessful/${systemAreas.size} areas successful"
+                            "System Context ${contextIndex + 1} ($systemCodeHex): $systemSuccessful/${systemAreas.size} areas successful",
                         )
                         systemResults.forEach { appendLine(it.trimEnd()) }
-                    }
+                    },
                 )
             }
         }
@@ -209,7 +209,7 @@ internal object GetAreaInformationStep :
             "Got area information for $totalSuccessful/$totalTested area(s) across ${scanContext.systemScanContexts.size} system(s)"
         val expandedResult = buildString {
             appendLine(
-                "Get Area Information Results: $totalSuccessful/$totalTested areas returned data"
+                "Get Area Information Results: $totalSuccessful/$totalTested areas returned data",
             )
             appendLine()
             results.forEach { result ->

@@ -38,16 +38,16 @@ internal object RequestCodeListDetermineSupportedStep :
                 appendLine("Index: $index")
                 appendLine("Status: ${formatStatus(requestCodeListResponse)}")
                 appendLine(
-                    "Returned ${requestCodeListResponse.areas.size} area(s), ${requestCodeListResponse.services.size} service(s)"
+                    "Returned ${requestCodeListResponse.areas.size} area(s), ${requestCodeListResponse.services.size} service(s)",
                 )
                 appendLine("Continue flag: ${requestCodeListResponse.continueFlag}")
                 if (!requestCodeListResponse.isStatusSuccessful) {
                     appendLine(
-                        "Note: Response status is not successful, but command support is confirmed."
+                        "Note: Response status is not successful, but command support is confirmed.",
                     )
                 }
             }
-                .trim()
+                .trim(),
         )
     }
 }

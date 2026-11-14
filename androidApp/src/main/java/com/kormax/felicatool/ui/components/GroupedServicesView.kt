@@ -193,7 +193,11 @@ fun ServiceGroupCard(
 ) {
     var isExpanded by remember { mutableStateOf(false) }
     val rotationAngle by
-        animateFloatAsState(targetValue = if (isExpanded) 0f else 180f, label = "groupRotation")
+        animateFloatAsState(
+            targetValue = if (isExpanded) 0f else 180f,
+            animationSpec = MaterialTheme.motionScheme.fastSpatialSpec(),
+            label = "groupRotation",
+        )
 
     val indentWidth = (depth * 6).dp
 
@@ -311,7 +315,8 @@ fun ServiceGroupCard(
                         .padding(bottom = 4.dp),
                 colors =
                     CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        containerColor =
+                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
                     ),
             ) {
                 Column(
@@ -460,7 +465,7 @@ private fun ServiceVariantChip(
                     else service.code.toHexString().uppercase(),
                 style =
                     MaterialTheme.typography.labelSmall.copy(
-                        fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.85f
+                        fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.85f,
                     ),
                 fontFamily = FontFamily.Monospace,
                 color = contentColor,
@@ -497,7 +502,7 @@ private fun ServiceVariantChip(
                 text = modeText,
                 style =
                     MaterialTheme.typography.labelSmall.copy(
-                        fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.85f
+                        fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.85f,
                     ),
                 fontFamily = FontFamily.Monospace,
                 color = contentColor,
@@ -636,7 +641,7 @@ private fun buildAreaHeaderGroups(context: SystemScanContext): Map<Area, AreaHea
                         compareByDescending<Area> { it.isRoot }
                             .thenByDescending { it.attribute.canCreateSubArea }
                             .thenBy { it.attribute.value }
-                            .thenBy { it.fullCode.toHexString() }
+                            .thenBy { it.fullCode.toHexString() },
                     )
                 val headerGroup =
                     AreaHeaderGroup(
@@ -769,7 +774,7 @@ private fun ServiceGroupChip(
             style =
                 if (isCompact) {
                     MaterialTheme.typography.labelSmall.copy(
-                        fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.85f
+                        fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.85f,
                     )
                 } else {
                     MaterialTheme.typography.labelSmall

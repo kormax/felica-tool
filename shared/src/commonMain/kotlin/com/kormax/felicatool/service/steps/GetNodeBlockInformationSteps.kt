@@ -45,14 +45,14 @@ internal object GetNodeBlockInformationStep :
                     CommandSupport.SUPPORTED -> BlockInformationMethod.REGULAR
                 else ->
                     throw StepSkipped(
-                        "Request Block Information is unavailable; cannot read block counts"
+                        "Request Block Information is unavailable; cannot read block counts",
                     )
             }
         val allNodes = scanContext.systemScanContexts.flatMap { it.nodes }
 
         if (allNodes.isEmpty()) {
             throw StepSkipped(
-                "No nodes discovered. Get Node Block Information requires discovered nodes from Discover Nodes step."
+                "No nodes discovered. Get Node Block Information requires discovered nodes from Discover Nodes step.",
             )
         }
 
@@ -89,7 +89,7 @@ internal object GetNodeBlockInformationStep :
                     } else {
                         appendLine("  No block information retrieved")
                     }
-                }
+                },
             )
         }
 
@@ -138,7 +138,7 @@ internal object GetNodeBlockInformationStep :
                 val freeBlocks = freeCount.toInt()
                 val totalBlocks = assignedBlocks + freeBlocks
                 lines.add(
-                    " ${node.fullCode.toHexString().padStart(8, ' ')}: ${assignedBlocks.toString().padStart(6, ' ')} | ${freeBlocks.toString().padStart(6, ' ')} | ${totalBlocks.toString().padStart(6, ' ')}"
+                    " ${node.fullCode.toHexString().padStart(8, ' ')}: ${assignedBlocks.toString().padStart(6, ' ')} | ${freeBlocks.toString().padStart(6, ' ')} | ${totalBlocks.toString().padStart(6, ' ')}",
                 )
 
                 nodeAssignedBlockCountsMap[node] = assignedCount
@@ -200,7 +200,7 @@ internal object GetNodeBlockInformationStep :
                 val assignedText = assignedCount?.toInt()?.toString()?.padStart(6, ' ') ?: "     -"
                 val freeText = freeCount?.toInt()?.toString()?.padStart(6, ' ') ?: "     -"
                 lines.add(
-                    " ${node.fullCode.toHexString().padStart(8, ' ')}: $assignedText | $freeText"
+                    " ${node.fullCode.toHexString().padStart(8, ' ')}: $assignedText | $freeText",
                 )
             }
         }

@@ -41,7 +41,7 @@ internal object RequestSpecificationVersionDetermineSupportedStep :
 
                 if (requestSpecVersionResponse.isStatusSuccessful) {
                     appendLine(
-                        "Format Version: ${requestSpecVersionResponse.specificationVersion?.formatVersion?.let { "0x${byteToHex(it)}" } ?: "N/A"}"
+                        "Format Version: ${requestSpecVersionResponse.specificationVersion?.formatVersion?.let { "0x${byteToHex(it)}" } ?: "N/A"}",
                     )
                     appendLine()
 
@@ -58,7 +58,7 @@ internal object RequestSpecificationVersionDetermineSupportedStep :
                     requestSpecVersionResponse.specificationVersion?.specialOptionVersion?.let {
                         specialVersion ->
                         appendLine(
-                            "Special Option Version: ${specialVersion.major}.${specialVersion.minor}"
+                            "Special Option Version: ${specialVersion.major}.${specialVersion.minor}",
                         )
                     }
 
@@ -66,7 +66,7 @@ internal object RequestSpecificationVersionDetermineSupportedStep :
                         ?.extendedOverlapOptionVersion
                         ?.let { extendedOverlapVersion ->
                             appendLine(
-                                "Extended Overlap Option Version: ${extendedOverlapVersion.major}.${extendedOverlapVersion.minor}"
+                                "Extended Overlap Option Version: ${extendedOverlapVersion.major}.${extendedOverlapVersion.minor}",
                             )
                         }
 
@@ -74,7 +74,7 @@ internal object RequestSpecificationVersionDetermineSupportedStep :
                         ?.valueLimitedPurseServiceOptionVersion
                         ?.let { valueLimitedPurseVersion ->
                             appendLine(
-                                "Value-Limited Purse Service Option Version: ${valueLimitedPurseVersion.major}.${valueLimitedPurseVersion.minor}"
+                                "Value-Limited Purse Service Option Version: ${valueLimitedPurseVersion.major}.${valueLimitedPurseVersion.minor}",
                             )
                         }
 
@@ -82,21 +82,21 @@ internal object RequestSpecificationVersionDetermineSupportedStep :
                         ?.communicationWithMacOptionVersion
                         ?.let { communicationWithMacVersion ->
                             appendLine(
-                                "Communication with MAC Option Version: ${communicationWithMacVersion.major}.${communicationWithMacVersion.minor}"
+                                "Communication with MAC Option Version: ${communicationWithMacVersion.major}.${communicationWithMacVersion.minor}",
                             )
                         }
 
                     requestSpecVersionResponse.specificationVersion?.randomIdOptionVersion?.let {
                         randomIdVersion ->
                         appendLine(
-                            "Random ID Option Version: ${randomIdVersion.major}.${randomIdVersion.minor}"
+                            "Random ID Option Version: ${randomIdVersion.major}.${randomIdVersion.minor}",
                         )
                     }
                 } else {
                     appendLine("Failed to retrieve specification version information")
                 }
             }
-                .trim()
+                .trim(),
         )
     }
 }
@@ -119,7 +119,7 @@ internal object RequestSpecificationVersionDetermineTrailingDataSupportedStep :
     ): CardScanContext = context.withCommands {
         copy(
             requestSpecificationVersion =
-                requestSpecificationVersion.copy(trailingDataSupported = support)
+                requestSpecificationVersion.copy(trailingDataSupported = support),
         )
     }
 

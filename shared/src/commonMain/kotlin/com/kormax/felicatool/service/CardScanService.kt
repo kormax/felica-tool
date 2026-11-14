@@ -18,7 +18,7 @@ data class CardScanResult(
 )
 
 class CardScanService(
-    private val nodeMetadataProvider: NodeMetadataProvider = EmptyNodeMetadataProvider
+    private val nodeMetadataProvider: NodeMetadataProvider = EmptyNodeMetadataProvider,
 ) {
     companion object {
         const val CARD_LOST_MESSAGE = "Card lost during scan - scan terminated"

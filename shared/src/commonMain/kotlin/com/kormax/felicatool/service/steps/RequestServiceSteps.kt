@@ -62,11 +62,11 @@ internal object RequestServiceDetermineSupportedStep :
                                 } else {
                                     keyVersion.toInt().toString()
                                 }
-                            }"
+                            }",
                     )
                 }
             }
-                .trim()
+                .trim(),
         )
     }
 }
@@ -118,7 +118,7 @@ internal object RequestServiceUnknownNodeAttributesStep :
     override suspend fun ScanSession.perform(): StepOutput {
         if (scanContext.commands.requestService.supported != CommandSupport.SUPPORTED) {
             throw StepSkipped(
-                "Request Service command is unavailable; cannot probe unknown attribute behavior"
+                "Request Service command is unavailable; cannot probe unknown attribute behavior",
             )
         }
         val knownAttributes = buildSet {
@@ -159,8 +159,8 @@ internal object RequestServiceUnknownNodeAttributesStep :
                                 CommandSupport.SUPPORTED
                             } else {
                                 CommandSupport.UNSUPPORTED
-                            }
-                    )
+                            },
+                    ),
             )
         }
 
@@ -169,7 +169,7 @@ internal object RequestServiceUnknownNodeAttributesStep :
                 appendLine(
                     "Probe node: ${unknownAttributeNodeCode.toHexString().uppercase()} " +
                         "(service=${REQUEST_SERVICE_UNKNOWN_ATTRIBUTE_SERVICE_NUMBER}, " +
-                        "attribute=0x${byteToHex(unknownAttributeValue)})"
+                        "attribute=0x${byteToHex(unknownAttributeValue)})",
                 )
                 appendLine("Supported = $responseReceived")
                 if (response != null) {
@@ -178,11 +178,11 @@ internal object RequestServiceUnknownNodeAttributesStep :
                     appendLine("Key version: $keyVersionHex")
                 } else {
                     appendLine(
-                        "No response after $REQUEST_SERVICE_UNKNOWN_ATTRIBUTE_PROBE_ATTEMPTS attempts"
+                        "No response after $REQUEST_SERVICE_UNKNOWN_ATTRIBUTE_PROBE_ATTEMPTS attempts",
                     )
                 }
             }
-                .trim()
+                .trim(),
         )
     }
 }
@@ -231,7 +231,7 @@ internal object RequestServiceV2DetermineSupportedStep :
                                     } else {
                                         keyVersion.toInt().toString()
                                     }
-                                }"
+                                }",
                     )
                 }
                 desKeyVersion?.let { keyVersion ->
@@ -242,11 +242,11 @@ internal object RequestServiceV2DetermineSupportedStep :
                                     } else {
                                         keyVersion.toInt().toString()
                                     }
-                                }"
+                                }",
                     )
                 }
             }
-                .trim()
+                .trim(),
         )
     }
 }

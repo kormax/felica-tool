@@ -44,7 +44,7 @@ internal object EchoDetermineSupportedStep :
             }
         if (!response.data.contentEquals(payload)) {
             throw RuntimeException(
-                "Echo mismatch (${response.data.size} bytes returned): ${response.data.toHexString()}"
+                "Echo mismatch (${response.data.size} bytes returned): ${response.data.toHexString()}",
             )
         }
 
@@ -122,6 +122,6 @@ internal object EchoDetermineMaxPayloadSizeStep :
                     appendLine("  ${index + 1}. ${attempt.length} bytes -> $status")
                 }
             }
-                .trim()
+                .trim(),
         )
 }

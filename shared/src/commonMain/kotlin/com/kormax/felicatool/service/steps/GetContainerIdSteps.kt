@@ -23,7 +23,7 @@ internal object GetContainerIdStep :
 
     override suspend fun ScanSession.perform(): StepOutput {
         skipIfUnsupportedBySpecificationVersion(
-            "Get Container ID requires the Special option to be reported as supported in the specification version."
+            "Get Container ID requires the Special option to be reported as supported in the specification version.",
         ) {
             it.specialOptionVersion == null || it.specialOptionVersion == OptionVersion.MISSING
         }
@@ -42,7 +42,7 @@ internal object GetContainerIdStep :
             buildString {
                 appendLine("Container IDM: ${getContainerIdResponse.containerIdm.toHexString()}")
             }
-                .trim()
+                .trim(),
         )
     }
 }

@@ -37,7 +37,7 @@ class SearchServiceCodeResponse(
                         4 -> Area.fromByteArray(bytes(4))
                         else ->
                             throw IllegalArgumentException(
-                                "Invalid remaining data length: $remaining bytes"
+                                "Invalid remaining data length: $remaining bytes",
                             )
                     }
 

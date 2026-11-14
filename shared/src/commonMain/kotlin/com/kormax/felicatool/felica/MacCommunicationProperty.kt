@@ -8,7 +8,7 @@ package com.kormax.felicatool.felica
  */
 data class MacCommunicationProperty(
     /** Communication with MAC flag 0x01: Enabled 0x00: Disabled */
-    val enabled: Boolean
+    val enabled: Boolean,
 ) : NodeProperty {
     /** Convert to byte array (1 byte) */
     override fun toByteArray(): ByteArray {

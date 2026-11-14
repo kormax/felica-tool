@@ -8,13 +8,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -23,8 +25,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.kormax.felicatool.AppBarMenu
+import com.kormax.felicatool.AppBarMenuGroup
+import com.kormax.felicatool.CheckableMenuOption
+import com.kormax.felicatool.R
 import com.kormax.felicatool.service.CardScanService
 import com.kormax.felicatool.service.SystemScanContext
 import com.kormax.felicatool.ui.components.CardInformationSection
@@ -44,7 +54,6 @@ fun ScanResultsOverview(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    var showExportMenu by remember { mutableStateOf(false) }
     var privacyMode by remember { mutableStateOf(false) }
     var useGroupedView by remember { mutableStateOf(false) }
 
@@ -57,7 +66,7 @@ fun ScanResultsOverview(
             TopAppBar(
                 title = { Text("Scan overview") },
                 navigationIcon = {
-                    IconButton(onClick = onBackPressed) {
+                    IconButton(onClick = onBackPressed, shapes = IconButtonDefaults.shapes()) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
@@ -65,47 +74,62 @@ fun ScanResultsOverview(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { showExportMenu = true }) {
-                        Icon(imageVector = Icons.Default.Share, contentDescription = "Export")
-                    }
-
-                    DropdownMenu(
-                        expanded = showExportMenu,
-                        onDismissRequest = { showExportMenu = false },
-                    ) {
-                        DropdownMenuItem(
-                            text = {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Checkbox(checked = privacyMode, onCheckedChange = null)
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text("Privacy mode")
-                                }
-                            },
-                            onClick = { privacyMode = !privacyMode },
-                        )
-                        HorizontalDivider()
-                        DropdownMenuItem(
-                            text = { Text("Export scan results as JSON") },
-                            onClick = {
-                                showExportMenu = false
-                                ExportUtils.exportFlatList(
-                                    context,
-                                    cardScanService.getScanContext(),
-                                    privacyMode,
-                                )
-                            },
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Export communication log as JSON") },
-                            onClick = {
-                                showExportMenu = false
-                                ExportUtils.exportCommunicationLog(
-                                    context,
-                                    cardScanService.getScanContext().communicationLog,
-                                    privacyMode,
-                                )
-                            },
-                        )
+                    AppBarMenu(icon = Icons.Default.Share, label = "Export") { dismiss ->
+                        AppBarMenuGroup(shapes = MenuDefaults.groupShape(0, 2)) {
+                            CheckableMenuOption(
+                                label = "Privacy mode",
+                                icon = Icons.Filled.Lock,
+                                checked = privacyMode,
+                                onCheckedChange = { privacyMode = it },
+                                // This single row follows the outline of the first of two groups.
+                                shapes =
+                                    MenuDefaults.itemShapes(
+                                        shape = MenuDefaults.leadingItemShape,
+                                        selectedShape = MenuDefaults.leadingItemShape,
+                                    ),
+                            )
+                        }
+                        Spacer(Modifier.height(MenuDefaults.GroupSpacing))
+                        AppBarMenuGroup(shapes = MenuDefaults.groupShape(1, 2)) {
+                            DropdownMenuItem(
+                                text = { Text("Export scan results as JSON") },
+                                leadingIcon = {
+                                    Icon(
+                                        painterResource(R.drawable.ic_file_export),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(MenuDefaults.LeadingIconSize),
+                                    )
+                                },
+                                shape = MenuDefaults.leadingItemShape,
+                                onClick = {
+                                    dismiss()
+                                    ExportUtils.exportFlatList(
+                                        context,
+                                        cardScanService.getScanContext(),
+                                        privacyMode,
+                                    )
+                                },
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Export communication log as JSON") },
+                                leadingIcon = {
+                                    Icon(
+                                        painterResource(R.drawable.ic_file_export),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(MenuDefaults.LeadingIconSize),
+                                    )
+                                },
+                                shape = MenuDefaults.trailingItemShape,
+                                onClick = {
+                                    dismiss()
+                                    ExportUtils.exportCommunicationLog(
+                                        context,
+                                        cardScanService.getScanContext().communicationLog,
+                                        privacyMode,
+                                    )
+                                },
+                            )
+                        }
                     }
                 },
                 colors =
@@ -132,18 +156,32 @@ fun ScanResultsOverview(
 
             // View mode tabs
             item {
-                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                    SegmentedButton(
-                        selected = !useGroupedView,
-                        onClick = { useGroupedView = false },
-                        shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                Row(
+                    modifier = Modifier.fillMaxWidth().selectableGroup(),
+                    horizontalArrangement =
+                        Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
+                ) {
+                    ToggleButton(
+                        checked = !useGroupedView,
+                        onCheckedChange = { useGroupedView = false },
+                        modifier =
+                            Modifier.weight(1f).semantics {
+                                role = Role.RadioButton
+                                selected = !useGroupedView
+                            },
+                        shapes = ButtonGroupDefaults.connectedLeadingButtonShapes(),
                     ) {
                         Text("Hierarchy")
                     }
-                    SegmentedButton(
-                        selected = useGroupedView,
-                        onClick = { useGroupedView = true },
-                        shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                    ToggleButton(
+                        checked = useGroupedView,
+                        onCheckedChange = { useGroupedView = true },
+                        modifier =
+                            Modifier.weight(1f).semantics {
+                                role = Role.RadioButton
+                                selected = useGroupedView
+                            },
+                        shapes = ButtonGroupDefaults.connectedTrailingButtonShapes(),
                     ) {
                         Text("Grouped")
                     }

@@ -39,7 +39,7 @@ internal object RequestResponseDetermineSupportedStep :
                 appendLine("Card is present and responding")
                 appendLine("Current Mode: ${mode.name} (${mode.value})")
             }
-                .trim()
+                .trim(),
         )
     }
 }

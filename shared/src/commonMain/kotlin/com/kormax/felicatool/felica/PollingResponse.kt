@@ -51,7 +51,7 @@ class PollingResponse(
         get() =
             requestData
                 ?: throw IllegalStateException(
-                    "No request data present - system code not available"
+                    "No request data present - system code not available",
                 )
 
     /**
@@ -65,7 +65,7 @@ class PollingResponse(
             val data =
                 requestData
                     ?: throw IllegalStateException(
-                        "No request data present - communication performance not available"
+                        "No request data present - communication performance not available",
                     )
             return CommunicationPerformance.fromByteArray(data)
         }

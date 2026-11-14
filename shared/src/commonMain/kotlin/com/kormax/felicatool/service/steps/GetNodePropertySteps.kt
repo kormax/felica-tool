@@ -23,7 +23,7 @@ internal object GetNodePropertyValueLimitedServiceDetermineSupportedStep :
 
     override suspend fun ScanSession.perform(): StepOutput {
         skipIfUnsupportedBySpecificationVersion(
-            "Get Node Property requires the Value-Limited Purse Service option to be reported as supported in the specification version."
+            "Get Node Property requires the Value-Limited Purse Service option to be reported as supported in the specification version.",
         ) {
             it.valueLimitedPurseServiceOptionVersion == null ||
                 it.valueLimitedPurseServiceOptionVersion == OptionVersion.MISSING
@@ -44,13 +44,13 @@ internal object GetNodePropertyValueLimitedServiceDetermineSupportedStep :
         return StepOutput(
             buildString {
                 appendLine(
-                    "Get Node Property Value-Limited Purse Service is supported (response received)"
+                    "Get Node Property Value-Limited Purse Service is supported (response received)",
                 )
                 appendLine("Node: ${System.code.toHexString().uppercase()} (System)")
                 appendLine("Status: ${formatStatus(response)}")
                 appendLine("Returned ${response.nodeProperties.size} properties")
             }
-                .trim()
+                .trim(),
         )
     }
 }
@@ -74,7 +74,7 @@ internal object GetNodePropertyMacCommunicationDetermineSupportedStep :
 
     override suspend fun ScanSession.perform(): StepOutput {
         skipIfUnsupportedBySpecificationVersion(
-            "Get Node Property requires the Communication with MAC option to be reported as supported in the specification version."
+            "Get Node Property requires the Communication with MAC option to be reported as supported in the specification version.",
         ) {
             it.communicationWithMacOptionVersion == null ||
                 it.communicationWithMacOptionVersion == OptionVersion.MISSING
@@ -98,7 +98,7 @@ internal object GetNodePropertyMacCommunicationDetermineSupportedStep :
                 appendLine("Status: ${formatStatus(response)}")
                 appendLine("Returned ${response.nodeProperties.size} properties")
             }
-                .trim()
+                .trim(),
         )
     }
 }
@@ -129,7 +129,7 @@ internal object GetNodePropertyDetermineTrailingDataSupportedStep :
         val request =
             scanContext.supportedNodePropertyRequests().firstOrNull()
                 ?: throw StepSkipped(
-                    "Get Node Property support must be confirmed before checking trailing data"
+                    "Get Node Property support must be confirmed before checking trailing data",
                 )
 
         return GetNodePropertyCommand(
@@ -166,7 +166,7 @@ internal object GetNodePropertyStep :
         val allDiscoveredNodes = scanContext.systemScanContexts.flatMap { it.nodes }
         if (allDiscoveredNodes.isEmpty()) {
             throw StepPreconditionNotMet(
-                "No nodes discovered. Get Node Property requires discovered nodes from Discover Nodes step."
+                "No nodes discovered. Get Node Property requires discovered nodes from Discover Nodes step.",
             )
         }
 
@@ -185,7 +185,7 @@ internal object GetNodePropertyStep :
 
             if (discoveredNodes.isEmpty()) {
                 results.add(
-                    "System Context ${contextIndex + 1} ($systemCodeHex): No nodes discovered"
+                    "System Context ${contextIndex + 1} ($systemCodeHex): No nodes discovered",
                 )
                 updatedSystemContexts.add(systemContext)
                 continue
@@ -210,7 +210,7 @@ internal object GetNodePropertyStep :
                 systemContext.copy(
                     nodeValueLimitedPurseProperties = valueLimitedPurseProperties,
                     nodeMacCommunicationProperties = macCommunicationProperties,
-                )
+                ),
             )
 
             results.add(
@@ -221,7 +221,7 @@ internal object GetNodePropertyStep :
                     } else {
                         appendLine("No properties retrieved")
                     }
-                }
+                },
             )
         }
 
@@ -332,7 +332,7 @@ private fun CardScanContext.supportedNodePropertyRequests(): List<NodePropertyRe
             NodePropertyRequest(
                 type = NodePropertyType.VALUE_LIMITED_PURSE_SERVICE,
                 label = "Value-Limited Purse Service",
-            )
+            ),
         )
     }
     if (commands.getNodeProperty.macCommunicationSupported == CommandSupport.SUPPORTED) {
@@ -340,7 +340,7 @@ private fun CardScanContext.supportedNodePropertyRequests(): List<NodePropertyRe
             NodePropertyRequest(
                 type = NodePropertyType.MAC_COMMUNICATION,
                 label = "MAC Communication",
-            )
+            ),
         )
     }
 }

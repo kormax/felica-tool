@@ -52,7 +52,7 @@ abstract class GenerateServiceIconVectorDrawablesTask : DefaultTask() {
 
                 val vectorXml = buildString {
                     appendLine(
-                        """<vector xmlns:android="http://schemas.android.com/apk/res/android""""
+                        """<vector xmlns:android="http://schemas.android.com/apk/res/android"""",
                     )
                     appendLine("""    android:width="${width}dp"""")
                     appendLine("""    android:height="${height}dp"""")
@@ -141,7 +141,7 @@ abstract class GenerateServiceIconVectorDrawablesTask : DefaultTask() {
                     }
                 builder.appendLine("${indent}  <clip-path")
                 builder.appendLine(
-                    """${indent}      android:pathData="${clipPathData.xmlEscaped()}"/>"""
+                    """${indent}      android:pathData="${clipPathData.xmlEscaped()}"/>""",
                 )
             }
         appendVectorChildren(builder, "$indent  ", clipPaths, sourceName)
@@ -222,8 +222,8 @@ val generateServiceIconVectorDrawables =
     tasks.register<GenerateServiceIconVectorDrawablesTask>("generateServiceIconVectorDrawables") {
         inputDir.set(
             layout.projectDirectory.dir(
-                "../shared/src/commonMain/composeResources/files/service-icons"
-            )
+                "../shared/src/commonMain/composeResources/files/service-icons",
+            ),
         )
         outputDir.set(layout.buildDirectory.dir("generated/res/service-icon-vectors"))
     }

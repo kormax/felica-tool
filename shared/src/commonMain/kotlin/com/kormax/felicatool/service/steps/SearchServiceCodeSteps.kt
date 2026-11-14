@@ -38,7 +38,7 @@ internal object SearchServiceCodeDetermineSupportedStep :
                 appendLine("Index: $index")
                 appendLine("Node: ${describeNode(node)}")
             }
-                .trim()
+                .trim(),
         )
     }
 }

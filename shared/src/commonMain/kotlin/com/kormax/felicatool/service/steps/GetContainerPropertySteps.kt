@@ -29,7 +29,7 @@ internal object GetContainerPropertyDetermineSupportedStep :
 
     override suspend fun ScanSession.perform(): StepOutput {
         skipIfUnsupportedBySpecificationVersion(
-            "Get Container Property requires the Special option to be reported as supported in the specification version."
+            "Get Container Property requires the Special option to be reported as supported in the specification version.",
         ) {
             it.specialOptionVersion == null || it.specialOptionVersion == OptionVersion.MISSING
         }
@@ -49,7 +49,7 @@ internal object GetContainerPropertyDetermineSupportedStep :
                 appendLine("Response Data: ${response.data.toHexString()}")
                 appendLine("Data Size: ${response.data.size} bytes")
             }
-                .trim()
+                .trim(),
         )
     }
 }
@@ -101,7 +101,7 @@ internal object GetContainerPropertiesStep :
 
     override suspend fun ScanSession.perform(): StepOutput {
         skipIfUnsupportedBySpecificationVersion(
-            "Get Container Property requires the Special option to be reported as supported in the specification version."
+            "Get Container Property requires the Special option to be reported as supported in the specification version.",
         ) {
             it.specialOptionVersion == null || it.specialOptionVersion == OptionVersion.MISSING
         }
@@ -121,25 +121,25 @@ internal object GetContainerPropertiesStep :
                     appendLine("Property: ${property.label()}")
                     appendLine("  Response Data: ${response.data.toHexString()}")
                     appendLine("  Data Size: ${response.data.size} bytes")
-                }
+                },
             )
         }
 
         scanContext =
             scanContext.copy(
                 containerPropertyValues =
-                    scanContext.containerPropertyValues + containerPropertyValues
+                    scanContext.containerPropertyValues + containerPropertyValues,
             )
 
         return StepOutput(
             buildString {
                 appendLine(
-                    "Container properties retrieved: ${containerPropertyValues.size}/${CONTAINER_PROPERTIES_TO_READ.size}"
+                    "Container properties retrieved: ${containerPropertyValues.size}/${CONTAINER_PROPERTIES_TO_READ.size}",
                 )
                 appendLine()
                 results.forEach { result -> appendLine(result.trimEnd()) }
             }
-                .trim()
+                .trim(),
         )
     }
 }

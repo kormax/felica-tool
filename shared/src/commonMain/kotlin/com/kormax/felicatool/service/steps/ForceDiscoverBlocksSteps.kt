@@ -40,7 +40,7 @@ internal object ForceDiscoverBlocksStep :
 
             if (servicesWithoutAuth.isEmpty()) {
                 contextResults.add(
-                    "System Context ${contextIndex + 1} ($systemCodeHex): No readable services found"
+                    "System Context ${contextIndex + 1} ($systemCodeHex): No readable services found",
                 )
                 updatedSystemContexts.add(systemContext)
                 continue
@@ -132,12 +132,12 @@ internal object ForceDiscoverBlocksStep :
                 if (newBlocksFoundInContext.isNotEmpty()) {
                     newBlocksFoundInContext.forEach { (service, blocks) ->
                         appendLine(
-                            "  Service ${service.code.toHexString()}: ${blocks.size} new blocks"
+                            "  Service ${service.code.toHexString()}: ${blocks.size} new blocks",
                         )
                         val previewBlocks = blocks.entries.sortedBy { it.key }.take(4)
                         previewBlocks.forEach { (blockNum, data) ->
                             appendLine(
-                                "    Block 0x${formatBlockNumberHex(blockNum)}: ${data.toHexString()}"
+                                "    Block 0x${formatBlockNumberHex(blockNum)}: ${data.toHexString()}",
                             )
                         }
                         if (blocks.size > 4) {
@@ -163,7 +163,7 @@ internal object ForceDiscoverBlocksStep :
             contextResults.forEach { appendLine(it) }
             appendLine()
             appendLine(
-                "Note: Scanning stops after $maxBlocksPerRequest consecutive read failures per service."
+                "Note: Scanning stops after $maxBlocksPerRequest consecutive read failures per service.",
             )
         }
             .trim()

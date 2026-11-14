@@ -25,7 +25,7 @@ internal object GetContainerIssueInformationStep :
 
     override suspend fun ScanSession.perform(): StepOutput {
         skipIfUnsupportedBySpecificationVersion(
-            "Get Container Issue Information requires the Special option to be reported as supported in the specification version."
+            "Get Container Issue Information requires the Special option to be reported as supported in the specification version.",
         ) {
             it.specialOptionVersion == null || it.specialOptionVersion == OptionVersion.MISSING
         }
@@ -71,7 +71,7 @@ internal object GetContainerIssueInformationStep :
                     device.carrier?.let { carrier -> appendLine("Carrier: $carrier") }
                 }
             }
-                .trim()
+                .trim(),
         )
     }
 }
@@ -94,7 +94,7 @@ internal object GetContainerIssueInformationDetermineTrailingDataSupportedStep :
     ): CardScanContext = context.withCommands {
         copy(
             getContainerIssueInformation =
-                getContainerIssueInformation.copy(trailingDataSupported = support)
+                getContainerIssueInformation.copy(trailingDataSupported = support),
         )
     }
 

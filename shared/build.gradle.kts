@@ -32,7 +32,7 @@ abstract class GenerateSanitizedComposeResourcesTask : DefaultTask() {
         resourcesDirectory.get().asFile.copyRecursively(outputRoot, overwrite = true)
         outputFile.parentFile.mkdirs()
         outputFile.writeText(
-            JsonOutput.prettyPrint(JsonOutput.toJson(sourceData.withoutSources())) + "\n"
+            JsonOutput.prettyPrint(JsonOutput.toJson(sourceData.withoutSources())) + "\n",
         )
     }
 
@@ -52,8 +52,8 @@ val generateSanitizedComposeResources =
         resourcesDirectory.set(layout.projectDirectory.dir("src/commonMain/composeResources"))
         inputFile.set(
             layout.projectDirectory.file(
-                "src/commonMain/composeResources/files/mobile_devices.json"
-            )
+                "src/commonMain/composeResources/files/mobile_devices.json",
+            ),
         )
         outputDirectory.set(layout.buildDirectory.dir("generated/composeResources/commonMain"))
     }

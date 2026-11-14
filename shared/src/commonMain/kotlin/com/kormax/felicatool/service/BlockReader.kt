@@ -52,7 +52,7 @@ internal abstract class BlockReader(
         require(
             hints.all { (service, candidates) ->
                 service in services && candidates.isNotEmpty()
-            }
+            },
         )
 
         val blocksByService = mutableMapOf<Service, MutableMap<Int, ByteArray>>()
@@ -166,7 +166,7 @@ internal abstract class BlockReader(
                                     errorBitmask and (1 shl bitIndex) != 0
                                 }
                                     ?: throw RuntimeException(
-                                        "Cannot determine a smaller block batch"
+                                        "Cannot determine a smaller block batch",
                                     )
                             maxBlocks = minOf(maxBlocks, highestInvalidIndex)
                         }

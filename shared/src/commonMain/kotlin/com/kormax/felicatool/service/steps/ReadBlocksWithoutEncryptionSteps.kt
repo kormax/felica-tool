@@ -37,7 +37,7 @@ internal object ReadBlocksWithoutEncryptionStep :
 
             if (servicesWithoutAuth.isEmpty()) {
                 contextResults.add(
-                    "System Context ${contextIndex + 1} ($systemCodeHex): No services without authentication found"
+                    "System Context ${contextIndex + 1} ($systemCodeHex): No services without authentication found",
                 )
                 updatedSystemContexts.add(systemContext)
                 continue
@@ -58,7 +58,7 @@ internal object ReadBlocksWithoutEncryptionStep :
                                 BlockReadCandidate(
                                     blockIndices,
                                     probeAfterRuns = false,
-                                )
+                                ),
                             )
                     }
                 }
@@ -78,7 +78,7 @@ internal object ReadBlocksWithoutEncryptionStep :
                     .read(servicesWithoutAuth, blockReadHints)
 
             updatedSystemContexts.add(
-                systemContext.copy(serviceBlockData = blockDataByService.mapKeys { it.key })
+                systemContext.copy(serviceBlockData = blockDataByService.mapKeys { it.key }),
             )
 
             val contextBlocksRead = blockDataByService.values.sumOf { it.size }
@@ -95,7 +95,7 @@ internal object ReadBlocksWithoutEncryptionStep :
                     val regularBlocks = blockData.keys.count { it < 0x80 }
                     val extraBlocks = blockData.keys.count { it >= 0x80 }
                     appendLine(
-                        "  Service ${service.code.toHexString().ifEmpty { "Anonymous" }}: ${blockData.size} blocks ($regularBlocks regular, $extraBlocks extra)"
+                        "  Service ${service.code.toHexString().ifEmpty { "Anonymous" }}: ${blockData.size} blocks ($regularBlocks regular, $extraBlocks extra)",
                     )
                     if (blockData.isNotEmpty()) {
                         blockData.entries
@@ -103,7 +103,7 @@ internal object ReadBlocksWithoutEncryptionStep :
                             .take(4)
                             .forEach { (blockNum, data) ->
                                 appendLine(
-                                    "    Block 0x${formatBlockNumberHex(blockNum)}: ${data.toHexString()}"
+                                    "    Block 0x${formatBlockNumberHex(blockNum)}: ${data.toHexString()}",
                                 )
                             }
                         if (blockData.size > 4) {
