@@ -5,6 +5,7 @@ import com.kormax.felicatool.nfc.TransceiveTimeoutException
 import com.kormax.felicatool.service.*
 import com.kormax.felicatool.ui.ScanStepIcon
 import com.kormax.felicatool.util.NodeDefinitionType
+import kotlinx.coroutines.CancellationException
 
 private data class NodeDiscoveryResult(
     val methodLabel: String,
@@ -345,6 +346,8 @@ internal object DiscoverNodesStep :
                 details.add(
                     "System ${contextIndex + 1} ($systemCodeHex): Request Code List found ${areas.size} area(s), ${services.size} service(s) in $requestCount request(s); $stopReason",
                 )
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 ScanLog.w(
                     "CardScanService",
@@ -421,6 +424,8 @@ internal object DiscoverNodesStep :
                 details.add(
                     "System ${contextIndex + 1} ($systemCodeHex): Search Service Code found $areaCount area(s), $serviceCount service(s) in $requestCount request(s); $stopReason",
                 )
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 ScanLog.w(
                     "CardScanService",

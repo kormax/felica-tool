@@ -3,6 +3,7 @@ package com.kormax.felicatool.service.steps
 import com.kormax.felicatool.felica.*
 import com.kormax.felicatool.service.*
 import com.kormax.felicatool.ui.ScanStepIcon
+import kotlinx.coroutines.CancellationException
 
 internal object ForceDiscoverBlocksStep :
     ScanStep(
@@ -101,6 +102,8 @@ internal object ForceDiscoverBlocksStep :
                         } else {
                             consecutiveFailures++
                         }
+                    } catch (e: CancellationException) {
+                        throw e
                     } catch (e: Exception) {
                         consecutiveFailures++
                     }

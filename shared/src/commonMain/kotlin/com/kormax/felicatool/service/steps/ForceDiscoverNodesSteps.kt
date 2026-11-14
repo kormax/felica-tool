@@ -3,6 +3,7 @@ package com.kormax.felicatool.service.steps
 import com.kormax.felicatool.felica.*
 import com.kormax.felicatool.service.*
 import com.kormax.felicatool.ui.ScanStepIcon
+import kotlinx.coroutines.CancellationException
 
 internal object ForceDiscoverNodesStep :
     ScanStep(
@@ -162,6 +163,8 @@ internal object ForceDiscoverNodesStep :
                             totalDiscovered++
                         }
                     }
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     // Log error but continue with next batch
                     ScanLog.w("CardScanService", "Force discover batch failed: ${e.message}")

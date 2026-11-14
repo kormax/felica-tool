@@ -3,6 +3,7 @@ package com.kormax.felicatool.service.steps
 import com.kormax.felicatool.felica.*
 import com.kormax.felicatool.service.*
 import com.kormax.felicatool.ui.ScanStepIcon
+import kotlinx.coroutines.CancellationException
 
 private val manualSystemProbeTargets =
     listOf(
@@ -82,6 +83,8 @@ internal object ProbeSystemCodesManuallyStep :
                 }
                 manualResultLines +=
                     "  - $systemCodeHex ($label): found (IDM ${pollingResponse.idm.toHexString().uppercase()}; $contextStatus)"
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 val error = e.message ?: e::class.simpleName ?: "Unknown error"
                 manualResultLines += "  - $systemCodeHex ($label): not found ($error)"
@@ -149,6 +152,8 @@ internal object ProbeSystemCodesManuallyStep :
                     wildcardResultLines +=
                         "    - ${probeSystemCode.toHexString().uppercase()} -> ${discoveredSystemCode.toHexString().uppercase()} " +
                             "(IDM ${pollingResponse.idm.toHexString().uppercase()}; $contextStatus)"
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     wildcardNoResponse++
                 }

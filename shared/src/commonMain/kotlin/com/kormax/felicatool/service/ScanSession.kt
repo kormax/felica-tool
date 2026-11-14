@@ -343,6 +343,8 @@ internal constructor(
                     try {
                         selectSystemCode(systemCode)
                         true
+                    } catch (e: CancellationException) {
+                        throw e
                     } catch (e: Exception) {
                         ScanLog.d(
                             "CardScanService",

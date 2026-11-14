@@ -16,16 +16,15 @@
 
 package com.kormax.felicatool
 
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
-import android.nfc.NfcAdapter
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -44,6 +43,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.res.vectorResource
@@ -79,7 +79,6 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -112,13 +111,14 @@ private data class ReaderControlState(
     val isReaderDiscovering: Boolean = false,
     val isWaitingForRemoval: Boolean = false,
     val isScanAvailable: Boolean = true,
+    val isTagPresent: Boolean = false,
     val issueMessage: String? = null,
     val manualSessionSecondsRemaining: Int? = null,
     val automaticRestartSecondsRemaining: Int? = null,
 )
 
 class MainActivity : ComponentActivity() {
-    private var nfcReader: NfcReader? = null
+    private lateinit var nfcReader: NfcReader
     private var activeReaderSession: NfcReaderSession? = null
     private var readerJob: Job? = null
     private var automaticReaderStartNowSignal: CompletableDeferred<Unit>? = null
@@ -141,21 +141,6 @@ class MainActivity : ComponentActivity() {
     private var isActivityResumed = false
     private val readerPreferences by lazy {
         applicationContext.getSharedPreferences(READER_PREFERENCES_NAME, Context.MODE_PRIVATE)
-    }
-    private val nfcForegroundDispatchIntent by lazy {
-        val flags =
-            PendingIntent.FLAG_UPDATE_CURRENT or
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    PendingIntent.FLAG_MUTABLE
-                } else {
-                    0
-                }
-        PendingIntent.getActivity(
-            this,
-            0,
-            Intent(this, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
-            flags,
-        )
     }
 
     private fun toggleStepCollapse(stepId: String) {
@@ -202,7 +187,6 @@ class MainActivity : ComponentActivity() {
                 testWriteCommands = readerPreferences.getBoolean(KEY_TEST_WRITE_COMMANDS, false),
             )
         val reader = AndroidNfcReader(this)
-        reader.disableBackgroundDiscovery()
         nfcReader = reader
         refreshNfcStatus()
         if (isBackgroundReadingEnabled && !isBackgroundReadingAvailable()) {
@@ -210,6 +194,7 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
+            val isTagPresent by reader.isTagPresent.collectAsState()
             FeliCaToolTheme {
                 Box(modifier = Modifier.fillMaxSize()) {
                     // Main screen - always present
@@ -227,6 +212,7 @@ class MainActivity : ComponentActivity() {
                                 isReaderDiscovering = isReaderDiscovering,
                                 isWaitingForRemoval = isWaitingForRemoval,
                                 isScanAvailable = isNfcReady,
+                                isTagPresent = isTagPresent,
                                 issueMessage = readerIssueMessage,
                                 manualSessionSecondsRemaining = manualReaderSessionSecondsRemaining,
                                 automaticRestartSecondsRemaining =
@@ -265,30 +251,14 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        when (intent.action) {
-            NfcAdapter.ACTION_NDEF_DISCOVERED,
-            NfcAdapter.ACTION_TECH_DISCOVERED,
-            NfcAdapter.ACTION_TAG_DISCOVERED -> {
-                Log.i(TAG, "Dropping NFC foreground dispatch intent: ${intent.action}")
-                return
-            }
-        }
-
-        setIntent(intent)
-    }
-
     private fun refreshNfcStatus(): Boolean {
-        val reader = nfcReader ?: AndroidNfcReader(this).also { nfcReader = it }
-
-        if (!reader.isAvailable) {
+        if (!nfcReader.isAvailable) {
             isNfcReady = false
             statusMessage = "NFC is not supported on this device"
             return false
         }
 
-        if (!reader.isEnabled) {
+        if (!nfcReader.isEnabled) {
             isNfcReady = false
             statusMessage = "NFC is disabled. Please enable it in Settings"
             return false
@@ -307,7 +277,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun isBackgroundReadingAvailable(): Boolean {
-        val capabilities = nfcReader?.capabilities ?: return false
+        val capabilities = nfcReader.capabilities
         return capabilities.maximumReaderSessionDuration.isInfinite() &&
             !capabilities.activeSessionDisplaysSystemModel
     }
@@ -321,11 +291,7 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         isActivityResumed = true
-        if (!isReaderActive) {
-            (nfcReader as? AndroidNfcReader)?.disableBackgroundDiscovery()
-        }
         refreshNfcStatus()
-        setNfcForegroundDispatchEnabled(true)
 
         if (shouldRunAutomaticReader() && readerJob?.isActive != true) {
             startAutomaticReaderAfterDelay(AUTOMATIC_READER_START_DELAY_SECONDS)
@@ -333,27 +299,8 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onPause() {
-        setNfcForegroundDispatchEnabled(false)
         isActivityResumed = false
         super.onPause()
-    }
-
-    private fun setNfcForegroundDispatchEnabled(enabled: Boolean) {
-        val adapter = NfcAdapter.getDefaultAdapter(this) ?: return
-
-        if (enabled) {
-            if (!isActivityResumed || !adapter.isEnabled) {
-                return
-            }
-
-            runCatching {
-                adapter.enableForegroundDispatch(this, nfcForegroundDispatchIntent, null, null)
-            }
-                .onFailure { Log.w(TAG, "Unable to enable NFC foreground dispatch", it) }
-        } else {
-            runCatching { adapter.disableForegroundDispatch(this) }
-                .onFailure { Log.w(TAG, "Unable to disable NFC foreground dispatch", it) }
-        }
     }
 
     private fun updateBackgroundReadingEnabled(enabled: Boolean) {
@@ -444,13 +391,14 @@ class MainActivity : ComponentActivity() {
         isWaitingForRemoval = false
         manualReaderSessionSecondsRemaining = null
         automaticReaderRestartSecondsRemaining = null
+        val job = readerJob
+        job?.cancel()
         activeReaderSession?.close()
         activeReaderSession = null
 
-        val job = readerJob
         if (job != null) {
             lifecycleScope.launch {
-                job.cancelAndJoin()
+                job.join()
                 if (readerJob === job) {
                     readerJob = null
                 }
@@ -479,7 +427,7 @@ class MainActivity : ComponentActivity() {
 
         val session =
             try {
-                nfcReader!!.startReaderSession()
+                nfcReader.startReaderSession()
             } catch (e: Exception) {
                 setReaderIssue(e.message ?: "Unable to start NFC reader")
                 isReaderActive = false
@@ -535,7 +483,7 @@ class MainActivity : ComponentActivity() {
 
             val session =
                 try {
-                    nfcReader!!.startReaderSession()
+                    nfcReader.startReaderSession()
                 } catch (e: Exception) {
                     setReaderIssue(e.message ?: "Unable to start NFC reader")
                     isReaderActive = false
@@ -1162,6 +1110,20 @@ private fun ReaderBottomBar(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
+                    val isIdleWithoutTag =
+                        !isAutomatic && !state.isReaderActive && !state.isTagPresent
+                    val iconAlpha by
+                        animateFloatAsState(
+                            targetValue = if (isIdleWithoutTag) 0.5f else 1f,
+                            animationSpec = tween(durationMillis = 500),
+                            label = "Reader button icon opacity",
+                        )
+                    val labelAlpha by
+                        animateFloatAsState(
+                            targetValue = if (isIdleWithoutTag) 0.75f else 1f,
+                            animationSpec = tween(durationMillis = 500),
+                            label = "Reader button label opacity",
+                        )
                     if (showSpinner) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(18.dp),
@@ -1170,13 +1132,31 @@ private fun ReaderBottomBar(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                     } else if (!isAutomatic && !state.isReaderActive) {
+                        val playIconScale = remember { Animatable(1f) }
+                        LaunchedEffect(state.isTagPresent) {
+                            if (state.isTagPresent) {
+                                playIconScale.animateTo(1.40f, tween(durationMillis = 150))
+                                playIconScale.animateTo(1.25f, tween(durationMillis = 200))
+                            } else {
+                                playIconScale.animateTo(1f, tween(durationMillis = 200))
+                            }
+                        }
                         Icon(
                             imageVector = Icons.Filled.PlayArrow,
-                            contentDescription = null,
-                            modifier = Modifier.padding(end = 8.dp),
+                            contentDescription =
+                                if (state.isTagPresent) "Card detected" else "No card detected",
+                            modifier =
+                                Modifier.padding(end = 8.dp).graphicsLayer {
+                                    alpha = iconAlpha
+                                    scaleX = playIconScale.value
+                                    scaleY = playIconScale.value
+                                },
                         )
                     }
-                    Text(text = buttonText)
+                    Text(
+                        text = buttonText,
+                        modifier = Modifier.graphicsLayer { alpha = labelAlpha },
+                    )
                 }
             }
         }

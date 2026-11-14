@@ -9,6 +9,9 @@ import com.kormax.felicatool.util.EmptyNodeMetadataProvider
 import com.kormax.felicatool.util.NodeMetadataProvider
 import kotlin.time.Duration
 import kotlin.time.TimeSource
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 
 data class CardScanResult(
     val steps: List<CardScanStep>,
@@ -48,23 +51,16 @@ class CardScanService(
             )
 
         for (index in workingSteps.indices) {
+            currentCoroutineContext().ensureActive()
             val currentStep = workingSteps[index]
-            val updatedStep =
-                runStep(
-                    step = currentStep,
-                    session = session,
-                    onStepUpdate = { step ->
-                        workingSteps =
-                            workingSteps.toMutableList().apply {
-                                if (index < size) {
-                                    set(index, step)
-                                }
-                            }
-                        onStepsChanged(workingSteps)
-                    },
-                )
 
-            workingSteps = workingSteps.toMutableList().apply { set(index, updatedStep) }
+            fun withCurrentStep(step: CardScanStep) =
+                workingSteps.toMutableList().apply { set(index, step) }
+
+            val updatedStep =
+                runStep(currentStep, session) { step -> onStepsChanged(withCurrentStep(step)) }
+
+            workingSteps = withCurrentStep(updatedStep)
             onStepsChanged(workingSteps)
 
             if (
@@ -118,17 +114,37 @@ class CardScanService(
 
         val startTime = TimeSource.Monotonic.markNow()
 
-        try {
-            val result = scanStep.run(session)
+        return try {
+            val result = executeStep(scanStep, step, session)
+            currentCoroutineContext().ensureActive()
+            result.copy(duration = startTime.elapsedNow())
+        } catch (e: CancellationException) {
+            onStepUpdate(
+                step.copy(
+                    status = StepStatus.ERROR,
+                    errorMessage = "Cancelled",
+                    duration = startTime.elapsedNow(),
+                ),
+            )
+            throw e
+        }
+    }
 
-            return step.completedWith(result).copy(duration = startTime.elapsedNow())
+    private suspend fun executeStep(
+        scanStep: ScanStep,
+        step: CardScanStep,
+        session: ScanSession,
+    ): CardScanStep {
+        try {
+            return step.completedWith(scanStep.run(session))
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: StepBehaviorUnexpected) {
             ScanLog.w("CardScanService", "Probe fallback used for step ${step.id}: ${e.message}")
 
             return step.copy(
                 status = StepStatus.ERROR,
                 errorMessage = e.message ?: "Probe fallback applied",
-                duration = startTime.elapsedNow(),
             )
         } catch (e: StepPreconditionNotMet) {
             ScanLog.w("CardScanService", "Prerequisite not met for step ${step.id}: ${e.message}")
@@ -136,7 +152,6 @@ class CardScanService(
             return step.copy(
                 status = StepStatus.ERROR,
                 errorMessage = e.message ?: "Prerequisite not met",
-                duration = startTime.elapsedNow(),
             )
         } catch (e: StepSkipped) {
             ScanLog.i("CardScanService", "Skipping step ${step.id}: ${e.message}")
@@ -144,7 +159,6 @@ class CardScanService(
             return step.copy(
                 status = StepStatus.SKIPPED,
                 result = e.message ?: "Step skipped",
-                duration = startTime.elapsedNow(),
             )
         } catch (e: NfcTargetUnavailableException) {
             ScanLog.e("CardScanService", "Card unavailable for step ${step.id}", e)
@@ -152,7 +166,6 @@ class CardScanService(
             return step.copy(
                 status = StepStatus.ERROR,
                 errorMessage = CARD_LOST_MESSAGE,
-                duration = startTime.elapsedNow(),
             )
         } catch (e: TransceiveTimeoutException) {
             ScanLog.w("CardScanService", "No response for step ${step.id}: ${e.message}", e)
@@ -163,7 +176,6 @@ class CardScanService(
             return step.copy(
                 status = StepStatus.ERROR,
                 errorMessage = e.message ?: "No response from target",
-                duration = startTime.elapsedNow(),
             )
         } catch (e: Exception) {
             ScanLog.e("CardScanService", "Error executing step ${step.id}", e)
@@ -174,7 +186,6 @@ class CardScanService(
             return step.copy(
                 status = StepStatus.ERROR,
                 errorMessage = e.message ?: "Unknown error",
-                duration = startTime.elapsedNow(),
             )
         }
     }
