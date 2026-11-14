@@ -33,6 +33,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
@@ -40,6 +41,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -63,6 +65,7 @@ import com.kormax.felicatool.nfc.NfcReaderSession
 import com.kormax.felicatool.service.CardScanResult
 import com.kormax.felicatool.service.CardScanService
 import com.kormax.felicatool.service.ScanSettings
+import com.kormax.felicatool.ui.AboutScreen
 import com.kormax.felicatool.ui.CardScanStep
 import com.kormax.felicatool.ui.ScanResultsOverview
 import com.kormax.felicatool.ui.StepStatus
@@ -194,10 +197,10 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
+            var showAbout by rememberSaveable { mutableStateOf(false) }
             val isTagPresent by reader.isTagPresent.collectAsState()
             FeliCaToolTheme {
                 Box(modifier = Modifier.fillMaxSize()) {
-                    // Main screen - always present
                     MainScreen(
                         steps = steps,
                         isCardPresent = isCardPresent,
@@ -222,6 +225,7 @@ class MainActivity : ComponentActivity() {
                         onBackgroundReadingChange = ::updateBackgroundReadingEnabled,
                         scanSettings = scanSettings,
                         onScanSettingsChange = ::updateScanSettings,
+                        onShowAbout = { showAbout = true },
                         onStartScan = ::startManualReaderSession,
                         onStopScan = { stopReaderSession(status = "Ready") },
                         onStartAutomaticReaderNow = {
@@ -229,8 +233,9 @@ class MainActivity : ComponentActivity() {
                         },
                     )
 
-                    // Scan results overview - overlays on top when visible
-                    if (showComprehensiveData) {
+                    if (showAbout) {
+                        AboutScreen(onBackPressed = { showAbout = false })
+                    } else if (showComprehensiveData) {
                         ScanResultsOverview(
                             cardScanService = cardScanService,
                             onBackPressed = {
@@ -772,6 +777,7 @@ private fun MainScreen(
     onBackgroundReadingChange: (Boolean) -> Unit = {},
     scanSettings: ScanSettings = ScanSettings(),
     onScanSettingsChange: (ScanSettings) -> Unit = {},
+    onShowAbout: () -> Unit = {},
     onStartScan: () -> Unit = {},
     onStopScan: () -> Unit = {},
     onStartAutomaticReaderNow: () -> Unit = {},
@@ -805,8 +811,20 @@ private fun MainScreen(
                             )
                         }
                     }
-                    AppBarMenu(icon = Icons.Default.MoreVert, label = "Scan settings") {
-                        AppBarMenuGroup(shapes = MenuDefaults.groupShape(0, 3)) {
+                    AppBarMenu(icon = Icons.Default.MoreVert, label = "More options") { dismiss ->
+                        AppBarMenuGroup(shapes = MenuDefaults.groupShape(0, 4)) {
+                            DropdownMenuItem(
+                                text = { Text("About") },
+                                shape = MenuDefaults.standaloneItemShape,
+                                leadingIcon = { Icon(Icons.Filled.Info, null) },
+                                onClick = {
+                                    dismiss()
+                                    onShowAbout()
+                                },
+                            )
+                        }
+                        Spacer(Modifier.height(MenuDefaults.GroupSpacing))
+                        AppBarMenuGroup(shapes = MenuDefaults.groupShape(1, 4)) {
                             CheckableMenuOption(
                                 label = "Enable IC code scan heuristics",
                                 icon = ImageVector.vectorResource(R.drawable.ic_lightbulb),
@@ -833,7 +851,7 @@ private fun MainScreen(
                             )
                         }
                         Spacer(Modifier.height(MenuDefaults.GroupSpacing))
-                        AppBarMenuGroup(shapes = MenuDefaults.groupShape(1, 3)) {
+                        AppBarMenuGroup(shapes = MenuDefaults.groupShape(2, 4)) {
                             CheckableMenuOption(
                                 label = "Test trailing data",
                                 icon = ImageVector.vectorResource(R.drawable.ic_data_array),
@@ -856,7 +874,7 @@ private fun MainScreen(
                             )
                         }
                         Spacer(Modifier.height(MenuDefaults.GroupSpacing))
-                        AppBarMenuGroup(shapes = MenuDefaults.groupShape(2, 3)) {
+                        AppBarMenuGroup(shapes = MenuDefaults.groupShape(3, 4)) {
                             CheckableMenuOption(
                                 label = "Force discover all nodes",
                                 icon = Icons.Filled.Search,

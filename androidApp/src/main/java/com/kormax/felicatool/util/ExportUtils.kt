@@ -5,8 +5,11 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.util.Log
+import android.widget.Toast
 import androidx.core.content.FileProvider
 import com.kormax.felicatool.BuildConfig
+import com.kormax.felicatool.R
 import com.kormax.felicatool.felica.*
 import com.kormax.felicatool.service.CardScanContext
 import com.kormax.felicatool.service.CommandCapability
@@ -210,6 +213,47 @@ object ExportUtils {
         }
     }
 
+    internal fun shareDeviceInfo(context: Context) {
+        val report =
+            JSONObject()
+                .put(
+                    "app",
+                    JSONObject()
+                        .put("name", context.getString(R.string.app_name))
+                        .put("package_name", context.packageName)
+                        .put("version_name", BuildConfig.VERSION_NAME)
+                        .put("version_code", BuildConfig.VERSION_CODE),
+                )
+                .put(
+                    "device",
+                    JSONObject()
+                        .put("manufacturer", Build.MANUFACTURER)
+                        .put("brand", Build.BRAND)
+                        .put("model", Build.MODEL)
+                        .put("device", Build.DEVICE)
+                        .put("product", Build.PRODUCT)
+                        .put("sku", Build.SKU)
+                        .put("odm_sku", Build.ODM_SKU)
+                        .put("soc_manufacturer", Build.SOC_MANUFACTURER)
+                        .put("soc_model", Build.SOC_MODEL)
+                        .put("android_version", Build.VERSION.RELEASE)
+                        .put("api_level", Build.VERSION.SDK_INT)
+                        .put(
+                            "api_level_minor",
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA)
+                                Build.getMinorSdkVersion(Build.VERSION.SDK_INT_FULL)
+                            else JSONObject.NULL,
+                        )
+                        .put("security_patch", Build.VERSION.SECURITY_PATCH),
+                )
+        try {
+            shareJson(context, "felica_tool_info.json", report.toString(2))
+        } catch (e: Exception) {
+            Log.e("ExportUtils", "Failed to share device info", e)
+            Toast.makeText(context, "Couldn’t share device info", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private fun shareJson(context: Context, fileName: String, json: String) {
         val root = File(context.cacheDir, "exports")
         check(root.mkdirs() || root.isDirectory)
@@ -240,7 +284,7 @@ object ExportUtils {
                 type = "application/json"
                 putExtra(Intent.EXTRA_STREAM, fileUri)
                 clipData = ClipData.newUri(context.contentResolver, fileName, fileUri)
-                putExtra(Intent.EXTRA_SUBJECT, "FeliCa Tools File")
+                putExtra(Intent.EXTRA_SUBJECT, "FeliCa Tool File")
                 putExtra(Intent.EXTRA_TITLE, fileName) // Add explicit title
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
