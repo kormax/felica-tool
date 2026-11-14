@@ -13,6 +13,7 @@ val buildDateEpochMillis = (System.currentTimeMillis() / 86_400_000L) * 86_400_0
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 abstract class GenerateServiceIconVectorDrawablesTask : DefaultTask() {
@@ -245,8 +246,8 @@ android {
         applicationId = "com.kormax.felicatool"
         minSdk = 31
         targetSdk = 37
-        versionCode = 33
-        versionName = "0.33.0"
+        versionCode = 34
+        versionName = "0.34.0"
 
         buildConfigField(
             "long",
@@ -280,6 +281,8 @@ android {
 kotlin { compilerOptions { freeCompilerArgs.add("-opt-in=kotlin.ExperimentalStdlibApi") } }
 
 dependencies {
+    implementation(libs.bouncycastle.asn1)
+    implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

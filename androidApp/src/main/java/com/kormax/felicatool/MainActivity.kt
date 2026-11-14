@@ -54,6 +54,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import androidx.lifecycle.lifecycleScope
+import com.kormax.felicatool.device.KeystoreCapabilities
 import com.kormax.felicatool.felica.FeliCaTarget
 import com.kormax.felicatool.felica.PollingCommand
 import com.kormax.felicatool.felica.RequestCode
@@ -168,6 +169,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        KeystoreCapabilities.start(applicationContext)
 
         lifecycleScope.launch(Dispatchers.IO) {
             runCatching {

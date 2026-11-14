@@ -5,12 +5,18 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.security.keystore.KeyProperties
 import android.util.Log
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import com.kormax.felicatool.BuildConfig
 import com.kormax.felicatool.R
+import com.kormax.felicatool.device.BackendMeasurement
+import com.kormax.felicatool.device.ImportMeasurement
+import com.kormax.felicatool.device.KeystoreBackend
+import com.kormax.felicatool.device.KeystoreProfile
 import com.kormax.felicatool.device.OsaifuKeitaiInfo
+import com.kormax.felicatool.device.Support
 import com.kormax.felicatool.felica.*
 import com.kormax.felicatool.service.CardScanContext
 import com.kormax.felicatool.service.CommandCapability
@@ -216,7 +222,11 @@ object ExportUtils {
         }
     }
 
-    internal fun shareDeviceInfo(context: Context, osaifuKeitai: OsaifuKeitaiInfo) {
+    internal fun shareDeviceInfo(
+        context: Context,
+        osaifuKeitai: OsaifuKeitaiInfo,
+        profile: KeystoreProfile,
+    ) {
         val report =
             JSONObject()
                 .put(
@@ -267,12 +277,102 @@ object ExportUtils {
                             ),
                         ),
                 )
+                .put(
+                    "keystore",
+                    JSONObject()
+                        .put(
+                            "levels",
+                            JSONObject().apply {
+                                for (level in profile.backends) {
+                                    put(level.backend.name.lowercase(), level.toReportJson())
+                                }
+                            },
+                        ),
+                )
         try {
             shareJson(context, "felica_tool_info.json", report.toString(2).replace("\\/", "/"))
         } catch (e: Exception) {
             Log.e("ExportUtils", "Failed to share device info", e)
             Toast.makeText(context, "Couldn’t share device info", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private val Support.jsonValue: Any
+        get() =
+            when (this) {
+                Support.YES -> true
+                Support.NO -> false
+                Support.INCONCLUSIVE -> JSONObject.NULL
+            }
+
+    private fun BackendMeasurement.toReportJson(): JSONObject =
+        JSONObject()
+            .apply {
+                if (
+                    backend == KeystoreBackend.STRONGBOX &&
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN
+                ) {
+                    put("manufacturer", Build.STRONGBOX_MANUFACTURER)
+                    put("model", Build.STRONGBOX_MODEL)
+                }
+            }
+            .put("implementation", implementation ?: JSONObject.NULL)
+            .put("attested_version", attestedVersionLabel ?: JSONObject.NULL)
+            .put("attestation", attestation.jsonValue)
+            .put("attestation_device_ids", JSONArray(attestedIds.map { it.name.lowercase() }))
+            .put("concurrent_occupancy", concurrentOccupancy ?: JSONObject.NULL)
+            .put(
+                "algorithms",
+                JSONObject().apply {
+                    for ((algorithm, result) in algorithms) {
+                        put(
+                            algorithm.label,
+                            JSONObject()
+                                .put("generation", result.generation.jsonValue)
+                                .putImport("raw_import", result.rawImport)
+                                .putImport("wrapped_import", result.wrappedImport)
+                                .put(
+                                    "timings_ns",
+                                    JSONObject()
+                                        .put("generation", JSONArray(result.generationNanos))
+                                        .put("encryption", JSONArray(result.encryptionNanos))
+                                        .put("decryption", JSONArray(result.decryptionNanos)),
+                                ),
+                        )
+                    }
+                },
+            )
+
+    private fun JSONObject.putImport(name: String, result: ImportMeasurement): JSONObject {
+        put(name, result.support.jsonValue)
+        val info = JSONObject()
+        result.reportedSecurityLevel?.let {
+            info.put(
+                "security_level",
+                when (it) {
+                    KeyProperties.SECURITY_LEVEL_TRUSTED_ENVIRONMENT -> "tee"
+                    KeyProperties.SECURITY_LEVEL_STRONGBOX -> "strongbox"
+                    KeyProperties.SECURITY_LEVEL_SOFTWARE -> "software"
+                    KeyProperties.SECURITY_LEVEL_UNKNOWN_SECURE -> "unknown_secure"
+                    else -> "unknown"
+                },
+            )
+        }
+        result.reportedOrigin?.let {
+            info.put(
+                "origin",
+                when (it) {
+                    KeyProperties.ORIGIN_GENERATED -> "generated"
+                    KeyProperties.ORIGIN_IMPORTED -> "imported"
+                    KeyProperties.ORIGIN_SECURELY_IMPORTED -> "securely_imported"
+                    else -> "unknown"
+                },
+            )
+        }
+        result.reportedKeySize?.let { info.put("key_size_bits", it) }
+        result.keyInfoError?.let { info.put("error", it) }
+        if (info.length() > 0) put("${name}_key_info", info)
+        return this
     }
 
     private fun fileContent(bytes: ByteArray): JSONObject {
