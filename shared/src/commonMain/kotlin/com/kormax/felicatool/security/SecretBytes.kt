@@ -8,6 +8,17 @@ class SecretBytes private constructor(private var bytes: ByteArray?) : AutoClose
 
     fun copyToByteArray(): ByteArray = requireBytes().copyOf()
 
+    fun constantTimeEquals(other: SecretBytes): Boolean {
+        val left = requireBytes()
+        val right = other.requireBytes()
+        if (left.size != right.size) return false
+        var difference = 0
+        for (index in left.indices) {
+            difference = difference or (left[index].toInt() xor right[index].toInt())
+        }
+        return difference == 0
+    }
+
     override fun close() {
         bytes?.fill(0)
         bytes = null

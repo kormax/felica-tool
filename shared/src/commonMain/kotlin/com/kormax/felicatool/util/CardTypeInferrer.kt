@@ -6,6 +6,8 @@ import com.kormax.felicatool.felica.Node
 import com.kormax.felicatool.felica.Pmm
 import com.kormax.felicatool.felica.Service
 import com.kormax.felicatool.felica.System
+import com.kormax.felicatool.felica.areaContainmentComparator
+import com.kormax.felicatool.felica.hasSameRangeButCannotNestIn
 import com.kormax.felicatool.service.CardScanContext
 import com.kormax.felicatool.service.CommandSupport
 import com.kormax.felicatool.service.SystemScanContext
@@ -287,7 +289,7 @@ object CardTypeInferrer {
         context.nodes
             .filterIsInstance<Area>()
             .filter { it != this && belongsTo(it) && !hasSameRangeButCannotNestIn(it) }
-            .minWithOrNull(areaOrder)
+            .minWithOrNull(areaContainmentComparator)
             ?.fullCode
             ?.hex()
 
@@ -295,15 +297,9 @@ object CardTypeInferrer {
         context.nodes
             .filterIsInstance<Area>()
             .filter { belongsTo(it) }
-            .minWithOrNull(areaOrder)
+            .minWithOrNull(areaContainmentComparator)
             ?.fullCode
             ?.hex()
-
-    private fun Area.hasSameRangeButCannotNestIn(candidate: Area): Boolean =
-        number == candidate.number &&
-            endNumber == candidate.endNumber &&
-            attribute.canCreateSubArea &&
-            !candidate.attribute.canCreateSubArea
 
     private fun Node.isPresent(context: SystemScanContext): Boolean =
         context.nodeKeyVersions.containsKey(this) ||
@@ -381,12 +377,6 @@ object CardTypeInferrer {
             .thenBy { it.dataMismatches }
             .thenByDescending { it.hits }
             .thenBy { it.extraNodes }
-
-    private val areaOrder =
-        compareBy<Area> { it.endNumber - it.number }
-            .thenByDescending { it.number }
-            .thenBy { it.attribute.canCreateSubArea }
-            .thenBy { it.fullCode.hex() }
 
     private inline fun <T, R> Iterable<T>.mapToSet(transform: (T) -> R): Set<R> =
         mapTo(linkedSetOf(), transform)

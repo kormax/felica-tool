@@ -12,16 +12,19 @@ internal object GetNodeKeyVersionsStep :
         icon = ScanStepIcon.CHECK,
     ) {
     override suspend fun ScanSession.perform(): StepOutput {
-        return when {
-            scanContext.commands.requestServiceV2.supported == CommandSupport.SUPPORTED ->
-                requestServiceV2KeyVersions()
-            scanContext.commands.requestService.supported == CommandSupport.SUPPORTED ->
-                requestServiceKeyVersions()
-            else ->
-                throw StepSkipped(
-                    "Get node key versions requires Request Service or Request Service V2 support",
-                )
-        }
+        val output =
+            when {
+                scanContext.commands.requestServiceV2.supported == CommandSupport.SUPPORTED ->
+                    requestServiceV2KeyVersions()
+                scanContext.commands.requestService.supported == CommandSupport.SUPPORTED ->
+                    requestServiceKeyVersions()
+                else ->
+                    throw StepSkipped(
+                        "Get node key versions requires Request Service or Request Service V2 support",
+                    )
+            }
+        warmAuthenticationProviderSessions(scanContext.systemProfiles())
+        return output
     }
 
     private suspend fun ScanSession.requestServiceKeyVersions(): StepOutput {

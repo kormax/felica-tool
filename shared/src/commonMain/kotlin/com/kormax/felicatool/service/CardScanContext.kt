@@ -55,6 +55,8 @@ data class SystemScanContext(
     val nodeMacCommunicationProperties: Map<Node, MacCommunicationProperty> = emptyMap(),
     val systemStatus: SystemStatus? = null,
     val idm: ByteArray? = null,
+    val idi: ByteArray? = null,
+    val pmi: ByteArray? = null,
     /** Set of nodes discovered via force discovery that were not found in regular discovery. */
     val hiddenNodes: Set<Node> = emptySet(),
 )

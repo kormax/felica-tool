@@ -135,7 +135,7 @@ class MainActivity : ComponentActivity() {
     private val authenticationProviders by lazy {
         AndroidAuthenticationProviders.instance(this)
     }
-    private val cardScanService = CardScanService(NodeRegistry)
+    private val cardScanService by lazy { CardScanService(NodeRegistry, authenticationProviders) }
 
     private var steps by mutableStateOf(emptyList<CardScanStep>())
     private var isCardPresent by mutableStateOf(false)
@@ -1286,7 +1286,7 @@ private fun FeliCaReaderPreview() {
             listOf(
                 CardScanStep.createInitialSteps()[0].copy(
                     status = StepStatus.COMPLETED,
-                    result = "IDM: 0123456789ABCDEF\nManufacturer: 2\nNFC System Code: 8008",
+                    result = "IDm: 0123456789ABCDEF\nManufacturer: 2\nNFC System Code: 8008",
                 ),
                 CardScanStep.createInitialSteps()[1].copy(
                     status = StepStatus.COMPLETED,

@@ -17,7 +17,7 @@ class Authentication1DesResponseTest {
         val challenge1B = CHALLENGE_1B
         val challenge2A = CHALLENGE_2A
 
-        val response = Authentication1DesResponse(idm, challenge1B, challenge2A)
+        val response = Authentication1Des.Response(idm, challenge1B, challenge2A)
 
         assertEquals(idm.toList(), response.idm.toList())
         assertEquals(challenge1B.toList(), response.challenge1B.toList())
@@ -30,7 +30,7 @@ class Authentication1DesResponseTest {
         val challenge1B = CHALLENGE_1B
         val challenge2A = CHALLENGE_2A
 
-        val response = Authentication1DesResponse(idm, challenge1B, challenge2A)
+        val response = Authentication1Des.Response(idm, challenge1B, challenge2A)
         val data = response.toByteArray()
 
         // Expected: length(1) + response_code(1) + idm(8) + challenge1B(8) + challenge2A(8) = 26
@@ -48,7 +48,7 @@ class Authentication1DesResponseTest {
         // Response with IDM, challenge1B, and challenge2A
         val data = "1A110102030405060708AABBCCDDEEFF00111133557799BBDDFF".hexToByteArray()
 
-        val response = Authentication1DesResponse.fromByteArray(data)
+        val response = Authentication1Des.Response.fromByteArray(data)
 
         assertEquals(IDM.toList(), response.idm.toList())
         assertEquals(CHALLENGE_1B.toList(), response.challenge1B.toList())
@@ -61,9 +61,9 @@ class Authentication1DesResponseTest {
         val challenge1B = CHALLENGE_1B
         val challenge2A = CHALLENGE_2A
 
-        val originalResponse = Authentication1DesResponse(idm, challenge1B, challenge2A)
+        val originalResponse = Authentication1Des.Response(idm, challenge1B, challenge2A)
         val data = originalResponse.toByteArray()
-        val parsedResponse = Authentication1DesResponse.fromByteArray(data)
+        val parsedResponse = Authentication1Des.Response.fromByteArray(data)
 
         assertEquals(originalResponse.idm.toList(), parsedResponse.idm.toList())
         assertEquals(originalResponse.challenge1B.toList(), parsedResponse.challenge1B.toList())
@@ -75,7 +75,7 @@ class Authentication1DesResponseTest {
         val idm = IDM
         val invalidChallenge1B = "AABBCC".hexToByteArray() // Too short
         val challenge2A = CHALLENGE_2A
-        Authentication1DesResponse(idm, invalidChallenge1B, challenge2A)
+        Authentication1Des.Response(idm, invalidChallenge1B, challenge2A)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -83,13 +83,13 @@ class Authentication1DesResponseTest {
         val idm = IDM
         val challenge1B = CHALLENGE_1B
         val invalidChallenge2A = "1133557799".hexToByteArray() // Too short
-        Authentication1DesResponse(idm, challenge1B, invalidChallenge2A)
+        Authentication1Des.Response(idm, challenge1B, invalidChallenge2A)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testAuthentication1DesResponseFromByteArrayTooShort() {
         val data = "10".hexToByteArray() // Too short
-        Authentication1DesResponse.fromByteArray(data)
+        Authentication1Des.Response.fromByteArray(data)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -97,7 +97,7 @@ class Authentication1DesResponseTest {
         val data =
             "1A120102030405060708AABBCCDDEEFF00111133557799BBDDFF"
                 .hexToByteArray() // Wrong response code (0x12 instead of 0x11)
-        Authentication1DesResponse.fromByteArray(data)
+        Authentication1Des.Response.fromByteArray(data)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -105,6 +105,6 @@ class Authentication1DesResponseTest {
         val data =
             "1B110102030405060708AABBCCDDEEFF00111133557799BBDDFF"
                 .hexToByteArray() // Wrong length (0x1B instead of 0x1A)
-        Authentication1DesResponse.fromByteArray(data)
+        Authentication1Des.Response.fromByteArray(data)
     }
 }

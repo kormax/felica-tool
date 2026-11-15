@@ -1,5 +1,7 @@
 package com.kormax.felicatool.authentication
 
+import com.kormax.felicatool.security.DesCryptography
+import com.kormax.felicatool.security.SecureRandomSource
 import kotlinx.serialization.json.JsonElement
 
 data class AuthenticationProviderSummary(
@@ -36,6 +38,10 @@ internal sealed class AuthenticationProviderConfiguration(
 
     abstract fun encodeFields(): Map<String, JsonElement>
 
+    abstract fun authenticationProvider(
+        context: AuthenticationProviderContext,
+    ): AuthenticationProvider
+
     fun summary(): AuthenticationProviderSummary =
         AuthenticationProviderSummary(
             id = id,
@@ -69,6 +75,12 @@ internal sealed class LocalAuthenticationProviderConfiguration(
 }
 
 internal class LocalCredentialContext(val keyStore: ProtectedDesKeyStore, val newId: () -> String)
+
+internal class AuthenticationProviderContext(
+    val keyStore: ProtectedDesKeyStore,
+    val cryptography: DesCryptography,
+    val randomSource: SecureRandomSource,
+)
 
 internal class AuthenticationProviderConfigurations(
     private val mutableProviders: MutableList<AuthenticationProviderConfiguration> =

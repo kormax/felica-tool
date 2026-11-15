@@ -1,6 +1,7 @@
 package com.kormax.felicatool.service.steps
 
 import com.kormax.felicatool.felica.*
+import com.kormax.felicatool.logging.ScanLog
 import com.kormax.felicatool.nfc.TransceiveTimeoutException
 import com.kormax.felicatool.service.*
 import com.kormax.felicatool.ui.ScanStepIcon
@@ -30,18 +31,6 @@ internal data class Authentication1DesBehaviorCommandTarget(
     val areaEntries: List<Node>,
     val nodeEntries: List<Node>,
 )
-
-private val authentication1DesAreaContainmentComparator =
-    compareBy<Area> { it.endNumber - it.number }
-        .thenByDescending { it.number }
-        .thenBy { it.attribute.canCreateSubArea }
-        .thenBy { it.fullCode.toHexString() }
-
-private fun Area.hasSameRangeButCannotNestIn(candidate: Area): Boolean =
-    number == candidate.number &&
-        endNumber == candidate.endNumber &&
-        attribute.canCreateSubArea &&
-        !candidate.attribute.canCreateSubArea
 
 private fun SystemScanContext.hasAuthentication1DesKey(node: Node): Boolean =
     nodeDesKeyVersions.containsKey(node) ||
@@ -105,34 +94,6 @@ private fun CardScanContext.findBestAuthentication1DesAuthRequiredServiceTarget(
     )
 }
 
-private fun SystemScanContext.authentication1DesAreaPath(node: Node): List<Area> {
-    val areas = nodes.filterIsInstance<Area>()
-    val leafToRoot = mutableListOf<Area>()
-    val visited = mutableSetOf<Area>()
-    var child: Node = node
-
-    while (true) {
-        val childArea = child as? Area
-        val parent =
-            areas
-                .filter { candidate ->
-                    candidate !in visited &&
-                        child.belongsTo(candidate) &&
-                        (childArea == null ||
-                            (candidate != childArea &&
-                                !childArea.hasSameRangeButCannotNestIn(candidate)))
-                }
-                .minWithOrNull(authentication1DesAreaContainmentComparator) ?: return emptyList()
-
-        leafToRoot += parent
-        if (parent.isRoot) {
-            return leafToRoot.asReversed()
-        }
-        visited += parent
-        child = parent
-    }
-}
-
 private fun CardScanContext.findAuthentication1DesLeadingAuthNotRequiredServiceNodeListTarget():
     Authentication1DesBehaviorCommandTarget? {
     for (systemContext in systemScanContexts) {
@@ -152,7 +113,7 @@ private fun CardScanContext.findAuthentication1DesLeadingAuthNotRequiredServiceN
                 .sortedWith(compareBy<Service> { it.number }.thenBy { it.attribute.value })
 
         for (service in services) {
-            val areaPath = systemContext.authentication1DesAreaPath(service)
+            val areaPath = service.areaPath(systemContext.nodes.filterIsInstance<Area>())
             if (
                 areaPath.isEmpty() ||
                     areaPath.any { area -> !systemContext.hasAuthentication1DesKey(area) }
@@ -249,7 +210,7 @@ private fun CardScanContext.findAuthentication1DesAreaListWithoutRootAreaTarget(
                 .sortedWith(compareBy<Service> { it.number }.thenBy { it.attribute.value })
 
         for (service in services) {
-            val fullPath = systemContext.authentication1DesAreaPath(service)
+            val fullPath = service.areaPath(systemContext.nodes.filterIsInstance<Area>())
             val parent = fullPath.lastOrNull() ?: continue
             if (parent.isRoot || fullPath.any { !systemContext.hasAuthentication1DesKey(it) }) {
                 continue
@@ -283,14 +244,14 @@ private suspend fun ScanSession.executeAuthentication1DesBehaviorCommand(
     areaCodes: Array<ByteArray>,
     nodeCodes: Array<ByteArray>,
     challenge1A: ByteArray,
-): Authentication1DesResponse? =
+): Authentication1Des.Response? =
     try {
         executeCommand(
             withSelectedSystemCode = systemContext.systemCode,
             withResetToMode0 = true,
             attempts = AUTHENTICATION1_DES_BEHAVIOR_ATTEMPTS,
         ) {
-            Authentication1DesCommand(
+            Authentication1Des.Command(
                 idm = idm,
                 areaCodes = areaCodes.map { it.copyOf() }.toTypedArray(),
                 nodeCodes = nodeCodes.map { it.copyOf() }.toTypedArray(),
@@ -302,7 +263,7 @@ private suspend fun ScanSession.executeAuthentication1DesBehaviorCommand(
     }
 
 private fun authentication1DesBehaviorSupport(
-    response: Authentication1DesResponse?,
+    response: Authentication1Des.Response?,
 ): CommandSupport =
     if (response != null) {
         CommandSupport.SUPPORTED
@@ -355,7 +316,7 @@ internal object Authentication1DesDetermineSupportedStep :
                 withResetToMode0 = true,
                 attempts = supportCheckAttempts("authentication1_des"),
             ) {
-                Authentication1DesCommand(
+                Authentication1Des.Command(
                     idm = idm,
                     areaNodes = areasToAuth,
                     nodes = nodesToAuth,
@@ -391,7 +352,7 @@ internal object Authentication1DesDetermineSupportedStep :
 }
 
 internal object Authentication1DesDetermineTrailingDataSupportedStep :
-    CommandTrailingDataSupportedScanStep<Authentication1DesResponse>(
+    CommandTrailingDataSupportedScanStep<Authentication1Des.Response>(
         id = "authentication1_des_determine_trailing_data_supported",
         title = "Authenticate1 DES - Trailing Data Supported",
         description = "Check whether Authenticate1 DES accepts trailing data bytes",
@@ -420,14 +381,14 @@ internal object Authentication1DesDetermineTrailingDataSupportedStep :
     override fun ScanSession.createCommand(
         scope: CommandExecutionScope,
         trailingData: ByteArray,
-    ): FelicaCommand<Authentication1DesResponse> {
+    ): FelicaCommand<Authentication1Des.Response> {
         val testTarget =
             scanContext.findBestAuthentication1DesTarget()
                 ?: throw StepSkipped(
                     "No suitable system found for DES authentication (root area with valid DES key is required).",
                 )
         val challenge1A = ByteArray(8) { 0x00.toByte() }
-        return Authentication1DesCommand(
+        return Authentication1Des.Command(
             idm = scope.idm,
             areaNodes = listOf(testTarget.rootArea),
             nodes = listOf<Node>(testTarget.rootArea),
@@ -436,7 +397,7 @@ internal object Authentication1DesDetermineTrailingDataSupportedStep :
         )
     }
 
-    override fun responseLines(response: Authentication1DesResponse): List<String> =
+    override fun responseLines(response: Authentication1Des.Response): List<String> =
         listOf(
             "Challenge1B: ${response.challenge1B.toHexString()}",
             "Challenge2A: ${response.challenge2A.toHexString()}",

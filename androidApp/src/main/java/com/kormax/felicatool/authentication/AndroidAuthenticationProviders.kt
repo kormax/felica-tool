@@ -1,6 +1,8 @@
 package com.kormax.felicatool.authentication
 
 import android.content.Context
+import com.kormax.felicatool.security.AndroidDesCryptography
+import com.kormax.felicatool.security.AndroidSecureRandomSource
 import java.util.UUID
 
 internal object AndroidAuthenticationProviders {
@@ -14,6 +16,8 @@ internal object AndroidAuthenticationProviders {
                         AndroidSecureAuthenticationProviderStorage(context.applicationContext),
                     keyStore = AndroidProtectedDesKeyStore(context.applicationContext),
                     newId = { UUID.randomUUID().toString() },
+                    cryptography = AndroidDesCryptography(),
+                    randomSource = AndroidSecureRandomSource(),
                 )
                 .also { instance = it }
 }

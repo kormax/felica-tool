@@ -47,7 +47,7 @@ internal object SetParameterStep :
             buildString {
                 appendLine("Encryption Type: SRM_TYPE1")
                 appendLine("Packet Type: NODECODESIZE_2")
-                appendLine("Response IDM: ${response.idm.toHexString()}")
+                appendLine("Response IDm: ${response.idm.toHexString()}")
                 appendLine("Status: ${formatStatus(response)}")
             }
                 .trim(),

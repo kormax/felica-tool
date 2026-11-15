@@ -17,7 +17,7 @@ class Authentication1DesCommandTest {
         val nodeCodes = arrayOf("0008".hexToByteArray())
         val challenge1A = CHALLENGE_1A
 
-        val command = Authentication1DesCommand(idm, areaCodes, nodeCodes, challenge1A)
+        val command = Authentication1Des.Command(idm, areaCodes, nodeCodes, challenge1A)
 
         assertEquals(idm.toList(), command.idm.toList())
         assertEquals(2, command.areaCodes.size)
@@ -36,7 +36,7 @@ class Authentication1DesCommandTest {
         val nodes = listOf(Service(100, ServiceAttribute.RandomRwWithKey))
         val challenge1A = CHALLENGE_1A
 
-        val command = Authentication1DesCommand(idm, areaNodes, nodes, challenge1A)
+        val command = Authentication1Des.Command(idm, areaNodes, nodes, challenge1A)
 
         assertEquals(idm.toList(), command.idm.toList())
         assertEquals(1, command.areaCodes.size)
@@ -53,7 +53,7 @@ class Authentication1DesCommandTest {
         val nodeCodes = arrayOf("0008".hexToByteArray())
         val challenge1A = CHALLENGE_1A
 
-        val command = Authentication1DesCommand(idm, areaCodes, nodeCodes, challenge1A)
+        val command = Authentication1Des.Command(idm, areaCodes, nodeCodes, challenge1A)
         val data = command.toByteArray()
 
         // Expected: length(1) + command_code(1) + idm(8) + area_count(1) + area_code(2) +
@@ -80,7 +80,7 @@ class Authentication1DesCommandTest {
         // Command with 1 area code, 1 service code, and challenge1A
         val data = "181001020304050607080100100100081122334455667788".hexToByteArray()
 
-        val command = Authentication1DesCommand.fromByteArray(data)
+        val command = Authentication1Des.Command.fromByteArray(data)
 
         assertEquals(IDM.toList(), command.idm.toList())
         assertEquals(1, command.areaCodes.size)
@@ -97,9 +97,9 @@ class Authentication1DesCommandTest {
         val nodeCodes = arrayOf("0008".hexToByteArray(), "0009".hexToByteArray())
         val challenge1A = CHALLENGE_1A
 
-        val originalCommand = Authentication1DesCommand(idm, areaCodes, nodeCodes, challenge1A)
+        val originalCommand = Authentication1Des.Command(idm, areaCodes, nodeCodes, challenge1A)
         val data = originalCommand.toByteArray()
-        val parsedCommand = Authentication1DesCommand.fromByteArray(data)
+        val parsedCommand = Authentication1Des.Command.fromByteArray(data)
 
         assertEquals(originalCommand.idm.toList(), parsedCommand.idm.toList())
         assertEquals(originalCommand.areaCodes.size, parsedCommand.areaCodes.size)
@@ -117,7 +117,7 @@ class Authentication1DesCommandTest {
         val areaCodes = emptyArray<ByteArray>()
         val nodeCodes = emptyArray<ByteArray>()
         val challenge1A = CHALLENGE_1A
-        Authentication1DesCommand(idm, areaCodes, nodeCodes, challenge1A)
+        Authentication1Des.Command(idm, areaCodes, nodeCodes, challenge1A)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -126,7 +126,7 @@ class Authentication1DesCommandTest {
         val areaCodes = arrayOf("0010".hexToByteArray())
         val nodeCodes = emptyArray<ByteArray>()
         val invalidChallenge = "112233".hexToByteArray() // Too short
-        Authentication1DesCommand(idm, areaCodes, nodeCodes, invalidChallenge)
+        Authentication1Des.Command(idm, areaCodes, nodeCodes, invalidChallenge)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -135,7 +135,7 @@ class Authentication1DesCommandTest {
         val areaCodes = arrayOf("00".hexToByteArray()) // Too short
         val nodeCodes = emptyArray<ByteArray>()
         val challenge1A = CHALLENGE_1A
-        Authentication1DesCommand(idm, areaCodes, nodeCodes, challenge1A)
+        Authentication1Des.Command(idm, areaCodes, nodeCodes, challenge1A)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -144,6 +144,6 @@ class Authentication1DesCommandTest {
         val areaCodes = emptyArray<ByteArray>()
         val nodeCodes = arrayOf("00".hexToByteArray()) // Too short
         val challenge1A = CHALLENGE_1A
-        Authentication1DesCommand(idm, areaCodes, nodeCodes, challenge1A)
+        Authentication1Des.Command(idm, areaCodes, nodeCodes, challenge1A)
     }
 }

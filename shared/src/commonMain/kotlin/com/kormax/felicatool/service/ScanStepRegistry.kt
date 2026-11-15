@@ -1,5 +1,6 @@
 package com.kormax.felicatool.service
 
+import com.kormax.felicatool.service.steps.AuthenticateSystemsStep
 import com.kormax.felicatool.service.steps.Authentication1AesDetermineTrailingDataSupportedStep
 import com.kormax.felicatool.service.steps.Authentication1AesStep
 import com.kormax.felicatool.service.steps.Authentication1DesAreaListWithoutNodeImmediateParentAreaSupportedStep
@@ -165,6 +166,7 @@ internal object ScanStepRegistry {
             Authentication1DesLeadingAuthenticationNotRequiredServiceInNodeListSupportedStep,
             Authentication1AesStep,
             Authentication1AesDetermineTrailingDataSupportedStep,
+            AuthenticateSystemsStep,
             ScanOverviewStep,
         )
 

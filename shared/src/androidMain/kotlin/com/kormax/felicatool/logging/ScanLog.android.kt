@@ -1,4 +1,4 @@
-package com.kormax.felicatool.service
+package com.kormax.felicatool.logging
 
 import android.util.Log
 

@@ -5,3 +5,9 @@ abstract class FelicaMessage {
     /** Converts the message to a byte array for transmission */
     abstract fun toByteArray(): ByteArray
 }
+
+val FelicaMessage.messageName: String
+    get() =
+        this::class.qualifiedName?.removePrefix("com.kormax.felicatool.felica.")
+            ?: this::class.simpleName
+            ?: "FelicaMessage"

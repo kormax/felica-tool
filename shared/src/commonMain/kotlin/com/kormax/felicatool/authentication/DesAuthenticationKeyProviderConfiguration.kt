@@ -133,6 +133,17 @@ internal class DesAuthenticationKeyProviderConfiguration(
     override fun deleteCredentials(ids: Set<String>) {
         require(keys.removeAll { it.id in ids }) { "Authentication credentials do not exist" }
     }
+
+    override fun authenticationProvider(
+        context: AuthenticationProviderContext,
+    ): AuthenticationProvider =
+        DesAuthenticationKeyProvider(
+            AuthenticationProviderDescriptor(id, displayName),
+            keys.toList(),
+            context.keyStore,
+            context.cryptography,
+            context.randomSource,
+        )
 }
 
 internal class DesAuthenticationKeyReference(
@@ -189,7 +200,10 @@ internal class ImportedDesAuthenticationKey(
 private fun DesAuthenticationScope.requireValid(
     versions: Map<String, KeyVersion>,
 ): DesAuthenticationScope {
-    val missingVersions = (listOf("FFFF") + areaCodes + nodeCodes).filterNot(versions::containsKey)
+    val missingVersions =
+        (listOf(DesAuthenticationKeyProvider.SYSTEM_NODE_CODE) + areaCodes).filterNot(
+            versions::containsKey,
+        )
     require(missingVersions.isEmpty()) {
         "Key versions are missing for ${missingVersions.joinToString()}"
     }

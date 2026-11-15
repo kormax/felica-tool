@@ -1,4 +1,4 @@
-package com.kormax.felicatool.service
+package com.kormax.felicatool.logging
 
 internal object ScanLog {
     fun d(tag: String, message: String) {

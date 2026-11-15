@@ -61,16 +61,6 @@ object ExportUtils {
         put(name, commandJson)
     }
 
-    /** Masks an IDM hex string, keeping first 2 bytes and last 1 byte visible */
-    private fun maskIdm(hex: String): String {
-        if (hex.length < 6) return hex
-        val prefix = hex.substring(0, 4) // first 2 bytes
-        val suffix = hex.substring(hex.length - 2) // last 1 byte
-        val middleLength = hex.length - 6
-        val masked = "XX".repeat(middleLength / 2)
-        return prefix + masked + suffix
-    }
-
     /**
      * Masks block data hex string by half-blocks (8 bytes = 16 hex chars each). A half-block is
      * kept if all its bytes are the same value, otherwise masked with XX.
@@ -192,7 +182,7 @@ object ExportUtils {
             val obj = JSONObject()
             val message = entry.message
             obj.put("type", if (message is FelicaCommand<*>) "COMMAND" else "RESPONSE")
-            obj.put("name", message::class.simpleName)
+            obj.put("name", (message as? FelicaMessage)?.messageName ?: message::class.simpleName)
             obj.put("timestamp_ns", entry.timestamp - baseTimestamp)
             val hex = entry.toByteArray().joinToString(separator = "") { "%02X".format(it) }
             obj.put("data", if (privacy) maskCommunicationLogHex(hex, message) else hex)
@@ -764,6 +754,12 @@ object ExportUtils {
             systemContext.idm?.let {
                 val hex = it.toHexString()
                 systemJson.put("idm", if (privacy) maskIdm(hex) else hex)
+            }
+            systemContext.idi?.let {
+                systemJson.put("idi", if (privacy) maskIdi(it.toHexString()) else it.toHexString())
+            }
+            systemContext.pmi?.let {
+                systemJson.put("pmi", if (privacy) maskPmi(it.toHexString()) else it.toHexString())
             }
 
             val inferredSystemJson = JSONObject()

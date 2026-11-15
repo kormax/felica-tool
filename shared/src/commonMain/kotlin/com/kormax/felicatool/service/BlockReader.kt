@@ -4,6 +4,7 @@ import com.kormax.felicatool.felica.BlockListElement
 import com.kormax.felicatool.felica.ErrorLocationIndication
 import com.kormax.felicatool.felica.Service
 import com.kormax.felicatool.felica.Status
+import com.kormax.felicatool.logging.ScanLog
 import com.kormax.felicatool.nfc.TransceiveTimeoutException
 import kotlinx.coroutines.CancellationException
 

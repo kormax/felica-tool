@@ -9,7 +9,7 @@ internal object InitialInfoStep :
     CommandSupportScanStep(
         id = "polling",
         title = "Initial Info",
-        description = "Reading card IDM and PMM data",
+        description = "Reading card IDm and PMm data",
         icon = ScanStepIcon.INFO,
     ) {
     override fun readSupport(context: CardScanContext): CommandSupport =
@@ -38,13 +38,13 @@ internal object InitialInfoStep :
 
         return StepOutput(
             buildString {
-                appendLine("IDM: $idmHex")
+                appendLine("IDm: $idmHex")
                 // Note: Manufacturer and NFC System Code information not available through
                 // FeliCaTarget interface. These would need to be obtained differently if
                 // needed.
                 appendLine()
-                appendLine("PMM Information:")
-                appendLine("  Raw PMM: ${cardPmm.toString()}")
+                appendLine("PMm Information:")
+                appendLine("  Raw PMm: ${cardPmm.toString()}")
                 appendLine("  ROM Type: 0x${byteToHex(cardPmm.romType)}")
                 appendLine("  IC Type: 0x${byteToHex(cardPmm.icType)}")
                 IcTypeRegistry.getIcName(cardPmm.icType, cardPmm.romType)?.let { icTypeName ->

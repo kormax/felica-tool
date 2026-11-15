@@ -1,6 +1,8 @@
 package com.kormax.felicatool.authentication
 
 import com.kormax.felicatool.felica.KeyVersion
+import com.kormax.felicatool.security.DESEDE_KEY_SIZE
+import com.kormax.felicatool.security.DES_KEY_SIZE
 import com.kormax.felicatool.security.SecretBytes
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -82,12 +84,6 @@ internal object DesAuthenticationKeyCodec {
                 root.requiredHexList("areas", 2),
                 root.requiredHexList("nodes", 2),
             )
-        require(scope.areaCodes.distinct().size == scope.areaCodes.size) {
-            "'areas' contains duplicates"
-        }
-        require(scope.nodeCodes.distinct().size == scope.nodeCodes.size) {
-            "'nodes' contains duplicates"
-        }
         val versionCodes = root.requiredObject("versions")
         val versions =
             versionCodes
@@ -112,12 +108,12 @@ internal object DesAuthenticationKeyCodec {
             val ala: ByteArray
             val lbl: ByteArray
             if (composite) {
-                ala = key("ala", 24)
-                lbl = key("lbl", 24)
+                ala = key("ala", DESEDE_KEY_SIZE)
+                lbl = key("lbl", DESEDE_KEY_SIZE)
             } else {
-                val a = key("a", 8)
-                val l = key("l", 8)
-                val b = key("b", 8)
+                val a = key("a", DES_KEY_SIZE)
+                val l = key("l", DES_KEY_SIZE)
+                val b = key("b", DES_KEY_SIZE)
                 ala = concatenate(a, l, a).also(parts::add)
                 lbl = concatenate(l, b, l).also(parts::add)
             }

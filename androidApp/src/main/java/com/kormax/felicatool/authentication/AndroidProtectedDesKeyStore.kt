@@ -10,6 +10,8 @@ import com.kormax.felicatool.device.KeystoreBackend
 import com.kormax.felicatool.device.KeystoreCapabilities
 import com.kormax.felicatool.device.MeasurementState
 import com.kormax.felicatool.device.Support
+import com.kormax.felicatool.security.DESEDE_KEY_SIZE
+import com.kormax.felicatool.security.DES_BLOCK_SIZE
 import com.kormax.felicatool.security.SecretBytes
 import java.security.KeyStore
 import java.security.ProviderException
@@ -67,7 +69,9 @@ class AndroidProtectedDesKeyStore(context: Context) : ProtectedDesKeyStore {
             val alias = ALIAS_PREFIX + referenceId
             val keyStore = keyStore()
             try {
-                require(bytes.size == 24) { "DESede key must be exactly 24 bytes" }
+                require(bytes.size == DESEDE_KEY_SIZE) {
+                    "DESede key must be exactly $DESEDE_KEY_SIZE bytes"
+                }
                 val source = SecretKeySpec(bytes, "DESede")
                 keyStore.setEntry(alias, KeyStore.SecretKeyEntry(source), protection(use, backend))
                 val imported = checkNotNull(keyStore.getKey(alias, null) as? SecretKey)
@@ -78,6 +82,26 @@ class AndroidProtectedDesKeyStore(context: Context) : ProtectedDesKeyStore {
                 throw error
             } finally {
                 bytes.fill(0)
+            }
+        }
+
+    override suspend fun encrypt(referenceId: String, block: ByteArray): ByteArray =
+        transform(referenceId, Cipher.ENCRYPT_MODE, block)
+
+    override suspend fun decrypt(referenceId: String, block: ByteArray): ByteArray =
+        transform(referenceId, Cipher.DECRYPT_MODE, block)
+
+    private suspend fun transform(referenceId: String, mode: Int, block: ByteArray): ByteArray =
+        withContext(Dispatchers.IO) {
+            require(block.size == DES_BLOCK_SIZE) {
+                "DESede block must be exactly $DES_BLOCK_SIZE bytes"
+            }
+            val key =
+                operationKeyStore.getKey(ALIAS_PREFIX + referenceId, null) as? SecretKey
+                    ?: throw IllegalStateException("Protected key is missing")
+            Cipher.getInstance("DESede/ECB/NoPadding").run {
+                init(mode, key)
+                doFinal(block)
             }
         }
 
@@ -125,7 +149,7 @@ class AndroidProtectedDesKeyStore(context: Context) : ProtectedDesKeyStore {
     private fun transform(key: SecretKey, mode: Int): ByteArray =
         Cipher.getInstance("DESede/ECB/NoPadding").run {
             init(mode, key)
-            doFinal(ByteArray(8))
+            doFinal(ByteArray(DES_BLOCK_SIZE))
         }
 
     private fun protection(use: DesKeyUse, backend: KeystoreBackend?): KeyProtection =
@@ -136,6 +160,8 @@ class AndroidProtectedDesKeyStore(context: Context) : ProtectedDesKeyStore {
             .setUserAuthenticationRequired(false)
             .setIsStrongBoxBacked(backend == KeystoreBackend.STRONGBOX)
             .build()
+
+    private val operationKeyStore by lazy { keyStore() }
 
     private fun keyStore(): KeyStore = KeyStore.getInstance(ANDROID_KEY_STORE).apply { load(null) }
 

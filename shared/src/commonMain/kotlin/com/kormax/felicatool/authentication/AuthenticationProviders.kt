@@ -1,15 +1,25 @@
 package com.kormax.felicatool.authentication
 
+import com.kormax.felicatool.logging.ScanLog
+import com.kormax.felicatool.security.DesCryptography
+import com.kormax.felicatool.security.SecureRandomSource
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+
+private const val TAG = "FeliCaAuth"
 
 class AuthenticationProviders(
     storage: SecureAuthenticationProviderStorage,
     keyStore: ProtectedDesKeyStore,
     private val newId: () -> String,
-) : AuthenticationProviderSettings, LocalAuthenticationCredentials {
+    cryptography: DesCryptography,
+    randomSource: SecureRandomSource,
+) : AuthenticationProviderSettings, LocalAuthenticationCredentials, AuthenticationProviderRegistry {
     private val store = AuthenticationProviderStore(storage, keyStore)
     private val context = LocalCredentialContext(keyStore, newId)
+    private val providerContext =
+        AuthenticationProviderContext(keyStore, cryptography, randomSource)
 
     override suspend fun summaries() = store.read { it.providers.map { it.summary() } }
 
@@ -65,6 +75,24 @@ class AuthenticationProviders(
     ) = store.update {
         it.requireLocal(providerId).importCredentials(data, storage, context, onProgress)
     }
+
+    override suspend fun providers(): List<AuthenticationProvider> =
+        store
+            .read { configurations -> configurations.providers.filter { it.isEnabled } }
+            .mapNotNull { configuration ->
+                try {
+                    configuration.authenticationProvider(providerContext)
+                } catch (error: CancellationException) {
+                    throw error
+                } catch (error: Exception) {
+                    ScanLog.e(
+                        TAG,
+                        "${configuration.displayName}: provider could not be prepared",
+                        error,
+                    )
+                    null
+                }
+            }
 
     override suspend fun deleteCredentials(providerId: String, credentialIds: Set<String>) =
         store.update {

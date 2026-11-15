@@ -82,7 +82,7 @@ internal object ProbeSystemCodesManuallyStep :
                     manualAddedCount++
                 }
                 manualResultLines +=
-                    "  - $systemCodeHex ($label): found (IDM ${pollingResponse.idm.toHexString().uppercase()}; $contextStatus)"
+                    "  - $systemCodeHex ($label): found (IDm ${pollingResponse.idm.toHexString().uppercase()}; $contextStatus)"
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -151,7 +151,7 @@ internal object ProbeSystemCodesManuallyStep :
                     }
                     wildcardResultLines +=
                         "    - ${probeSystemCode.toHexString().uppercase()} -> ${discoveredSystemCode.toHexString().uppercase()} " +
-                            "(IDM ${pollingResponse.idm.toHexString().uppercase()}; $contextStatus)"
+                            "(IDm ${pollingResponse.idm.toHexString().uppercase()}; $contextStatus)"
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {

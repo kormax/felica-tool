@@ -158,8 +158,8 @@ internal object PollingDetermineTrailingDataSupportedStep :
                     appendLine("Polling with trailing data: supported")
                     appendLine("Command length: $commandLength bytes")
                     appendLine("Trailing data: ${POLLING_TRAILING_DATA_PROBE_BYTES.toHexString()}")
-                    appendLine("Response IDM: $responseIdmHex")
-                    appendLine("Response PMM: $responsePmmHex")
+                    appendLine("Response IDm: $responseIdmHex")
+                    appendLine("Response PMm: $responsePmmHex")
                 }
                     .trim(),
             )

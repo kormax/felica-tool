@@ -3,6 +3,8 @@ package com.kormax.felicatool.util
 import com.kormax.felicatool.felica.Area
 import com.kormax.felicatool.felica.Node
 import com.kormax.felicatool.felica.Service
+import com.kormax.felicatool.felica.areaContainmentComparator
+import com.kormax.felicatool.felica.hasSameRangeButCannotNestIn
 import com.kormax.felicatool.shared.resources.Res
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -521,22 +523,10 @@ object NodeRegistry : NodeMetadataProvider {
         return parentAreas.minWithOrNull(areaContainmentComparator)
     }
 
-    private fun Area.hasSameRangeButCannotNestIn(candidate: Area): Boolean =
-        number == candidate.number &&
-            endNumber == candidate.endNumber &&
-            attribute.canCreateSubArea &&
-            !candidate.attribute.canCreateSubArea
-
     private fun findContainingArea(node: Node, areas: List<Area>): Area? =
         areas
             .filter { candidate -> node.belongsTo(candidate) }
             .minWithOrNull(areaContainmentComparator)
-
-    private val areaContainmentComparator =
-        compareBy<Area> { it.endNumber - it.number }
-            .thenByDescending { it.number }
-            .thenBy { it.attribute.canCreateSubArea }
-            .thenBy { it.fullCode.toHexString() }
 
     private data class FilesystemIndex(
         val snapshotsByCard: Map<String, List<Set<FilesystemNodeId>>>,

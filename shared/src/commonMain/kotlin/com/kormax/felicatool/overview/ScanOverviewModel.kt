@@ -182,10 +182,10 @@ object ScanOverviewModelBuilder {
                 add(ScanOverviewField("Card Type", CardTypeInferrer.displayLabel(it)))
             }
             scanContext.primaryIdm?.let {
-                add(ScanOverviewField("Primary IDM", it.toHexString().uppercase()))
+                add(ScanOverviewField("Primary IDm", it.toHexString().uppercase()))
             }
             scanContext.pmm?.let { pmm ->
-                add(ScanOverviewField("PMM", pmm.toHexString().uppercase()))
+                add(ScanOverviewField("PMm", pmm.toHexString().uppercase()))
                 add(
                     ScanOverviewField(
                         "IC",
@@ -249,7 +249,7 @@ object ScanOverviewModelBuilder {
                 }
             }
             scanContext.containerIdm?.let {
-                add(ScanOverviewField("Container IDM", it.toHexString().uppercase()))
+                add(ScanOverviewField("Container IDm", it.toHexString().uppercase()))
             }
             scanContext.specificationVersion?.let { specificationVersion ->
                 add(
@@ -651,7 +651,13 @@ object ScanOverviewModelBuilder {
         return buildList {
             if (node is System) {
                 systemContext.idm?.let {
-                    add(ScanOverviewField("IDM", it.toHexString().uppercase()))
+                    add(ScanOverviewField("IDm", it.toHexString().uppercase()))
+                }
+                systemContext.idi?.let {
+                    add(ScanOverviewField("IDi", it.toHexString().uppercase()))
+                }
+                systemContext.pmi?.let {
+                    add(ScanOverviewField("PMi", it.toHexString().uppercase()))
                 }
                 systemContext.systemStatus?.let {
                     add(

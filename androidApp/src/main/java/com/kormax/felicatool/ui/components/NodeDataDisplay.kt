@@ -43,6 +43,9 @@ import com.kormax.felicatool.util.NodeDefinitionType
 import com.kormax.felicatool.util.NodeRegistry
 import com.kormax.felicatool.util.ServiceIconMapper
 import com.kormax.felicatool.util.ServicePresenceAnalyzer
+import com.kormax.felicatool.util.maskIdi
+import com.kormax.felicatool.util.maskIdm
+import com.kormax.felicatool.util.maskPmi
 import org.jetbrains.compose.resources.stringResource
 
 /** Data class representing a node in the hierarchical tree structure */
@@ -130,7 +133,11 @@ private fun createTree(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifier) {
+fun CardInformationSection(
+    context: CardScanContext,
+    privacyMode: Boolean,
+    modifier: Modifier = Modifier,
+) {
     var isExpanded by remember { mutableStateOf(true) }
     val rotationAngle by
         animateFloatAsState(
@@ -197,13 +204,16 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
 
                 // IDM
                 context.primaryIdm?.let { idm ->
-                    CompactInfoRow(label = "Primary IDM", value = idm.toHexString().uppercase())
+                    CompactInfoRow(
+                        label = "Primary IDm",
+                        value = if (privacyMode) maskIdm(idm) else idm.toHexString().uppercase(),
+                    )
                 }
 
                 // PMM
                 context.pmm?.let { pmm ->
                     val icTypeResolution = IcTypeRegistry.resolveIcType(pmm.icType, pmm.romType)
-                    CompactInfoRow(label = "PMM", value = pmm.toHexString().uppercase())
+                    CompactInfoRow(label = "PMm", value = pmm.toHexString().uppercase())
                     FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -374,8 +384,10 @@ fun CardInformationSection(context: CardScanContext, modifier: Modifier = Modifi
                     // Container IDM
                     context.containerIdm?.let { containerIdm ->
                         CompactInfoRow(
-                            label = "Container IDM",
-                            value = containerIdm.toHexString().uppercase(),
+                            label = "Container IDm",
+                            value =
+                                if (privacyMode) maskIdm(containerIdm)
+                                else containerIdm.toHexString().uppercase(),
                         )
                     }
                 }
@@ -929,6 +941,7 @@ fun TreeNodeCard(
     nodeInfo: NodeInformation,
     context: SystemScanContext,
     depth: Int,
+    privacyMode: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val node = nodeInfo.node
@@ -1197,21 +1210,30 @@ fun TreeNodeCard(
                             },
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
-                        NodeDetailsContent(nodeInfo, context)
+                        NodeDetailsContent(nodeInfo, context, privacyMode)
                     }
                 }
             }
 
             // Children
             nodeInfo.children.forEach { childInfo ->
-                TreeNodeCard(nodeInfo = childInfo, context = context, depth = depth + 1)
+                TreeNodeCard(
+                    nodeInfo = childInfo,
+                    context = context,
+                    depth = depth + 1,
+                    privacyMode = privacyMode,
+                )
             }
         }
     }
 }
 
 @Composable
-private fun NodeDetailsContent(nodeInfo: NodeInformation, context: SystemScanContext) {
+private fun NodeDetailsContent(
+    nodeInfo: NodeInformation,
+    context: SystemScanContext,
+    privacyMode: Boolean,
+) {
     val node = nodeInfo.node
     // System-specific information
     if (node is System) {
@@ -1219,10 +1241,30 @@ private fun NodeDetailsContent(nodeInfo: NodeInformation, context: SystemScanCon
 
         context.idm?.let { idm ->
             CompactInfoRow(
-                label = "IDM",
-                value = idm.toHexString().uppercase(),
+                label = "IDm",
+                value = if (privacyMode) maskIdm(idm) else idm.toHexString().uppercase(),
                 modifier = systemContentModifier,
             )
+        }
+        context.idi?.let { idi ->
+            CompactInfoRow(
+                label = "IDi",
+                value =
+                    if (privacyMode) maskIdi(idi.toHexString().uppercase())
+                    else idi.toHexString().uppercase(),
+                modifier = systemContentModifier,
+            )
+        }
+        context.pmi?.let { pmi ->
+            CompactInfoRow(
+                label = "PMi",
+                value =
+                    if (privacyMode) maskPmi(pmi.toHexString().uppercase())
+                    else pmi.toHexString().uppercase(),
+                modifier = systemContentModifier,
+            )
+        }
+        if (context.idm != null || context.idi != null || context.pmi != null) {
             HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
         }
 

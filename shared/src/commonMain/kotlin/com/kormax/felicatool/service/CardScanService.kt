@@ -1,6 +1,8 @@
 package com.kormax.felicatool.service
 
+import com.kormax.felicatool.authentication.AuthenticationProviderRegistry
 import com.kormax.felicatool.felica.FeliCaTarget
+import com.kormax.felicatool.logging.ScanLog
 import com.kormax.felicatool.nfc.NfcTargetUnavailableException
 import com.kormax.felicatool.nfc.TransceiveTimeoutException
 import com.kormax.felicatool.ui.CardScanStep
@@ -22,6 +24,7 @@ data class CardScanResult(
 
 class CardScanService(
     private val nodeMetadataProvider: NodeMetadataProvider = EmptyNodeMetadataProvider,
+    private val authenticationProviderRegistry: AuthenticationProviderRegistry? = null,
 ) {
     companion object {
         const val CARD_LOST_MESSAGE = "Card lost during scan - scan terminated"
@@ -48,30 +51,35 @@ class CardScanService(
                 initialTarget = target,
                 settings = scanSettings,
                 nodeMetadataProvider = nodeMetadataProvider,
+                authenticationProviderRegistry = authenticationProviderRegistry,
             )
 
-        for (index in workingSteps.indices) {
-            currentCoroutineContext().ensureActive()
-            val currentStep = workingSteps[index]
+        try {
+            for (index in workingSteps.indices) {
+                currentCoroutineContext().ensureActive()
+                val currentStep = workingSteps[index]
 
-            fun withCurrentStep(step: CardScanStep) =
-                workingSteps.toMutableList().apply { set(index, step) }
+                fun withCurrentStep(step: CardScanStep) =
+                    workingSteps.toMutableList().apply { set(index, step) }
 
-            val updatedStep =
-                runStep(currentStep, session) { step -> onStepsChanged(withCurrentStep(step)) }
+                val updatedStep =
+                    runStep(currentStep, session) { step -> onStepsChanged(withCurrentStep(step)) }
 
-            workingSteps = withCurrentStep(updatedStep)
-            onStepsChanged(workingSteps)
+                workingSteps = withCurrentStep(updatedStep)
+                onStepsChanged(workingSteps)
 
-            if (
-                updatedStep.status == StepStatus.ERROR &&
-                    updatedStep.errorMessage == CARD_LOST_MESSAGE
-            ) {
-                terminalErrorMessage = updatedStep.errorMessage
+                if (
+                    updatedStep.status == StepStatus.ERROR &&
+                        updatedStep.errorMessage == CARD_LOST_MESSAGE
+                ) {
+                    terminalErrorMessage = updatedStep.errorMessage
+                    scanContext = session.contextSnapshot()
+                    break
+                }
                 scanContext = session.contextSnapshot()
-                break
             }
-            scanContext = session.contextSnapshot()
+        } finally {
+            session.closeAuthenticationProviderSessions()
         }
         val scanDuration = scanStartTime.elapsedNow()
         session.context =

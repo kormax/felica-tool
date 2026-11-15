@@ -1,6 +1,7 @@
 package com.kormax.felicatool.service.steps
 
 import com.kormax.felicatool.felica.*
+import com.kormax.felicatool.logging.ScanLog
 import com.kormax.felicatool.nfc.TransceiveTimeoutException
 import com.kormax.felicatool.service.*
 import com.kormax.felicatool.ui.ScanStepIcon

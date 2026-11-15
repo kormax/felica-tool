@@ -1,6 +1,11 @@
 package com.kormax.felicatool.service
 
+import com.kormax.felicatool.authentication.AuthenticationProvider
+import com.kormax.felicatool.authentication.AuthenticationProviderRegistry
+import com.kormax.felicatool.authentication.AuthenticationProviderSession
+import com.kormax.felicatool.authentication.SystemProfile
 import com.kormax.felicatool.felica.*
+import com.kormax.felicatool.logging.ScanLog
 import com.kormax.felicatool.nfc.NfcReaderException
 import com.kormax.felicatool.nfc.NfcTargetUnavailableException
 import com.kormax.felicatool.nfc.TransceiveErrorException
@@ -10,10 +15,22 @@ import com.kormax.felicatool.util.IcTypeRegistry
 import com.kormax.felicatool.util.NodeMetadataProvider
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.TimeSource
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 
 private const val PRESENCE_CHECK_ATTEMPTS = 5
 private const val PRESENCE_CHECK_RETRY_DELAY_STEP_MS = 50L
@@ -24,6 +41,7 @@ private const val REDUCED_COMMAND_EXECUTION_ATTEMPTS = 2
 internal const val STANDARD_COMMAND_EXECUTION_ATTEMPTS = 3
 private const val SUPPORTED_COMMAND_EXECUTION_ATTEMPTS = 5
 internal val COMMAND_EXECUTION_RETRY_DELAY: Duration = 5.milliseconds
+private val AUTHENTICATION_SESSION_CLOSE_TIMEOUT: Duration = 3.seconds
 internal val SYSTEM_CODE_WILDCARD: ByteArray = byteArrayOf(0xFF.toByte(), 0xFF.toByte())
 
 internal class CommandExecutionScope(
@@ -38,6 +56,7 @@ internal constructor(
     initialTarget: FeliCaTarget,
     val settings: ScanSettings,
     val nodeMetadataProvider: NodeMetadataProvider,
+    val authenticationProviderRegistry: AuthenticationProviderRegistry? = null,
     initialContext: CardScanContext = CardScanContext(),
 ) {
     private var activeTarget: FeliCaTarget = initialTarget
@@ -66,6 +85,138 @@ internal constructor(
     private var currentModeValue: Mode = Mode.Mode0
     val currentMode: Mode
         get() = currentModeValue
+
+    private val authenticationWarmupScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private var authenticationSessions: Deferred<List<AuthenticationProviderSession>?>? = null
+    private val authenticationSessionsLock = Mutex()
+    private var ownedAuthenticationSessions: List<AuthenticationProviderSession>? = null
+    private var authenticationSessionsClosed = false
+
+    fun warmAuthenticationProviderSessions(profiles: List<SystemProfile>) {
+        if (profiles.isEmpty() || authenticationSessions != null) return
+        val registry = authenticationProviderRegistry ?: return
+        ScanLog.i(
+            "FeliCaAuth",
+            "Authentication provider warm-up dispatched for ${profiles.size} system(s)",
+        )
+        authenticationSessions = openAuthenticationProviderSessions(registry, profiles)
+    }
+
+    suspend fun authenticationProviderSessions(
+        profiles: List<SystemProfile>,
+    ): List<AuthenticationProviderSession>? {
+        val sessions =
+            authenticationSessions
+                ?: openAuthenticationProviderSessions(
+                        authenticationProviderRegistry ?: return null,
+                        profiles,
+                    )
+                    .also { authenticationSessions = it }
+        return try {
+            sessions.await()
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: Exception) {
+            ScanLog.w("FeliCaAuth", "Authentication providers could not be opened", error)
+            null
+        }
+    }
+
+    private fun openAuthenticationProviderSessions(
+        registry: AuthenticationProviderRegistry,
+        profiles: List<SystemProfile>,
+    ): Deferred<List<AuthenticationProviderSession>?> = authenticationWarmupScope.async {
+        val sessions =
+            if (profiles.isEmpty()) emptyList() else openSessions(registry.providers(), profiles)
+        withContext(NonCancellable) {
+            val owned = authenticationSessionsLock.withLock {
+                if (!authenticationSessionsClosed) ownedAuthenticationSessions = sessions
+                !authenticationSessionsClosed
+            }
+            if (owned) {
+                sessions
+            } else {
+                sessions.forEach { closeWithTimeout(it) }
+                null
+            }
+        }
+    }
+
+    private suspend fun openSessions(
+        providers: List<AuthenticationProvider>,
+        profiles: List<SystemProfile>,
+    ): List<AuthenticationProviderSession> {
+        ScanLog.i(
+            "FeliCaAuth",
+            "Authentication providers: opening ${providers.size} provider(s) for ${profiles.size} system(s)",
+        )
+        val sessions = mutableListOf<AuthenticationProviderSession>()
+        try {
+            for (provider in providers) {
+                val session =
+                    try {
+                        provider.openSession(profiles)
+                    } catch (error: CancellationException) {
+                        throw error
+                    } catch (error: Exception) {
+                        ScanLog.e(
+                            "FeliCaAuth",
+                            "${provider.descriptor.displayName}: session could not be opened",
+                            error,
+                        )
+                        continue
+                    }
+                session?.let { sessions += it }
+                    ?: ScanLog.i(
+                        "FeliCaAuth",
+                        "${provider.descriptor.displayName}: no matching credentials",
+                    )
+            }
+        } catch (error: Throwable) {
+            withContext(NonCancellable) { sessions.forEach { closeWithTimeout(it) } }
+            throw error
+        }
+        ScanLog.i(
+            "FeliCaAuth",
+            "Authentication providers: opened ${sessions.size} usable session(s)",
+        )
+        return sessions
+    }
+
+    suspend fun closeAuthenticationProviderSessions() {
+        authenticationSessions = null
+        withContext(NonCancellable) {
+            val sessions = authenticationSessionsLock.withLock {
+                authenticationSessionsClosed = true
+                ownedAuthenticationSessions.also { ownedAuthenticationSessions = null }
+            }
+            authenticationWarmupScope.cancel()
+            sessions?.forEach { closeWithTimeout(it) }
+        }
+    }
+
+    private suspend fun closeWithTimeout(
+        session: AuthenticationProviderSession,
+    ) {
+        val finished =
+            withTimeoutOrNull(AUTHENTICATION_SESSION_CLOSE_TIMEOUT) {
+                try {
+                    session.close()
+                } catch (error: CancellationException) {
+                    throw error
+                } catch (error: Exception) {
+                    ScanLog.w(
+                        "FeliCaAuth",
+                        "${session.descriptor.displayName}: closing session failed",
+                        error,
+                    )
+                }
+                true
+            }
+        if (finished == null) {
+            ScanLog.w("FeliCaAuth", "${session.descriptor.displayName}: closing session timed out")
+        }
+    }
 
     fun contextSnapshot(): CardScanContext =
         context.copy(communicationLog = communicationLog.toList())
@@ -96,7 +247,7 @@ internal constructor(
                 is WriteWithoutEncryptionCommand -> commands.writeWithoutEncryption
                 is GetAreaInformationCommand -> commands.getAreaInformation
                 is GetContainerPropertyCommand -> commands.getContainerProperty
-                is Authentication1DesCommand -> commands.authentication1Des
+                is Authentication1Des.Command -> commands.authentication1Des
                 is Authentication1AesCommand -> commands.authentication1Aes
                 is InternalAuthenticateAndReadCommand -> commands.internalAuthenticateAndRead
                 else -> null
@@ -244,7 +395,7 @@ internal constructor(
                     )
                 val command = scope.createCommand()
                 if (attempts == null) maxAttempts = commandExecutionAttempts(command)
-                lastCommandLabel = command::class.simpleName ?: "FeliCa command"
+                lastCommandLabel = (command as? FelicaMessage)?.messageName ?: "FeliCa command"
                 attemptCommandLabel = lastCommandLabel
                 attemptCommandIdm = (command as? FelicaCommandWithIdm<*>)?.idm?.copyOf()
 
@@ -427,6 +578,11 @@ internal constructor(
         val currentSystemCode = activeTarget.systemCode ?: return true
         return !systemCode.sameBytes(SYSTEM_CODE_WILDCARD) &&
             !currentSystemCode.contentEquals(systemCode)
+    }
+
+    suspend fun recoverMode0(systemCode: ByteArray?, idm: ByteArray?) {
+        if (currentModeValue == Mode.Mode0) return
+        resetToMode0OrThrow(systemCode?.copyOf(), idm?.copyOf())
     }
 
     private suspend fun resetToMode0OrThrow(
@@ -633,7 +789,8 @@ internal constructor(
     ) {
         val mode =
             when (command) {
-                is Authentication1DesCommand -> Mode.Mode1.Des
+                is Authentication1Des.Command -> Mode.Mode1.Des
+                is Authentication2Des.Command -> Mode.Mode2.Des
                 is Authentication1AesCommand -> Mode.Mode1.Aes
                 is InternalAuthenticateAndReadCommand -> Mode.Mode1.AesMac
                 else -> null

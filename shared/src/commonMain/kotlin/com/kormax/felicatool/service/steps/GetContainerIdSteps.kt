@@ -8,7 +8,7 @@ internal object GetContainerIdStep :
     CommandSupportScanStep(
         id = "get_container_id",
         title = "Get Container ID",
-        description = "Get container IDM from mobile FeliCa cards",
+        description = "Get container IDm from mobile FeliCa cards",
         icon = ScanStepIcon.INFO,
     ) {
     override fun readSupport(context: CardScanContext): CommandSupport =
@@ -40,7 +40,7 @@ internal object GetContainerIdStep :
 
         return StepOutput(
             buildString {
-                appendLine("Container IDM: ${getContainerIdResponse.containerIdm.toHexString()}")
+                appendLine("Container IDm: ${getContainerIdResponse.containerIdm.toHexString()}")
             }
                 .trim(),
         )
@@ -72,5 +72,5 @@ internal object GetContainerIdDetermineTrailingDataSupportedStep :
     ): FelicaCommand<GetContainerIdResponse> = GetContainerIdCommand(trailingData = trailingData)
 
     override fun responseLines(response: GetContainerIdResponse): List<String> =
-        listOf("Container IDM: ${response.containerIdm.toHexString()}")
+        listOf("Container IDm: ${response.containerIdm.toHexString()}")
 }

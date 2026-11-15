@@ -1,0 +1,21 @@
+package com.kormax.felicatool.felica
+
+interface EncryptedResponse : FelicaResponse {
+    val encryptedData: ByteArray
+}
+
+interface EncryptedCommand<T : EncryptedResponse> : FelicaCommand<T> {
+    val encryptedData: ByteArray
+}
+
+interface SecureResponse
+
+interface SecureCommand<out T : SecureResponse> {
+    val code: Int
+
+    fun toByteArray(): ByteArray
+
+    fun encrypted(encryptedData: ByteArray): EncryptedCommand<*>
+
+    fun responseFromByteArray(data: ByteArray): T
+}

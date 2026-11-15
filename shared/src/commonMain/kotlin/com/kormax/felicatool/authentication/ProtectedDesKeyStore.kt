@@ -33,6 +33,10 @@ interface ProtectedDesKeyStore {
         storage: KeyStorage,
     ): ProtectedKeyReference
 
+    suspend fun encrypt(referenceId: String, block: ByteArray): ByteArray
+
+    suspend fun decrypt(referenceId: String, block: ByteArray): ByteArray
+
     suspend fun delete(referenceId: String)
 
     suspend fun deleteAll(except: Set<String> = emptySet())

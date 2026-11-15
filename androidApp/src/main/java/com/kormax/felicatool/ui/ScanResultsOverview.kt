@@ -29,6 +29,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.kormax.felicatool.AppBarMenu
@@ -45,6 +46,9 @@ import com.kormax.felicatool.util.ExportUtils
 import com.kormax.felicatool.util.NodeDefinitionType
 import com.kormax.felicatool.util.NodeRegistry
 import com.kormax.felicatool.util.ServiceIconMapper
+import com.kormax.felicatool.util.maskIdi
+import com.kormax.felicatool.util.maskIdm
+import com.kormax.felicatool.util.maskPmi
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -152,7 +156,7 @@ fun ScanResultsOverview(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             // Card Information Section
-            item { CardInformationSection(context = scanContext) }
+            item { CardInformationSection(context = scanContext, privacyMode = privacyMode) }
 
             // View mode tabs
             item {
@@ -198,7 +202,10 @@ fun ScanResultsOverview(
                             }
 
                             // System header with icon and name
-                            SystemHeader(systemScanContext = systemScanContext)
+                            SystemHeader(
+                                systemScanContext = systemScanContext,
+                                privacyMode = privacyMode,
+                            )
 
                             GroupedServicesSection(context = systemScanContext)
                         }
@@ -213,6 +220,7 @@ fun ScanResultsOverview(
                                     nodeInfo = nodeInfo,
                                     context = systemScanContext,
                                     depth = 0,
+                                    privacyMode = privacyMode,
                                 )
                             }
                         }
@@ -225,7 +233,11 @@ fun ScanResultsOverview(
 
 /** System header component for grouped view, showing system code, name, and provider icons. */
 @Composable
-private fun SystemHeader(systemScanContext: SystemScanContext, modifier: Modifier = Modifier) {
+private fun SystemHeader(
+    systemScanContext: SystemScanContext,
+    privacyMode: Boolean,
+    modifier: Modifier = Modifier,
+) {
     val systemCodeHex =
         systemScanContext.systemCode
             ?.let { it.joinToString("") { byte -> "%02X".format(byte) } }
@@ -248,41 +260,114 @@ private fun SystemHeader(systemScanContext: SystemScanContext, modifier: Modifie
                 .mapNotNull { ServiceIconMapper.iconFor(it) }
         }
 
-    Row(
-        modifier = modifier.fillMaxWidth().padding(bottom = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        // Provider icons
-        if (providerIconResIds.isNotEmpty()) {
-            providerIconResIds.forEach { iconRes ->
-                Surface(
-                    shape = RoundedCornerShape(4.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                ) {
-                    Icon(
-                        painter = painterResource(id = iconRes),
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp),
-                        tint = Color.Unspecified,
-                    )
+    Column(modifier = modifier.fillMaxWidth().padding(bottom = 8.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            // Provider icons
+            if (providerIconResIds.isNotEmpty()) {
+                providerIconResIds.forEach { iconRes ->
+                    Surface(
+                        shape = RoundedCornerShape(4.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                    ) {
+                        Icon(
+                            painter = painterResource(id = iconRes),
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                            tint = Color.Unspecified,
+                        )
+                    }
                 }
             }
+
+            // System text
+            val displayText =
+                if (systemName != null) {
+                    "System $systemCodeHex - $systemName"
+                } else {
+                    "System ${systemCodeHex ?: "Unknown"}"
+                }
+
+            Text(
+                text = displayText,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
+            )
         }
+        GroupedSystemInformationCard(systemScanContext, privacyMode)
+    }
+}
 
-        // System text
-        val displayText =
-            if (systemName != null) {
-                "System $systemCodeHex - $systemName"
-            } else {
-                "System ${systemCodeHex ?: "Unknown"}"
+@Composable
+private fun GroupedSystemInformationCard(
+    systemScanContext: SystemScanContext,
+    privacyMode: Boolean,
+) {
+    if (
+        systemScanContext.idm == null &&
+            systemScanContext.idi == null &&
+            systemScanContext.pmi == null
+    ) {
+        return
+    }
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+            ),
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            systemScanContext.idm?.let { idm ->
+                GroupedSystemInfoRow(
+                    label = "IDm",
+                    value = if (privacyMode) maskIdm(idm) else idm.toHexString().uppercase(),
+                )
             }
+            systemScanContext.idi?.let { idi ->
+                GroupedSystemInfoRow(
+                    label = "IDi",
+                    value =
+                        if (privacyMode) maskIdi(idi.toHexString().uppercase())
+                        else idi.toHexString().uppercase(),
+                )
+            }
+            systemScanContext.pmi?.let { pmi ->
+                GroupedSystemInfoRow(
+                    label = "PMi",
+                    value =
+                        if (privacyMode) maskPmi(pmi.toHexString().uppercase())
+                        else pmi.toHexString().uppercase(),
+                )
+            }
+        }
+    }
+}
 
+@Composable
+private fun GroupedSystemInfoRow(label: String, value: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         Text(
-            text = displayText,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
+            text = label,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodySmall,
+            fontFamily = FontFamily.Monospace,
+            fontWeight = FontWeight.Medium,
         )
     }
 }
