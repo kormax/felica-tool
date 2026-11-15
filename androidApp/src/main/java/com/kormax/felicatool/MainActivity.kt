@@ -34,6 +34,7 @@ import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
@@ -41,7 +42,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -54,6 +54,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import androidx.lifecycle.lifecycleScope
+import com.kormax.felicatool.authentication.AndroidAuthenticationProviders
 import com.kormax.felicatool.device.KeystoreCapabilities
 import com.kormax.felicatool.felica.FeliCaTarget
 import com.kormax.felicatool.felica.PollingCommand
@@ -67,6 +68,8 @@ import com.kormax.felicatool.service.CardScanResult
 import com.kormax.felicatool.service.CardScanService
 import com.kormax.felicatool.service.ScanSettings
 import com.kormax.felicatool.ui.AboutScreen
+import com.kormax.felicatool.ui.AuthenticationProviderEditorScreen
+import com.kormax.felicatool.ui.AuthenticationProvidersScreen
 import com.kormax.felicatool.ui.CardScanStep
 import com.kormax.felicatool.ui.ScanResultsOverview
 import com.kormax.felicatool.ui.StepStatus
@@ -96,6 +99,9 @@ private const val TAG_REMOVAL_DISCOVERY_TIMEOUT_MILLIS = 500
 private const val TAG_REMOVAL_PRESENCE_CHECK_DELAY_MILLIS = 500L
 private const val READER_PREFERENCES_NAME = "reader_settings"
 private const val KEY_BACKGROUND_READING = "background_reading"
+private const val STATE_SHOW_ABOUT = "show_about"
+private const val STATE_SHOW_AUTHENTICATION_PROVIDERS = "show_authentication_providers"
+private const val STATE_SELECTED_AUTHENTICATION_PROVIDER_ID = "selected_authentication_provider_id"
 private const val KEY_TEST_TRAILING_DATA_COMMANDS = "test_trailing_data_commands"
 private const val KEY_TEST_WRITE_COMMANDS = "test_write_commands"
 private const val KEY_IC_CODE_SCAN_HEURISTICS = "ic_code_scan_heuristics"
@@ -126,6 +132,9 @@ class MainActivity : ComponentActivity() {
     private var activeReaderSession: NfcReaderSession? = null
     private var readerJob: Job? = null
     private var automaticReaderStartNowSignal: CompletableDeferred<Unit>? = null
+    private val authenticationProviders by lazy {
+        AndroidAuthenticationProviders.instance(this)
+    }
     private val cardScanService = CardScanService(NodeRegistry)
 
     private var steps by mutableStateOf(emptyList<CardScanStep>())
@@ -140,6 +149,9 @@ class MainActivity : ComponentActivity() {
     private var manualReaderSessionSecondsRemaining by mutableStateOf<Int?>(null)
     private var automaticReaderRestartSecondsRemaining by mutableStateOf<Int?>(null)
     private var showComprehensiveData by mutableStateOf(false)
+    private var showAuthenticationProviders by mutableStateOf(false)
+    private var showAbout by mutableStateOf(false)
+    private var selectedAuthenticationProviderId by mutableStateOf<String?>(null)
     private var isBackgroundReadingEnabled by mutableStateOf(false)
     private var scanSettings by mutableStateOf(ScanSettings())
     private var isActivityResumed = false
@@ -178,8 +190,16 @@ class MainActivity : ComponentActivity() {
                 MobileDeviceRegistry.ensureReady()
             }
                 .onFailure { Log.w(TAG, "Failed to preload shared metadata", it) }
+            runCatching { authenticationProviders.summaries() }
+                .onFailure { Log.w(TAG, "Failed to preload authentication providers", it) }
         }
 
+        savedInstanceState?.let {
+            showAbout = it.getBoolean(STATE_SHOW_ABOUT)
+            showAuthenticationProviders = it.getBoolean(STATE_SHOW_AUTHENTICATION_PROVIDERS)
+            selectedAuthenticationProviderId =
+                it.getString(STATE_SELECTED_AUTHENTICATION_PROVIDER_ID)
+        }
         isBackgroundReadingEnabled = readerPreferences.getBoolean(KEY_BACKGROUND_READING, false)
         scanSettings =
             scanSettings.copy(
@@ -199,7 +219,6 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            var showAbout by rememberSaveable { mutableStateOf(false) }
             val isTagPresent by reader.isTagPresent.collectAsState()
             FeliCaToolTheme {
                 Box(modifier = Modifier.fillMaxSize()) {
@@ -225,9 +244,16 @@ class MainActivity : ComponentActivity() {
                             ),
                         isBackgroundReadingEnabled = isBackgroundReadingEnabled,
                         onBackgroundReadingChange = ::updateBackgroundReadingEnabled,
+                        onOpenAuthenticationProviders = {
+                            showAuthenticationProviders = true
+                            pauseReader()
+                        },
                         scanSettings = scanSettings,
                         onScanSettingsChange = ::updateScanSettings,
-                        onShowAbout = { showAbout = true },
+                        onShowAbout = {
+                            showAbout = true
+                            pauseReader()
+                        },
                         onStartScan = ::startManualReaderSession,
                         onStopScan = { stopReaderSession(status = "Ready") },
                         onStartAutomaticReaderNow = {
@@ -236,19 +262,39 @@ class MainActivity : ComponentActivity() {
                     )
 
                     if (showAbout) {
-                        AboutScreen(onBackPressed = { showAbout = false })
+                        AboutScreen(
+                            onBackPressed = {
+                                showAbout = false
+                                resumeReader()
+                            },
+                        )
+                    } else if (showAuthenticationProviders) {
+                        val providerId = selectedAuthenticationProviderId
+                        if (providerId == null) {
+                            AuthenticationProvidersScreen(
+                                settings = authenticationProviders,
+                                localCredentials = authenticationProviders,
+                                onBackPressed = {
+                                    showAuthenticationProviders = false
+                                    resumeReader()
+                                },
+                                onOpenProvider = { selectedAuthenticationProviderId = it },
+                            )
+                        } else {
+                            AuthenticationProviderEditorScreen(
+                                settings = authenticationProviders,
+                                localCredentials = authenticationProviders,
+                                providerId = providerId,
+                                onBackPressed = { selectedAuthenticationProviderId = null },
+                                onDeleted = { selectedAuthenticationProviderId = null },
+                            )
+                        }
                     } else if (showComprehensiveData) {
                         ScanResultsOverview(
                             cardScanService = cardScanService,
                             onBackPressed = {
                                 showComprehensiveData = false
-                                if (isBackgroundReadingEnabled) {
-                                    stopReaderSession {
-                                        startAutomaticReaderAfterDelay(
-                                            AUTOMATIC_READER_START_DELAY_SECONDS,
-                                        )
-                                    }
-                                }
+                                resumeReader()
                             },
                             modifier = Modifier.fillMaxSize(),
                         )
@@ -256,6 +302,31 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun pauseReader() {
+        if (readerJob != null) {
+            stopReaderSession(status = "Ready")
+        }
+    }
+
+    private fun resumeReader() {
+        refreshNfcStatus()
+        if (isBackgroundReadingEnabled) {
+            stopReaderSession {
+                startAutomaticReaderAfterDelay(AUTOMATIC_READER_START_DELAY_SECONDS)
+            }
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(STATE_SHOW_ABOUT, showAbout)
+        outState.putBoolean(STATE_SHOW_AUTHENTICATION_PROVIDERS, showAuthenticationProviders)
+        outState.putString(
+            STATE_SELECTED_AUTHENTICATION_PROVIDER_ID,
+            selectedAuthenticationProviderId,
+        )
     }
 
     private fun refreshNfcStatus(): Boolean {
@@ -293,7 +364,9 @@ class MainActivity : ComponentActivity() {
         isBackgroundReadingEnabled &&
             isBackgroundReadingAvailable() &&
             isActivityResumed &&
-            !showComprehensiveData
+            !showComprehensiveData &&
+            !showAuthenticationProviders &&
+            !showAbout
 
     override fun onResume() {
         super.onResume()
@@ -777,6 +850,7 @@ private fun MainScreen(
     readerControlState: ReaderControlState = ReaderControlState(),
     isBackgroundReadingEnabled: Boolean = false,
     onBackgroundReadingChange: (Boolean) -> Unit = {},
+    onOpenAuthenticationProviders: () -> Unit = {},
     scanSettings: ScanSettings = ScanSettings(),
     onScanSettingsChange: (ScanSettings) -> Unit = {},
     onShowAbout: () -> Unit = {},
@@ -813,12 +887,18 @@ private fun MainScreen(
                             )
                         }
                     }
+                    val canPauseReader =
+                        !readerControlState.isReaderActive ||
+                            (readerControlState.isAutomaticReadingEnabled &&
+                                (readerControlState.isReaderDiscovering ||
+                                    readerControlState.isWaitingForRemoval))
                     AppBarMenu(icon = Icons.Default.MoreVert, label = "More options") { dismiss ->
-                        AppBarMenuGroup(shapes = MenuDefaults.groupShape(0, 4)) {
+                        AppBarMenuGroup(shapes = MenuDefaults.groupShape(0, 5)) {
                             DropdownMenuItem(
                                 text = { Text("About") },
                                 shape = MenuDefaults.standaloneItemShape,
                                 leadingIcon = { Icon(Icons.Filled.Info, null) },
+                                enabled = canPauseReader,
                                 onClick = {
                                     dismiss()
                                     onShowAbout()
@@ -826,7 +906,22 @@ private fun MainScreen(
                             )
                         }
                         Spacer(Modifier.height(MenuDefaults.GroupSpacing))
-                        AppBarMenuGroup(shapes = MenuDefaults.groupShape(1, 4)) {
+                        AppBarMenuGroup(shapes = MenuDefaults.groupShape(1, 5)) {
+                            DropdownMenuItem(
+                                text = { Text("Authentication providers") },
+                                leadingIcon = {
+                                    Icon(Icons.Filled.Lock, contentDescription = null)
+                                },
+                                shape = MenuDefaults.standaloneItemShape,
+                                enabled = canPauseReader,
+                                onClick = {
+                                    dismiss()
+                                    onOpenAuthenticationProviders()
+                                },
+                            )
+                        }
+                        Spacer(Modifier.height(MenuDefaults.GroupSpacing))
+                        AppBarMenuGroup(shapes = MenuDefaults.groupShape(2, 5)) {
                             CheckableMenuOption(
                                 label = "Enable IC code scan heuristics",
                                 icon = ImageVector.vectorResource(R.drawable.ic_lightbulb),
@@ -853,7 +948,7 @@ private fun MainScreen(
                             )
                         }
                         Spacer(Modifier.height(MenuDefaults.GroupSpacing))
-                        AppBarMenuGroup(shapes = MenuDefaults.groupShape(2, 4)) {
+                        AppBarMenuGroup(shapes = MenuDefaults.groupShape(3, 5)) {
                             CheckableMenuOption(
                                 label = "Test trailing data",
                                 icon = ImageVector.vectorResource(R.drawable.ic_data_array),
@@ -876,7 +971,7 @@ private fun MainScreen(
                             )
                         }
                         Spacer(Modifier.height(MenuDefaults.GroupSpacing))
-                        AppBarMenuGroup(shapes = MenuDefaults.groupShape(3, 4)) {
+                        AppBarMenuGroup(shapes = MenuDefaults.groupShape(4, 5)) {
                             CheckableMenuOption(
                                 label = "Force discover all nodes",
                                 icon = Icons.Filled.Search,
