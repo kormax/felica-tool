@@ -481,7 +481,15 @@ private fun ServiceVariantChip(
                 contentDescription =
                     if (attribute.authenticationRequired) "Auth required" else "No auth",
                 modifier = Modifier.size(10.dp),
-                tint = contentColor,
+                tint =
+                    if (
+                        attribute.authenticationRequired &&
+                            context.serviceBlockData[service]?.isNotEmpty() == true
+                    ) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        contentColor
+                    },
             )
 
             // PIN icon - Star when PIN is required
@@ -555,7 +563,13 @@ private fun ServiceDetailRow(
             } else {
                 // Auth status as text in detailed view
                 if (attribute.authenticationRequired) {
-                    ServiceGroupChip(text = "AUTH", isWarning = true, isCompact = true)
+                    val unlocked = context.serviceBlockData[service]?.isNotEmpty() == true
+                    ServiceGroupChip(
+                        text = "AUTH",
+                        isHighlight = unlocked,
+                        isWarning = !unlocked,
+                        isCompact = true,
+                    )
                 } else {
                     ServiceGroupChip(text = "FREE", isHighlight = true, isCompact = true)
                 }

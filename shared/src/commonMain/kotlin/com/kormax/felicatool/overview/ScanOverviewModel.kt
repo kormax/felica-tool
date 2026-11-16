@@ -1032,6 +1032,16 @@ object ScanOverviewModelBuilder {
                                 .extendedBlockListElementSupported,
                         ),
                         commandSupport(
+                            "Read With Encryption DES",
+                            scanContext.commands.readWithEncryptionDes.supported,
+                            scanContext.commands.readWithEncryptionDes.trailingDataSupported,
+                        ),
+                        commandSupport(
+                            "Read Encrypted Extended BLE",
+                            scanContext.commands.readWithEncryptionDes
+                                .extendedBlockListElementSupported,
+                        ),
+                        commandSupport(
                             "Write Without Encryption",
                             scanContext.commands.writeWithoutEncryption.supported,
                             scanContext.commands.writeWithoutEncryption.trailingDataSupported,

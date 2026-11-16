@@ -1,8 +1,11 @@
 package com.kormax.felicatool.service
 
+import com.kormax.felicatool.authentication.AuthenticationOffer
 import com.kormax.felicatool.authentication.AuthenticationProvider
 import com.kormax.felicatool.authentication.AuthenticationProviderRegistry
 import com.kormax.felicatool.authentication.AuthenticationProviderSession
+import com.kormax.felicatool.authentication.OfferBoundAuthenticationTransport
+import com.kormax.felicatool.authentication.SecureChannel
 import com.kormax.felicatool.authentication.SystemProfile
 import com.kormax.felicatool.felica.*
 import com.kormax.felicatool.logging.ScanLog
@@ -43,6 +46,12 @@ private const val SUPPORTED_COMMAND_EXECUTION_ATTEMPTS = 5
 internal val COMMAND_EXECUTION_RETRY_DELAY: Duration = 5.milliseconds
 private val AUTHENTICATION_SESSION_CLOSE_TIMEOUT: Duration = 3.seconds
 internal val SYSTEM_CODE_WILDCARD: ByteArray = byteArrayOf(0xFF.toByte(), 0xFF.toByte())
+
+internal class LiveAuthenticatedScope(
+    val offer: AuthenticationOffer,
+    val channel: SecureChannel,
+    val transport: OfferBoundAuthenticationTransport,
+)
 
 internal class CommandExecutionScope(
     val idm: ByteArray,
@@ -92,6 +101,28 @@ internal constructor(
     private var ownedAuthenticationSessions: List<AuthenticationProviderSession>? = null
     private var authenticationSessionsClosed = false
 
+    internal var liveAuthenticatedScope: LiveAuthenticatedScope? = null
+
+    suspend fun releaseAuthenticatedScope() {
+        val live = liveAuthenticatedScope ?: return
+        liveAuthenticatedScope = null
+        try {
+            live.channel.close()
+        } finally {
+            try {
+                live.transport.recoverMode0()
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                ScanLog.w(
+                    "FeliCaAuth",
+                    "Releasing authenticated scope: Mode 0 recovery failed",
+                    error,
+                )
+            }
+        }
+    }
+
     fun warmAuthenticationProviderSessions(profiles: List<SystemProfile>) {
         if (profiles.isEmpty() || authenticationSessions != null) return
         val registry = authenticationProviderRegistry ?: return
@@ -126,8 +157,12 @@ internal constructor(
         registry: AuthenticationProviderRegistry,
         profiles: List<SystemProfile>,
     ): Deferred<List<AuthenticationProviderSession>?> = authenticationWarmupScope.async {
-        val sessions =
-            if (profiles.isEmpty()) emptyList() else openSessions(registry.providers(), profiles)
+        val providers = if (profiles.isEmpty()) emptyList() else registry.providers()
+        if (profiles.isNotEmpty() && providers.isEmpty()) {
+            ScanLog.i("FeliCaAuth", "Authentication providers: none enabled")
+            return@async null
+        }
+        val sessions = openSessions(providers, profiles)
         withContext(NonCancellable) {
             val owned = authenticationSessionsLock.withLock {
                 if (!authenticationSessionsClosed) ownedAuthenticationSessions = sessions
@@ -395,7 +430,7 @@ internal constructor(
                     )
                 val command = scope.createCommand()
                 if (attempts == null) maxAttempts = commandExecutionAttempts(command)
-                lastCommandLabel = (command as? FelicaMessage)?.messageName ?: "FeliCa command"
+                lastCommandLabel = command.messageName
                 attemptCommandLabel = lastCommandLabel
                 attemptCommandIdm = (command as? FelicaCommandWithIdm<*>)?.idm?.copyOf()
 

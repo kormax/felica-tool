@@ -79,7 +79,11 @@ class CardScanService(
                 scanContext = session.contextSnapshot()
             }
         } finally {
-            session.closeAuthenticationProviderSessions()
+            try {
+                session.releaseAuthenticatedScope()
+            } finally {
+                session.closeAuthenticationProviderSessions()
+            }
         }
         val scanDuration = scanStartTime.elapsedNow()
         session.context =

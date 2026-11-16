@@ -101,6 +101,14 @@ private fun findUnusedAbsentService(
         .firstOrNull()
 }
 
+internal fun Service.readTestScore(): Int {
+    var score = 0
+    if (number != 0) score += 4
+    if (attribute.type == ServiceType.RANDOM) score += 2
+    if (attribute.mode == ServiceMode.READ_ONLY) score += 1
+    return score
+}
+
 private fun CardScanContext.findReadWithoutEncryptionTestTarget(
     allowAuthenticationRequiredFallback: Boolean = false,
 ): ReadWithoutEncryptionTestTarget {
@@ -154,14 +162,7 @@ private fun CardScanContext.findReadWithoutEncryptionTestTarget(
         throw StepSkipped("No readable services found in the selected system")
     }
 
-    val testService =
-        candidateServices.maxByOrNull { service ->
-            var score = 0
-            if (service.number != 0) score += 4
-            if (service.attribute.type == ServiceType.RANDOM) score += 2
-            if (service.attribute.mode == ServiceMode.READ_ONLY) score += 1
-            score
-        }!!
+    val testService = candidateServices.maxBy { it.readTestScore() }
     val testBlockNumber =
         resolveReadWithoutEncryptionTestBlockNumber(
             systemCode = bestSystemContext.systemCode,

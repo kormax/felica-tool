@@ -102,6 +102,7 @@ internal class DesAuthenticationKeyProvider(
     ): List<AuthenticationOffer> {
         val profile = query.profile
         val diagnose = query.exactScope == null
+        val requestedNodes = (query.goal as? AuthenticationGoal.ReadWithEncryption)?.requestedNodes
         return keys
             .asSequence()
             .filter { it.value.scope.systemCode == profile.systemCode }
@@ -129,13 +130,16 @@ internal class DesAuthenticationKeyProvider(
                     }
                     return@mapNotNull null
                 }
+                val requested = requestedNodes ?: scope.nodeCodes.toSet()
+                val covered = scope.nodeCodes.toSet().intersect(requested)
+                if (requestedNodes != null && covered.isEmpty()) return@mapNotNull null
                 AuthenticationOffer(
                     id = "${descriptor.id}:${scope.signature()}",
                     providerId = descriptor.id,
                     scheme = AuthenticationScheme.DES,
                     scope = scope,
-                    coveredNodes = scope.nodeCodes.toSet(),
-                    extraNodes = emptySet(),
+                    coveredNodes = covered,
+                    extraNodes = scope.nodeCodes.toSet() - requested,
                     hasExactIdmCredential = records.any { it.value.scope.idm == profile.idm },
                 )
             }

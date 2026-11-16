@@ -182,7 +182,7 @@ object ExportUtils {
             val obj = JSONObject()
             val message = entry.message
             obj.put("type", if (message is FelicaCommand<*>) "COMMAND" else "RESPONSE")
-            obj.put("name", (message as? FelicaMessage)?.messageName ?: message::class.simpleName)
+            obj.put("name", message.messageName)
             obj.put("timestamp_ns", entry.timestamp - baseTimestamp)
             val hex = entry.toByteArray().joinToString(separator = "") { "%02X".format(it) }
             obj.put("data", if (privacy) maskCommunicationLogHex(hex, message) else hex)
@@ -667,6 +667,22 @@ object ExportUtils {
             putBooleanIfKnown(
                 "unused_invalid_service_supported",
                 scanContext.commands.readWithoutEncryption.unusedInvalidServiceSupported,
+            )
+        }
+        commandsJson.putAvailableCommand(
+            "read_with_encryption_des",
+            scanContext.commands.readWithEncryptionDes,
+        ) {
+            val errorIndication = scanContext.commands.readWithEncryptionDes.errorLocationIndication
+            if (errorIndication != ErrorLocationIndication.UNKNOWN) {
+                put("error_location_indication", errorIndication.name)
+            }
+            scanContext.commands.readWithEncryptionDes.maxBlocksPerRequest?.let {
+                put("max_blocks_per_request", it)
+            }
+            putBooleanIfKnown(
+                "extended_block_list_element_supported",
+                scanContext.commands.readWithEncryptionDes.extendedBlockListElementSupported,
             )
         }
         commandsJson.putAvailableCommand(

@@ -6,8 +6,9 @@ abstract class FelicaMessage {
     abstract fun toByteArray(): ByteArray
 }
 
-val FelicaMessage.messageName: String
+val Any.messageName: String
     get() =
-        this::class.qualifiedName?.removePrefix("com.kormax.felicatool.felica.")
-            ?: this::class.simpleName
-            ?: "FelicaMessage"
+        (this::class.qualifiedName?.removePrefix("com.kormax.felicatool.felica.")
+                ?: this::class.simpleName
+                ?: "FelicaMessage")
+            .replace('$', '.')

@@ -1,5 +1,6 @@
 package com.kormax.felicatool.service
 
+import com.kormax.felicatool.felica.AnonymousService
 import com.kormax.felicatool.felica.BlockListElement
 import com.kormax.felicatool.felica.ErrorLocationIndication
 import com.kormax.felicatool.felica.Service
@@ -455,4 +456,20 @@ internal abstract class BlockReader(
         const val BITMASK_MAX_BLOCKS = 8
         const val MAX_CONSECUTIVE_FAILURES = 32
     }
+}
+
+internal fun ScanSession.blockReadHints(
+    systemContext: SystemScanContext,
+    services: List<Service>,
+): Map<Service, List<BlockReadCandidate>> {
+    val systemCode = systemContext.systemCode?.toHexString() ?: return emptyMap()
+    return services
+        .filter { it !is AnonymousService }
+        .mapNotNull { service ->
+            val blockIndices =
+                nodeMetadataProvider.getExtraBlocks(systemCode, service.code.toHexString()).keys
+            if (blockIndices.isEmpty()) null
+            else service to listOf(BlockReadCandidate(blockIndices, probeAfterRuns = false))
+        }
+        .toMap()
 }

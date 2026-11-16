@@ -42,7 +42,12 @@ import com.kormax.felicatool.service.steps.PollingCommunicationPerformanceStep
 import com.kormax.felicatool.service.steps.PollingDetermineTrailingDataSupportedStep
 import com.kormax.felicatool.service.steps.PollingSystemCodeStep
 import com.kormax.felicatool.service.steps.ProbeSystemCodesManuallyStep
+import com.kormax.felicatool.service.steps.ReadBlocksWithEncryptionDesStep
 import com.kormax.felicatool.service.steps.ReadBlocksWithoutEncryptionStep
+import com.kormax.felicatool.service.steps.ReadWithEncryptionDesDetermineErrorIndicationStep
+import com.kormax.felicatool.service.steps.ReadWithEncryptionDesDetermineExtendedBlockListElementSupportedStep
+import com.kormax.felicatool.service.steps.ReadWithEncryptionDesDetermineMaxBlocksStep
+import com.kormax.felicatool.service.steps.ReadWithEncryptionDesDetermineSupportedStep
 import com.kormax.felicatool.service.steps.ReadWithoutEncryptionDetermineErrorIndicationStep
 import com.kormax.felicatool.service.steps.ReadWithoutEncryptionDetermineExtendedBlockListElementSupportedStep
 import com.kormax.felicatool.service.steps.ReadWithoutEncryptionDetermineIllegalNumberErrorPreferenceStep
@@ -167,6 +172,11 @@ internal object ScanStepRegistry {
             Authentication1AesStep,
             Authentication1AesDetermineTrailingDataSupportedStep,
             AuthenticateSystemsStep,
+            ReadWithEncryptionDesDetermineSupportedStep,
+            ReadWithEncryptionDesDetermineErrorIndicationStep,
+            ReadWithEncryptionDesDetermineMaxBlocksStep,
+            ReadWithEncryptionDesDetermineExtendedBlockListElementSupportedStep,
+            ReadBlocksWithEncryptionDesStep,
             ScanOverviewStep,
         )
 

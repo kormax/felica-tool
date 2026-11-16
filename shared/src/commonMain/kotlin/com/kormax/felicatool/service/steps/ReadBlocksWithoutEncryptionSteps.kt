@@ -43,27 +43,6 @@ internal object ReadBlocksWithoutEncryptionStep :
                 continue
             }
 
-            val blockReadHints = mutableMapOf<Service, List<BlockReadCandidate>>()
-            val systemCode = systemContext.systemCode?.toHexString()
-            if (systemCode != null) {
-                for (service in servicesWithoutAuth) {
-                    if (service is AnonymousService) continue
-                    val blockIndices =
-                        nodeMetadataProvider
-                            .getExtraBlocks(systemCode, service.code.toHexString())
-                            .keys
-                    if (blockIndices.isNotEmpty()) {
-                        blockReadHints[service] =
-                            listOf(
-                                BlockReadCandidate(
-                                    blockIndices,
-                                    probeAfterRuns = false,
-                                ),
-                            )
-                    }
-                }
-            }
-
             val blockDataByService =
                 UnencryptedBlockReader(
                         session = this,
@@ -75,7 +54,7 @@ internal object ReadBlocksWithoutEncryptionStep :
                         errorLocationIndication =
                             scanContext.commands.readWithoutEncryption.errorLocationIndication,
                     )
-                    .read(servicesWithoutAuth, blockReadHints)
+                    .read(servicesWithoutAuth, blockReadHints(systemContext, servicesWithoutAuth))
 
             updatedSystemContexts.add(
                 systemContext.copy(serviceBlockData = blockDataByService.mapKeys { it.key }),

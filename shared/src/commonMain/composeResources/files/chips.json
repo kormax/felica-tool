@@ -71,6 +71,11 @@
         "max_services_per_request": 16,
         "max_blocks_per_request": 12
       },
+      "read_with_encryption_des": {
+        "supported": true,
+        "extended_block_list_element_supported": true,
+        "max_blocks_per_request": 12
+      },
       "write_without_encryption": {
         "supported": true,
         "trailing_data_supported": true
@@ -319,6 +324,11 @@
         "max_services_per_request": 16,
         "max_blocks_per_request": 12
       },
+      "read_with_encryption_des": {
+        "supported": true,
+        "extended_block_list_element_supported": true,
+        "max_blocks_per_request": 12
+      },
       "write_without_encryption": {
         "supported": true,
         "trailing_data_supported": true,
@@ -471,6 +481,11 @@
         "extended_block_list_element_supported": true,
         "trailing_data_supported": true,
         "max_services_per_request": 16,
+        "max_blocks_per_request": 12
+      },
+      "read_with_encryption_des": {
+        "supported": true,
+        "extended_block_list_element_supported": true,
         "max_blocks_per_request": 12
       },
       "write_without_encryption": {
@@ -757,6 +772,11 @@
         "max_services_per_request": 16,
         "max_blocks_per_request": 12
       },
+      "read_with_encryption_des": {
+        "supported": true,
+        "extended_block_list_element_supported": true,
+        "max_blocks_per_request": 12
+      },
       "write_without_encryption": {
         "supported": true,
         "trailing_data_supported": false,
@@ -837,6 +857,11 @@
         "extended_block_list_element_supported": true,
         "trailing_data_supported": false,
         "max_services_per_request": 16,
+        "max_blocks_per_request": 12
+      },
+      "read_with_encryption_des": {
+        "supported": true,
+        "extended_block_list_element_supported": true,
         "max_blocks_per_request": 12
       },
       "write_without_encryption": {
@@ -972,6 +997,11 @@
         "max_services_per_request": 16,
         "max_blocks_per_request": 15
       },
+      "read_with_encryption_des": {
+        "supported": true,
+        "extended_block_list_element_supported": true,
+        "max_blocks_per_request": 14
+      },
       "write_without_encryption": {
         "supported": true,
         "trailing_data_supported": true,
@@ -1091,6 +1121,11 @@
         "trailing_data_supported": true,
         "max_services_per_request": 16,
         "max_blocks_per_request": 15
+      },
+      "read_with_encryption_des": {
+        "supported": true,
+        "extended_block_list_element_supported": true,
+        "max_blocks_per_request": 14
       },
       "write_without_encryption": {
         "supported": true,
@@ -1234,6 +1269,11 @@
         "extended_block_list_element_supported": true,
         "trailing_data_supported": false,
         "max_services_per_request": 16,
+        "max_blocks_per_request": 12
+      },
+      "read_with_encryption_des": {
+        "supported": true,
+        "extended_block_list_element_supported": true,
         "max_blocks_per_request": 12
       },
       "write_without_encryption": {
@@ -1501,6 +1541,11 @@
         "max_services_per_request": 16,
         "max_blocks_per_request": 15
       },
+      "read_with_encryption_des": {
+        "supported": true,
+        "extended_block_list_element_supported": true,
+        "max_blocks_per_request": 14
+      },
       "write_without_encryption": {
         "supported": true,
         "trailing_data_supported": true,
@@ -1616,6 +1661,11 @@
         "trailing_data_supported": true,
         "max_services_per_request": 16,
         "max_blocks_per_request": 15
+      },
+      "read_with_encryption_des": {
+        "supported": true,
+        "extended_block_list_element_supported": true,
+        "max_blocks_per_request": 14
       },
       "write_without_encryption": {
         "supported": true,
@@ -1733,6 +1783,11 @@
         "trailing_data_supported": true,
         "max_services_per_request": 16,
         "max_blocks_per_request": 15
+      },
+      "read_with_encryption_des": {
+        "supported": true,
+        "extended_block_list_element_supported": true,
+        "max_blocks_per_request": 14
       },
       "write_without_encryption": {
         "supported": true,
@@ -1953,6 +2008,9 @@
         "max_services_per_request": 16,
         "max_blocks_per_request": 15
       },
+      "read_with_encryption_des": {
+        "supported": null
+      },
       "write_without_encryption": {
         "supported": true,
         "trailing_data_supported": true,
@@ -2073,6 +2131,11 @@
         "trailing_data_supported": true,
         "max_services_per_request": 16,
         "max_blocks_per_request": 15
+      },
+      "read_with_encryption_des": {
+        "supported": true,
+        "extended_block_list_element_supported": true,
+        "max_blocks_per_request": 14
       },
       "write_without_encryption": {
         "supported": true,
@@ -2208,6 +2271,11 @@
         "max_services_per_request": 16,
         "max_blocks_per_request": 15
       },
+      "read_with_encryption_des": {
+        "supported": true,
+        "extended_block_list_element_supported": true,
+        "max_blocks_per_request": 14
+      },
       "write_without_encryption": {
         "supported": true,
         "trailing_data_supported": true,
@@ -2324,6 +2392,11 @@
         "trailing_data_supported": true,
         "max_services_per_request": 16,
         "max_blocks_per_request": 15
+      },
+      "read_with_encryption_des": {
+        "supported": true,
+        "extended_block_list_element_supported": true,
+        "max_blocks_per_request": 14
       },
       "write_without_encryption": {
         "supported": true,
@@ -2485,6 +2558,11 @@
         "trailing_data_supported": true,
         "max_services_per_request": 16,
         "max_blocks_per_request": 15
+      },
+      "read_with_encryption_des": {
+        "supported": true,
+        "extended_block_list_element_supported": true,
+        "max_blocks_per_request": 14
       },
       "write_without_encryption": {
         "supported": true,
@@ -2650,6 +2728,9 @@
         "trailing_data_supported": true,
         "max_services_per_request": 16,
         "max_blocks_per_request": 15
+      },
+      "read_with_encryption_des": {
+        "supported": null
       },
       "write_without_encryption": {
         "supported": true,

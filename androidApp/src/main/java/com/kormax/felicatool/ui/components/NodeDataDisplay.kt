@@ -686,6 +686,37 @@ fun CardInformationSection(
                             )
                         }
                         CommandSupportChip(
+                            "Read With Encryption DES",
+                            context.commands.readWithEncryptionDes.supported,
+                            trailingDataSupport =
+                                context.commands.readWithEncryptionDes.trailingDataSupported,
+                        )
+                        context.commands.readWithEncryptionDes.maxBlocksPerRequest?.let { maxBlocks
+                            ->
+                            InfoChip(
+                                label = "Read Encrypted Max Blocks",
+                                value = maxBlocks.toString(),
+                            )
+                        }
+                        CommandSupportChip(
+                            "Read Encrypted Extended BLE",
+                            context.commands.readWithEncryptionDes
+                                .extendedBlockListElementSupported,
+                        )
+                        InfoChip(
+                            label = "Read Encrypted Error Mode",
+                            value =
+                                when (
+                                    context.commands.readWithEncryptionDes.errorLocationIndication
+                                ) {
+                                    ErrorLocationIndication.UNKNOWN -> "Unknown"
+                                    ErrorLocationIndication.NO_RESPONSE -> "No response"
+                                    ErrorLocationIndication.FLAG -> "Flag"
+                                    ErrorLocationIndication.INDEX -> "Index"
+                                    ErrorLocationIndication.BITMASK -> "Bitmask"
+                                },
+                        )
+                        CommandSupportChip(
                             "Write Without Encryption",
                             context.commands.writeWithoutEncryption.supported,
                             trailingDataSupport =
@@ -1043,7 +1074,14 @@ fun TreeNodeCard(
                         } else {
                             // Authentication requirements - show AUTH/FREE first
                             if (service.attribute.authenticationRequired) {
-                                AttributeChip("AUTH", isWarning = true, isCompact = true)
+                                val unlocked =
+                                    context.serviceBlockData[service]?.isNotEmpty() == true
+                                AttributeChip(
+                                    "AUTH",
+                                    isHighlight = unlocked,
+                                    isWarning = !unlocked,
+                                    isCompact = true,
+                                )
                             } else {
                                 AttributeChip("FREE", isHighlight = true, isCompact = true)
                             }

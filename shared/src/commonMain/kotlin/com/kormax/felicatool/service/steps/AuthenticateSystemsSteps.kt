@@ -4,21 +4,19 @@ import com.kormax.felicatool.authentication.AuthenticationGoal
 import com.kormax.felicatool.authentication.AuthenticationOutcome
 import com.kormax.felicatool.authentication.AuthenticationProviderSession
 import com.kormax.felicatool.authentication.AuthenticationQuery
-import com.kormax.felicatool.authentication.DesAuthenticationScope
-import com.kormax.felicatool.authentication.OfferBoundAuthenticationTransport
 import com.kormax.felicatool.authentication.SystemProfile
-import com.kormax.felicatool.felica.Authentication1Des
-import com.kormax.felicatool.felica.Authentication2Des
-import com.kormax.felicatool.felica.EncryptedCommand
-import com.kormax.felicatool.felica.EncryptedResponse
 import com.kormax.felicatool.logging.ScanLog
 import com.kormax.felicatool.nfc.NfcTargetUnavailableException
-import com.kormax.felicatool.nfc.TransceiveTimeoutException
 import com.kormax.felicatool.service.CardScanContext
 import com.kormax.felicatool.service.CommandSupport
+import com.kormax.felicatool.service.LiveAuthenticatedScope
 import com.kormax.felicatool.service.ScanSession
 import com.kormax.felicatool.service.ScanStep
+import com.kormax.felicatool.service.SessionOfferBoundTransport
 import com.kormax.felicatool.service.StepOutput
+import com.kormax.felicatool.service.StepPreconditionNotMet
+import com.kormax.felicatool.service.StepSkipped
+import com.kormax.felicatool.service.profileIn
 import com.kormax.felicatool.service.systemProfiles
 import com.kormax.felicatool.ui.ScanStepIcon
 import kotlinx.coroutines.CancellationException
@@ -43,7 +41,7 @@ internal object AuthenticateSystemsStep :
         val profiles = scanContext.systemProfiles()
         val sessions =
             authenticationProviderSessions(profiles)
-                ?: return StepOutput("Authentication providers are unavailable")
+                ?: throw StepSkipped("No authentication providers are available")
         return performWithSessions(sessions, profiles)
     }
 
@@ -52,6 +50,10 @@ internal object AuthenticateSystemsStep :
         profiles: List<SystemProfile>,
     ): StepOutput {
         val outcomes = mutableListOf<String>()
+        var profiled = 0
+        var concluded = 0
+        var authenticated = 0
+        var totalCredentialsTried = 0
         scanContext.systemScanContexts.toList().forEachIndexed { index, systemContext ->
             val systemCode = systemContext.systemCode
             val systemIdm = systemContext.idm
@@ -61,15 +63,16 @@ internal object AuthenticateSystemsStep :
                 return@forEachIndexed
             }
 
-            val profile = profiles.firstOrNull {
-                it.systemCode == label && it.idm == systemIdm.toHexString().uppercase()
-            }
+            val profile = systemContext.profileIn(profiles)
             if (profile == null) {
                 outcomes += "System $label: no usable DES key versions"
                 return@forEachIndexed
             }
 
-            var finalOutcome = "no matching credentials"
+            profiled++
+            releaseAuthenticatedScope()
+            var finalOutcome: String? = null
+            var credentialsTried = 0
             var stopSystem = false
             for (provider in sessions) {
                 if (stopSystem) break
@@ -94,6 +97,7 @@ internal object AuthenticateSystemsStep :
                     }
                 for (offer in offers) {
                     if (stopSystem) break
+                    credentialsTried++
                     val transport = SessionOfferBoundTransport(this, offer.scope)
                     val outcome =
                         try {
@@ -115,26 +119,28 @@ internal object AuthenticateSystemsStep :
 
                     when (outcome) {
                         is AuthenticationOutcome.Success -> {
-                            try {
-                                scanContext =
-                                    scanContext.copy(
-                                        systemScanContexts =
-                                            scanContext.systemScanContexts.mapIndexed {
-                                                systemIndex,
-                                                current ->
-                                                if (systemIndex != index) current
-                                                else
-                                                    current.copy(
-                                                        idi = outcome.information.issueId,
-                                                        pmi = outcome.information.issueParameter,
-                                                    )
-                                            },
-                                    )
-                                finalOutcome = "authenticated"
-                            } finally {
-                                outcome.channel.close()
-                                transport.recoverMode0()
-                            }
+                            liveAuthenticatedScope =
+                                LiveAuthenticatedScope(
+                                    offer,
+                                    outcome.channel,
+                                    transport,
+                                )
+                            scanContext =
+                                scanContext.copy(
+                                    systemScanContexts =
+                                        scanContext.systemScanContexts.mapIndexed {
+                                            systemIndex,
+                                            current ->
+                                            if (systemIndex != index) current
+                                            else
+                                                current.copy(
+                                                    idi = outcome.information.issueId,
+                                                    pmi = outcome.information.issueParameter,
+                                                )
+                                        },
+                                )
+                            finalOutcome = "authenticated"
+                            authenticated++
                             stopSystem = true
                         }
                         AuthenticationOutcome.CredentialMiss -> Unit
@@ -151,73 +157,27 @@ internal object AuthenticateSystemsStep :
                     }
                 }
             }
-            outcomes += "System $label: $finalOutcome"
+            totalCredentialsTried += credentialsTried
+            if (finalOutcome != null) concluded++
+            outcomes +=
+                "System $label: " +
+                    (finalOutcome
+                        ?: when (credentialsTried) {
+                            0 -> "no credentials available"
+                            else -> "no credentials accepted out of $credentialsTried"
+                        })
+        }
+        if (authenticated == 0) {
+            when {
+                profiled == 0 -> throw StepSkipped(outcomes.joinToString("\n"))
+                concluded > 0 -> error(outcomes.joinToString("\n"))
+                totalCredentialsTried == 0 -> throw StepSkipped("No credentials available")
+                else ->
+                    throw StepPreconditionNotMet(
+                        "No credentials accepted out of $totalCredentialsTried",
+                    )
+            }
         }
         return StepOutput(outcomes.joinToString("\n"))
-    }
-}
-
-internal class SessionOfferBoundTransport(
-    private val session: ScanSession,
-    override val scope: DesAuthenticationScope,
-) : OfferBoundAuthenticationTransport {
-    override val systemCode: String = scope.systemCode
-    override val idm: String = scope.idm
-
-    override suspend fun authentication1(
-        challenge1A: ByteArray,
-        attempts: Int,
-    ): Authentication1Des.Response? =
-        try {
-            session.executeCommand(
-                withSelectedSystemCode = systemCode.hexToByteArray(),
-                attempts = attempts,
-            ) {
-                Authentication1Des.Command(
-                    this@SessionOfferBoundTransport.idm.hexToByteArray(),
-                    scope.areaCodes.map { it.hexToByteArray() }.toTypedArray(),
-                    scope.nodeCodes.map { it.hexToByteArray() }.toTypedArray(),
-                    challenge1A,
-                )
-            }
-        } catch (_: TransceiveTimeoutException) {
-            null
-        }
-
-    override suspend fun authentication2(
-        challenge2B: ByteArray,
-        attempts: Int,
-    ): Authentication2Des.Response.Encrypted? =
-        try {
-            session.executeCommand(
-                withSelectedSystemCode = systemCode.hexToByteArray(),
-                attempts = attempts,
-            ) {
-                Authentication2Des.Command(
-                    this@SessionOfferBoundTransport.idm.hexToByteArray(),
-                    challenge2B,
-                )
-            }
-        } catch (_: TransceiveTimeoutException) {
-            null
-        }
-
-    override suspend fun <T : EncryptedResponse> transceiveSecure(
-        command: EncryptedCommand<T>,
-        attempts: Int,
-    ): T? =
-        try {
-            session.executeCommand(
-                withSelectedSystemCode = systemCode.hexToByteArray(),
-                attempts = attempts,
-            ) {
-                command
-            }
-        } catch (_: TransceiveTimeoutException) {
-            null
-        }
-
-    override suspend fun recoverMode0() {
-        session.recoverMode0(systemCode.hexToByteArray(), idm.hexToByteArray())
     }
 }

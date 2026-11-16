@@ -39,6 +39,8 @@ data class SystemProfile(
 
 sealed interface AuthenticationGoal {
     data object GetSystemAuthenticationInfo : AuthenticationGoal
+
+    data class ReadWithEncryption(val requestedNodes: Set<String>) : AuthenticationGoal
 }
 
 data class AuthenticationQuery(

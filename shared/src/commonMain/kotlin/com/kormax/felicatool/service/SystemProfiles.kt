@@ -121,3 +121,15 @@ internal fun CardScanContext.scanAuthenticationBehavior(): DesAuthenticationBeha
         supportedPlacements = placements,
     )
 }
+
+internal fun SystemScanContext.profileIn(profiles: List<SystemProfile>): SystemProfile? {
+    val systemCode = systemCode?.toHexString()?.uppercase() ?: return null
+    val idm = idm?.toHexString()?.uppercase() ?: return null
+    return profiles.firstOrNull { it.systemCode == systemCode && it.idm == idm }
+}
+
+internal fun SystemScanContext.authenticationRequiredServices(): Map<String, Service> =
+    nodes
+        .filterIsInstance<Service>()
+        .filter { it.attribute.authenticationRequired }
+        .associateBy { it.code.toHexString().uppercase() }

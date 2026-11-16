@@ -32,6 +32,8 @@ data class CommandCapabilities(
     val requestBlockInformationEx: BasicCommandCapability = BasicCommandCapability(),
     val readWithoutEncryption: ReadWithoutEncryptionCommandCapability =
         ReadWithoutEncryptionCommandCapability(),
+    val readWithEncryptionDes: ReadWithEncryptionDesCommandCapability =
+        ReadWithEncryptionDesCommandCapability(),
     val writeWithoutEncryption: WriteWithoutEncryptionCommandCapability =
         WriteWithoutEncryptionCommandCapability(),
     val getAreaInformation: BasicCommandCapability = BasicCommandCapability(),
@@ -115,4 +117,12 @@ data class Authentication1DesCommandCapability(
         CommandSupport.UNKNOWN,
     val leadingAuthenticationNotRequiredServiceInNodeListSupported: CommandSupport =
         CommandSupport.UNKNOWN,
+) : CommandCapability
+
+data class ReadWithEncryptionDesCommandCapability(
+    override val supported: CommandSupport = CommandSupport.UNKNOWN,
+    override val trailingDataSupported: CommandSupport = CommandSupport.UNKNOWN,
+    val extendedBlockListElementSupported: CommandSupport = CommandSupport.UNKNOWN,
+    val errorLocationIndication: ErrorLocationIndication = ErrorLocationIndication.UNKNOWN,
+    val maxBlocksPerRequest: Int? = null,
 ) : CommandCapability
