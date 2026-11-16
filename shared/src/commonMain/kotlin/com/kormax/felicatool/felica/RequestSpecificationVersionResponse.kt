@@ -18,6 +18,7 @@ class RequestSpecificationVersionResponse(
     /** Specification version information (only present if statusFlag1 == 0x00) */
     val specificationVersion: SpecificationVersion? = null,
 ) : FelicaResponseWithIdm(idm), WithStatusFlags {
+    override val code: Short = RESPONSE_CODE
 
     override fun toByteArray(): ByteArray =
         buildFelicaMessage(

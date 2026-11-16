@@ -19,6 +19,7 @@ class GetNodePropertyResponse(
     /** Array of Node Properties for the requested nodes Empty array if Status Flag1 != 0x00 */
     val nodeProperties: Array<NodeProperty> = emptyArray(),
 ) : FelicaResponseWithIdm(idm), WithStatusFlags {
+    override val code: Short = RESPONSE_CODE
 
     init {
         // If status is success, validate node properties

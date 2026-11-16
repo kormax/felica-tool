@@ -14,6 +14,7 @@ import com.kormax.felicatool.nfc.NfcTargetUnavailableException
 import com.kormax.felicatool.nfc.TransceiveErrorException
 import com.kormax.felicatool.nfc.TransceiveTimeoutException
 import com.kormax.felicatool.service.logging.CommunicationLogEntry
+import com.kormax.felicatool.service.logging.CommunicationLogLayer
 import com.kormax.felicatool.util.IcTypeRegistry
 import com.kormax.felicatool.util.NodeMetadataProvider
 import kotlin.time.Duration
@@ -841,11 +842,15 @@ internal constructor(
         currentModeValue = Mode.Mode0
     }
 
-    private fun log(message: Any) {
+    internal fun log(
+        message: Any,
+        layer: CommunicationLogLayer = CommunicationLogLayer.WIRE,
+    ) {
         communicationLog +=
             CommunicationLogEntry(
                 timestamp = communicationLogMark.elapsedNow().inWholeNanoseconds,
                 message = message,
+                layer = layer,
             )
     }
 }

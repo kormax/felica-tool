@@ -17,6 +17,7 @@ class RequestBlockInformationCommand(
     val nodeCodes: Array<ByteArray>,
     trailingData: ByteArray = ByteArray(0),
 ) : FelicaCommandWithIdm<RequestBlockInformationResponse>(idm, trailingData) {
+    override val code: Short = COMMAND_CODE
 
     init {
         require(nodeCodes.isNotEmpty()) { "At least one node code must be specified" }

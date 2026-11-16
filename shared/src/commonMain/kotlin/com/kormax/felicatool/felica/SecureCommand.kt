@@ -8,10 +8,14 @@ interface EncryptedCommand<T : EncryptedResponse> : FelicaCommand<T> {
     val encryptedData: ByteArray
 }
 
-interface SecureResponse
+interface SecureResponse {
+    val code: Short
+
+    fun toByteArray(): ByteArray
+}
 
 interface SecureCommand<out T : SecureResponse> {
-    val code: Int
+    val code: Short
 
     fun toByteArray(): ByteArray
 

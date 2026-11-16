@@ -30,6 +30,7 @@ class WriteWithoutEncryptionCommand(
     val blockData: Array<ByteArray>,
     trailingData: ByteArray = ByteArray(0),
 ) : FelicaCommandWithIdm<WriteWithoutEncryptionResponse>(idm, trailingData) {
+    override val code: Short = COMMAND_CODE
 
     init {
         require(serviceCodes.isNotEmpty()) { "At least one service code must be specified" }

@@ -12,6 +12,7 @@ class GetContainerIssueInformationCommand(
     val reserved: ByteArray = ByteArray(2),
     trailingData: ByteArray = ByteArray(0),
 ) : FelicaCommandWithIdm<GetContainerIssueInformationResponse>(idm, trailingData) {
+    override val code: Short = COMMAND_CODE
 
     init {
         require(reserved.size == 2) { "Reserved bytes must be exactly 2 bytes" }

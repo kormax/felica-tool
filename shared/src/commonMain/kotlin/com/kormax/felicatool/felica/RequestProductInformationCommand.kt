@@ -6,6 +6,7 @@ class RequestProductInformationCommand(
     idm: ByteArray,
     trailingData: ByteArray = ByteArray(0),
 ) : FelicaCommandWithIdm<RequestProductInformationResponse>(idm, trailingData) {
+    override val code: Short = COMMAND_CODE
 
     init {
         requireFrameLength(COMMAND_LENGTH)

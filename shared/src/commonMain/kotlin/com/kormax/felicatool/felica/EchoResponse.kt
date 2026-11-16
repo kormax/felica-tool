@@ -10,6 +10,7 @@ class EchoResponse(
     /** The echoed data received from the card */
     val data: ByteArray,
 ) : FelicaResponseWithoutIdm() {
+    override val code: Short = RESPONSE_CODE
 
     init {
         require(data.size <= 252) { "Data must be at most 252 bytes, got ${data.size}" }

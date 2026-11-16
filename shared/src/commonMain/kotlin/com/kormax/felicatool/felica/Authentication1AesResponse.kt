@@ -18,6 +18,7 @@ class Authentication1AesResponse(
     /** Nonce (4 bytes) - authentication and secure session nonce */
     val nonce: ByteArray,
 ) : FelicaResponseWithIdm(idm) {
+    override val code: Short = RESPONSE_CODE
 
     init {
         require(challenge1B.size == 16) {

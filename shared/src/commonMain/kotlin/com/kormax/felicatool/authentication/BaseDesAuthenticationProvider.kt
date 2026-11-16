@@ -216,7 +216,7 @@ private class LocalDesSecureChannel(
     override suspend fun <T : SecureResponse> transceive(command: SecureCommand<T>): T? {
         check(!interrupted) { "Secure channel was interrupted by a lost or invalid reply" }
         interrupted = true
-        val encrypted = command.encrypted(session.seal(command.code, command.toByteArray()))
+        val encrypted = command.encrypted(session.seal(command.code.toInt(), command.toByteArray()))
         val response = transport.transceiveSecure(encrypted) ?: return null
         return command
             .responseFromByteArray(session.open(command.code + 1, response.encryptedData))

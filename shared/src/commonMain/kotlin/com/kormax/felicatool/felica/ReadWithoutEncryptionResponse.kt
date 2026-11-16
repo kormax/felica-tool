@@ -18,6 +18,7 @@ class ReadWithoutEncryptionResponse(
     /** Array of block data read from the card Each block is 16 bytes of raw data. */
     val blockData: Array<ByteArray>,
 ) : FelicaResponseWithIdm(idm), WithStatusFlags {
+    override val code: Short = RESPONSE_CODE
 
     init {
         require(blockData.isEmpty() || blockData.all { it.size == 16 }) {

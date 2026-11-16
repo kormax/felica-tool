@@ -42,6 +42,7 @@ class RequestServiceV2Response(
      */
     val desKeyVersions: Array<KeyVersion> = emptyArray(),
 ) : FelicaResponseWithIdm(idm), WithStatusFlags {
+    override val code: Short = RESPONSE_CODE
 
     init {
         // If status is success, validate key versions

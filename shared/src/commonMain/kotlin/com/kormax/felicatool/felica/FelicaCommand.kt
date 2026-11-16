@@ -2,6 +2,8 @@ package com.kormax.felicatool.felica
 
 /** Base interface for all FeliCa commands */
 interface FelicaCommand<T : FelicaResponse> {
+    val code: Short
+
     /**
      * Returns the command class for timeout calculation. Default implementation returns OTHER for
      * unknown commands. Subclasses should override this to return the appropriate command class.

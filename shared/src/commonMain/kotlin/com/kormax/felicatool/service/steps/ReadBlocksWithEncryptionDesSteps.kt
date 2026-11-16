@@ -20,6 +20,7 @@ import com.kormax.felicatool.service.StepPreconditionNotMet
 import com.kormax.felicatool.service.StepSkipped
 import com.kormax.felicatool.service.authenticationRequiredServices
 import com.kormax.felicatool.service.blockReadHints
+import com.kormax.felicatool.service.loggedChannel
 import com.kormax.felicatool.service.profileIn
 import com.kormax.felicatool.service.systemProfiles
 import com.kormax.felicatool.ui.ScanStepIcon
@@ -159,7 +160,7 @@ internal object ReadBlocksWithEncryptionDesStep :
                         is AuthenticationOutcome.Success -> {
                             try {
                                 readCovered(
-                                    outcome.channel,
+                                    loggedChannel(outcome),
                                     offer,
                                     coverable,
                                 )

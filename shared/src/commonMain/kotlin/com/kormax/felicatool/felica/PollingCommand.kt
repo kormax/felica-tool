@@ -21,6 +21,7 @@ class PollingCommand(
     /** Non-standard bytes after the regular Polling command payload. */
     trailingData: ByteArray = ByteArray(0),
 ) : FelicaCommandWithoutIdm<PollingResponse>(trailingData) {
+    override val code: Short = COMMAND_CODE
 
     init {
         require(systemCode.size == 2) { "System code must be exactly 2 bytes" }

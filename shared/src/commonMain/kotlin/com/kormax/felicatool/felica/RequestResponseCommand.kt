@@ -13,6 +13,7 @@ class RequestResponseCommand(
     /** Non-standard bytes after the regular Request Response command payload. */
     trailingData: ByteArray = ByteArray(0),
 ) : FelicaCommandWithIdm<RequestResponseResponse>(idm, trailingData) {
+    override val code: Short = COMMAND_CODE
 
     init {
         requireFrameLength(MIN_LENGTH)

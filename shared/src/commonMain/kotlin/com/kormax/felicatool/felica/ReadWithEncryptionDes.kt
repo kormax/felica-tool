@@ -14,7 +14,7 @@ sealed interface ReadWithEncryptionDes {
                 }
             }
 
-            override val code: Int = COMMAND_CODE.toInt()
+            override val code: Short = COMMAND_CODE
 
             override fun toByteArray(): ByteArray {
                 val payload = ArrayList<Byte>()
@@ -36,6 +36,8 @@ sealed interface ReadWithEncryptionDes {
             FelicaCommandWithoutIdm<Response.Encrypted>(),
             EncryptedCommand<Response.Encrypted>,
             Command {
+            override val code: Short = COMMAND_CODE
+
             override val commandClass: CommandClass = CommandClass.DATA_READ
 
             override fun responseFromByteArray(data: ByteArray) =
@@ -60,6 +62,8 @@ sealed interface ReadWithEncryptionDes {
         class Encrypted(
             override val encryptedData: ByteArray,
         ) : FelicaResponseWithoutIdm(), EncryptedResponse, Response {
+            override val code: Short = RESPONSE_CODE
+
             override fun toByteArray(): ByteArray =
                 buildFelicaMessage(RESPONSE_CODE, capacity = BASE_LENGTH + encryptedData.size) {
                     addBytes(encryptedData)
@@ -78,10 +82,23 @@ sealed interface ReadWithEncryptionDes {
             override val statusFlag2: Byte,
             val blockData: List<ByteArray>,
         ) : SecureResponse, WithStatusFlags, Response {
+            override val code: Short = RESPONSE_CODE
+
             init {
                 require(blockData.all { it.size == BlockListElement.BLOCK_SIZE }) {
                     "Each block must be exactly ${BlockListElement.BLOCK_SIZE} bytes"
                 }
+            }
+
+            override fun toByteArray(): ByteArray {
+                val bytes = ArrayList<Byte>()
+                bytes.addByte(statusFlag1.toInt())
+                bytes.addByte(statusFlag2.toInt())
+                if (statusFlag1 == 0x00.toByte()) {
+                    bytes.addByte(blockData.size)
+                    blockData.forEach { bytes.addBytes(it) }
+                }
+                return bytes.toByteArray()
             }
 
             companion object {

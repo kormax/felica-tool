@@ -27,6 +27,7 @@ import com.kormax.felicatool.service.StepSkipped
 import com.kormax.felicatool.service.SystemScanContext
 import com.kormax.felicatool.service.authenticationRequiredServices
 import com.kormax.felicatool.service.formatStatus
+import com.kormax.felicatool.service.loggedChannel
 import com.kormax.felicatool.service.profileIn
 import com.kormax.felicatool.service.systemProfiles
 import com.kormax.felicatool.ui.ScanStepIcon
@@ -487,9 +488,9 @@ private suspend fun ScanSession.authenticatedScopeAttempt(
                 }
             when (outcome) {
                 is AuthenticationOutcome.Success -> {
-                    liveAuthenticatedScope =
-                        LiveAuthenticatedScope(offer, outcome.channel, transport)
-                    return outcome.channel.runBlock(order, block)
+                    val channel = loggedChannel(outcome)
+                    liveAuthenticatedScope = LiveAuthenticatedScope(offer, channel, transport)
+                    return channel.runBlock(order, block)
                 }
                 is AuthenticationOutcome.HardFailure -> transport.recoverMode0()
                 else -> Unit

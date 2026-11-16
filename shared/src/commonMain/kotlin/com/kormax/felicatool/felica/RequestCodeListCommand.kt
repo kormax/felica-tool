@@ -17,6 +17,7 @@ class RequestCodeListCommand(
     val index: Int,
     trailingData: ByteArray = ByteArray(0),
 ) : FelicaCommandWithIdm<RequestCodeListResponse>(idm, trailingData) {
+    override val code: Short = COMMAND_CODE
 
     init {
         require(parentNodeCode.size == 2) { "Parent node code must be exactly 2 bytes" }

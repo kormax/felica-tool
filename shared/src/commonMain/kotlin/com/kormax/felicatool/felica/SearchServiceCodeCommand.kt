@@ -17,6 +17,7 @@ class SearchServiceCodeCommand(
     val index: Int = 0,
     trailingData: ByteArray = ByteArray(0),
 ) : FelicaCommandWithIdm<SearchServiceCodeResponse>(idm, trailingData) {
+    override val code: Short = COMMAND_CODE
 
     init {
         require(index in 0..0xFFFF) { "Index must be between 0 and 65535" }

@@ -13,6 +13,7 @@ class RequestResponseResponse(
     /** Current mode of the card */
     val mode: CardMode,
 ) : FelicaResponseWithIdm(idm) {
+    override val code: Short = RESPONSE_CODE
 
     override fun toByteArray(): ByteArray =
         buildFelicaMessage(RESPONSE_CODE, idm, capacity = MIN_LENGTH) { addByte(mode.value) }

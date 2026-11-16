@@ -8,6 +8,7 @@ sealed interface Authentication1Des {
         val challenge1A: ByteArray,
         trailingData: ByteArray = ByteArray(0),
     ) : FelicaCommandWithIdm<Response>(idm, trailingData), Authentication1Des {
+        override val code: Short = COMMAND_CODE
 
         init {
             require(areaCodes.isNotEmpty() || nodeCodes.isNotEmpty()) {
@@ -94,6 +95,7 @@ sealed interface Authentication1Des {
         val challenge1B: ByteArray,
         val challenge2A: ByteArray,
     ) : FelicaResponseWithIdm(idm), Authentication1Des {
+        override val code: Short = RESPONSE_CODE
 
         init {
             require(challenge1B.size == 8) {

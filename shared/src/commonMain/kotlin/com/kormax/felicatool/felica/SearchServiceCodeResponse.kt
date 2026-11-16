@@ -11,6 +11,7 @@ class SearchServiceCodeResponse(
     /** Service code or area entry found on the card, or null if none */
     val node: Node,
 ) : FelicaResponseWithIdm(idm) {
+    override val code: Short = RESPONSE_CODE
 
     override fun toByteArray(): ByteArray =
         buildFelicaMessage(RESPONSE_CODE, idm, capacity = BASE_LENGTH + node.toByteArray().size) {

@@ -15,6 +15,7 @@ class WriteWithoutEncryptionResponse(
     /** Status Flag 2 - provides detailed error information */
     override val statusFlag2: Byte,
 ) : FelicaResponseWithIdm(idm), WithStatusFlags {
+    override val code: Short = RESPONSE_CODE
 
     override fun toByteArray(): ByteArray =
         buildFelicaMessage(RESPONSE_CODE, idm, capacity = RESPONSE_LENGTH) {

@@ -20,6 +20,7 @@ class SetParameterCommand(
     val reservedD6D7D: ByteArray = ByteArray(2),
     trailingData: ByteArray = ByteArray(0),
 ) : FelicaCommandWithIdm<SetParameterResponse>(idm, trailingData) {
+    override val code: Short = COMMAND_CODE
 
     init {
         require(reservedD0D1D2D3.size == 4) { "Reserved D0-D3 must be exactly 4 bytes" }

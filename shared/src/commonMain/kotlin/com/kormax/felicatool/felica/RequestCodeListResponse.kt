@@ -25,6 +25,7 @@ class RequestCodeListResponse(
     /** List of service codes found (parsed Service objects) */
     val services: List<Service>,
 ) : FelicaResponseWithIdm(idm), WithStatusFlags {
+    override val code: Short = RESPONSE_CODE
 
     override fun toByteArray(): ByteArray =
         buildFelicaMessage(

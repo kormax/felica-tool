@@ -158,4 +158,4 @@ private inline fun <T> parseFelicaMessage(
     return cursor.block(idm)
 }
 
-private fun Short.requiresTwoBytes(): Boolean = (toInt() and 0xFF00) != 0
+internal fun Short.requiresTwoBytes(): Boolean = (toInt() and 0xFF00) != 0

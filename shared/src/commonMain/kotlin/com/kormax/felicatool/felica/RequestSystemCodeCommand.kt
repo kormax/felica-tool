@@ -12,6 +12,7 @@ class RequestSystemCodeCommand(
     idm: ByteArray,
     trailingData: ByteArray = ByteArray(0),
 ) : FelicaCommandWithIdm<RequestSystemCodeResponse>(idm, trailingData) {
+    override val code: Short = COMMAND_CODE
 
     init {
         requireFrameLength(MIN_LENGTH)

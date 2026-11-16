@@ -16,6 +16,7 @@ import com.kormax.felicatool.service.SessionOfferBoundTransport
 import com.kormax.felicatool.service.StepOutput
 import com.kormax.felicatool.service.StepPreconditionNotMet
 import com.kormax.felicatool.service.StepSkipped
+import com.kormax.felicatool.service.loggedChannel
 import com.kormax.felicatool.service.profileIn
 import com.kormax.felicatool.service.systemProfiles
 import com.kormax.felicatool.ui.ScanStepIcon
@@ -122,7 +123,7 @@ internal object AuthenticateSystemsStep :
                             liveAuthenticatedScope =
                                 LiveAuthenticatedScope(
                                     offer,
-                                    outcome.channel,
+                                    loggedChannel(outcome),
                                     transport,
                                 )
                             scanContext =

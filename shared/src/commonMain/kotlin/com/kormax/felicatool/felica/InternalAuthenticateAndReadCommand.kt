@@ -35,6 +35,7 @@ class InternalAuthenticateAndReadCommand(
     val reserved: Byte = 0x00,
     trailingData: ByteArray = ByteArray(0),
 ) : FelicaCommandWithIdm<InternalAuthenticateAndReadResponse>(idm, trailingData) {
+    override val code: Short = COMMAND_CODE
 
     init {
         require(serviceCodes.isNotEmpty()) { "At least one service code must be specified" }

@@ -25,6 +25,7 @@ class GetAreaInformationResponse(
     /** Data field with unknown meaning (2 bytes, only present if status is success) */
     val data: ByteArray = ByteArray(0),
 ) : FelicaResponseWithIdm(idm), WithStatusFlags {
+    override val code: Short = RESPONSE_CODE
 
     init {
         // If status is success, nodeCode and data should be present

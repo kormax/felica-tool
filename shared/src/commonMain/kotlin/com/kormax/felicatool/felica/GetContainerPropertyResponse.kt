@@ -10,6 +10,7 @@ class GetContainerPropertyResponse(
     /** Property data array (at least 1 byte) */
     val data: ByteArray,
 ) : FelicaResponseWithoutIdm() {
+    override val code: Short = RESPONSE_CODE
 
     init {
         require(data.isNotEmpty()) { "Data array must contain at least 1 byte" }

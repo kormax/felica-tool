@@ -14,6 +14,7 @@ class RequestProductInformationResponse(
     /** Product information data (only present if status is success) */
     val productInformationData: ByteArray = ByteArray(0),
 ) : FelicaResponseWithIdm(idm), WithStatusFlags {
+    override val code: Short = RESPONSE_CODE
 
     init {
         // If status is success, product data should be present and properly sized

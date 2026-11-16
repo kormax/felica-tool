@@ -16,6 +16,7 @@ class RequestServiceResponse(
      */
     val keyVersions: Array<KeyVersion>,
 ) : FelicaResponseWithIdm(idm) {
+    override val code: Short = RESPONSE_CODE
 
     init {
         require(keyVersions.isNotEmpty()) { "At least one key version must be present" }

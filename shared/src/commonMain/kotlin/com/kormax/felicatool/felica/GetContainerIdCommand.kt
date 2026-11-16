@@ -11,6 +11,7 @@ class GetContainerIdCommand(
     val reserved: ByteArray = byteArrayOf(0x00, 0x00),
     trailingData: ByteArray = ByteArray(0),
 ) : FelicaCommandWithoutIdm<GetContainerIdResponse>(trailingData) {
+    override val code: Short = COMMAND_CODE
 
     init {
         require(reserved.size == 2) {

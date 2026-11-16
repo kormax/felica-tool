@@ -25,6 +25,7 @@ class InternalAuthenticateAndReadResponse(
     /** Message Authentication Code (16 bytes) */
     val mac: ByteArray,
 ) : FelicaResponseWithIdm(idm), WithStatusFlags {
+    override val code: Short = RESPONSE_CODE
 
     init {
         require(blockData.isEmpty() || blockData.all { it.size == BLOCK_SIZE }) {

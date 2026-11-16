@@ -16,6 +16,7 @@ class RequestSystemCodeResponse(
      */
     val systemCodes: List<ByteArray>,
 ) : FelicaResponseWithIdm(idm) {
+    override val code: Short = RESPONSE_CODE
 
     init {
         require(systemCodes.isNotEmpty()) { "System codes list cannot be empty" }

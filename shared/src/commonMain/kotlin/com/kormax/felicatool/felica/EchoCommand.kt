@@ -12,6 +12,7 @@ class EchoCommand(
     /** Data to be echoed back by the card (up to 256 bytes) */
     val data: ByteArray,
 ) : FelicaCommandWithoutIdm<EchoResponse>() {
+    override val code: Short = COMMAND_CODE
 
     init {
         require(data.size <= 252) { "Data must be at most 252 bytes, got ${data.size}" }

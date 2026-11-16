@@ -6,6 +6,7 @@ sealed interface Authentication2Des {
         val challenge2B: ByteArray,
         trailingData: ByteArray = ByteArray(0),
     ) : FelicaCommandWithIdm<Response.Encrypted>(idm, trailingData), Authentication2Des {
+        override val code: Short = COMMAND_CODE
 
         init {
             require(challenge2B.size == 8) {
@@ -40,6 +41,7 @@ sealed interface Authentication2Des {
         class Encrypted(
             override val encryptedData: ByteArray,
         ) : FelicaResponseWithoutIdm(), EncryptedResponse, Response {
+            override val code: Short = RESPONSE_CODE
 
             init {
                 require(encryptedData.size == ENCRYPTED_DATA_LENGTH) {
@@ -72,14 +74,15 @@ sealed interface Authentication2Des {
         class Plain(
             val issueId: ByteArray,
             val issueParameter: ByteArray,
-        ) : Response {
+        ) : Response, SecureResponse {
+            override val code: Short = Encrypted.RESPONSE_CODE
 
             init {
                 require(issueId.size == 8) { "Issue ID must be exactly 8 bytes" }
                 require(issueParameter.size == 8) { "Issue parameter must be exactly 8 bytes" }
             }
 
-            fun toByteArray(): ByteArray = issueId + issueParameter
+            override fun toByteArray(): ByteArray = issueId + issueParameter
 
             companion object {
                 const val LENGTH = 16

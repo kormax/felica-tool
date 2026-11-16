@@ -16,6 +16,7 @@ class GetSystemStatusResponse(
     override val statusFlag2: Byte,
     val systemStatus: SystemStatus,
 ) : FelicaResponseWithIdm(idm), WithStatusFlags {
+    override val code: Short = RESPONSE_CODE
 
     init {
         require(systemStatus.toByteArray().size <= 256) {

@@ -83,19 +83,26 @@ object ExportUtils {
      */
     private fun maskCommunicationLogHex(hex: String, message: Any): String {
         var result = hex
-        // Mask IDM (bytes 2-9, hex chars 4-19) for messages with IDM
-        if (message is FelicaMessageWithIdm && result.length >= 20) {
-            val idmHex = result.substring(4, 20) // 8 bytes = 16 hex chars
-            result = result.substring(0, 4) + maskIdm(idmHex) + result.substring(20)
+        // Mask IDM (data bytes 0-7, hex chars 0-15) for messages with IDM
+        if (message is FelicaMessageWithIdm && result.length >= 16) {
+            result = maskIdm(result.substring(0, 16)) + result.substring(16)
         }
         // Mask block data in read responses
         if (
             message is ReadWithoutEncryptionResponse ||
                 message is InternalAuthenticateAndReadResponse
         ) {
-            result = maskResponseBlockHex(result)
+            result = maskResponseBlockHex(result, statusFlagsOffset = 8)
         }
-        // Mask product information data (bytes 13+, keep first 8 bytes of product data)
+        if (message is ReadWithEncryptionDes.Response.Plain) {
+            result = maskResponseBlockHex(result, statusFlagsOffset = 0)
+        }
+        if (message is Authentication2Des.Response.Plain) {
+            result =
+                maskIdi(message.issueId.toHexString().uppercase()) +
+                    maskPmi(message.issueParameter.toHexString().uppercase())
+        }
+        // Mask product information data (data bytes 11+, keep first 8 bytes of product data)
         if (message is RequestProductInformationResponse) {
             result = maskProductInfoHex(result)
         }
@@ -107,9 +114,9 @@ object ExportUtils {
      * byte 13) and first 8 bytes of product data, masks the rest.
      */
     private fun maskProductInfoHex(hex: String): String {
-        // Byte 12 (hex chars 24-25) is the data length, product data starts at byte 13 (hex char
-        // 26)
-        val productDataStart = 26
+        // Data byte 10 (hex chars 20-21) is the data length, product data starts at data byte 11
+        // (hex char 22)
+        val productDataStart = 22
         if (hex.length <= productDataStart) return hex
         val productDataHex = hex.substring(productDataStart)
         val masked = maskProductInfo(productDataHex)
@@ -117,16 +124,16 @@ object ExportUtils {
     }
 
     /**
-     * Masks block data in a response hex string (for ReadWithoutEncryption and
-     * InternalAuthenticateAndRead)
+     * Masks block data in a response hex string (for ReadWithoutEncryption,
+     * InternalAuthenticateAndRead and ReadWithEncryptionDes)
      */
-    private fun maskResponseBlockHex(hex: String): String {
-        // Status flags at bytes 10-11 (hex chars 20-23), block count at byte 12 (hex chars 24-25)
-        if (hex.length < 26) return hex
-        val statusFlag1 = hex.substring(20, 22)
+    private fun maskResponseBlockHex(hex: String, statusFlagsOffset: Int): String {
+        val statusStart = statusFlagsOffset * 2
+        if (hex.length < statusStart + 6) return hex
+        val statusFlag1 = hex.substring(statusStart, statusStart + 2)
         if (statusFlag1 != "00") return hex
-        val numberOfBlocks = hex.substring(24, 26).toInt(16)
-        val blockDataStart = 26 // byte 13 = hex char 26
+        val numberOfBlocks = hex.substring(statusStart + 4, statusStart + 6).toInt(16)
+        val blockDataStart = statusStart + 6
         val sb = StringBuilder(hex.substring(0, blockDataStart))
         for (block in 0 until numberOfBlocks) {
             val offset = blockDataStart + block * 32 // 16 bytes = 32 hex chars
@@ -181,10 +188,16 @@ object ExportUtils {
         log.forEach { entry ->
             val obj = JSONObject()
             val message = entry.message
-            obj.put("type", if (message is FelicaCommand<*>) "COMMAND" else "RESPONSE")
+            obj.put(
+                "type",
+                if (message is FelicaCommand<*> || message is SecureCommand<*>) "COMMAND"
+                else "RESPONSE",
+            )
+            obj.put("layer", entry.layer.name)
             obj.put("name", message.messageName)
             obj.put("timestamp_ns", entry.timestamp - baseTimestamp)
-            val hex = entry.toByteArray().joinToString(separator = "") { "%02X".format(it) }
+            obj.put("code", entry.codeBytes.joinToString(separator = "") { "%02X".format(it) })
+            val hex = entry.data.joinToString(separator = "") { "%02X".format(it) }
             obj.put("data", if (privacy) maskCommunicationLogHex(hex, message) else hex)
             jsonArray.put(obj)
         }

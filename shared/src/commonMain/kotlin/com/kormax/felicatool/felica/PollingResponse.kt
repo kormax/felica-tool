@@ -25,6 +25,7 @@ class PollingResponse(
     /** Non-standard bytes after the regular Polling response payload. */
     val trailingData: ByteArray = ByteArray(0),
 ) : FelicaResponseWithIdm(idm) {
+    override val code: Short = RESPONSE_CODE
 
     init {
         require(pmm.size == 8) { "PMm must be exactly 8 bytes" }

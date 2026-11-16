@@ -10,6 +10,7 @@ class GetContainerIdResponse(
     /** The container's IDM (8 bytes) - unique identifier */
     val containerIdm: ByteArray,
 ) : FelicaResponseWithoutIdm() {
+    override val code: Short = RESPONSE_CODE
 
     init {
         require(containerIdm.size == 8) {

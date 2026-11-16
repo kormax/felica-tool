@@ -11,6 +11,7 @@ class GetContainerIssueInformationResponse(
     /** Container information (16 bytes total: 5 bytes format version + 11 bytes model info) */
     val containerInformation: ContainerInformation,
 ) : FelicaResponseWithIdm(idm) {
+    override val code: Short = RESPONSE_CODE
 
     override fun toByteArray(): ByteArray =
         buildFelicaMessage(RESPONSE_CODE, idm, capacity = RESPONSE_LENGTH) {

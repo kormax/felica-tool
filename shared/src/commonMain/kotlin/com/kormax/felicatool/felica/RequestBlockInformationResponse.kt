@@ -11,6 +11,7 @@ class RequestBlockInformationResponse(
     /** Array of block count information for each requested node */
     val blockCountInformation: Array<CountInformation>,
 ) : FelicaResponseWithIdm(idm) {
+    override val code: Short = RESPONSE_CODE
 
     override fun toByteArray(): ByteArray =
         buildFelicaMessage(

@@ -14,6 +14,7 @@ class GetContainerPropertyCommand(
     val property: Property = Property.PROPERTY_1,
     trailingData: ByteArray = ByteArray(0),
 ) : FelicaCommandWithoutIdm<GetContainerPropertyResponse>(trailingData) {
+    override val code: Short = COMMAND_CODE
 
     /** Alternative constructor with raw index value */
     constructor(

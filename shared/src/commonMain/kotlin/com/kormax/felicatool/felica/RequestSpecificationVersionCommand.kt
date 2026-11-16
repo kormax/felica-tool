@@ -14,6 +14,7 @@ class RequestSpecificationVersionCommand(
     val reserved: ByteArray = byteArrayOf(0x00, 0x00),
     trailingData: ByteArray = ByteArray(0),
 ) : FelicaCommandWithIdm<RequestSpecificationVersionResponse>(idm, trailingData) {
+    override val code: Short = COMMAND_CODE
 
     init {
         require(reserved.size == 2) { "Reserved field must be exactly 2 bytes" }

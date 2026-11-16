@@ -14,6 +14,7 @@ class GetAreaInformationCommand(
     val nodeCode: ByteArray,
     trailingData: ByteArray = ByteArray(0),
 ) : FelicaCommandWithIdm<GetAreaInformationResponse>(idm, trailingData) {
+    override val code: Short = COMMAND_CODE
 
     init {
         require(nodeCode.size == 2) { "Node code must be exactly 2 bytes" }

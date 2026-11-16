@@ -22,6 +22,7 @@ class RequestBlockInformationExResponse(
     /** Array of free block counts for each requested service */
     val freeBlockCount: Array<CountInformation>,
 ) : FelicaResponseWithIdm(idm), WithStatusFlags {
+    override val code: Short = RESPONSE_CODE
 
     init {
         require(assignedBlockCount.size == freeBlockCount.size) {
