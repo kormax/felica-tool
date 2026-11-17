@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -65,6 +66,7 @@ internal fun AuthenticationProvidersScreen(
     localCredentials: LocalAuthenticationCredentials,
     onBackPressed: () -> Unit,
     onOpenProvider: (String) -> Unit,
+    onOpenImportIdentities: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     var providers by remember { mutableStateOf(emptyList<AuthenticationProviderSummary>()) }
@@ -153,7 +155,7 @@ internal fun AuthenticationProvidersScreen(
                     } else {
                         AppBarMenu(icon = Icons.Filled.MoreVert, label = "Provider actions") {
                             dismiss ->
-                            AppBarMenuGroup(shapes = MenuDefaults.groupShape(0, 1)) {
+                            AppBarMenuGroup(shapes = MenuDefaults.groupShape(0, 2)) {
                                 DropdownMenuItem(
                                     text = { Text("Rearrange priorities") },
                                     leadingIcon = {
@@ -164,6 +166,20 @@ internal fun AuthenticationProvidersScreen(
                                     onClick = {
                                         dismiss()
                                         pendingProviderOrder = providers.toList()
+                                    },
+                                )
+                            }
+                            Spacer(Modifier.height(MenuDefaults.GroupSpacing))
+                            AppBarMenuGroup(shapes = MenuDefaults.groupShape(1, 2)) {
+                                DropdownMenuItem(
+                                    text = { Text("Import identities") },
+                                    leadingIcon = {
+                                        Icon(painterResource(R.drawable.ic_key), null)
+                                    },
+                                    shape = MenuDefaults.standaloneItemShape,
+                                    onClick = {
+                                        dismiss()
+                                        onOpenImportIdentities()
                                     },
                                 )
                             }

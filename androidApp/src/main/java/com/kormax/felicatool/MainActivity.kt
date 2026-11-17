@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import androidx.lifecycle.lifecycleScope
 import com.kormax.felicatool.authentication.AndroidAuthenticationProviders
+import com.kormax.felicatool.authentication.AndroidKeyImportIdentities
 import com.kormax.felicatool.device.KeystoreCapabilities
 import com.kormax.felicatool.felica.FeliCaTarget
 import com.kormax.felicatool.felica.PollingCommand
@@ -71,6 +72,7 @@ import com.kormax.felicatool.ui.AboutScreen
 import com.kormax.felicatool.ui.AuthenticationProviderEditorScreen
 import com.kormax.felicatool.ui.AuthenticationProvidersScreen
 import com.kormax.felicatool.ui.CardScanStep
+import com.kormax.felicatool.ui.KeyImportIdentitiesScreen
 import com.kormax.felicatool.ui.ScanResultsOverview
 import com.kormax.felicatool.ui.StepStatus
 import com.kormax.felicatool.ui.components.StepsList
@@ -103,6 +105,7 @@ private const val KEY_BACKGROUND_READING = "background_reading"
 private const val STATE_SHOW_ABOUT = "show_about"
 private const val STATE_SHOW_AUTHENTICATION_PROVIDERS = "show_authentication_providers"
 private const val STATE_SELECTED_AUTHENTICATION_PROVIDER_ID = "selected_authentication_provider_id"
+private const val STATE_SHOW_KEY_IMPORT_IDENTITIES = "show_key_import_identities"
 private const val KEY_TEST_TRAILING_DATA_COMMANDS = "test_trailing_data_commands"
 private const val KEY_TEST_WRITE_COMMANDS = "test_write_commands"
 private const val KEY_IC_CODE_SCAN_HEURISTICS = "ic_code_scan_heuristics"
@@ -153,6 +156,8 @@ class MainActivity : ComponentActivity() {
     private var showAuthenticationProviders by mutableStateOf(false)
     private var showAbout by mutableStateOf(false)
     private var selectedAuthenticationProviderId by mutableStateOf<String?>(null)
+    private var showKeyImportIdentities by mutableStateOf(false)
+    private val keyImportIdentities by lazy { AndroidKeyImportIdentities(applicationContext) }
     private var isBackgroundReadingEnabled by mutableStateOf(false)
     private var scanSettings by mutableStateOf(ScanSettings())
     private var isActivityResumed = false
@@ -201,6 +206,7 @@ class MainActivity : ComponentActivity() {
             showAuthenticationProviders = it.getBoolean(STATE_SHOW_AUTHENTICATION_PROVIDERS)
             selectedAuthenticationProviderId =
                 it.getString(STATE_SELECTED_AUTHENTICATION_PROVIDER_ID)
+            showKeyImportIdentities = it.getBoolean(STATE_SHOW_KEY_IMPORT_IDENTITIES)
         }
         isBackgroundReadingEnabled = readerPreferences.getBoolean(KEY_BACKGROUND_READING, false)
         scanSettings =
@@ -272,7 +278,12 @@ class MainActivity : ComponentActivity() {
                         )
                     } else if (showAuthenticationProviders) {
                         val providerId = selectedAuthenticationProviderId
-                        if (providerId == null) {
+                        if (showKeyImportIdentities) {
+                            KeyImportIdentitiesScreen(
+                                identities = keyImportIdentities,
+                                onBackPressed = { showKeyImportIdentities = false },
+                            )
+                        } else if (providerId == null) {
                             AuthenticationProvidersScreen(
                                 settings = authenticationProviders,
                                 localCredentials = authenticationProviders,
@@ -281,6 +292,7 @@ class MainActivity : ComponentActivity() {
                                     resumeReader()
                                 },
                                 onOpenProvider = { selectedAuthenticationProviderId = it },
+                                onOpenImportIdentities = { showKeyImportIdentities = true },
                             )
                         } else {
                             AuthenticationProviderEditorScreen(
@@ -329,6 +341,7 @@ class MainActivity : ComponentActivity() {
             STATE_SELECTED_AUTHENTICATION_PROVIDER_ID,
             selectedAuthenticationProviderId,
         )
+        outState.putBoolean(STATE_SHOW_KEY_IMPORT_IDENTITIES, showKeyImportIdentities)
     }
 
     private fun refreshNfcStatus(): Boolean {

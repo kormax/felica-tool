@@ -93,7 +93,7 @@ class AndroidSecureAuthenticationProviderStorage(context: Context) :
 
     private companion object {
         const val FILE_NAME = "authentication-providers.enc"
-        const val KEY_ALIAS = "felica-tool-authentication-provider-storage"
+        const val KEY_ALIAS = "felica-tool-key-provider-storage"
         const val ANDROID_KEY_STORE = "AndroidKeyStore"
         const val TRANSFORMATION = "AES/GCM/NoPadding"
         const val IV_SIZE = 12

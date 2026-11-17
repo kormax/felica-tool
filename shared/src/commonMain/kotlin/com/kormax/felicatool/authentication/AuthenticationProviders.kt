@@ -17,7 +17,7 @@ class AuthenticationProviders(
     randomSource: SecureRandomSource,
 ) : AuthenticationProviderSettings, LocalAuthenticationCredentials, AuthenticationProviderRegistry {
     private val store = AuthenticationProviderStore(storage, keyStore)
-    private val context = LocalCredentialContext(keyStore, newId)
+    private val context = LocalCredentialContext(keyStore, newId, randomSource)
     private val providerContext =
         AuthenticationProviderContext(keyStore, cryptography, randomSource)
 
@@ -62,9 +62,12 @@ class AuthenticationProviders(
     override suspend fun keyStorages(providerId: String) =
         store.read { it.requireLocal(providerId) }.keyStorages(context)
 
-    override suspend fun validateCredentials(providerId: String, data: ByteArray) {
+    override suspend fun prepareCredentialImport(
+        providerId: String,
+        data: ByteArray,
+    ): PreparedCredentialImport {
         val provider = store.read { it.requireLocal(providerId) }
-        withContext(Dispatchers.Default) { provider.validateCredentials(data) }
+        return withContext(Dispatchers.Default) { provider.prepareCredentialImport(data, context) }
     }
 
     override suspend fun importCredentials(
@@ -73,7 +76,7 @@ class AuthenticationProviders(
         storage: KeyStorage,
         onProgress: (processed: Int, total: Int) -> Unit,
     ) = store.update {
-        it.requireLocal(providerId).importCredentials(data, storage, context, onProgress)
+        it.requireLocal(providerId).importCredentials(data, storage, context, it, onProgress)
     }
 
     override suspend fun providers(): List<AuthenticationProvider> =

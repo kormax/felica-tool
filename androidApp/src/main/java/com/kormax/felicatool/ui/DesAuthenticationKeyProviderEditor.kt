@@ -44,7 +44,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearWavyProgressIndicator
-import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
@@ -84,6 +83,7 @@ import com.kormax.felicatool.authentication.AuthenticationProviderSummary
 import com.kormax.felicatool.authentication.AuthenticationProviderType
 import com.kormax.felicatool.authentication.CredentialImportResult
 import com.kormax.felicatool.authentication.DesAuthenticationKeySummary
+import com.kormax.felicatool.authentication.DesKeyComponent
 import com.kormax.felicatool.authentication.KeyStorage
 import com.kormax.felicatool.authentication.KeyStorageOption
 import com.kormax.felicatool.authentication.LocalAuthenticationCredentials
@@ -170,14 +170,30 @@ internal fun DesAuthenticationKeyProviderEditor(
                                         "Could not open selected document",
                                     )
                         }
-                        val bytes = checkNotNull(data)
-                        localCredentials.validateCredentials(providerId, bytes)
-                        KeyStorageChoice(bytes, localCredentials.keyStorages(providerId))
+                        val prepared =
+                            localCredentials.prepareCredentialImport(providerId, checkNotNull(data))
+                        try {
+                            prepared.storage to
+                                KeyStorageChoice(
+                                    prepared.data,
+                                    if (prepared.storage == null) {
+                                        localCredentials.keyStorages(providerId)
+                                    } else {
+                                        emptyList()
+                                    },
+                                )
+                        } catch (error: Throwable) {
+                            prepared.data.fill(0)
+                            throw error
+                        }
                     }
-                        .onSuccess {
-                            data = null
-                            importState = null
-                            storageChoice = it
+                        .onSuccess { (required, choice) ->
+                            if (required != null) {
+                                importKeys(choice.data, required)
+                            } else {
+                                importState = null
+                                storageChoice = choice
+                            }
                         }
                         .onFailure {
                             importState = KeyImportState.Failed(it.message ?: "Key import failed")
@@ -380,6 +396,7 @@ internal fun DesAuthenticationKeyProviderEditor(
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         KeyDetailRow("System code", credential.systemCode)
                         KeyDetailRow("IDm", credential.idm)
+                        KeyComponentsRow(credential.components)
                         credential.keyVersions["FFFF"]?.let { KeyDetailRow("System key", "v$it") }
                     }
                     NodeCodeSection(
@@ -618,6 +635,47 @@ private fun KeyDetailRow(label: String, value: String) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
+private fun KeyComponentsRow(components: List<DesKeyComponent>) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            "Keys",
+            Modifier.weight(1f),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            for (component in components) {
+                Surface(
+                    shape = RoundedCornerShape(4.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                ) {
+                    Row(
+                        Modifier.padding(horizontal = 4.dp, vertical = 1.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(
+                            painterResource(component.storage.appearance.icon),
+                            contentDescription = component.storage.appearance.label,
+                            modifier = Modifier.size(12.dp),
+                        )
+                        Text(
+                            component.name,
+                            style = MaterialTheme.typography.labelSmall,
+                            fontFamily = FontFamily.Monospace,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
 private fun NodeCodeSection(
     title: String,
     systemCode: String,
@@ -754,6 +812,10 @@ private sealed interface KeyImportState {
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun KeyImportDialog(state: KeyImportState, onDismiss: () -> Unit) {
+    if (state is KeyImportState.Importing && state.total == null) {
+        BusyDialog("Reading keys")
+        return
+    }
     val importStart =
         remember(state is KeyImportState.Importing && state.total != null) {
             TimeSource.Monotonic.markNow()
@@ -777,39 +839,28 @@ private fun KeyImportDialog(state: KeyImportState, onDismiss: () -> Unit) {
         text = {
             when (state) {
                 is KeyImportState.Importing -> {
-                    val total = state.total
-                    if (total == null) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        ) {
-                            LoadingIndicator(Modifier.size(32.dp))
-                            Text("Reading keys")
-                        }
-                    } else {
-                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                            Text("Importing keys: ${state.imported} of $total")
-                            if (state.imported > 0 && state.imported < total) {
-                                val remaining =
-                                    importStart.elapsedNow() / state.imported *
-                                        (total - state.imported)
-                                Text(
-                                    "About ${remaining.toEtaString()} remaining",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                            LinearWavyProgressIndicator(
-                                progress = {
-                                    state.imported / total.toFloat()
-                                },
-                                modifier = Modifier.fillMaxWidth(),
+                    val total = checkNotNull(state.total)
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Text("Importing keys: ${state.imported} of $total")
+                        if (state.imported > 0 && state.imported < total) {
+                            val remaining =
+                                importStart.elapsedNow() / state.imported * (total - state.imported)
+                            Text(
+                                "About ${remaining.toEtaString()} remaining",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
+                        LinearWavyProgressIndicator(
+                            progress = {
+                                state.imported / total.toFloat()
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
                     }
                 }
                 is KeyImportState.Imported -> {
-                    val (imported, moved, alreadyStored, repeated) = state.result
+                    val (imported, moved, alreadyStored, repeated, refreshed) = state.result
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text("Imported ${imported.counted("key")}")
                         if (moved > 0) {
@@ -817,6 +868,9 @@ private fun KeyImportDialog(state: KeyImportState, onDismiss: () -> Unit) {
                                 "Moved ${moved.counted("key")} to " +
                                     state.storage.appearance.label,
                             )
+                        }
+                        if (refreshed > 0) {
+                            Text("Refreshed ${refreshed.counted("key")}")
                         }
                         if (alreadyStored > 0) {
                             Text(

@@ -4,21 +4,44 @@ import com.kormax.felicatool.felica.KeyVersion
 import com.kormax.felicatool.security.DESEDE_KEY_SIZE
 import com.kormax.felicatool.security.DES_KEY_SIZE
 import com.kormax.felicatool.security.SecretBytes
+import kotlin.io.encoding.Base64
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.intOrNull
+import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
 internal object DesAuthenticationKeyCodec {
-    fun decodeImportedKeys(bytes: ByteArray): List<ImportedDesAuthenticationKey> =
-        decodeList(
-            records(decodeJson(bytes)).also {
-                require(it.isNotEmpty()) { "Authentication key file contains no keys" }
-            },
-            ::decodeImportedKey,
-        )
+    private const val MIN_SALT_BYTES = 16
+
+    fun decodeImportFile(bytes: ByteArray): DesKeyImportFile {
+        val root = decodeJson(bytes)
+        val recipient = (root as? JsonObject)?.get("recipient")?.jsonObject?.toRecipient()
+        if (root is JsonObject && root.containsKey("encrypted")) {
+            require(!root.containsKey("keys")) { "Specify either 'keys' or 'encrypted'" }
+            val encrypted = root.requiredObject("encrypted")
+            return DesKeyImportFile.Encrypted(
+                requireNotNull(recipient) { "Encrypted key file must name its 'recipient'" },
+                encrypted.requiredObject("key").wrappedData("encrypted.key"),
+                encrypted.requiredString("iv").base64Bytes("'iv'"),
+                encrypted.requiredString("data").base64Bytes("'data'"),
+            )
+        }
+        val keys =
+            decodeList(
+                records(root).also {
+                    require(it.isNotEmpty()) { "Authentication key file contains no keys" }
+                },
+                ::decodeImportedKey,
+            )
+        if (recipient == null && keys.any { it.keys !is ImportedDesKeys.Raw }) {
+            keys.forEach(ImportedDesAuthenticationKey::close)
+            throw IllegalArgumentException("Wrapped keys require a 'recipient'")
+        }
+        return DesKeyImportFile.Keys(recipient, keys)
+    }
 
     fun decodeReferences(credentials: JsonArray) = decodeList(credentials, ::decodeReference)
 
@@ -37,9 +60,20 @@ internal object DesAuthenticationKeyCodec {
                         },
                     ),
                 "fingerprint" to JsonPrimitive(key.fingerprint),
-                "ala" to encodeProtectedKeyReference(key.ala),
-                "lbl" to encodeProtectedKeyReference(key.lbl),
-            ),
+            ) +
+                when (val keys = key.keys) {
+                    is DesKeyReferences.Composite ->
+                        mapOf(
+                            "ala" to encodeProtectedKeyReference(keys.ala),
+                            "lbl" to encodeProtectedKeyReference(keys.lbl),
+                        )
+                    is DesKeyReferences.Components ->
+                        mapOf(
+                            "a" to encodeProtectedKeyReference(keys.a),
+                            "l" to encodeProtectedKeyReference(keys.l),
+                            "b" to encodeProtectedKeyReference(keys.b),
+                        )
+                },
         )
 
     private fun decodeReference(root: JsonObject): DesAuthenticationKeyReference =
@@ -63,8 +97,18 @@ internal object DesAuthenticationKeyCodec {
                 }
                 .toMap(),
             root.requiredString("fingerprint"),
-            root.requiredObject("ala").toProtectedKeyReference(),
-            root.requiredObject("lbl").toProtectedKeyReference(),
+            if (root.containsKey("ala")) {
+                DesKeyReferences.Composite(
+                    root.requiredObject("ala").toProtectedKeyReference(),
+                    root.requiredObject("lbl").toProtectedKeyReference(),
+                )
+            } else {
+                DesKeyReferences.Components(
+                    root.requiredObject("a").toProtectedKeyReference(),
+                    root.requiredObject("l").toProtectedKeyReference(),
+                    root.requiredObject("b").toProtectedKeyReference(),
+                )
+            },
         )
 
     private fun records(root: JsonElement): JsonArray {
@@ -102,6 +146,19 @@ internal object DesAuthenticationKeyCodec {
         require(!composite || listOf("a", "l", "b").none(root::containsKey)) {
             "Specify ala/lbl or a/l/b"
         }
+        val names = if (composite) listOf("ala", "lbl") else listOf("a", "l", "b")
+        names.forEach { require(root.containsKey(it)) { "Missing '$it'" } }
+        val wrapped = names.map { root[it] is JsonObject }
+        require(wrapped.all { it } || wrapped.none { it }) {
+            "Keys in a record must be all wrapped or all raw"
+        }
+        if (wrapped.first()) {
+            val data = names.map { root.requiredObject(it).wrappedData("'$it'") }
+            val keys =
+                if (composite) ImportedDesKeys.WrappedComposite(data[0], data[1])
+                else ImportedDesKeys.WrappedComponents(data[0], data[1], data[2])
+            return ImportedDesAuthenticationKey(scope, versions, keys)
+        }
         val parts = mutableListOf<ByteArray>()
         fun key(name: String, size: Int) = root.requiredKey(name, size).also(parts::add)
         return try {
@@ -119,13 +176,42 @@ internal object DesAuthenticationKeyCodec {
             }
             SecretBytes.fromByteArray(ala).use { alaSecret ->
                 SecretBytes.fromByteArray(lbl).use { lblSecret ->
-                    ImportedDesAuthenticationKey(scope, versions, alaSecret, lblSecret)
+                    ImportedDesAuthenticationKey(
+                        scope,
+                        versions,
+                        ImportedDesKeys.Raw(alaSecret, lblSecret),
+                    )
                 }
             }
         } finally {
             parts.forEach { it.fill(0) }
         }
     }
+
+    private fun JsonObject.toRecipient(): KeyImportRecipient {
+        val identity = requiredObject("identity")
+        return KeyImportRecipient(
+            requiredString("method"),
+            identity.requiredString("salt").hexBytes("'recipient.identity.salt'").also {
+                require(it.size >= MIN_SALT_BYTES) {
+                    "'recipient.identity.salt' must be at least $MIN_SALT_BYTES bytes"
+                }
+            },
+            identity.requiredHex("hash", 32).hexToByteArray(),
+        )
+    }
+
+    private fun JsonObject.wrappedData(name: String): ByteArray {
+        require(requiredString("type") == "wrapped") { "$name must be of type 'wrapped'" }
+        return requiredString("data").base64Bytes("$name.data")
+    }
+
+    private fun String.base64Bytes(name: String): ByteArray =
+        try {
+            Base64.Default.decode(this)
+        } catch (error: IllegalArgumentException) {
+            throw IllegalArgumentException("$name must be base64", error)
+        }
 
     private fun JsonObject.requiredKey(name: String, size: Int): ByteArray {
         val bytes = requiredString(name).hexBytes("'$name'")

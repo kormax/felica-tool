@@ -189,7 +189,7 @@ internal class DesAuthenticationKeyProvider(
             random1: SecretBytes,
             challenge1B: ByteArray,
         ): Boolean {
-            val bytes = keyStore.decrypt(key.lbl.id, challenge1B)
+            val bytes = key.keys.decrypt(keyStore, challenge1B)
             val decrypted = SecretBytes.fromByteArray(bytes)
             bytes.fill(0)
             return try {
@@ -200,7 +200,7 @@ internal class DesAuthenticationKeyProvider(
         }
 
         override suspend fun decryptChallenge2A(challenge2A: ByteArray): SecretBytes {
-            val decrypted = keyStore.decrypt(key.lbl.id, challenge2A)
+            val decrypted = key.keys.decrypt(keyStore, challenge2A)
             return try {
                 SecretBytes.fromByteArray(decrypted)
             } finally {
@@ -215,7 +215,7 @@ internal class DesAuthenticationKeyProvider(
         private suspend fun encrypt(block: SecretBytes): ByteArray {
             val bytes = block.copyToByteArray()
             return try {
-                keyStore.encrypt(key.ala.id, bytes)
+                key.keys.encrypt(keyStore, bytes)
             } finally {
                 bytes.fill(0)
             }

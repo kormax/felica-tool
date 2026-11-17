@@ -41,9 +41,10 @@ internal class AuthenticationProviderStore(
                         throw error
                     }
                 cached = configurations
-                (previous - configurations.protectedKeys).forEach {
-                    runCatching { keyStore.delete(it.id) }
-                }
+                val retained = configurations.unreadableReferences()
+                (previous - configurations.protectedKeys)
+                    .filter { it.id !in retained }
+                    .forEach { runCatching { keyStore.delete(it.id) } }
                 result
             }
         }
@@ -86,15 +87,15 @@ internal class AuthenticationProviderStore(
         if (!isKeyStoreSwept) {
             isKeyStoreSwept = true
             val referenced =
-                configurations.protectedKeys.map { it.id } +
-                    configurations.unreadableProviders.flatMap(
-                        AuthenticationProviderConfigurationCodec::strings,
-                    )
+                configurations.protectedKeys.map { it.id } + configurations.unreadableReferences()
             runCatching { keyStore.deleteAll(except = referenced.toSet()) }
         }
         cached = configurations
         return configurations
     }
+
+    private fun AuthenticationProviderConfigurations.unreadableReferences() =
+        unreadableProviders.flatMap(AuthenticationProviderConfigurationCodec::strings).toSet()
 
     private suspend fun persist(configurations: AuthenticationProviderConfigurations) {
         val plaintext = AuthenticationProviderConfigurationCodec.encode(configurations)

@@ -19,16 +19,21 @@ internal object AuthenticationProviderConfigurationCodec {
             .encodeToString(
                 JsonElement.serializer(),
                 JsonObject(
-                    mapOf(
-                        "format_version" to JsonPrimitive(FORMAT_VERSION),
-                        "providers" to
-                            JsonArray(
-                                configurations.providers.map(::encodeProvider) +
-                                    configurations.unreadableProviders.map(
-                                        json::parseToJsonElement,
-                                    ),
-                            ),
-                    ),
+                    listOfNotNull(
+                            "format_version" to JsonPrimitive(FORMAT_VERSION),
+                            configurations.fingerprintSalt?.let {
+                                "fingerprint_salt" to
+                                    JsonPrimitive(it.toHexString(HexFormat.UpperCase))
+                            },
+                            "providers" to
+                                JsonArray(
+                                    configurations.providers.map(::encodeProvider) +
+                                        configurations.unreadableProviders.map(
+                                            json::parseToJsonElement,
+                                        ),
+                                ),
+                        )
+                        .toMap(),
                 ),
             )
             .encodeToByteArray()
@@ -49,7 +54,13 @@ internal object AuthenticationProviderConfigurationCodec {
                 }
                 .onFailure { unreadable += element.toString() }
         }
-        return AuthenticationProviderConfigurations(decoded, unreadable)
+        return AuthenticationProviderConfigurations(
+            decoded,
+            unreadable,
+            root["fingerprint_salt"]?.let {
+                it.jsonPrimitive.content.requireHex("'fingerprint_salt'", 8).hexToByteArray()
+            },
+        )
     }
 
     fun strings(raw: String): List<String> {

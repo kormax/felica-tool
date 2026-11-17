@@ -1,5 +1,7 @@
 package com.kormax.felicatool.device
 
+import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyProperties
 import java.security.PublicKey
 import java.security.SecureRandom
 import java.security.spec.MGF1ParameterSpec
@@ -16,6 +18,13 @@ import org.bouncycastle.asn1.DERSet
 import org.bouncycastle.asn1.DERTaggedObject
 
 internal object SecureKeyWrapper {
+    fun wrappingKeySpec(alias: String, backend: KeystoreBackend): KeyGenParameterSpec.Builder =
+        KeyGenParameterSpec.Builder(alias, KeyProperties.PURPOSE_WRAP_KEY)
+            .setKeySize(2048)
+            .setDigests(KeyProperties.DIGEST_SHA256)
+            .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_RSA_OAEP)
+            .setIsStrongBoxBacked(backend == KeystoreBackend.STRONGBOX)
+
     fun wrap(publicKey: PublicKey, algorithm: KeyAlgorithm, keyMaterial: ByteArray): ByteArray {
         val keyDescription =
             DERSequence(

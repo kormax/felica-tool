@@ -396,7 +396,10 @@ object ExportUtils {
                 .put("data", Base64.getEncoder().encodeToString(bytes))
     }
 
-    private fun shareJson(context: Context, fileName: String, json: String) {
+    private fun shareJson(context: Context, fileName: String, json: String) =
+        shareFile(context, fileName, json, "application/json")
+
+    fun shareFile(context: Context, fileName: String, content: String, mimeType: String) {
         val root = File(context.cacheDir, "exports")
         check(root.mkdirs() || root.isDirectory)
         val cutoff = java.lang.System.currentTimeMillis() - 24 * 60 * 60 * 1000L
@@ -408,10 +411,10 @@ object ExportUtils {
         check(directory.mkdirs())
         try {
             val file = File(directory, fileName)
-            file.writeText(json, Charsets.UTF_8)
+            file.writeText(content, Charsets.UTF_8)
             val uri =
                 FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
-            shareJsonFile(context, uri, fileName)
+            shareFile(context, uri, fileName, mimeType)
         } catch (e: Exception) {
             directory.deleteRecursively()
             throw e
@@ -419,11 +422,11 @@ object ExportUtils {
     }
 
     /** Helper function to share JSON file via Intent */
-    private fun shareJsonFile(context: Context, fileUri: Uri, fileName: String) {
+    private fun shareFile(context: Context, fileUri: Uri, fileName: String, mimeType: String) {
         val shareIntent =
             Intent().apply {
                 action = Intent.ACTION_SEND
-                type = "application/json"
+                type = mimeType
                 putExtra(Intent.EXTRA_STREAM, fileUri)
                 clipData = ClipData.newUri(context.contentResolver, fileName, fileUri)
                 putExtra(Intent.EXTRA_SUBJECT, "FeliCa Tool File")

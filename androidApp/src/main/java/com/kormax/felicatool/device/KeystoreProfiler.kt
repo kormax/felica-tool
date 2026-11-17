@@ -33,7 +33,7 @@ import org.bouncycastle.asn1.ASN1Sequence
 import org.bouncycastle.asn1.ASN1TaggedObject
 
 private const val PROVIDER = "AndroidKeyStore"
-private const val PREFIX = "felica-tool-keystore-capability-detection."
+private const val PREFIX = "felica-tool-key-keystore-capability-detection."
 private const val SAMPLE_COUNT = 9
 private const val MAX_TESTED_OCCUPANCY = 128
 private const val PURPOSES = KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
@@ -80,16 +80,7 @@ internal class KeystoreProfiler(private val pm: PackageManager) {
             progress("${backend.label} · Wrapping key")
             var pair: KeyPair? = null
             val canWrap = checkSupport {
-                val spec =
-                    KeyGenParameterSpec.Builder(
-                            PREFIX + "wrap",
-                            KeyProperties.PURPOSE_WRAP_KEY,
-                        )
-                        .setKeySize(2048)
-                        .setDigests(KeyProperties.DIGEST_SHA256)
-                        .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_RSA_OAEP)
-                        .setIsStrongBoxBacked(backend == KeystoreBackend.STRONGBOX)
-                        .build()
+                val spec = SecureKeyWrapper.wrappingKeySpec(PREFIX + "wrap", backend).build()
                 pair = keyPair("RSA", spec, backend)
             }
             val algorithms = profiledAlgorithms.associateWith { algorithm ->
@@ -122,15 +113,7 @@ internal class KeystoreProfiler(private val pm: PackageManager) {
                 .joinToString(" ")
                 .ifEmpty { null }
         }
-        return try {
-            val process = ProcessBuilder("/system/bin/getprop", "ro.hardware.keystore").start()
-            process.inputStream
-                .bufferedReader()
-                .use { it.readText().trim() }
-                .takeIf { process.waitFor() == 0 && it.isNotEmpty() && it != Build.UNKNOWN }
-        } catch (_: java.io.IOException) {
-            null
-        }
+        return systemProperty("ro.hardware.keystore")
     }
 
     private fun clearDetectionKeys() {
@@ -455,3 +438,14 @@ internal class KeystoreProfiler(private val pm: PackageManager) {
             }
         }
 }
+
+internal fun systemProperty(name: String): String? =
+    try {
+        val process = ProcessBuilder("/system/bin/getprop", name).start()
+        process.inputStream
+            .bufferedReader()
+            .use { it.readText().trim() }
+            .takeIf { process.waitFor() == 0 && it.isNotEmpty() && it != Build.UNKNOWN }
+    } catch (_: java.io.IOException) {
+        null
+    }

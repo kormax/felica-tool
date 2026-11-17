@@ -283,6 +283,7 @@ kotlin { compilerOptions { freeCompilerArgs.add("-opt-in=kotlin.ExperimentalStdl
 dependencies {
     implementation(libs.bouncycastle.asn1)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.serialization.cbor)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

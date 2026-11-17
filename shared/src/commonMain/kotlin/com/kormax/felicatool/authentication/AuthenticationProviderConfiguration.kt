@@ -1,5 +1,6 @@
 package com.kormax.felicatool.authentication
 
+import com.kormax.felicatool.security.DES_BLOCK_SIZE
 import com.kormax.felicatool.security.DesCryptography
 import com.kormax.felicatool.security.SecureRandomSource
 import kotlinx.serialization.json.JsonElement
@@ -11,11 +12,14 @@ data class AuthenticationProviderSummary(
     val isEnabled: Boolean,
 )
 
+class PreparedCredentialImport(val data: ByteArray, val storage: KeyStorage?)
+
 data class CredentialImportResult(
     val imported: Int,
     val moved: Int,
     val alreadyStored: Int,
     val repeated: Int,
+    val refreshed: Int,
 )
 
 sealed interface AuthenticationCredentialSummary {
@@ -62,19 +66,27 @@ internal sealed class LocalAuthenticationProviderConfiguration(
 
     abstract suspend fun keyStorages(context: LocalCredentialContext): List<KeyStorageOption>
 
-    abstract fun validateCredentials(data: ByteArray)
+    abstract suspend fun prepareCredentialImport(
+        data: ByteArray,
+        context: LocalCredentialContext,
+    ): PreparedCredentialImport
 
     abstract suspend fun importCredentials(
         data: ByteArray,
         storage: KeyStorage,
         context: LocalCredentialContext,
+        configurations: AuthenticationProviderConfigurations,
         onProgress: (processed: Int, total: Int) -> Unit,
     ): CredentialImportResult
 
     abstract fun deleteCredentials(ids: Set<String>)
 }
 
-internal class LocalCredentialContext(val keyStore: ProtectedDesKeyStore, val newId: () -> String)
+internal class LocalCredentialContext(
+    val keyStore: ProtectedDesKeyStore,
+    val newId: () -> String,
+    val randomSource: SecureRandomSource,
+)
 
 internal class AuthenticationProviderContext(
     val keyStore: ProtectedDesKeyStore,
@@ -86,7 +98,18 @@ internal class AuthenticationProviderConfigurations(
     private val mutableProviders: MutableList<AuthenticationProviderConfiguration> =
         mutableListOf(),
     val unreadableProviders: MutableList<String> = mutableListOf(),
+    fingerprintSalt: ByteArray? = null,
 ) {
+    var fingerprintSalt = fingerprintSalt?.copyOf()
+        private set
+
+    fun fingerprintSalt(randomSource: SecureRandomSource): ByteArray =
+        fingerprintSalt
+            ?: randomSource
+                .nextSecretBytes(DES_BLOCK_SIZE)
+                .use { it.copyToByteArray() }
+                .also { fingerprintSalt = it }
+
     val providers: List<AuthenticationProviderConfiguration>
         get() = mutableProviders
 
@@ -101,6 +124,7 @@ internal class AuthenticationProviderConfigurations(
         AuthenticationProviderConfigurations(
             mutableProviders.mapTo(mutableListOf()) { it.snapshot() },
             unreadableProviders.toMutableList(),
+            fingerprintSalt,
         )
 
     fun require(id: String): AuthenticationProviderConfiguration =

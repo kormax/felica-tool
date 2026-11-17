@@ -51,7 +51,10 @@ interface LocalAuthenticationCredentials {
 
     suspend fun keyStorages(providerId: String): List<KeyStorageOption>
 
-    suspend fun validateCredentials(providerId: String, data: ByteArray)
+    suspend fun prepareCredentialImport(
+        providerId: String,
+        data: ByteArray,
+    ): PreparedCredentialImport
 
     suspend fun importCredentials(
         providerId: String,

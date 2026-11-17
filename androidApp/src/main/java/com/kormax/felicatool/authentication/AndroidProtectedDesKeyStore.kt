@@ -2,9 +2,11 @@ package com.kormax.felicatool.authentication
 
 import android.content.Context
 import android.content.pm.PackageManager
+import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyInfo
 import android.security.keystore.KeyProperties
 import android.security.keystore.KeyProtection
+import android.security.keystore.WrappedKeyEntry
 import com.kormax.felicatool.device.KeyAlgorithm
 import com.kormax.felicatool.device.KeystoreBackend
 import com.kormax.felicatool.device.KeystoreCapabilities
@@ -14,10 +16,13 @@ import com.kormax.felicatool.security.DESEDE_KEY_SIZE
 import com.kormax.felicatool.security.DES_BLOCK_SIZE
 import com.kormax.felicatool.security.SecretBytes
 import java.security.KeyStore
+import java.security.MessageDigest
 import java.security.ProviderException
+import java.util.UUID
 import javax.crypto.Cipher
 import javax.crypto.SecretKey
 import javax.crypto.SecretKeyFactory
+import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.SecretKeySpec
 import kotlin.time.Duration.Companion.nanoseconds
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +31,8 @@ import kotlinx.coroutines.withContext
 
 class AndroidProtectedDesKeyStore(context: Context) : ProtectedDesKeyStore {
     private val app = context.applicationContext
+    private val identities = AndroidKeyImportIdentities(app)
+    @Volatile private var resolvedIdentity: Pair<KeyImportRecipient, KeyImportIdentity>? = null
 
     override suspend fun storages(): List<KeyStorageOption> {
         KeystoreCapabilities.start(app)
@@ -85,6 +92,127 @@ class AndroidProtectedDesKeyStore(context: Context) : ProtectedDesKeyStore {
             }
         }
 
+    override suspend fun recipientStorage(recipient: KeyImportRecipient): KeyStorage =
+        identityFor(recipient).backend.storage
+
+    override suspend fun importWrapped(
+        referenceId: String,
+        recipient: KeyImportRecipient,
+        wrappedKey: ByteArray,
+        use: DesKeyUse,
+    ): ProtectedKeyReference {
+        val identity = identityFor(recipient)
+        return withContext(Dispatchers.IO) {
+            val alias = ALIAS_PREFIX + referenceId
+            val keyStore = keyStore()
+            try {
+                importWrappedEntry(keyStore, alias, wrappedKey, identity.alias)
+                val imported = checkNotNull(keyStore.getKey(alias, null) as? SecretKey)
+                verifyWrapped(imported, identity.backend, use)
+                ProtectedKeyReference(referenceId, identity.backend.storage)
+            } catch (error: Exception) {
+                runCatching { keyStore.deleteEntry(alias) }
+                throw error
+            }
+        }
+    }
+
+    override suspend fun decryptWrapped(
+        recipient: KeyImportRecipient,
+        wrappedKey: ByteArray,
+        iv: ByteArray,
+        ciphertext: ByteArray,
+    ): ByteArray {
+        val identity = identityFor(recipient)
+        return withContext(Dispatchers.IO) {
+            val alias = CONTENT_KEY_ALIAS_PREFIX + UUID.randomUUID()
+            val keyStore = keyStore()
+            try {
+                importWrappedEntry(keyStore, alias, wrappedKey, identity.alias)
+                val key = checkNotNull(keyStore.getKey(alias, null) as? SecretKey)
+                val info =
+                    SecretKeyFactory.getInstance(key.algorithm, ANDROID_KEY_STORE)
+                        .getKeySpec(key, KeyInfo::class.java) as KeyInfo
+                require(
+                    key.algorithm == KeyProperties.KEY_ALGORITHM_AES &&
+                        info.keySize == 256 &&
+                        info.purposes and KeyProperties.PURPOSE_DECRYPT != 0 &&
+                        KeyProperties.BLOCK_MODE_GCM in info.blockModes,
+                ) {
+                    "Content key must be an AES-256-GCM key that can decrypt"
+                }
+                Cipher.getInstance("AES/GCM/NoPadding").run {
+                    init(Cipher.DECRYPT_MODE, key, GCMParameterSpec(GCM_TAG_BITS, iv))
+                    doFinal(ciphertext)
+                }
+            } finally {
+                runCatching { keyStore.deleteEntry(alias) }
+            }
+        }
+    }
+
+    private suspend fun identityFor(recipient: KeyImportRecipient): KeyImportIdentity {
+        resolvedIdentity?.let { (resolved, identity) ->
+            if (resolved === recipient) return identity
+        }
+        require(recipient.method == KeyImportIdentity.ANDROID_KEYMINT_RSA_OAEP_AES_GCM) {
+            "Key file uses unsupported wrapping method '${recipient.method}'"
+        }
+        val salt = recipient.salt
+        val hash = recipient.hash
+        for (backend in identities.backends()) {
+            for (identity in identities.identities(backend)) {
+                val candidate =
+                    MessageDigest.getInstance("SHA-256").run {
+                        update(salt)
+                        digest(identity.certificates.first().publicKey.encoded)
+                    }
+                if (MessageDigest.isEqual(candidate, hash)) {
+                    resolvedIdentity = recipient to identity
+                    return identity
+                }
+            }
+        }
+        throw IllegalArgumentException(
+            "Key file is addressed to an import identity this device doesn't have",
+        )
+    }
+
+    private fun importWrappedEntry(
+        keyStore: KeyStore,
+        alias: String,
+        wrappedKey: ByteArray,
+        wrappingAlias: String,
+    ) {
+        val parameters =
+            KeyGenParameterSpec.Builder(wrappingAlias, KeyProperties.PURPOSE_WRAP_KEY)
+                .setDigests(KeyProperties.DIGEST_SHA256)
+                .build()
+        keyStore.setEntry(
+            alias,
+            WrappedKeyEntry(wrappedKey, wrappingAlias, "RSA/ECB/OAEPPadding", parameters),
+            null,
+        )
+    }
+
+    private fun verifyWrapped(key: SecretKey, backend: KeystoreBackend, use: DesKeyUse) {
+        check(key.encoded == null) { "Imported key is extractable" }
+        val info =
+            SecretKeyFactory.getInstance(key.algorithm, ANDROID_KEY_STORE)
+                .getKeySpec(key, KeyInfo::class.java) as KeyInfo
+        require(
+            key.algorithm == KeyAlgorithm.DESEDE.algorithm &&
+                info.securityLevel == backend.level &&
+                info.purposes and use.purpose != 0 &&
+                KeyProperties.BLOCK_MODE_ECB in info.blockModes &&
+                KeyProperties.ENCRYPTION_PADDING_NONE in info.encryptionPaddings &&
+                !info.isUserAuthenticationRequired,
+        ) {
+            "Wrapped key must be a DESede ECB key without padding that can " +
+                "${use.name.lowercase()} in ${backend.label}"
+        }
+    }
+
     override suspend fun encrypt(referenceId: String, block: ByteArray): ByteArray =
         transform(referenceId, Cipher.ENCRYPT_MODE, block)
 
@@ -114,7 +242,10 @@ class AndroidProtectedDesKeyStore(context: Context) : ProtectedDesKeyStore {
             keyStore
                 .aliases()
                 .toList()
-                .filter { it.startsWith(ALIAS_PREFIX) && it.removePrefix(ALIAS_PREFIX) !in except }
+                .filter {
+                    it.startsWith(CONTENT_KEY_ALIAS_PREFIX) ||
+                        it.startsWith(ALIAS_PREFIX) && it.removePrefix(ALIAS_PREFIX) !in except
+                }
                 .forEach(keyStore::deleteEntry)
         }
 
@@ -181,6 +312,8 @@ class AndroidProtectedDesKeyStore(context: Context) : ProtectedDesKeyStore {
 
     private companion object {
         const val ANDROID_KEY_STORE = "AndroidKeyStore"
-        const val ALIAS_PREFIX = "felica-tool-des-authentication-key-"
+        const val ALIAS_PREFIX = "felica-tool-key-des-"
+        const val CONTENT_KEY_ALIAS_PREFIX = "felica-tool-key-import-content-"
+        const val GCM_TAG_BITS = 128
     }
 }

@@ -23,6 +23,17 @@ data class KeyStorageOption(
 
 data class ProtectedKeyReference(val id: String, val storage: KeyStorage)
 
+class KeyImportRecipient(val method: String, salt: ByteArray, hash: ByteArray) {
+    private val saltBytes = salt.copyOf()
+    private val hashBytes = hash.copyOf()
+
+    val salt: ByteArray
+        get() = saltBytes.copyOf()
+
+    val hash: ByteArray
+        get() = hashBytes.copyOf()
+}
+
 interface ProtectedDesKeyStore {
     suspend fun storages(): List<KeyStorageOption>
 
@@ -32,6 +43,22 @@ interface ProtectedDesKeyStore {
         use: DesKeyUse,
         storage: KeyStorage,
     ): ProtectedKeyReference
+
+    suspend fun recipientStorage(recipient: KeyImportRecipient): KeyStorage
+
+    suspend fun importWrapped(
+        referenceId: String,
+        recipient: KeyImportRecipient,
+        wrappedKey: ByteArray,
+        use: DesKeyUse,
+    ): ProtectedKeyReference
+
+    suspend fun decryptWrapped(
+        recipient: KeyImportRecipient,
+        wrappedKey: ByteArray,
+        iv: ByteArray,
+        ciphertext: ByteArray,
+    ): ByteArray
 
     suspend fun encrypt(referenceId: String, block: ByteArray): ByteArray
 
