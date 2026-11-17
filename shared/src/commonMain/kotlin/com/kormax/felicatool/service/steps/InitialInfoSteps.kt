@@ -4,6 +4,7 @@ import com.kormax.felicatool.felica.*
 import com.kormax.felicatool.service.*
 import com.kormax.felicatool.ui.ScanStepIcon
 import com.kormax.felicatool.util.IcTypeRegistry
+import com.kormax.felicatool.util.IssuerRegistry
 
 internal object InitialInfoStep :
     CommandSupportScanStep(
@@ -22,6 +23,7 @@ internal object InitialInfoStep :
 
     override suspend fun ScanSession.perform(): StepOutput {
         IcTypeRegistry.ensureReady()
+        IssuerRegistry.ensureReady()
 
         // Use the PMM already obtained during target creation.
         val cardPmm = pmm

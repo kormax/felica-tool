@@ -34,21 +34,30 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.kormax.felicatool.AppBarMenu
 import com.kormax.felicatool.AppBarMenuGroup
+import com.kormax.felicatool.BuildConfig
 import com.kormax.felicatool.CheckableMenuOption
 import com.kormax.felicatool.R
 import com.kormax.felicatool.service.CardScanService
 import com.kormax.felicatool.service.SystemScanContext
 import com.kormax.felicatool.ui.components.CardInformationSection
 import com.kormax.felicatool.ui.components.GroupedServicesSection
+import com.kormax.felicatool.ui.components.SystemStatusDetails
+import com.kormax.felicatool.ui.components.SystemTotals
 import com.kormax.felicatool.ui.components.TreeNodeCard
 import com.kormax.felicatool.ui.components.buildNodeTree
 import com.kormax.felicatool.util.ExportUtils
+import com.kormax.felicatool.util.ManufacturingDateResolver
 import com.kormax.felicatool.util.NodeDefinitionType
 import com.kormax.felicatool.util.NodeRegistry
 import com.kormax.felicatool.util.ServiceIconMapper
+import com.kormax.felicatool.util.SystemIssueInformationInterpreter
+import com.kormax.felicatool.util.SystemIssueInterpretation
 import com.kormax.felicatool.util.maskIdi
 import com.kormax.felicatool.util.maskIdm
 import com.kormax.felicatool.util.maskPmi
+import java.util.Calendar
+import java.util.TimeZone
+import kotlinx.datetime.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,7 +68,7 @@ fun ScanResultsOverview(
 ) {
     val context = LocalContext.current
     var privacyMode by remember { mutableStateOf(false) }
-    var useGroupedView by remember { mutableStateOf(false) }
+    var useGroupedView by remember { mutableStateOf(true) }
 
     // Handle system back button
     BackHandler { onBackPressed() }
@@ -148,6 +157,17 @@ fun ScanResultsOverview(
     ) { innerPadding ->
         // Node data display
         val scanContext = cardScanService.getScanContext()
+        val interpretationTimeMillis = remember(scanContext) { System.currentTimeMillis() }
+        val manufacturingDate =
+            remember(scanContext, interpretationTimeMillis) {
+                ManufacturingDateResolver.resolve(
+                    context = scanContext,
+                    currentTimeMillis = interpretationTimeMillis,
+                    buildDateEpochMillis = BuildConfig.BUILD_DATE_EPOCH_MILLIS,
+                )
+            }
+        val interpretationDate =
+            remember(interpretationTimeMillis) { interpretationTimeMillis.toUtcLocalDate() }
         val contentModifier = Modifier.padding(innerPadding)
 
         LazyColumn(
@@ -166,18 +186,6 @@ fun ScanResultsOverview(
                         Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
                 ) {
                     ToggleButton(
-                        checked = !useGroupedView,
-                        onCheckedChange = { useGroupedView = false },
-                        modifier =
-                            Modifier.weight(1f).semantics {
-                                role = Role.RadioButton
-                                selected = !useGroupedView
-                            },
-                        shapes = ButtonGroupDefaults.connectedLeadingButtonShapes(),
-                    ) {
-                        Text("Hierarchy")
-                    }
-                    ToggleButton(
                         checked = useGroupedView,
                         onCheckedChange = { useGroupedView = true },
                         modifier =
@@ -185,9 +193,21 @@ fun ScanResultsOverview(
                                 role = Role.RadioButton
                                 selected = useGroupedView
                             },
-                        shapes = ButtonGroupDefaults.connectedTrailingButtonShapes(),
+                        shapes = ButtonGroupDefaults.connectedLeadingButtonShapes(),
                     ) {
                         Text("Grouped")
+                    }
+                    ToggleButton(
+                        checked = !useGroupedView,
+                        onCheckedChange = { useGroupedView = false },
+                        modifier =
+                            Modifier.weight(1f).semantics {
+                                role = Role.RadioButton
+                                selected = !useGroupedView
+                            },
+                        shapes = ButtonGroupDefaults.connectedTrailingButtonShapes(),
+                    ) {
+                        Text("Hierarchy")
                     }
                 }
             }
@@ -197,6 +217,14 @@ fun ScanResultsOverview(
                     if (useGroupedView) {
                         // Grouped Services View - services grouped by service number, per system
                         scanContext.systemScanContexts.forEachIndexed { index, systemScanContext ->
+                            val interpretation =
+                                SystemIssueInformationInterpreter.interpret(
+                                    systemCode = systemScanContext.systemCode?.toHexString() ?: "",
+                                    idi = systemScanContext.idi,
+                                    pmi = systemScanContext.pmi,
+                                    manufacturingDate = manufacturingDate,
+                                    currentDate = interpretationDate,
+                                )
                             if (index > 0) {
                                 HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
                             }
@@ -204,6 +232,7 @@ fun ScanResultsOverview(
                             // System header with icon and name
                             SystemHeader(
                                 systemScanContext = systemScanContext,
+                                interpretation = interpretation,
                                 privacyMode = privacyMode,
                             )
 
@@ -213,6 +242,14 @@ fun ScanResultsOverview(
                         // Hierarchical Nodes Section - Tree-like structure
                         // Display the tree recursively for all systems
                         scanContext.systemScanContexts.forEach { systemScanContext ->
+                            val interpretation =
+                                SystemIssueInformationInterpreter.interpret(
+                                    systemCode = systemScanContext.systemCode?.toHexString() ?: "",
+                                    idi = systemScanContext.idi,
+                                    pmi = systemScanContext.pmi,
+                                    manufacturingDate = manufacturingDate,
+                                    currentDate = interpretationDate,
+                                )
                             val nodeTree =
                                 remember(scanContext) { buildNodeTree(systemScanContext) }
                             nodeTree.forEach { nodeInfo ->
@@ -221,6 +258,7 @@ fun ScanResultsOverview(
                                     context = systemScanContext,
                                     depth = 0,
                                     privacyMode = privacyMode,
+                                    systemIssueInterpretation = interpretation,
                                 )
                             }
                         }
@@ -235,6 +273,7 @@ fun ScanResultsOverview(
 @Composable
 private fun SystemHeader(
     systemScanContext: SystemScanContext,
+    interpretation: SystemIssueInterpretation,
     privacyMode: Boolean,
     modifier: Modifier = Modifier,
 ) {
@@ -298,22 +337,28 @@ private fun SystemHeader(
                 color = MaterialTheme.colorScheme.primary,
             )
         }
-        GroupedSystemInformationCard(systemScanContext, privacyMode)
+        GroupedSystemInformationCard(
+            systemScanContext = systemScanContext,
+            systemCodeHex = systemCodeHex.orEmpty(),
+            interpretation = interpretation,
+            privacyMode = privacyMode,
+        )
     }
 }
 
 @Composable
 private fun GroupedSystemInformationCard(
     systemScanContext: SystemScanContext,
+    systemCodeHex: String,
+    interpretation: SystemIssueInterpretation,
     privacyMode: Boolean,
 ) {
-    if (
-        systemScanContext.idm == null &&
-            systemScanContext.idi == null &&
-            systemScanContext.pmi == null
-    ) {
-        return
-    }
+    val hasRawInformation =
+        systemScanContext.idm != null ||
+            systemScanContext.idi != null ||
+            systemScanContext.pmi != null
+    val hasInterpretedInformation =
+        !privacyMode && (interpretation.issuanceDate != null || interpretation.serialNumber != null)
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors =
@@ -322,13 +367,15 @@ private fun GroupedSystemInformationCard(
             ),
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
+            modifier = Modifier.padding(vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
+            val rowModifier = Modifier.padding(horizontal = 12.dp)
             systemScanContext.idm?.let { idm ->
                 GroupedSystemInfoRow(
                     label = "IDm",
                     value = if (privacyMode) maskIdm(idm) else idm.toHexString().uppercase(),
+                    modifier = rowModifier,
                 )
             }
             systemScanContext.idi?.let { idi ->
@@ -337,6 +384,7 @@ private fun GroupedSystemInformationCard(
                     value =
                         if (privacyMode) maskIdi(idi.toHexString().uppercase())
                         else idi.toHexString().uppercase(),
+                    modifier = rowModifier,
                 )
             }
             systemScanContext.pmi?.let { pmi ->
@@ -345,16 +393,54 @@ private fun GroupedSystemInformationCard(
                     value =
                         if (privacyMode) maskPmi(pmi.toHexString().uppercase())
                         else pmi.toHexString().uppercase(),
+                    modifier = rowModifier,
                 )
             }
+
+            if (hasRawInformation && hasInterpretedInformation) {
+                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+            }
+
+            if (!privacyMode) {
+                interpretation.issuanceDate?.let { date ->
+                    GroupedSystemInfoRow(
+                        label = "Issuance Date",
+                        value = date.toString(),
+                        modifier = rowModifier,
+                    )
+                }
+                interpretation.serialNumber?.let { serial ->
+                    GroupedSystemInfoRow(
+                        label = "Serial Number",
+                        value =
+                            SystemIssueInformationInterpreter.formatSerialNumberForDisplay(
+                                systemCodeHex,
+                                systemScanContext.idi,
+                                serial,
+                            ),
+                        modifier = rowModifier,
+                    )
+                }
+            }
+
+            if (hasRawInformation || hasInterpretedInformation) {
+                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+            }
+
+            systemScanContext.systemStatus?.let { systemStatus ->
+                SystemStatusDetails(systemStatus, rowModifier)
+                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+            }
+
+            SystemTotals(systemScanContext, rowModifier)
         }
     }
 }
 
 @Composable
-private fun GroupedSystemInfoRow(label: String, value: String) {
+private fun GroupedSystemInfoRow(label: String, value: String, modifier: Modifier = Modifier) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -370,4 +456,14 @@ private fun GroupedSystemInfoRow(label: String, value: String) {
             fontWeight = FontWeight.Medium,
         )
     }
+}
+
+private fun Long.toUtcLocalDate(): LocalDate {
+    val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+    calendar.timeInMillis = this
+    return LocalDate(
+        calendar.get(Calendar.YEAR),
+        calendar.get(Calendar.MONTH) + 1,
+        calendar.get(Calendar.DAY_OF_MONTH),
+    )
 }

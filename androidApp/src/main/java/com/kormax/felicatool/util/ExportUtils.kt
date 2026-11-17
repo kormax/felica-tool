@@ -28,6 +28,7 @@ import java.nio.ByteBuffer
 import java.nio.charset.CodingErrorAction
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlinx.datetime.LocalDate
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -478,14 +479,13 @@ object ExportUtils {
             }
             inferredJson.put("medium_type", inference.media.name)
         }
-        ManufacturingDateResolver.resolve(
+        val manufacturingDate =
+            ManufacturingDateResolver.resolve(
                 context = scanContext,
                 currentTimeMillis = currentTimeMillis,
                 buildDateEpochMillis = buildDateEpochMillis,
             )
-            ?.let { manufacturingDate ->
-                inferredJson.put("chip_manufacturing_date", manufacturingDate.toString())
-            }
+        manufacturingDate?.let { inferredJson.put("chip_manufacturing_date", it.toString()) }
 
         scanContext.pmm?.let { pmm -> json.put("pmm", pmm.toHexString().lowercase()) }
 
@@ -791,6 +791,34 @@ object ExportUtils {
                 systemJson.put("pmi", if (privacy) maskPmi(it.toHexString()) else it.toHexString())
             }
 
+            if (!privacy) {
+                val interpretation =
+                    SystemIssueInformationInterpreter.interpret(
+                        systemCode = systemCodeHex.orEmpty(),
+                        idi = systemContext.idi,
+                        pmi = systemContext.pmi,
+                        manufacturingDate = manufacturingDate,
+                        currentDate = currentTimeMillis.toUtcLocalDate(),
+                    )
+                val systemInterpretedJson = JSONObject()
+                interpretation.issuanceDate?.let { date ->
+                    systemInterpretedJson.put("issuance_date", date.toString())
+                }
+                interpretation.serialNumber?.let { serial ->
+                    systemInterpretedJson.put(
+                        "serial_number",
+                        SystemIssueInformationInterpreter.formatSerialNumberForDisplay(
+                            systemCodeHex.orEmpty(),
+                            systemContext.idi,
+                            serial,
+                        ),
+                    )
+                }
+                if (systemInterpretedJson.length() > 0) {
+                    systemJson.put("interpreted", systemInterpretedJson)
+                }
+            }
+
             val inferredSystemJson = JSONObject()
 
             // System name inferred from the node registry
@@ -868,6 +896,16 @@ object ExportUtils {
         json.put("systems", systemsJson)
 
         return json
+    }
+
+    private fun Long.toUtcLocalDate(): LocalDate {
+        val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+        calendar.timeInMillis = this
+        return LocalDate(
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH) + 1,
+            calendar.get(Calendar.DAY_OF_MONTH),
+        )
     }
 
     /** Finds the immediate containing area for a node. */

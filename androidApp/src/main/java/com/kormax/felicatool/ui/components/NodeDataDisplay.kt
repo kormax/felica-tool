@@ -43,6 +43,8 @@ import com.kormax.felicatool.util.NodeDefinitionType
 import com.kormax.felicatool.util.NodeRegistry
 import com.kormax.felicatool.util.ServiceIconMapper
 import com.kormax.felicatool.util.ServicePresenceAnalyzer
+import com.kormax.felicatool.util.SystemIssueInformationInterpreter
+import com.kormax.felicatool.util.SystemIssueInterpretation
 import com.kormax.felicatool.util.maskIdi
 import com.kormax.felicatool.util.maskIdm
 import com.kormax.felicatool.util.maskPmi
@@ -973,6 +975,7 @@ fun TreeNodeCard(
     context: SystemScanContext,
     depth: Int,
     privacyMode: Boolean,
+    systemIssueInterpretation: SystemIssueInterpretation? = null,
     modifier: Modifier = Modifier,
 ) {
     val node = nodeInfo.node
@@ -1248,7 +1251,12 @@ fun TreeNodeCard(
                             },
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
-                        NodeDetailsContent(nodeInfo, context, privacyMode)
+                        NodeDetailsContent(
+                            nodeInfo,
+                            context,
+                            privacyMode,
+                            systemIssueInterpretation,
+                        )
                     }
                 }
             }
@@ -1260,6 +1268,7 @@ fun TreeNodeCard(
                     context = context,
                     depth = depth + 1,
                     privacyMode = privacyMode,
+                    systemIssueInterpretation = systemIssueInterpretation,
                 )
             }
         }
@@ -1271,11 +1280,18 @@ private fun NodeDetailsContent(
     nodeInfo: NodeInformation,
     context: SystemScanContext,
     privacyMode: Boolean,
+    systemIssueInterpretation: SystemIssueInterpretation?,
 ) {
     val node = nodeInfo.node
     // System-specific information
     if (node is System) {
         val systemContentModifier = Modifier.padding(horizontal = 12.dp)
+        val hasRawSystemInformation =
+            context.idm != null || context.idi != null || context.pmi != null
+        val hasInterpretedSystemInformation =
+            !privacyMode &&
+                (systemIssueInterpretation?.issuanceDate != null ||
+                    systemIssueInterpretation?.serialNumber != null)
 
         context.idm?.let { idm ->
             CompactInfoRow(
@@ -1302,155 +1318,43 @@ private fun NodeDetailsContent(
                 modifier = systemContentModifier,
             )
         }
-        if (context.idm != null || context.idi != null || context.pmi != null) {
+
+        if (hasRawSystemInformation && hasInterpretedSystemInformation) {
+            HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+        }
+
+        if (!privacyMode) {
+            systemIssueInterpretation?.issuanceDate?.let { date ->
+                CompactInfoRow(
+                    label = "Issuance Date",
+                    value = date.toString(),
+                    modifier = systemContentModifier,
+                )
+            }
+            systemIssueInterpretation?.serialNumber?.let { serial ->
+                CompactInfoRow(
+                    label = "Serial Number",
+                    value =
+                        SystemIssueInformationInterpreter.formatSerialNumberForDisplay(
+                            context.systemCode?.toHexString() ?: "",
+                            context.idi,
+                            serial,
+                        ),
+                    modifier = systemContentModifier,
+                )
+            }
+        }
+
+        if (hasRawSystemInformation || hasInterpretedSystemInformation) {
             HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
         }
 
         context.systemStatus?.let { systemStatus ->
-            CompactInfoRow(
-                label = "System Status",
-                value = systemStatus.toByteArray().toHexString().uppercase(),
-                modifier = systemContentModifier,
-            )
-
-            if (
-                systemStatus is SystemStatus.V0 &&
-                    (systemStatus.desAuthenticationStrictAreaListValidation ||
-                        systemStatus.desSystemInitializationCommandsDisabled ||
-                        systemStatus.desNodeIssuanceCommandsDisabled)
-            ) {
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                    modifier = systemContentModifier.padding(vertical = 4.dp),
-                ) {
-                    if (systemStatus.desAuthenticationStrictAreaListValidation) {
-                        AttributeChip("STRICT AUTH AREA LIST VALIDATION", isInfo = true)
-                    }
-                    if (systemStatus.desSystemInitializationCommandsDisabled) {
-                        AttributeChip("DES SYSTEM INIT DISABLED", isWarning = true)
-                    }
-                    if (systemStatus.desNodeIssuanceCommandsDisabled) {
-                        AttributeChip("DES NODE ISSUANCE DISABLED", isWarning = true)
-                    }
-                }
-            }
-
+            SystemStatusDetails(systemStatus, systemContentModifier)
             HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
         }
 
-        // Node statistics - Areas and Services side by side
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Row(
-                modifier = Modifier.weight(1f),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "Total Areas",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Text(
-                    text = context.nodes.filterIsInstance<Area>().size.toString(),
-                    style = MaterialTheme.typography.bodySmall,
-                    fontFamily = FontFamily.Monospace,
-                    fontWeight = FontWeight.Medium,
-                )
-            }
-            Row(
-                modifier = Modifier.weight(1f),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "Total Services",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Text(
-                    text = context.nodes.filterIsInstance<Service>().size.toString(),
-                    style = MaterialTheme.typography.bodySmall,
-                    fontFamily = FontFamily.Monospace,
-                    fontWeight = FontWeight.Medium,
-                )
-            }
-        }
-
-        // Key information - display "Key Versions" only if AES and DES are empty
-        val hasAesKeys = context.nodeAesKeyVersions.isNotEmpty()
-        val hasDesKeys = context.nodeDesKeyVersions.isNotEmpty()
-        val hasGenericKeys = context.nodeKeyVersions.isNotEmpty()
-
-        if (hasGenericKeys && !hasAesKeys && !hasDesKeys) {
-            CompactInfoRow(
-                label = "Key Versions",
-                value = context.nodeKeyVersions.size.toString(),
-                modifier = systemContentModifier,
-            )
-        } else if (hasAesKeys || hasDesKeys) {
-            // Display AES and DES side by side if both are available
-            if (hasAesKeys && hasDesKeys) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    Row(
-                        modifier = Modifier.weight(1f),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            text = "Total AES Keys",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                        Text(
-                            text = context.nodeAesKeyVersions.size.toString(),
-                            style = MaterialTheme.typography.bodySmall,
-                            fontFamily = FontFamily.Monospace,
-                            fontWeight = FontWeight.Medium,
-                        )
-                    }
-                    Row(
-                        modifier = Modifier.weight(1f),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            text = "Total DES Keys",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                        Text(
-                            text = context.nodeDesKeyVersions.size.toString(),
-                            style = MaterialTheme.typography.bodySmall,
-                            fontFamily = FontFamily.Monospace,
-                            fontWeight = FontWeight.Medium,
-                        )
-                    }
-                }
-            } else {
-                // Display individually if only one type is available
-                if (hasAesKeys) {
-                    CompactInfoRow(
-                        label = "AES Keys",
-                        value = context.nodeAesKeyVersions.size.toString(),
-                        modifier = systemContentModifier,
-                    )
-                }
-                if (hasDesKeys) {
-                    CompactInfoRow(
-                        label = "DES Keys",
-                        value = context.nodeDesKeyVersions.size.toString(),
-                        modifier = systemContentModifier,
-                    )
-                }
-            }
-        }
+        SystemTotals(context, systemContentModifier)
     }
 
     // Properties - Show VLPS details only if enabled (chip is shown in header)
@@ -1904,4 +1808,153 @@ private fun hasNodeDetails(node: Node, context: SystemScanContext): Boolean {
     return (node is Service && context.nodeValueLimitedPurseProperties[node]?.enabled == true) ||
         context.serviceBlockData[node] != null ||
         (node is System && (context.idm != null || context.systemStatus != null))
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+internal fun SystemStatusDetails(systemStatus: SystemStatus, modifier: Modifier = Modifier) {
+    CompactInfoRow(
+        label = "System Status",
+        value = systemStatus.toByteArray().toHexString().uppercase(),
+        modifier = modifier,
+    )
+
+    if (
+        systemStatus is SystemStatus.V0 &&
+            (systemStatus.desAuthenticationStrictAreaListValidation ||
+                systemStatus.desSystemInitializationCommandsDisabled ||
+                systemStatus.desNodeIssuanceCommandsDisabled)
+    ) {
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+            modifier = modifier.padding(vertical = 4.dp),
+        ) {
+            if (systemStatus.desAuthenticationStrictAreaListValidation) {
+                AttributeChip("STRICT AUTH AREA LIST VALIDATION", isInfo = true)
+            }
+            if (systemStatus.desSystemInitializationCommandsDisabled) {
+                AttributeChip("DES SYSTEM INIT DISABLED", isWarning = true)
+            }
+            if (systemStatus.desNodeIssuanceCommandsDisabled) {
+                AttributeChip("DES NODE ISSUANCE DISABLED", isWarning = true)
+            }
+        }
+    }
+}
+
+@Composable
+internal fun SystemTotals(context: SystemScanContext, modifier: Modifier = Modifier) {
+    // Node statistics - Areas and Services side by side
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Row(
+            modifier = Modifier.weight(1f),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = "Total Areas",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                text = context.nodes.filterIsInstance<Area>().size.toString(),
+                style = MaterialTheme.typography.bodySmall,
+                fontFamily = FontFamily.Monospace,
+                fontWeight = FontWeight.Medium,
+            )
+        }
+        Row(
+            modifier = Modifier.weight(1f),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = "Total Services",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                text = context.nodes.filterIsInstance<Service>().size.toString(),
+                style = MaterialTheme.typography.bodySmall,
+                fontFamily = FontFamily.Monospace,
+                fontWeight = FontWeight.Medium,
+            )
+        }
+    }
+
+    // Key information - display "Key Versions" only if AES and DES are empty
+    val hasAesKeys = context.nodeAesKeyVersions.isNotEmpty()
+    val hasDesKeys = context.nodeDesKeyVersions.isNotEmpty()
+    val hasGenericKeys = context.nodeKeyVersions.isNotEmpty()
+
+    if (hasGenericKeys && !hasAesKeys && !hasDesKeys) {
+        CompactInfoRow(
+            label = "Key Versions",
+            value = context.nodeKeyVersions.size.toString(),
+            modifier = modifier,
+        )
+    } else if (hasAesKeys || hasDesKeys) {
+        // Display AES and DES side by side if both are available
+        if (hasAesKeys && hasDesKeys) {
+            Row(
+                modifier = modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Row(
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = "Total AES Keys",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Text(
+                        text = context.nodeAesKeyVersions.size.toString(),
+                        style = MaterialTheme.typography.bodySmall,
+                        fontFamily = FontFamily.Monospace,
+                        fontWeight = FontWeight.Medium,
+                    )
+                }
+                Row(
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = "Total DES Keys",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Text(
+                        text = context.nodeDesKeyVersions.size.toString(),
+                        style = MaterialTheme.typography.bodySmall,
+                        fontFamily = FontFamily.Monospace,
+                        fontWeight = FontWeight.Medium,
+                    )
+                }
+            }
+        } else {
+            // Display individually if only one type is available
+            if (hasAesKeys) {
+                CompactInfoRow(
+                    label = "AES Keys",
+                    value = context.nodeAesKeyVersions.size.toString(),
+                    modifier = modifier,
+                )
+            }
+            if (hasDesKeys) {
+                CompactInfoRow(
+                    label = "DES Keys",
+                    value = context.nodeDesKeyVersions.size.toString(),
+                    modifier = modifier,
+                )
+            }
+        }
+    }
 }
